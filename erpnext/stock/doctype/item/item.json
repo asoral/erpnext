@@ -44,6 +44,10 @@
   "description",
   "sb_barcodes",
   "barcodes",
+  "duty_drawback_details_section",
+  "duty_drawback_applicable",
+  "column_break_36",
+  "applicable_duty_drawback_type",
   "inventory_section",
   "shelf_life_in_days",
   "end_of_life",
@@ -1096,6 +1100,27 @@
    "fieldname": "intercompany_item_name",
    "fieldtype": "Data",
    "label": "Intercompany Item Name"
+  },
+  {
+   "fieldname": "duty_drawback_details_section",
+   "fieldtype": "Section Break",
+   "label": "Duty Drawback Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "duty_drawback_applicable",
+   "fieldtype": "Check",
+   "label": "Duty Drawback Applicable"
+  },
+  {
+   "fieldname": "column_break_36",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "applicable_duty_drawback_type",
+   "fieldtype": "Link",
+   "label": "Applicable Duty Drawback Type",
+   "options": "Duty Drawback Type"
   }
  ],
  "has_web_view": 1,
@@ -1105,7 +1130,7 @@
  "index_web_pages_for_search": 1,
  "links": [],
  "max_attachments": 1,
- "modified": "2021-06-03 18:36:41.622077",
+ "modified": "2021-06-08 11:27:11.019963",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

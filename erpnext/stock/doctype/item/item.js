@@ -24,6 +24,16 @@ frappe.ui.form.on("Item", {
 		}
 	},
 
+	duty_drawback_applicable: function(frm) {
+		if (frm.doc.duty_drawback_applicable === 1) {
+			console.log("True")
+			frm.set_df_property("applicable_duty_drawback_type", "reqd", 1)
+		} else {
+			console.log("False")
+			frm.set_df_property("applicable_duty_drawback_type", "reqd", 0)
+		}
+	},
+
 	refresh: function(frm) {
 		if (frm.doc.include_item_in_manufacturing === 1) {
 			frm.set_df_property("bom_item_type", "reqd", 1)

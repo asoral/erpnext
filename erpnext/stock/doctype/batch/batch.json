@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "allow_import": 1,
  "autoname": "field:batch_id",
  "creation": "2013-03-05 14:50:38",
@@ -8,6 +9,7 @@
  "field_order": [
   "sb_disabled",
   "disabled",
+  "date_of_duty_paid",
   "sb_batch",
   "batch_id",
   "item",
@@ -160,13 +162,19 @@
    "label": "Batch UOM",
    "options": "UOM",
    "read_only": 1
+  },
+  {
+   "fieldname": "date_of_duty_paid",
+   "fieldtype": "Date",
+   "label": "Date of Duty Paid"
   }
  ],
  "icon": "fa fa-archive",
  "idx": 1,
  "image_field": "image",
+ "links": [],
  "max_attachments": 5,
- "modified": "2020-09-18 17:26:09.703215",
+ "modified": "2021-06-08 11:42:07.237839",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Batch",
