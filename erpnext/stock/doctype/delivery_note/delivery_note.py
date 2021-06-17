@@ -643,6 +643,7 @@ def make_shipment(source_name, target_doc=None):
 				"parenttype": "prevdoc_doctype",
 				"base_amount": "grand_total"
 			}
+			
 		}
 	}, target_doc, postprocess)
 
@@ -670,13 +671,13 @@ def make_inter_company_transaction(doctype, source_name, target_doc=None):
 	if doctype == 'Delivery Note':
 		source_doc = frappe.get_doc(doctype, source_name)
 		target_doctype = "Purchase Receipt"
-		source_document_warehouse_field = 'target_warehouse'
-		target_document_warehouse_field = 'from_warehouse'
+		# source_document_warehouse_field = 'target_warehouse'
+		# target_document_warehouse_field = 'from_warehouse'
 	else:
 		source_doc = frappe.get_doc(doctype, source_name)
 		target_doctype = 'Delivery Note'
-		source_document_warehouse_field = 'from_warehouse'
-		target_document_warehouse_field = 'target_warehouse'
+		# source_document_warehouse_field = 'from_warehouse'
+		# target_document_warehouse_field = 'target_warehouse'
 
 	validate_inter_company_transaction(source_doc, doctype)
 	details = get_inter_company_details(source_doc, doctype)
@@ -738,13 +739,17 @@ def make_inter_company_transaction(doctype, source_name, target_doc=None):
 		doctype +" Item": {
 			"doctype": target_doctype + " Item",
 			"field_map": {
-				source_document_warehouse_field: target_document_warehouse_field,
+				# source_document_warehouse_field: target_document_warehouse_field,
 				'name': 'delivery_note_item',
 				'batch_no': 'batch_no',
-				'serial_no': 'serial_no'
+				'serial_no': 'serial_no',
+				
+				
+				
 			},
 			"field_no_map": [
-				"warehouse"
+				'item_tax_template',
+				'warehouse'
 			]
 		}
 
