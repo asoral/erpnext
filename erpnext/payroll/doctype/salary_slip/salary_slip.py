@@ -37,6 +37,20 @@ class SalarySlip(TransactionBase):
 	def autoname(self):
 		self.name = make_autoname(self.series)
 
+	def before_save(self):
+		self.calculate_leaves_taken_on_salary_slip()
+
+	def calculate_leaves_taken_on_salary_slip(self):
+		total_leaves_query = """SELECT SUM(total_leave_days) as total_leave_days
+							    FROM `tabLeave Application`
+				                WHERE employee = %s AND from_date >= %s AND to_date <= %s AND status = 'Approved'
+				             """
+		total_leaves = frappe.db.sql(total_leaves_query, (self.employee, self.start_date, self.end_date), as_dict=True)
+		if total_leaves[0].total_leave_days == 'None' or total_leaves[0].total_leave_days == 'NULL':
+			self.leaves_taken = 0
+		else:
+			self.leaves_taken = total_leaves[0].total_leave_days
+
 	def validate(self):
 		self.status = self.get_status()
 		self.validate_dates()

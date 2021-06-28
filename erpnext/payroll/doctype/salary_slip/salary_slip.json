@@ -81,6 +81,7 @@
   "column_break_69",
   "base_total_in_words",
   "leave_details_section",
+  "leaves_taken",
   "leave_details",
   "section_break_75",
   "amended_from"
@@ -625,13 +626,19 @@
    "label": "Leave Details",
    "options": "Salary Slip Leave",
    "read_only": 1
+  },
+  {
+   "fieldname": "leaves_taken",
+   "fieldtype": "Data",
+   "label": "Leaves taken",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-file-text",
  "idx": 9,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-03-31 22:44:09.772331",
+ "modified": "2021-06-28 11:42:16.801036",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Salary Slip",
