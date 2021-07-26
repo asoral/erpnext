@@ -343,13 +343,13 @@ def reconcile_against_document(args):
 		Cancel JV, Update aginst document, split if required and resubmit jv
 	"""
 	for d in args:
-		print("**************************",d.voucher_no,d.voucher_type)
+
 		check_if_advance_entry_modified(d)
 		validate_allocated_amount(d)
 
 		# cancel advance entry
 		doc = frappe.get_doc(d.voucher_type, d.voucher_no)
-		print(">>>>>>>>>>> d.vocuher_type and d.vocuher_no",d.voucher_type, d.voucher_no)
+
 		doc.make_gl_entries(cancel=1, adv_adj=1)
 
 		# update ref in advance entry
@@ -410,14 +410,12 @@ def validate_allocated_amount(args):
 	if args.get("allocated_amount") < 0:
 		throw(_("Allocated amount cannot be negative"))
 	elif flt(args.get("allocated_amount"), precision) > flt(args.get("unadjusted_amount"), precision):
-		print("**************Args",args.get("unadjusted_amount"))
 		throw(_("Allocated amount cannot be greater than unadjusted amount"))
 
 def update_reference_in_journal_entry(d, jv_obj):
 	"""
 		Updates against document, if partial amount splits into rows
 	"""
-
 	jv_detail = jv_obj.get("accounts", {"name": d["voucher_detail_no"]})[0]
 	jv_detail.set(d["dr_or_cr"], d["allocated_amount"])
 	jv_detail.set('debit' if d['dr_or_cr']=='debit_in_account_currency' else 'credit',
@@ -428,9 +426,6 @@ def update_reference_in_journal_entry(d, jv_obj):
 
 	jv_detail.set("reference_type", d["against_voucher_type"])
 	jv_detail.set("reference_name", d["against_voucher"])
-
-	# # accounting dimension customisation for grand
-	# acc_dim = frappe.get_doc("Journal Entry Account",d['voucher_detail_no'])
 
 	if d['allocated_amount'] < d['unadjusted_amount']:
 		jvd = frappe.db.sql("""
@@ -464,13 +459,6 @@ def update_reference_in_journal_entry(d, jv_obj):
 		ch.reference_type = original_reference_type
 		ch.reference_name = original_reference_name
 		ch.is_advance = cstr(jvd[0]["is_advance"])
-		# add accounting dimention customisation for grand
-		ch.brand = jv_detail.brand if jv_detail.brand else ''
-		ch.territory = jv_detail.territory if jv_detail.territory else ''
-		ch.segment = jv_detail.segment if jv_detail.segment else ''
-		ch.pattern = jv_detail.pattern if jv_detail.pattern else ''
-		ch.vertical = jv_detail.vertical if jv_detail.vertical else ''
-
 		ch.docstatus = 1
 
 	# will work as update after submit
