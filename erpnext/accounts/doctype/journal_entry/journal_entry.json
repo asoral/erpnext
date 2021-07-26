@@ -155,6 +155,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "cheque_no",
    "fieldtype": "Data",
    "in_global_search": 1,
@@ -504,7 +505,7 @@
  "idx": 176,
  "is_submittable": 1,
  "links": [],
- "modified": "2020-10-30 13:56:01.121995",
+ "modified": "2021-06-22 17:33:23.851390",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Journal Entry",

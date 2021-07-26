@@ -13,7 +13,7 @@ def get_data():
 				'items': ['Expense Claim']
 			},
 			{
-				'items': ['Payment Entry', 'Journal Entry']
+				'items': ['Payment Entry']
 			}
 		]
 	}
