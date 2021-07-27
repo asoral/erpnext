@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "naming_series:",
  "creation": "2018-05-24 07:18:08.256060",
  "doctype": "DocType",
@@ -80,7 +79,6 @@
    "reqd": 1
   },
   {
-   "allow_on_submit": 1,
    "fieldname": "to_date",
    "fieldtype": "Date",
    "label": "To Date",
@@ -131,10 +129,8 @@
    "label": "Terms and Conditions Details"
   }
  ],
- "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2021-06-29 00:30:30.621636",
+ "modified": "2019-11-18 19:37:37.151686",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Blanket Order",

@@ -168,13 +168,12 @@ class Lead(SellingController):
 		if self.phone:
 			contact.append("phone_nos", {
 				"phone": self.phone,
-				"is_primary_phone": 1
+				"is_primary": 1
 			})
 
 		if self.mobile_no:
 			contact.append("phone_nos", {
-				"phone": self.mobile_no,
-				"is_primary_mobile_no":1
+				"phone": self.mobile_no
 			})
 
 		contact.insert(ignore_permissions=True)
