@@ -5,7 +5,7 @@ def get_data():
 	return {
 		'fieldname': 'purchase_order',
 		'non_standard_fieldnames': {
-			'Journal Entry': 'reference_name',
+			#'Journal Entry': 'reference_name',
 			'Payment Entry': 'reference_name',
 			'Auto Repeat': 'reference_document'
 		},
@@ -21,7 +21,7 @@ def get_data():
 			},
 			{
 				'label': _('Payment'),
-				'items': ['Payment Entry', 'Journal Entry']
+				'items': ['Payment Entry']
 			},
 			{
 				'label': _('Reference'),

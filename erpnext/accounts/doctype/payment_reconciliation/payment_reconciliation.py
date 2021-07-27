@@ -9,6 +9,7 @@ from frappe.model.document import Document
 from erpnext.accounts.utils import (get_outstanding_invoices,
 	update_reference_in_payment_entry, reconcile_against_document)
 from erpnext.controllers.accounts_controller import get_advance_payment_entries
+from grandhyper.grandhyper.custom_purchase_taxes_and_charges_template import accounting_dimention
 
 class PaymentReconciliation(Document):
 	@frappe.whitelist()
@@ -175,8 +176,10 @@ class PaymentReconciliation(Document):
 					reconciled_entry = lst
 
 				reconciled_entry.append(self.get_payment_details(e, dr_or_cr))
+				print(">>>>>>>>>>>>>>>>>reconcile entry",reconciled_entry)
 
 		if lst:
+			print(">>>>>>>>>>>>>>>>>>>>lst payment reconcilation",lst)
 			reconcile_against_document(lst)
 
 		if dr_or_cr_notes:
@@ -281,7 +284,7 @@ def reconcile_dr_cr_note(dr_cr_notes, company):
 			if d.dr_or_cr == 'credit_in_account_currency' else 'credit_in_account_currency')
 
 		company_currency = erpnext.get_company_currency(company)
-
+		acc_dim = accounting_dimention(company)
 		jv = frappe.get_doc({
 			"doctype": "Journal Entry",
 			"voucher_type": voucher_type,
@@ -296,7 +299,13 @@ def reconcile_dr_cr_note(dr_cr_notes, company):
 					d.dr_or_cr: abs(d.allocated_amount),
 					'reference_type': d.against_voucher_type,
 					'reference_name': d.against_voucher,
-					'cost_center': erpnext.get_default_cost_center(company)
+					'cost_center': erpnext.get_default_cost_center(company),
+					"pattern": acc_dim['Pattern'],
+					"segment": acc_dim['Segment'],
+					"brand": acc_dim['Brand'],
+					"territory": acc_dim['Territory'],
+					"country": acc_dim['Country'],
+					"vertical": acc_dim['Vertical']
 				},
 				{
 					'account': d.account,
@@ -306,9 +315,17 @@ def reconcile_dr_cr_note(dr_cr_notes, company):
 						if abs(d.unadjusted_amount) > abs(d.allocated_amount) else abs(d.unadjusted_amount)),
 					'reference_type': d.voucher_type,
 					'reference_name': d.voucher_no,
-					'cost_center': erpnext.get_default_cost_center(company)
+					'cost_center': erpnext.get_default_cost_center(company),
+					"pattern": acc_dim['Pattern'],
+					"segment": acc_dim['Segment'],
+					"brand": acc_dim['Brand'],
+					"territory": acc_dim['Territory'],
+					"country": acc_dim['Country'],
+					"vertical": acc_dim['Vertical']
 				}
 			]
 		})
 
 		jv.submit()
+
+
