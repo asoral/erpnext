@@ -138,8 +138,7 @@
   "party_account_currency",
   "is_internal_supplier",
   "represents_company",
-  "inter_company_order_reference",
-  "related_delivery_planning"
+  "inter_company_order_reference"
  ],
  "fields": [
   {
@@ -610,7 +609,6 @@
    "fieldname": "supplied_items",
    "fieldtype": "Table",
    "label": "Supplied Items",
-   "no_copy": 1,
    "oldfieldname": "po_raw_material_details",
    "oldfieldtype": "Table",
    "options": "Purchase Order Item Supplied",
@@ -1358,14 +1356,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "related_delivery_planning",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Related Delivery Planning",
-   "options": "Delivery Planning",
-   "read_only": 1
-  },
-  {
    "default": "0",
    "fieldname": "apply_tds",
    "fieldtype": "Check",
@@ -1387,7 +1377,7 @@
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-05-30 15:17:53.663648",
+ "modified": "2021-04-19 00:55:30.781375",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

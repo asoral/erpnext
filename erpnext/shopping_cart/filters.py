@@ -22,15 +22,12 @@ class ProductFiltersBuilder:
 
 		filter_data = []
 		for df in fields:
-			filters, or_filters = {}, []
+			filters = {}
 			if df.fieldtype == "Link":
 				if self.item_group:
-					or_filters.extend([
-						["item_group", "=", self.item_group],
-						["Website Item Group", "item_group", "=", self.item_group]
-					])
+					filters['item_group'] = self.item_group
 
-				values = frappe.get_all("Item", fields=[df.fieldname], filters=filters, or_filters=or_filters, distinct="True", pluck=df.fieldname)
+				values =  frappe.get_all("Item", fields=[df.fieldname], filters=filters, distinct="True", pluck=df.fieldname)
 			else:
 				doctype = df.get_link_doctype()
 
@@ -47,9 +44,7 @@ class ProductFiltersBuilder:
 				values = [d.name for d in frappe.get_all(doctype, filters)]
 
 			# Remove None
-			if None in values:
-				values.remove(None)
-
+			values = values.remove(None) if None in values else values
 			if values:
 				filter_data.append([df, values])
 
@@ -66,18 +61,14 @@ class ProductFiltersBuilder:
 		for attr_doc in attribute_docs:
 			selected_attributes = []
 			for attr in attr_doc.item_attribute_values:
-				or_filters = []
 				filters= [
 					["Item Variant Attribute", "attribute", "=", attr.parent],
 					["Item Variant Attribute", "attribute_value", "=", attr.attribute_value]
 				]
 				if self.item_group:
-					or_filters.extend([
-						["item_group", "=", self.item_group],
-						["Website Item Group", "item_group", "=", self.item_group]
-					])
+					filters.append(["item_group", "=", self.item_group])
 
-				if frappe.db.get_all("Item", filters, or_filters=or_filters, limit=1):
+				if frappe.db.get_all("Item", filters, limit=1):
 					selected_attributes.append(attr)
 
 			if selected_attributes:

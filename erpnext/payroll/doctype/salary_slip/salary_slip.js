@@ -46,15 +46,7 @@ frappe.ui.form.on("Salary Slip", {
 			};
 		});
 	},
-	employee:function(frm){
-		frappe.call({
-			method: 'get_total_leave_in_current_month',
-			doc:frm.doc,
-			callback: function (r) {
-				
-			}
-		});
-	},
+
 	start_date: function(frm) {
 		if (frm.doc.start_date) {
 			frm.trigger("set_end_date");

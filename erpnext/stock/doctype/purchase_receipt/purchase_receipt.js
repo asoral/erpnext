@@ -290,8 +290,7 @@ cur_frm.fields_dict['items'].grid.get_field('bom').get_query = function(doc, cdt
 		filters: [
 			['BOM', 'item', '=', d.item_code],
 			['BOM', 'is_active', '=', '1'],
-			['BOM', 'docstatus', '=', '1'],
-			['BOM', 'company', '=', doc.company]
+			['BOM', 'docstatus', '=', '1']
 		]
 	}
 }
@@ -328,7 +327,7 @@ cur_frm.cscript['Make Stock Entry'] = function() {
 	frappe.model.open_mapped_doc({
 		method: "erpnext.stock.doctype.purchase_receipt.purchase_receipt.make_stock_entry",
 		frm: cur_frm,
-	})['BOM', 'company', '=', doc.company]
+	})
 }
 
 var validate_sample_quantity = function(frm, cdt, cdn) {
@@ -348,5 +347,3 @@ var validate_sample_quantity = function(frm, cdt, cdn) {
 		});
 	}
 };
-
-
