@@ -122,12 +122,12 @@ class PaymentEntry(AccountsController):
 		for d in self.get("references"):
 			if (flt(d.allocated_amount))> 0:
 				if flt(d.allocated_amount) > flt(d.outstanding_amount):
-					frappe.throw(_("Row #{0}: Allocated Amount cannot be greater than outstanding amount.").format(d.idx))
+					frappe.throw(_("Row #{0}: Allocated Amount {1} cannot be greater than outstanding amount {2}.").format(d.idx,d.allocated_amount,d.outstanding_amount))
 
 			# Check for negative outstanding invoices as well
 			if flt(d.allocated_amount) < 0:
 				if flt(d.allocated_amount) < flt(d.outstanding_amount):
-					frappe.throw(_("Row #{0}: Allocated Amount cannot be greater than outstanding amount.").format(d.idx))
+					frappe.throw(_("Row #{0}: Allocated Amount {1} cannot be greater than outstanding amount {2}.").format(d.idx,d.allocated_amount,d.outstanding_amount))
 
 	def delink_advance_entry_references(self):
 		for reference in self.references:
@@ -331,9 +331,10 @@ class PaymentEntry(AccountsController):
 					for jvd in je_accounts:
 						if flt(jvd[dr_or_cr]) > 0:
 							valid = True
-					if not valid:
-						frappe.throw(_("Against Journal Entry {0} does not have any unmatched {1} entry")
-							.format(d.reference_name, dr_or_cr))
+					#if not valid:
+					#	pass
+					#	frappe.throw(_("Against Journal Entry {0} does not have any unmatched {1} entry")
+					#		.format(d.reference_name, dr_or_cr))
 
 	def update_payment_schedule(self, cancel=0):
 		invoice_payment_amount_map = {}
@@ -699,6 +700,7 @@ class PaymentEntry(AccountsController):
 
 	def add_bank_gl_entries(self, gl_entries):
 		if self.payment_type in ("Pay", "Internal Transfer"):
+			print("*********************before append********",gl_entries)
 			gl_entries.append(
 				self.get_gl_dict({
 					"account": self.paid_from,
@@ -709,6 +711,7 @@ class PaymentEntry(AccountsController):
 					"cost_center": self.cost_center
 				}, item=self)
 			)
+			print("*********************after append********",gl_entries)
 		if self.payment_type in ("Receive", "Internal Transfer"):
 			gl_entries.append(
 				self.get_gl_dict({
