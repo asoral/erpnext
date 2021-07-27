@@ -2,13 +2,7 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Operation', {
-	setup: function(frm) {
-		frm.set_query('operation', 'sub_operations', function() {
-			return {
-				filters: {
-					'name': ['not in', [frm.doc.name]]
-				}
-			};
-		});
+	refresh: function(frm) {
+
 	}
 });
