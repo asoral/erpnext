@@ -7,8 +7,7 @@ def get_data():
 		'heatmap_message': _('This is based on the attendance of this Employee'),
 		'fieldname': 'employee',
 		'non_standard_fieldnames': {
-			'Bank Account': 'party',
-			'Employee Grievance': 'raised_by'
+			'Bank Account': 'party'
 		},
 		'transactions': [
 			{
@@ -21,7 +20,7 @@ def get_data():
 			},
 			{
 				'label': _('Lifecycle'),
-				'items': ['Employee Transfer', 'Employee Promotion', 'Employee Separation', 'Employee Grievance']
+				'items': ['Employee Transfer', 'Employee Promotion', 'Employee Separation']
 			},
 			{
 				'label': _('Shift'),

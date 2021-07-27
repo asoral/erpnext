@@ -23,12 +23,6 @@ class LoanSecurityPledge(Document):
 			update_shortfall_status(self.loan, self.total_security_value)
 			update_loan(self.loan, self.maximum_loan_value)
 
-	def on_cancel(self):
-		if self.loan:
-			self.db_set("status", "Cancelled")
-			self.db_set("pledge_time", None)
-			update_loan(self.loan, self.maximum_loan_value, cancel=1)
-
 	def validate_duplicate_securities(self):
 		security_list = []
 		for security in self.securities:
@@ -42,7 +36,7 @@ class LoanSecurityPledge(Document):
 		existing_pledge = ''
 
 		if self.loan:
-			existing_pledge = frappe.db.get_value('Loan Security Pledge', {'loan': self.loan, 'docstatus': 1}, ['name'])
+			existing_pledge = frappe.db.get_value('Loan Security Pledge', {'loan': self.loan}, ['name'])
 
 		if existing_pledge:
 			loan_security_type = frappe.db.get_value('Pledge', {'parent': existing_pledge}, ['loan_security_type'])
@@ -83,12 +77,8 @@ class LoanSecurityPledge(Document):
 		self.total_security_value = total_security_value
 		self.maximum_loan_value = maximum_loan_value
 
-def update_loan(loan, maximum_value_against_pledge, cancel=0):
+def update_loan(loan, maximum_value_against_pledge):
 	maximum_loan_value = frappe.db.get_value('Loan', {'name': loan}, ['maximum_loan_amount'])
 
-	if cancel:
-		frappe.db.sql(""" UPDATE `tabLoan` SET maximum_loan_amount=%s
-			WHERE name=%s""", (maximum_loan_value - maximum_value_against_pledge, loan))
-	else:
-		frappe.db.sql(""" UPDATE `tabLoan` SET maximum_loan_amount=%s, is_secured_loan=1
-			WHERE name=%s""", (maximum_loan_value + maximum_value_against_pledge, loan))
+	frappe.db.sql(""" UPDATE `tabLoan` SET maximum_loan_amount=%s, is_secured_loan=1
+		WHERE name=%s""", (maximum_loan_value + maximum_value_against_pledge, loan))

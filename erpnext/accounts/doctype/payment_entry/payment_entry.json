@@ -667,7 +667,6 @@
   {
    "fieldname": "base_paid_amount_after_tax",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "Paid Amount After Tax (Company Currency)",
    "options": "Company:company:default_currency",
    "read_only": 1
@@ -691,28 +690,24 @@
    "options": "Account"
   },
   {
-   "depends_on": "eval:doc.received_amount && doc.payment_type != 'Internal Transfer'",
+   "depends_on": "eval:doc.received_amount",
    "fieldname": "received_amount_after_tax",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "Received Amount After Tax",
-   "options": "paid_to_account_currency",
-   "read_only": 1
+   "options": "paid_to_account_currency"
   },
   {
    "depends_on": "doc.received_amount",
    "fieldname": "base_received_amount_after_tax",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "Received Amount After Tax (Company Currency)",
-   "options": "Company:company:default_currency",
-   "read_only": 1
+   "options": "Company:company:default_currency"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-07-09 08:58:15.008761",
+ "modified": "2021-06-09 11:55:04.215050",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

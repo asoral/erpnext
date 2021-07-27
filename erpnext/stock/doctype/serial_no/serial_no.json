@@ -57,8 +57,7 @@
   "more_info",
   "serial_no_details",
   "company",
-  "status",
-  "work_order"
+  "status"
  ],
  "fields": [
   {
@@ -423,18 +422,12 @@
    "label": "Status",
    "options": "\nActive\nInactive\nDelivered\nExpired",
    "read_only": 1
-  },
-  {
-   "fieldname": "work_order",
-   "fieldtype": "Link",
-   "label": "Work Order",
-   "options": "Work Order"
   }
  ],
  "icon": "fa fa-barcode",
  "idx": 1,
  "links": [],
- "modified": "2021-01-08 14:31:15.375996",
+ "modified": "2020-07-20 20:50:16.660433",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Serial No",

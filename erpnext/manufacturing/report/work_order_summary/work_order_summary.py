@@ -19,10 +19,10 @@ def execute(filters=None):
 	return columns, data, None, chart_data
 
 def get_data(filters):
-	query_filters = {"docstatus": ("<", 2)}
+	query_filters = {"docstatus": 1}
 
 	fields = ["name", "status", "sales_order", "production_item", "qty", "produced_qty",
-		"planned_start_date", "planned_end_date", "actual_start_date", "actual_end_date", "lead_time","actual_yeild"]
+		"planned_start_date", "planned_end_date", "actual_start_date", "actual_end_date", "lead_time"]
 
 	for field in ["sales_order", "production_item", "status", "company"]:
 		if filters.get(field):
@@ -62,8 +62,7 @@ def get_chart_based_on_status(data):
 		"Not Started": 0,
 		"In Process": 0,
 		"Stopped": 0,
-		"Completed": 0,
-		"Draft": 0
+		"Completed": 0
 	}
 
 	for d in data:
@@ -250,12 +249,6 @@ def get_columns(filters):
 			{
 				"label": _("Age"),
 				"fieldname": "age",
-				"fieldtype": "Float",
-				"width": 110
-			},
-			{
-				"label": _("Actual Yeild"),
-				"fieldname": "actual_yeild",
 				"fieldtype": "Float",
 				"width": 110
 			},

@@ -806,9 +806,6 @@
 						display: none;
 						float: right;
 						font-weight: 700;
-						white-space: nowrap;
-						overflow: hidden;
-						text-overflow: ellipsis;
 					}
 
 					> .cash-shortcuts {
@@ -831,11 +828,6 @@
 							}
 						}
 					}
-				}
-
-				> .loyalty-card {
-					display: flex;
-					flex-direction: column;
 				}
 			}
 		}

@@ -17,14 +17,6 @@ frappe.ui.form.on("Stock Reconciliation", {
 				}
 			}
 		});
-		frm.set_query("batch_no", "items", function(doc, cdt, cdn) {
-			var item = locals[cdt][cdn];
-			return {
-				filters: {
-					'item': item.item_code
-				}
-			};
-		});
 
 		if (frm.doc.company) {
 			erpnext.queries.setup_queries(frm, "Warehouse", function() {
@@ -56,54 +48,37 @@ frappe.ui.form.on("Stock Reconciliation", {
 	},
 
 	get_items: function(frm) {
-		let fields = [{
-			label: 'Warehouse', fieldname: 'warehouse', fieldtype: 'Link', options: 'Warehouse', reqd: 1,
+		frappe.prompt({label:"Warehouse", fieldname: "warehouse", fieldtype:"Link", options:"Warehouse", reqd: 1,
 			"get_query": function() {
 				return {
 					"filters": {
 						"company": frm.doc.company,
 					}
-				};
-			}
-		}, {
-			label: "Item Code", fieldname: "item_code", fieldtype: "Link", options: "Item",
-			"get_query": function() {
-				return {
-					"filters": {
-						"disabled": 0,
-					}
-				};
-			}
-		}];
-
-		frappe.prompt(fields, function(data) {
-			frappe.call({
-				method: "erpnext.stock.doctype.stock_reconciliation.stock_reconciliation.get_items",
-				args: {
-					warehouse: data.warehouse,
-					posting_date: frm.doc.posting_date,
-					posting_time: frm.doc.posting_time,
-					company: frm.doc.company,
-					item_code: data.item_code
-				},
-				callback: function(r) {
-					frm.clear_table("items");
-					for (var i=0; i<r.message.length; i++) {
-						var d = frm.add_child("items");
-						$.extend(d, r.message[i]);
-
-						if (!d.qty) {
-							d.qty = 0;
-						}
-
-						if (!d.valuation_rate) {
-							d.valuation_rate = 0;
-						}
-					}
-					frm.refresh_field("items");
 				}
-			});
-		}, __("Get Items"), __("Update"));
+			}},
+			function(data) {
+				frappe.call({
+					method:"erpnext.stock.doctype.stock_reconciliation.stock_reconciliation.get_items",
+					args: {
+						warehouse: data.warehouse,
+						posting_date: frm.doc.posting_date,
+						posting_time: frm.doc.posting_time,
+						company:frm.doc.company
+					},
+					callback: function(r) {
+						var items = [];
+						frm.clear_table("items");
+						for(var i=0; i< r.message.length; i++) {
+							var d = frm.add_child("items");
+							$.extend(d, r.message[i]);
+							if(!d.qty) d.qty = null;
+							if(!d.valuation_rate) d.valuation_rate = null;
+						}
+						frm.refresh_field("items");
+					}
+				});
+			}
+		, __("Get Items"), __("Update"));
 	},
 
 	posting_date: function(frm) {
