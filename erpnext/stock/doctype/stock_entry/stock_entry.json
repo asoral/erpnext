@@ -13,8 +13,13 @@
   "stock_entry_type",
   "outgoing_stock_entry",
   "purpose",
+  "material_consumption",
+  "reference_challan",
+  "get_intercompany_item",
+  "transfer",
   "add_to_transit",
   "work_order",
+  "material_produce",
   "purchase_order",
   "delivery_note_no",
   "sales_invoice_no",
@@ -27,6 +32,7 @@
   "set_posting_time",
   "inspection_required",
   "from_bom",
+  "partial",
   "apply_putaway_rule",
   "sb1",
   "bom_no",
@@ -74,7 +80,8 @@
   "total_amount",
   "job_card",
   "amended_from",
-  "credit_note"
+  "credit_note",
+  "is_return"
  ],
  "fields": [
   {
@@ -611,6 +618,57 @@
    "fieldname": "apply_putaway_rule",
    "fieldtype": "Check",
    "label": "Apply Putaway Rule"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval: doc.stock_entry_type === \"Manufacture\"",
+   "fieldname": "partial",
+   "fieldtype": "Check",
+   "label": "Partial",
+   "read_only": 1
+  },
+  {
+   "fieldname": "material_consumption",
+   "fieldtype": "Link",
+   "label": "Material Consumption",
+   "options": "Material Consumption"
+  },
+  {
+   "depends_on": "eval:doc.stock_entry_type==\"Material Receipt\"",
+   "fieldname": "reference_challan",
+   "fieldtype": "Link",
+   "label": "Reference Challan",
+   "options": "Stock Entry"
+  },
+  {
+   "fieldname": "material_produce",
+   "fieldtype": "Link",
+   "label": "Material Produce",
+   "options": "Material Produce",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "transfer",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Transfer"
+  },
+  {
+   "depends_on": "eval:doc.reference_challan",
+   "fieldname": "get_intercompany_item",
+   "fieldtype": "Button",
+   "label": "Get Intercompany Item"
+  },
+  {
+   "fieldname": "is_return",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Return",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "icon": "fa fa-file-text",
@@ -618,7 +676,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-05-24 11:32:23.904307",
+ "modified": "2021-05-26 17:07:58.015737",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Entry",

@@ -25,6 +25,10 @@ frappe.ui.form.on("Item", {
 	},
 
 	refresh: function(frm) {
+		if (frm.doc.include_item_in_manufacturing === 1) {
+			frm.set_df_property("bom_item_type", "reqd", 1)
+		}
+
 		if (frm.doc.is_stock_item) {
 			frm.add_custom_button(__("Stock Balance"), function() {
 				frappe.route_options = {
@@ -93,7 +97,7 @@ frappe.ui.form.on("Item", {
 
 		erpnext.item.edit_prices_button(frm);
 		erpnext.item.toggle_attributes(frm);
-		
+
 		if (!frm.doc.is_fixed_asset) {
 			erpnext.item.make_dashboard(frm);
 		}
@@ -381,7 +385,8 @@ $.extend(erpnext.item, {
 		// Show Stock Levels only if is_stock_item
 		if (frm.doc.is_stock_item) {
 			frappe.require('assets/js/item-dashboard.min.js', function() {
-				const section = frm.dashboard.add_section('', __("Stock Levels"));
+				frm.dashboard.parent.find('.stock-levels').remove();
+				const section = frm.dashboard.add_section('', __("Stock Levels"), 'stock-levels');
 				erpnext.item.item_dashboard = new erpnext.stock.ItemDashboard({
 					parent: section,
 					item_code: frm.doc.name,
