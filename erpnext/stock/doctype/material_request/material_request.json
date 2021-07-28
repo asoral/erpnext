@@ -11,6 +11,7 @@
   "naming_series",
   "title",
   "material_request_type",
+  "manufacturing_staging",
   "transfer_status",
   "customer",
   "status",
@@ -37,7 +38,10 @@
   "tc_name",
   "terms",
   "reference",
-  "job_card"
+  "job_card",
+  "requesting_work_order",
+  "work_order_details_section",
+  "work_order_detail"
  ],
  "fields": [
   {
@@ -181,7 +185,7 @@
    "no_copy": 1,
    "oldfieldname": "status",
    "oldfieldtype": "Select",
-   "options": "\nDraft\nSubmitted\nStopped\nCancelled\nPending\nPartially Ordered\nPartially Received\nOrdered\nIssued\nTransferred\nReceived",
+   "options": "\nDraft\nSubmitted\nStopped\nCancelled\nPending\nPartially Ordered\nOrdered\nIssued\nTransferred\nReceived",
    "print_hide": 1,
    "print_width": "100px",
    "read_only": 1,
@@ -308,13 +312,38 @@
    "label": "Transfer Status",
    "options": "\nNot Started\nIn Transit\nCompleted",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "manufacturing_staging",
+   "fieldtype": "Check",
+   "label": "Manufacturing Staging"
+  },
+  {
+   "fieldname": "requesting_work_order",
+   "fieldtype": "Link",
+   "label": "Requesting Work Order",
+   "options": "Work Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "work_order_details_section",
+   "fieldtype": "Section Break",
+   "label": "Work Order Details",
+   "read_only": 1
+  },
+  {
+   "fieldname": "work_order_detail",
+   "fieldtype": "Table",
+   "label": "Work Order Detail",
+   "options": "Material Request Work Order"
   }
  ],
  "icon": "fa fa-ticket",
  "idx": 70,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-03-31 23:52:55.392512",
+ "modified": "2021-06-17 19:30:59.295549",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",

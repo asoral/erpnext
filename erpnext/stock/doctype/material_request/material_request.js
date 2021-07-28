@@ -42,9 +42,32 @@ frappe.ui.form.on('Material Request', {
 			}
 		});
 	},
-
-	onload: function(frm) {
+	onload: function(frm,cdt,cdn) {
+		frm.doc.schedule_date = frappe.datetime.nowdate()
 		// add item, if previous view was item
+		var prev_route = frappe.get_prev_route();
+		if (prev_route[1] === 'Work Order') {
+			frm.set_value("manufacturing_staging", 1);
+			frm.set_value("material_request_type","Material Transfer");
+			frm.set_value("schedule_date",frappe.datetime.get_today());
+			frappe.call({
+				method: "get_wo_items",
+				doc:frm.doc,
+				args:{
+					work_order: prev_route[2]
+				},
+				callback: function(r){
+					if (r.message === 'Item not found') {
+						frappe.throw(__(r.message));
+					} 
+					if(r.message > 0) {
+						frm.refresh_field('items')
+					}
+				}
+			})
+
+		}
+
 		erpnext.utils.add_item(frm);
 
 		// set schedule_date
@@ -73,15 +96,71 @@ frappe.ui.form.on('Material Request', {
 
 	company: function(frm) {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
+		if(frm.doc.manufacturing_staging === 1 && frm.doc.company){
+			set_target_warehouse(frm)
+		}
 	},
 
+	manufacturing_staging: function(frm){
+		if(frm.doc.manufacturing_staging === 1 && !frm.doc.company){
+			frappe.throw("Please select Company")
+		}
+		if(frm.doc.manufacturing_staging === 1 && frm.doc.company){
+			set_target_warehouse(frm)
+		}
+		if (frm.doc.docstatus===0 && frm.doc.manufacturing_staging === 1) {
+			//frm.add_custom_button(__('Work Order'), () => frm.events.get_items_from_wo(frm),
+			frm.add_custom_button(__('Work Order'), function(){
+				erpnext.utils.map_current_doc({
+					method: "erpnext.stock.doctype.material_request.material_request.make_material_request",
+					source_doctype: "Work Order",
+					target: frm.doc,
+					
+					setters: {
+						bom_no: frm.doc.bom_no || undefined,
+						company: frm.doc.company || undefined
+					},
+					get_query_filters: {
+						docstatus: 1,
+					}
+				})
+			},
+				__("Get Items From"));
+		}
+	},
+	
 	onload_post_render: function(frm) {
 		frm.get_field("items").grid.set_multiple_add("item_code", "qty");
 	},
 
 	refresh: function(frm) {
+		var d = frm.doc.work_order_detail
+		if(d.length > 0){
+			frm.set_df_property("items",'read_only',1)
+		}
 		frm.events.make_custom_buttons(frm);
 		frm.toggle_reqd('customer', frm.doc.material_request_type=="Customer Provided");
+
+		if (frm.doc.docstatus===0 && frm.doc.manufacturing_staging === 1) {
+			//frm.add_custom_button(__('Work Order'), () => frm.events.get_items_from_wo(frm),
+			frm.add_custom_button(__('Work Order'), function(){
+				erpnext.utils.map_current_doc({
+					method: "erpnext.stock.doctype.material_request.material_request.make_material_request",
+					source_doctype: "Work Order",
+					target: frm.doc,
+					
+					setters: {
+						bom_no: frm.doc.bom_no || undefined,
+						company: frm.doc.company || undefined
+					},
+					get_query_filters: {
+						docstatus: 1,
+					}
+				})
+			},
+				__("Get Items From"));
+		}
+
 	},
 
 	set_from_warehouse: function(frm) {
@@ -156,7 +235,7 @@ frappe.ui.form.on('Material Request', {
 			frm.add_custom_button(__('Sales Order'), () => frm.events.get_items_from_sales_order(frm),
 				__("Get Items From"));
 		}
-
+		
 		if (frm.doc.docstatus == 1 && frm.doc.status == 'Stopped') {
 			frm.add_custom_button(__('Re-open'), () => frm.events.update_status(frm, 'Submitted'));
 		}
@@ -262,6 +341,7 @@ frappe.ui.form.on('Material Request', {
 								var d = frappe.model.add_child(cur_frm.doc, "Material Request Item", "items");
 								d.item_code = item.item_code;
 								d.item_name = item.item_name;
+								d.production_item_name =  item.production_item_name;
 								d.description = item.description;
 								d.warehouse = values.warehouse;
 								d.uom = item.stock_uom;
@@ -478,4 +558,17 @@ function set_schedule_date(frm) {
 	if(frm.doc.schedule_date){
 		erpnext.utils.copy_value_in_all_rows(frm.doc, frm.doc.doctype, frm.doc.name, "items", "schedule_date");
 	}
+}
+
+function set_target_warehouse(frm){
+		if(frm.doc.company && frm.doc.manufacturing_staging === 1){
+			frappe.call({
+				method:'set_target_warehouse',
+				doc: frm.doc,
+				callback: function(resp){
+					frm.doc.set_warehouse = resp.message
+					frm.refresh_field('set_warehouse')
+				}
+			})
+		}
 }
