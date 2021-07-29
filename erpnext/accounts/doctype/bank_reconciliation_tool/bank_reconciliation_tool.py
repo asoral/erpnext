@@ -227,6 +227,7 @@ def reconcile_vouchers(bank_transaction_name, vouchers):
 		}), transaction.currency)
 
 	if total_amount > transaction.unallocated_amount:
+		print("*******************total,*************unallocated****************",total_amount,transaction.unallocated_amount)
 		frappe.throw(_("The Sum Total of Amounts of All Selected Vouchers Should be Less than the Unallocated Amount of the Bank Transaction"))
 	account = frappe.db.get_value("Bank Account", transaction.bank_account, "account")
 
@@ -289,7 +290,9 @@ def get_queries(bank_account, company, transaction, document_types):
 		queries.extend([pe_amount_matching])
 
 	if "journal_entry" in document_types:
+#		print("*********************Amt******",je_amount_matching)
 		je_amount_matching = get_je_matching_query(amount_condition, transaction)
+		print("*********************Amt******",je_amount_matching)
 		queries.extend([je_amount_matching])
 
 	if transaction.deposit > 0 and "sales_invoice" in document_types:

@@ -86,7 +86,7 @@ def get_paid_amount(payment_entry, currency):
 			payment_entry.payment_entry, paid_amount_field)
 
 	elif payment_entry.payment_document == "Journal Entry":
-		return frappe.db.get_value(payment_entry.payment_document, payment_entry.payment_entry, "total_credit")
+		return frappe.db.get_value(payment_entry.payment_document, payment_entry.payment_entry, "total_amount")
 
 	elif payment_entry.payment_document == "Expense Claim":
 		return frappe.db.get_value(payment_entry.payment_document, payment_entry.payment_entry, "total_amount_reimbursed")
