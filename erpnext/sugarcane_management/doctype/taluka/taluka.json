@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "autoname": "field:taluka",
+ "creation": "2021-08-04 17:56:09.401040",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "taluka",
+  "district"
+ ],
+ "fields": [
+  {
+   "fieldname": "taluka",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Taluka Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "district",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "District ",
+   "options": "District",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-10 12:49:51.362569",
+ "modified_by": "Administrator",
+ "module": "Sugarcane Management",
+ "name": "Taluka",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

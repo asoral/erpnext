@@ -1,0 +1,309 @@
+{
+ "actions": [],
+ "autoname": "US-CS.#####",
+ "creation": "2021-08-03 15:21:42.403665",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "farmer_details_section",
+  "csd",
+  "f_name",
+  "m_name",
+  "l_name",
+  "section_break_5",
+  "full_name",
+  "phone",
+  "uid",
+  "pan",
+  "column_break_14",
+  "address",
+  "address_type",
+  "address_line1",
+  "address_line2",
+  "column_break_15",
+  "city",
+  "state",
+  "country",
+  "pincode",
+  "geolocation_section",
+  "tfa",
+  "ra",
+  "column_break_20",
+  "cfa",
+  "dt",
+  "section_break_22",
+  "cfl",
+  "longitude",
+  "amended_from",
+  "cane_details_section",
+  "cin",
+  "cane_variety",
+  "column_break_31",
+  "ccd",
+  "thd",
+  "section_break_34",
+  "zone",
+  "fn",
+  "field_surveyor_name",
+  "remark",
+  "transporter_allocation",
+  "labour_contractor_allocation"
+ ],
+ "fields": [
+  {
+   "fieldname": "csd",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Cane Survey Date"
+  },
+  {
+   "fieldname": "f_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "First Name"
+  },
+  {
+   "fieldname": "m_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Middle Name"
+  },
+  {
+   "fieldname": "l_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Last Name"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "label": "Farmer Full Name"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Cane Survey",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cfl",
+   "fieldtype": "Geolocation"
+  },
+  {
+   "fetch_from": "address.state",
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State/Province"
+  },
+  {
+   "fieldname": "geolocation_section",
+   "fieldtype": "Section Break",
+   "label": "Area Details"
+  },
+  {
+   "fieldname": "section_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Mobile Number"
+  },
+  {
+   "fieldname": "uid",
+   "fieldtype": "Data",
+   "label": "Aadhar Card/UID Number"
+  },
+  {
+   "fieldname": "pan",
+   "fieldtype": "Data",
+   "label": "PAN Card Number"
+  },
+  {
+   "fieldname": "tfa",
+   "fieldtype": "Float",
+   "label": "Total Field Area (Acres))"
+  },
+  {
+   "fieldname": "cfa",
+   "fieldtype": "Float",
+   "label": "Cane Field Area(Acres)"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Section Break",
+   "label": "Address"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_22",
+   "fieldtype": "Section Break",
+   "label": "Cane Field Location"
+  },
+  {
+   "fieldname": "farmer_details_section",
+   "fieldtype": "Section Break",
+   "label": "Farmer Details"
+  },
+  {
+   "fieldname": "ra",
+   "fieldtype": "Select",
+   "label": "Road Availibility",
+   "options": "Yes\nNo"
+  },
+  {
+   "fieldname": "dt",
+   "fieldtype": "Float",
+   "label": "Distance(KM)"
+  },
+  {
+   "fieldname": "cane_details_section",
+   "fieldtype": "Section Break",
+   "label": " Cane Details"
+  },
+  {
+   "fieldname": "cin",
+   "fieldtype": "Data",
+   "label": "Crop Insurance No."
+  },
+  {
+   "fieldname": "cane_variety",
+   "fieldtype": "Data",
+   "label": "Cane Variety"
+  },
+  {
+   "fieldname": "ccd",
+   "fieldtype": "Date",
+   "label": "Cane Cultivation Date"
+  },
+  {
+   "fieldname": "column_break_31",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "thd",
+   "fieldtype": "Date",
+   "label": "Tentative Harvesting Date"
+  },
+  {
+   "fieldname": "section_break_34",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Select",
+   "label": "  Zone",
+   "options": "A\nB\nC"
+  },
+  {
+   "fieldname": "fn",
+   "fieldtype": "Select",
+   "label": "Factory Name",
+   "options": "A\nB\nC"
+  },
+  {
+   "fieldname": "field_surveyor_name",
+   "fieldtype": "Data",
+   "label": "Field Surveyor Name"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark"
+  },
+  {
+   "fieldname": "transporter_allocation",
+   "fieldtype": "Data",
+   "label": "Transporter Allocation"
+  },
+  {
+   "fieldname": "labour_contractor_allocation",
+   "fieldtype": "Data",
+   "label": "Labour Contractor Allocation"
+  },
+  {
+   "fetch_from": "address.country",
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Link",
+   "label": "Address Records",
+   "options": "Address"
+  },
+  {
+   "fetch_from": "address.address_type",
+   "fieldname": "address_type",
+   "fieldtype": "Data",
+   "label": "Address Type"
+  },
+  {
+   "default": "India",
+   "fetch_from": "address.address_line1",
+   "fieldname": "address_line1",
+   "fieldtype": "Data",
+   "label": "Address Line 1"
+  },
+  {
+   "fetch_from": "address.address_line2",
+   "fieldname": "address_line2",
+   "fieldtype": "Data",
+   "label": "Address Line 2"
+  },
+  {
+   "fieldname": "column_break_15",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Data",
+   "label": "longitude"
+  },
+  {
+   "fetch_from": "address.pincode",
+   "fieldname": "pincode",
+   "fieldtype": "Data",
+   "label": "Pin Code"
+  },
+  {
+   "fetch_from": "address.city",
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City/Town"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2021-08-11 15:49:59.954630",
+ "modified_by": "Administrator",
+ "module": "Sugarcane Management",
+ "name": "Cane Survey",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

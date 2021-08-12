@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "creation": "2021-08-07 18:20:34.607882",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tender_rule",
+  "tender_item",
+  "tender_notice_publication_date",
+  "tender_acceptance_last_date",
+  "tender_opening_date",
+  "tender_opening_time",
+  "tender_related_information",
+  "tender_pass_list"
+ ],
+ "fields": [
+  {
+   "fieldname": "tender_rule",
+   "fieldtype": "Data",
+   "label": "Tender Rule"
+  },
+  {
+   "fieldname": "tender_item",
+   "fieldtype": "Data",
+   "label": "Tender Item"
+  },
+  {
+   "fieldname": "tender_notice_publication_date",
+   "fieldtype": "Date",
+   "label": "Tender Notice Publication Date"
+  },
+  {
+   "fieldname": "tender_acceptance_last_date",
+   "fieldtype": "Date",
+   "label": "Tender Acceptance Last Date"
+  },
+  {
+   "fieldname": "tender_opening_date",
+   "fieldtype": "Date",
+   "label": "Tender Opening Date"
+  },
+  {
+   "fieldname": "tender_opening_time",
+   "fieldtype": "Time",
+   "label": "Tender Opening Time"
+  },
+  {
+   "fieldname": "tender_related_information",
+   "fieldtype": "Data",
+   "label": "Tender Related Information"
+  },
+  {
+   "fieldname": "tender_pass_list",
+   "fieldtype": "Data",
+   "label": "Tender Pass List"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-07 18:20:34.607882",
+ "modified_by": "Administrator",
+ "module": "Sugarcane Management",
+ "name": "Tender Notice Information",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

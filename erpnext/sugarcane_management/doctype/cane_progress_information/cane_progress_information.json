@@ -1,0 +1,53 @@
+{
+ "actions": [],
+ "creation": "2021-08-07 13:19:37.375767",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "cane_advisory_information",
+  "pdf",
+  "farmer_training_information"
+ ],
+ "fields": [
+  {
+   "fieldname": "cane_advisory_information",
+   "fieldtype": "Data",
+   "label": "Cane Advisory Information"
+  },
+  {
+   "fieldname": "pdf",
+   "fieldtype": "Attach",
+   "label": "PDF"
+  },
+  {
+   "fieldname": "farmer_training_information",
+   "fieldtype": "Data",
+   "label": "Farmer Training Information"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-07 13:19:37.375767",
+ "modified_by": "Administrator",
+ "module": "Sugarcane Management",
+ "name": "Cane Progress Information",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

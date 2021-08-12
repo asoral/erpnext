@@ -1,0 +1,196 @@
+{
+ "actions": [],
+ "autoname": "US-TI-.#####",
+ "creation": "2021-08-07 12:00:33.460185",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "personal_details_column",
+  "tcn",
+  "f_name",
+  "m_name",
+  "l_name",
+  "full_name",
+  "country",
+  "state",
+  "column_break_9",
+  "district",
+  "taluka",
+  "village",
+  "p_code",
+  "mobile",
+  "aadhar",
+  "pan",
+  "vehicle_details_column",
+  "vehicle_type",
+  "vrn",
+  "vehicle_quantity",
+  "column_break_21",
+  "transport_licence_number",
+  "insurance_no",
+  "allocation_zone",
+  "column_break_23",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "label": "Full Name"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Link",
+   "label": "State",
+   "options": "State"
+  },
+  {
+   "fieldname": "district",
+   "fieldtype": "Link",
+   "label": "District",
+   "options": "District"
+  },
+  {
+   "fieldname": "taluka",
+   "fieldtype": "Link",
+   "label": "Taluka",
+   "options": "Taluka"
+  },
+  {
+   "fieldname": "village",
+   "fieldtype": "Link",
+   "label": "Village",
+   "options": "Village"
+  },
+  {
+   "default": "Select",
+   "fieldname": "vehicle_type",
+   "fieldtype": "Select",
+   "label": "Vehicle Type",
+   "options": "Select\nTruck\nTractor"
+  },
+  {
+   "fieldname": "vehicle_quantity",
+   "fieldtype": "Int",
+   "label": "Vehicle Quantity"
+  },
+  {
+   "fieldname": "transport_licence_number",
+   "fieldtype": "Data",
+   "label": "Transport Licence Number"
+  },
+  {
+   "fieldname": "insurance_no",
+   "fieldtype": "Data",
+   "label": "Insurance No."
+  },
+  {
+   "fieldname": "allocation_zone",
+   "fieldtype": "Data",
+   "label": "Allocation Zone"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "tcn",
+   "fieldtype": "Data",
+   "label": "Transport Contractor Name"
+  },
+  {
+   "fieldname": "f_name",
+   "fieldtype": "Data",
+   "label": "First Name"
+  },
+  {
+   "fieldname": "m_name",
+   "fieldtype": "Data",
+   "label": "Middle Name"
+  },
+  {
+   "fieldname": "l_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
+   "fieldname": "p_code",
+   "fieldtype": "Link",
+   "label": "Pin Code",
+   "options": "Pin Code"
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile No."
+  },
+  {
+   "fieldname": "aadhar",
+   "fieldtype": "Data",
+   "label": "Aadhar Card / UID No."
+  },
+  {
+   "fieldname": "pan",
+   "fieldtype": "Data",
+   "label": "Pan Card No."
+  },
+  {
+   "fieldname": "vrn",
+   "fieldtype": "Data",
+   "label": "Vehicle Registration No."
+  },
+  {
+   "fieldname": "vehicle_details_column",
+   "fieldtype": "Section Break",
+   "label": "Vehicle Details:"
+  },
+  {
+   "fieldname": "column_break_23",
+   "fieldtype": "Section Break",
+   "label": "Remark:"
+  },
+  {
+   "fieldname": "personal_details_column",
+   "fieldtype": "Section Break",
+   "label": "Personal Details:"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-11 12:17:41.314994",
+ "modified_by": "Administrator",
+ "module": "Sugarcane Management",
+ "name": "Transporter Information",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

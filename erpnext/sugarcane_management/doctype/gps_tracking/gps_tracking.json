@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "autoname": "US-GT-.######",
+ "creation": "2021-08-07 12:44:54.060342",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "transporter_name",
+  "vehicle_type",
+  "vehicle_registration_no",
+  "driver_name",
+  "driver_mobile_no",
+  "loading_location",
+  "column_break_7",
+  "loading_date",
+  "loading_time",
+  "trip_start_date",
+  "trip_start_time",
+  "factory_reach_date",
+  "factory_reach_time",
+  "section_break_14",
+  "live_location_tracking"
+ ],
+ "fields": [
+  {
+   "fieldname": "transporter_name",
+   "fieldtype": "Link",
+   "label": "Transporter Name",
+   "options": "Transporter Information"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name"
+  },
+  {
+   "fieldname": "driver_mobile_no",
+   "fieldtype": "Data",
+   "label": "Driver Mobile No."
+  },
+  {
+   "default": "Select",
+   "fetch_from": "transporter_name.vehicle_type",
+   "fieldname": "vehicle_type",
+   "fieldtype": "Select",
+   "label": "Vehicle Type",
+   "options": "Select\nTruck\nTractor"
+  },
+  {
+   "fetch_from": "transporter_name.vrn",
+   "fieldname": "vehicle_registration_no",
+   "fieldtype": "Data",
+   "label": "Vehicle Registration No."
+  },
+  {
+   "fieldname": "loading_location",
+   "fieldtype": "Data",
+   "label": "Loading Location"
+  },
+  {
+   "fieldname": "loading_date",
+   "fieldtype": "Date",
+   "label": "Loading Date"
+  },
+  {
+   "fieldname": "loading_time",
+   "fieldtype": "Time",
+   "label": "Loading Time"
+  },
+  {
+   "fieldname": "trip_start_date",
+   "fieldtype": "Date",
+   "label": "Trip Start Date"
+  },
+  {
+   "fieldname": "trip_start_time",
+   "fieldtype": "Time",
+   "label": "Trip Start Time"
+  },
+  {
+   "fieldname": "factory_reach_date",
+   "fieldtype": "Date",
+   "label": "Factory Reach Date"
+  },
+  {
+   "fieldname": "factory_reach_time",
+   "fieldtype": "Time",
+   "label": "Factory Reach Time"
+  },
+  {
+   "fieldname": "live_location_tracking",
+   "fieldtype": "Geolocation",
+   "label": "Live Location Tracking"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_14",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-11 16:58:46.289979",
+ "modified_by": "Administrator",
+ "module": "Sugarcane Management",
+ "name": "GPS Tracking",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

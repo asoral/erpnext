@@ -1,0 +1,242 @@
+{
+ "actions": [],
+ "autoname": "US-CWI-.#####",
+ "creation": "2021-08-07 13:28:10.241177",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "farmer_information",
+  "full_name",
+  "phone",
+  "column_break_4",
+  "uid",
+  "pan",
+  "column_break_12",
+  "address_line_1",
+  "address_line_2",
+  "city",
+  "column_break_10",
+  "state",
+  "country",
+  "pincode",
+  "section_break_14",
+  "sgen",
+  "sged",
+  "column_break_17",
+  "weight_date",
+  "weight_time",
+  "column_break_20",
+  "transporter_name",
+  "transport_vehicle_type",
+  "vehicle_registration_no",
+  "driver_name",
+  "driver_mobile_no",
+  "column_break_28",
+  "weight_slip_no",
+  "weight_person_name",
+  "gross_weight",
+  "tare_weight",
+  "net_weight"
+ ],
+ "fields": [
+  {
+   "fieldname": "farmer_information",
+   "fieldtype": "Link",
+   "label": "Farmer Information",
+   "options": "Cane Survey"
+  },
+  {
+   "fieldname": "weight_date",
+   "fieldtype": "Date",
+   "label": "Weight Date"
+  },
+  {
+   "fieldname": "weight_time",
+   "fieldtype": "Time",
+   "label": "Weight Time"
+  },
+  {
+   "fieldname": "weight_slip_no",
+   "fieldtype": "Data",
+   "label": "Weight Slip No."
+  },
+  {
+   "fieldname": "weight_person_name",
+   "fieldtype": "Data",
+   "label": "Weight Person Name"
+  },
+  {
+   "default": "Select",
+   "fetch_from": "transporter_name.vehicle_type",
+   "fieldname": "transport_vehicle_type",
+   "fieldtype": "Select",
+   "label": "Transport Vehicle Type",
+   "options": "Select\nTruck\nTractor"
+  },
+  {
+   "fetch_from": "transporter_name.tcn",
+   "fieldname": "transporter_name",
+   "fieldtype": "Link",
+   "label": "Transporter Name",
+   "options": "Transporter Information"
+  },
+  {
+   "fetch_from": "transporter_name.vrn",
+   "fieldname": "vehicle_registration_no",
+   "fieldtype": "Data",
+   "label": "Vehicle Registration No."
+  },
+  {
+   "fetch_from": "driver_name.driver_name",
+   "fieldname": "driver_name",
+   "fieldtype": "Link",
+   "label": "Driver Name",
+   "options": "GPS Tracking"
+  },
+  {
+   "fieldname": "gross_weight",
+   "fieldtype": "Data",
+   "label": "Gross Weight"
+  },
+  {
+   "fieldname": "net_weight",
+   "fieldtype": "Data",
+   "label": "Net Weight"
+  },
+  {
+   "fetch_from": "farmer_information.full_name",
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "label": "Farmer Full Name"
+  },
+  {
+   "fetch_from": "farmer_information.phone",
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Mobile Number"
+  },
+  {
+   "fetch_from": "farmer_information.uid",
+   "fieldname": "uid",
+   "fieldtype": "Data",
+   "label": "Aadhar Card/UID Number"
+  },
+  {
+   "fetch_from": "farmer_information.pan",
+   "fieldname": "pan",
+   "fieldtype": "Data",
+   "label": "PAN Card Number"
+  },
+  {
+   "fetch_from": "farmer_information.country",
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country"
+  },
+  {
+   "fetch_from": "farmer_information.state",
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State/Province"
+  },
+  {
+   "fieldname": "tare_weight",
+   "fieldtype": "Data",
+   "label": "Tare Weight"
+  },
+  {
+   "fieldname": "sgen",
+   "fieldtype": "Data",
+   "label": "Security Gate Entry No."
+  },
+  {
+   "fieldname": "sged",
+   "fieldtype": "Date",
+   "label": "Security Gate Entry Date"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Section Break",
+   "label": "Address"
+  },
+  {
+   "fetch_from": "farmer_information.address_line1",
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "label": "Address Line 1"
+  },
+  {
+   "fetch_from": "farmer_information.address_line2",
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "label": "Address Line 2"
+  },
+  {
+   "fetch_from": "farmer_information.city",
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City/Town"
+  },
+  {
+   "fetch_from": "farmer_information.pincode",
+   "fieldname": "pincode",
+   "fieldtype": "Data",
+   "label": "Pin Code"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_14",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_17",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "driver_name.driver_mobile_no",
+   "fieldname": "driver_mobile_no",
+   "fieldtype": "Data",
+   "label": "Driver Mobile No."
+  },
+  {
+   "fieldname": "column_break_28",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-11 17:25:21.223333",
+ "modified_by": "Administrator",
+ "module": "Sugarcane Management",
+ "name": "Cane Weight Information",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -1,0 +1,149 @@
+{
+ "actions": [],
+ "creation": "2021-08-07 12:28:45.533034",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "labour_contractor_name",
+  "f_name",
+  "m_name",
+  "l_name",
+  "full_name",
+  "aadhar",
+  "pan",
+  "country",
+  "state",
+  "district",
+  "taluka",
+  "village",
+  "p_code",
+  "labour_licence_no",
+  "labour_quantity",
+  "male_labour_qty",
+  "female_labour_qty",
+  "allocation_zone",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "labour_contractor_name",
+   "fieldtype": "Data",
+   "label": "Labour Contractor Name"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "label": "Full Name"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "fieldname": "district",
+   "fieldtype": "Data",
+   "label": "District"
+  },
+  {
+   "fieldname": "taluka",
+   "fieldtype": "Data",
+   "label": "Taluka"
+  },
+  {
+   "fieldname": "village",
+   "fieldtype": "Data",
+   "label": "Village"
+  },
+  {
+   "fieldname": "labour_licence_no",
+   "fieldtype": "Data",
+   "label": "Labour Licence No."
+  },
+  {
+   "fieldname": "labour_quantity",
+   "fieldtype": "Int",
+   "label": "Labour Quantity"
+  },
+  {
+   "fieldname": "male_labour_qty",
+   "fieldtype": "Int",
+   "label": "Male Labour Qty."
+  },
+  {
+   "fieldname": "female_labour_qty",
+   "fieldtype": "Int",
+   "label": "Female Labour Qty."
+  },
+  {
+   "fieldname": "allocation_zone",
+   "fieldtype": "Data",
+   "label": "Allocation Zone"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark"
+  },
+  {
+   "fieldname": "f_name",
+   "fieldtype": "Data",
+   "label": "First Name"
+  },
+  {
+   "fieldname": "m_name",
+   "fieldtype": "Data",
+   "label": "Middle Name"
+  },
+  {
+   "fieldname": "l_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
+   "fieldname": "aadhar",
+   "fieldtype": "Data",
+   "label": "Aadhar Card/UID No."
+  },
+  {
+   "fieldname": "pan",
+   "fieldtype": "Data",
+   "label": "Pan Card No."
+  },
+  {
+   "fieldname": "p_code",
+   "fieldtype": "Data",
+   "label": "Pin Code"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-11 11:41:19.062108",
+ "modified_by": "Administrator",
+ "module": "Sugarcane Management",
+ "name": "Labour Contractor Information",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
