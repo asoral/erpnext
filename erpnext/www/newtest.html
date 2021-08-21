@@ -1,0 +1,56 @@
+<html>
+<head>
+<!-- <script src="jquery-2.1.4.js"></script> -->
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" 
+integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw==" 
+crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.min.js" 
+integrity="sha512-w7r+eT8+PCZO1swlDTzxizWWNVWAAwiRwG20y4hF+TVIIb4hS4tLRET+010aobHNNAj/rmAock+wAvoi/xRKPA=="
+ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- <link rel="stylesheet" type="text/css" href="styles.css"> -->
+
+</head>
+<body>
+<div id="navbar"><span>SheetJS </span></div>
+<div id="wrapper">
+    
+        <button id="button-a">Create Excel</button>
+
+</div>
+<script>
+        var wb = XLSX.utils.book_new();
+        wb.Props = {
+                Title: "SheetJS Tutorial",
+                Subject: "Test",
+                Author: "Red Stapler",
+                CreatedDate: new Date(2017,12,19)
+        };
+        
+        wb.SheetNames.push("Test Sheet");
+        var ws_data = [['hello' , 'world']];
+        var ws = XLSX.utils.aoa_to_sheet(ws_data);
+        wb.Sheets["Test Sheet"] = ws;
+
+        var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+        function s2ab(s) {
+  
+                var buf = new ArrayBuffer(s.length);
+                var view = new Uint8Array(buf);
+                for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+                
+        }
+        $("#button-a").click(function(){
+                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'test.xlsx');
+        });
+  
+</script>
+</body>
+</html>

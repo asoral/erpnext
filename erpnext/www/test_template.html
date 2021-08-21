@@ -1,18 +1,38 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"><
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
   <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  </head><body style="margin:0px;padding:0px;overflow:hidden">HEAD
+  </head><body style="margin:0px;padding:0px;overflow:hidden">
+<!-- 
+    <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRwc9fmsX1tDK4QYBp5yq3v91HrVdnoeV-axLrC8gyZs9N3p7oOGpONjPXAiiZEmywoF-oGiAjLhAHG/pubhtml?gid=0&amp;single=true&amp;widget=true&amp;headers=false"
+     width='100%' height='565px' frameborder='1'></iframe> 
+ 
+  -->
+ <h1>google spreadsheets</h1>
+<!-- 
+ <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRwc9fmsX1tDK4QYBp5yq3v91HrVdnoeV-axLrC8gyZs9N3p7oOGpONjPXAiiZEmywoF-oGiAjLhAHG/pubhtml?widget=true&amp;headers=false"
+ width='100%' height='400px' frameborder='1'></iframe>
+   -->
+  <!-- <iframe src="https://docs.google.com/spreadsheets/d/1QajNJqsWsCYY5ZVYs9OG75OrL9miONwQEbfnAPTDeb4/edit?usp=sharing"
+  width='100%' height='400px' frameborder='1'>
+  </iframe> -->
 
+  <!-- <iframe  id="myIframe" onload="copyIframeContent(this);" name="myIframe" 
+  src="https://docs.google.com/spreadsheets/d/1QajNJqsWsCYY5ZVYs9OG75OrL9miONwQEbfnAPTDeb4/edit?usp=sharing&amp;single=false&amp;widget=false&amp;headers=false"
+  width='100%' height='400px' frameborder='1'></iframe> -->
 
-  
-      <!-- <iframe src="embed url" frameborder="0" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" height="100%" width="100%"></iframe> -->
-
-      <iframe src="https://view.officeapps.live.com/op/embed.aspx?src=http://www.learningaboutelectronics.com/Articles/Example.xlsx" width="100%" height="565px" frameborder="0"> </iframe>
-      
-  <!-- <iframe src="embed url" frameborder="0" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" height="100%" width="100%"></iframe> -->
-
-  <iframe src="https://view.officeapps.live.com/op/embed.aspx?src=http://www.learningaboutelectronics.com/Articles/Example.xlsx" width="100%" height="565px" frameborder="0"> </iframe>
-
-
-
-  </body>
-  </html>
+  <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRwc9fmsX1tDK4QYBp5yq3v91HrVdnoeV-axLrC8gyZs9N3p7oOGpONjPXAiiZEmywoF-oGiAjLhAHG/pubhtml?gid=0&amp;single=true&amp;widget=true&amp;headers=false"
+   width='100%' height='400px' frameborder='1' ></iframe>
+ 
+  <textarea id='result'></textarea>
+  <input type="button" value="click" id="btn" onclick="aa()">
+ 
+ <script type="text/javascript">
+    function aa(){  
+      // alert("Fdf");
+       alert(document.getElementById('myIframe').contentWindow.document.body.innerHTML);
+       var x = document.getElementById('myIframe').contentWindow.document.body
+       console.log("=== ",x)
+       console.log(window.frames['myIframe'].document.body)
+}
+</script>
+</body>
+</html>
