@@ -33,12 +33,19 @@
    "type": "Link"
   }
  ],
- "modified": "2021-08-18 11:16:45.678951",
+ "modified": "2021-08-24 12:02:32.043342",
  "modified_by": "Administrator",
  "module": "Office",
  "name": "Office",
  "owner": "Administrator",
  "pin_to_bottom": 0,
  "pin_to_top": 1,
- "shortcuts": []
+ "shortcuts": [
+  {
+   "doc_view": "",
+   "label": "OFFICE Doctype",
+   "link_to": "OFFICE Doctype",
+   "type": "DocType"
+  }
+ ]
 }
