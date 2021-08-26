@@ -68,6 +68,21 @@ def convert_deferred_expense_to_expense(deferred_process, start_date=None, end_d
 		doc = frappe.get_doc("Purchase Invoice", invoice)
 		book_deferred_income_or_expense(doc, deferred_process, end_date)
 
+	# check for the expense claim multi company for which GL entries has to be done
+	mul_exp = frappe.db.sql_list('''
+		select distinct item.parent
+		from `tabExpense Claim Multi Company Account` item, `tabExpense Claim  Multi Company` p
+		where item.service_start_date<=%s and item.service_end_date>=%s
+		and item.enable_deferred_expense = 1 and item.parent=p.name
+		and item.docstatus = 1 and ifnull(item.debit_amount, 0) > 0
+		{0}
+	'''.format(conditions), (end_date, start_date))  # nosec
+	print("*******************Expense Claim  Multi Companyssss all: ", mul_exp)
+	# For each expense, book deferred expense
+	for exp in mul_exp:
+		doc = frappe.get_doc("Expense Claim  Multi Company", exp)
+		book_deferred_income_or_expense(doc, deferred_process, end_date)
+		print("*******************Expense Claim  Multi Company selective: ",doc.name)
 	if frappe.flags.deferred_accounting_error:
 		send_mail(deferred_process)
 
@@ -101,115 +116,218 @@ def get_booking_dates(doc, item, posting_date=None):
 		posting_date = add_days(today(), -1)
 
 	last_gl_entry = False
+	if doc.doctype == "Expense Claim  Multi Company":
 
-	deferred_account = "deferred_revenue_account" if doc.doctype=="Sales Invoice" else "deferred_expense_account"
-
-	prev_gl_entry = frappe.db.sql('''
-		select name, posting_date from `tabGL Entry` where company=%s and account=%s and
-		voucher_type=%s and voucher_no=%s and voucher_detail_no=%s
-		order by posting_date desc limit 1
-	''', (doc.company, item.get(deferred_account), doc.doctype, doc.name, item.name), as_dict=True)
-
-	prev_gl_via_je = frappe.db.sql('''
-		SELECT p.name, p.posting_date FROM `tabJournal Entry` p, `tabJournal Entry Account` c
-		WHERE p.name = c.parent and p.company=%s and c.account=%s
-		and c.reference_type=%s and c.reference_name=%s
-		and c.reference_detail_no=%s and c.docstatus < 2 order by posting_date desc limit 1
-	''', (doc.company, item.get(deferred_account), doc.doctype, doc.name, item.name), as_dict=True)
-
-	if prev_gl_via_je:
-		if (not prev_gl_entry) or (prev_gl_entry and
-			prev_gl_entry[0].posting_date < prev_gl_via_je[0].posting_date):
-			prev_gl_entry = prev_gl_via_je
-
-	if prev_gl_entry:
-		start_date = getdate(add_days(prev_gl_entry[0].posting_date, 1))
+		deferred_account = "deffered_expense_account_head"
 	else:
-		start_date = item.service_start_date
+		deferred_account = "deferred_revenue_account" if doc.doctype=="Sales Invoice" else "deferred_expense_account"
+	if doc.doctype == "Expense Claim  Multi Company":
+		prev_gl_entry = frappe.db.sql('''
+				select name, posting_date from `tabGL Entry` where company=%s and account=%s and
+				voucher_type=%s and voucher_no=%s and voucher_detail_no=%s
+				order by posting_date desc limit 1
+			''', (item.company, item.get(deferred_account), doc.doctype, doc.name, item.name), as_dict=True)
+		print("**************************** prev_gl_entry", prev_gl_entry)
+		prev_gl_via_je = frappe.db.sql('''
+				SELECT p.name, p.posting_date FROM `tabJournal Entry` p, `tabJournal Entry Account` c
+				WHERE p.name = c.parent and p.company=%s and c.account=%s
+				and c.reference_type=%s and c.reference_name=%s
+				and c.reference_detail_no=%s and c.docstatus < 2 order by posting_date desc limit 1
+			''', (item.company, item.get(deferred_account),doc.doctype, doc.name, item.name), as_dict=True)
+		print("****************************prev_gl via je",doc.company,item.get(deferred_account),doc.doctype,doc.name,item.name)
+		if prev_gl_via_je:
+			if (not prev_gl_entry) or (prev_gl_entry and
+									   prev_gl_entry[0].posting_date < prev_gl_via_je[0].posting_date):
+				prev_gl_entry = prev_gl_via_je
 
-	end_date = get_last_day(start_date)
-	if end_date >= item.service_end_date:
-		end_date = item.service_end_date
-		last_gl_entry = True
-	elif item.service_stop_date and end_date >= item.service_stop_date:
-		end_date = item.service_stop_date
-		last_gl_entry = True
+		if prev_gl_entry:
+			start_date = getdate(add_days(prev_gl_entry[0].posting_date, 1))
+		else:
+			start_date = item.service_start_date
 
-	if end_date > getdate(posting_date):
-		end_date = posting_date
+		end_date = get_last_day(start_date)
+		if end_date >= item.service_end_date:
+			end_date = item.service_end_date
+			last_gl_entry = True
+		elif item.service_stop_date and end_date >= item.service_stop_date:
+			end_date = item.service_stop_date
+			last_gl_entry = True
 
-	if getdate(start_date) <= getdate(end_date):
-		return start_date, end_date, last_gl_entry
+		if end_date > getdate(posting_date):
+			end_date = posting_date
+
+		if getdate(start_date) <= getdate(end_date):
+			return start_date, end_date, last_gl_entry
+		else:
+			return None, None, None
 	else:
-		return None, None, None
+		prev_gl_entry = frappe.db.sql('''
+			select name, posting_date from `tabGL Entry` where company=%s and account=%s and
+			voucher_type=%s and voucher_no=%s and voucher_detail_no=%s
+			order by posting_date desc limit 1
+		''', (doc.company, item.get(deferred_account), doc.doctype, doc.name, item.name), as_dict=True)
+
+		prev_gl_via_je = frappe.db.sql('''
+			SELECT p.name, p.posting_date FROM `tabJournal Entry` p, `tabJournal Entry Account` c
+			WHERE p.name = c.parent and p.company=%s and c.account=%s
+			and c.reference_type=%s and c.reference_name=%s
+			and c.reference_detail_no=%s and c.docstatus < 2 order by posting_date desc limit 1
+		''', (doc.company, item.get(deferred_account), doc.doctype, doc.name, item.name), as_dict=True)
+
+		if prev_gl_via_je:
+			if (not prev_gl_entry) or (prev_gl_entry and
+				prev_gl_entry[0].posting_date < prev_gl_via_je[0].posting_date):
+				prev_gl_entry = prev_gl_via_je
+
+		if prev_gl_entry:
+			start_date = getdate(add_days(prev_gl_entry[0].posting_date, 1))
+		else:
+			start_date = item.service_start_date
+
+		end_date = get_last_day(start_date)
+		if end_date >= item.service_end_date:
+			end_date = item.service_end_date
+			last_gl_entry = True
+		elif item.service_stop_date and end_date >= item.service_stop_date:
+			end_date = item.service_stop_date
+			last_gl_entry = True
+
+		if end_date > getdate(posting_date):
+			end_date = posting_date
+
+		if getdate(start_date) <= getdate(end_date):
+			return start_date, end_date, last_gl_entry
+		else:
+			return None, None, None
 
 def calculate_monthly_amount(doc, item, last_gl_entry, start_date, end_date, total_days, total_booking_days, account_currency):
 	amount, base_amount = 0, 0
+	if doc.doctype == "Expense Claim  Multi Company":
+		if not last_gl_entry:
+			total_months = (item.service_end_date.year - item.service_start_date.year) * 12 + \
+				(item.service_end_date.month - item.service_start_date.month) + 1
 
-	if not last_gl_entry:
-		total_months = (item.service_end_date.year - item.service_start_date.year) * 12 + \
-			(item.service_end_date.month - item.service_start_date.month) + 1
+			prorate_factor = flt(date_diff(item.service_end_date, item.service_start_date)) \
+				/ flt(date_diff(get_last_day(item.service_end_date), get_first_day(item.service_start_date)))
 
-		prorate_factor = flt(date_diff(item.service_end_date, item.service_start_date)) \
-			/ flt(date_diff(get_last_day(item.service_end_date), get_first_day(item.service_start_date)))
+			actual_months = rounded(total_months * prorate_factor, 1)
 
-		actual_months = rounded(total_months * prorate_factor, 1)
+			already_booked_amount, already_booked_amount_in_account_currency = get_already_booked_amount(doc, item)
+			base_amount = flt(item.debit_in_account_currency / actual_months, item.precision("debit_in_account_currency"))
 
-		already_booked_amount, already_booked_amount_in_account_currency = get_already_booked_amount(doc, item)
-		base_amount = flt(item.base_net_amount / actual_months, item.precision("base_net_amount"))
+			if base_amount + already_booked_amount > item.debit_in_account_currency:
+				base_amount = item.debit_in_account_currency - already_booked_amount
+			comp_currency_val = frappe.db.get_value("Company", doc.company, 'default_currency')
+			if account_currency==comp_currency_val:
+				amount = base_amount
+			else:
+				amount = flt(item.debit_in_account_currency/actual_months, item.precision("debit_in_account_currency"))
+				if amount + already_booked_amount_in_account_currency > item.debit_in_account_currency:
+					amount = item.debit_in_account_currency - already_booked_amount_in_account_currency
 
-		if base_amount + already_booked_amount > item.base_net_amount:
-			base_amount = item.base_net_amount - already_booked_amount
+			if not (get_first_day(start_date) == start_date and get_last_day(end_date) == end_date):
+				partial_month = flt(date_diff(end_date, start_date)) \
+					/ flt(date_diff(get_last_day(end_date), get_first_day(start_date)))
 
-		if account_currency==doc.company_currency:
-			amount = base_amount
+				base_amount = rounded(partial_month, 1) * base_amount
+				amount = rounded(partial_month, 1) * amount
 		else:
-			amount = flt(item.net_amount/actual_months, item.precision("net_amount"))
-			if amount + already_booked_amount_in_account_currency > item.net_amount:
-				amount = item.net_amount - already_booked_amount_in_account_currency
-
-		if not (get_first_day(start_date) == start_date and get_last_day(end_date) == end_date):
-			partial_month = flt(date_diff(end_date, start_date)) \
-				/ flt(date_diff(get_last_day(end_date), get_first_day(start_date)))
-
-			base_amount = rounded(partial_month, 1) * base_amount
-			amount = rounded(partial_month, 1) * amount
+			already_booked_amount, already_booked_amount_in_account_currency = get_already_booked_amount(doc, item)
+			base_amount = flt(item.debit_in_account_currency - already_booked_amount, item.precision("debit_in_account_currency"))
+			comp_currency_val = frappe.db.get_value("Company", doc.company, 'default_currency')
+			if account_currency == comp_currency_val:
+				amount = base_amount
+			else:
+				amount = flt(item.debit_in_account_currency - already_booked_amount_in_account_currency, item.precision("debit_in_account_currency"))
 	else:
-		already_booked_amount, already_booked_amount_in_account_currency = get_already_booked_amount(doc, item)
-		base_amount = flt(item.base_net_amount - already_booked_amount, item.precision("base_net_amount"))
-		if account_currency==doc.company_currency:
-			amount = base_amount
-		else:
-			amount = flt(item.net_amount - already_booked_amount_in_account_currency, item.precision("net_amount"))
+		if not last_gl_entry:
+			total_months = (item.service_end_date.year - item.service_start_date.year) * 12 + \
+						   (item.service_end_date.month - item.service_start_date.month) + 1
 
+			prorate_factor = flt(date_diff(item.service_end_date, item.service_start_date)) \
+							 / flt(
+				date_diff(get_last_day(item.service_end_date), get_first_day(item.service_start_date)))
+
+			actual_months = rounded(total_months * prorate_factor, 1)
+
+			already_booked_amount, already_booked_amount_in_account_currency = get_already_booked_amount(doc, item)
+			base_amount = flt(item.base_net_amount / actual_months, item.precision("base_net_amount"))
+
+			if base_amount + already_booked_amount > item.base_net_amount:
+				base_amount = item.base_net_amount - already_booked_amount
+
+			if account_currency == doc.company_currency:
+				amount = base_amount
+			else:
+				amount = flt(item.net_amount / actual_months, item.precision("net_amount"))
+				if amount + already_booked_amount_in_account_currency > item.net_amount:
+					amount = item.net_amount - already_booked_amount_in_account_currency
+
+			if not (get_first_day(start_date) == start_date and get_last_day(end_date) == end_date):
+				partial_month = flt(date_diff(end_date, start_date)) \
+								/ flt(date_diff(get_last_day(end_date), get_first_day(start_date)))
+
+				base_amount = rounded(partial_month, 1) * base_amount
+				amount = rounded(partial_month, 1) * amount
+		else:
+			already_booked_amount, already_booked_amount_in_account_currency = get_already_booked_amount(doc, item)
+			base_amount = flt(item.base_net_amount - already_booked_amount, item.precision("base_net_amount"))
+			if account_currency == doc.company_currency:
+				amount = base_amount
+			else:
+				amount = flt(item.net_amount - already_booked_amount_in_account_currency, item.precision("net_amount"))
 	return amount, base_amount
 
 def calculate_amount(doc, item, last_gl_entry, total_days, total_booking_days, account_currency):
 	amount, base_amount = 0, 0
-	if not last_gl_entry:
-		base_amount = flt(item.base_net_amount*total_booking_days/flt(total_days), item.precision("base_net_amount"))
-		if account_currency==doc.company_currency:
-			amount = base_amount
+	if doc.doctype == "Expense Claim  Multi Company":
+		if not last_gl_entry:
+			base_amount = flt(item.debit_in_account_currency * total_booking_days / flt(total_days),
+							  item.precision("debit_in_account_currency"))
+			comp_currency_val = frappe.db.get_value("Company",doc.company,'default_currency')
+			if account_currency == comp_currency_val:
+				amount = base_amount
+			else:
+				amount = flt(item.debit_in_account_currency * total_booking_days / flt(total_days), item.precision("debit_in_account_currency"))
 		else:
-			amount = flt(item.net_amount*total_booking_days/flt(total_days), item.precision("net_amount"))
+			already_booked_amount, already_booked_amount_in_account_currency = get_already_booked_amount(doc, item)
+
+			base_amount = flt(item.debit_in_account_currency - already_booked_amount, item.precision("debit_in_account_currency"))
+			if account_currency == frappe.db.get_value("Company",doc.company,'default_currency'):
+				print('acc currency comp def')
+				amount = base_amount
+			else:
+				amount = flt(item.debit_in_account_currency - already_booked_amount_in_account_currency, item.precision("debit_in_account_currency"))
+		print("calculate amount *********************",amount,base_amount)
+		return amount, base_amount
 	else:
-		already_booked_amount, already_booked_amount_in_account_currency = get_already_booked_amount(doc, item)
-
-		base_amount = flt(item.base_net_amount - already_booked_amount, item.precision("base_net_amount"))
-		if account_currency==doc.company_currency:
-			amount = base_amount
+		if not last_gl_entry:
+			base_amount = flt(item.base_net_amount*total_booking_days/flt(total_days), item.precision("base_net_amount"))
+			if account_currency==doc.company_currency:
+				amount = base_amount
+			else:
+				amount = flt(item.net_amount*total_booking_days/flt(total_days), item.precision("net_amount"))
 		else:
-			amount = flt(item.net_amount - already_booked_amount_in_account_currency, item.precision("net_amount"))
+			already_booked_amount, already_booked_amount_in_account_currency = get_already_booked_amount(doc, item)
 
-	return amount, base_amount
+			base_amount = flt(item.base_net_amount - already_booked_amount, item.precision("base_net_amount"))
+			if account_currency==doc.company_currency:
+				amount = base_amount
+			else:
+				amount = flt(item.net_amount - already_booked_amount_in_account_currency, item.precision("net_amount"))
+
+		return amount, base_amount
 
 def get_already_booked_amount(doc, item):
 	if doc.doctype == "Sales Invoice":
 		total_credit_debit, total_credit_debit_currency = "debit", "debit_in_account_currency"
 		deferred_account = "deferred_revenue_account"
+	elif doc.doctype == "Expense Claim  Multi Company":
+		total_credit_debit, total_credit_debit_currency = "debit", "debit_in_account_currency"
+		deferred_account = "deferred_revenue_account"
 	else:
 		total_credit_debit, total_credit_debit_currency = "credit", "credit_in_account_currency"
-		deferred_account = "deferred_expense_account"
+		deferred_account = "deffered_expense_account_head"
 
 	gl_entries_details = frappe.db.sql('''
 		select sum({0}) as total_credit, sum({1}) as total_credit_in_account_currency, voucher_detail_no
@@ -228,12 +346,18 @@ def get_already_booked_amount(doc, item):
 
 	already_booked_amount = gl_entries_details[0].total_credit if gl_entries_details else 0
 	already_booked_amount += journal_entry_details[0].total_credit if journal_entry_details else 0
-
-	if doc.currency == doc.company_currency:
-		already_booked_amount_in_account_currency = already_booked_amount
+	if doc.doctype == "Expense Claim  Multi Company":
+		doc.currency = frappe.db.get_value("Company",doc.company,'default_currency')
+		already_booked_amount_in_account_currency = gl_entries_details[
+			0].total_credit_in_account_currency if gl_entries_details else 0
+		already_booked_amount_in_account_currency += journal_entry_details[
+			0].total_credit_in_account_currency if journal_entry_details else 0
 	else:
-		already_booked_amount_in_account_currency = gl_entries_details[0].total_credit_in_account_currency if gl_entries_details else 0
-		already_booked_amount_in_account_currency += journal_entry_details[0].total_credit_in_account_currency if journal_entry_details else 0
+		if doc.currency == doc.company_currency:
+			already_booked_amount_in_account_currency = already_booked_amount
+		else:
+			already_booked_amount_in_account_currency = gl_entries_details[0].total_credit_in_account_currency if gl_entries_details else 0
+			already_booked_amount_in_account_currency += journal_entry_details[0].total_credit_in_account_currency if journal_entry_details else 0
 
 	return already_booked_amount, already_booked_amount_in_account_currency
 
@@ -243,12 +367,21 @@ def book_deferred_income_or_expense(doc, deferred_process, posting_date=None):
 
 	def _book_deferred_revenue_or_expense(item, via_journal_entry, submit_journal_entry, book_deferred_entries_based_on):
 		start_date, end_date, last_gl_entry = get_booking_dates(doc, item, posting_date=posting_date)
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> start_date, end_date, last_gl_entry",start_date, end_date, last_gl_entry)
 		if not (start_date and end_date): return
+		if doc.doctype == "Expense Claim  Multi Company":
+			print("acc cureency before")
+			account_currency = get_account_currency(item.account)
+			print("acc cureency after",account_currency)
+		else:
+			account_currency = get_account_currency(item.expense_account)
 
-		account_currency = get_account_currency(item.expense_account)
 		if doc.doctype == "Sales Invoice":
 			against, project = doc.customer, doc.project
 			credit_account, debit_account = item.income_account, item.deferred_revenue_account
+		elif doc.doctype == "Expense Claim  Multi Company":
+			against, project = doc.supplier, ""
+			credit_account, debit_account = item.deffered_expense_account_head, item.account
 		else:
 			against, project = doc.supplier, item.project
 			credit_account, debit_account = item.deferred_expense_account, item.expense_account
@@ -260,15 +393,20 @@ def book_deferred_income_or_expense(doc, deferred_process, posting_date=None):
 			amount, base_amount = calculate_monthly_amount(doc, item, last_gl_entry,
 				start_date, end_date, total_days, total_booking_days, account_currency)
 		else:
+			print("------cal amount bofore")
 			amount, base_amount = calculate_amount(doc, item, last_gl_entry,
 				total_days, total_booking_days, account_currency)
+			print("------cal amount after-----------",amount,base_amount)
 
 		if not amount:
+			print("nooooooooooooooooooooooooooooooooooooo amountttttttttttttttttttttttttttt")
 			return
 
 		if via_journal_entry:
+			print("book_revenue_via_journal_entry -----------------before")
 			book_revenue_via_journal_entry(doc, credit_account, debit_account, against, amount,
 				base_amount, end_date, project, account_currency, item.cost_center, item, deferred_process, submit_journal_entry)
+			print("book_revenue_via_journal_entry -------------after",end_date)
 		else:
 			make_gl_entries(doc, credit_account, debit_account, against,
 				amount, base_amount, end_date, project, account_currency, item.cost_center, item, deferred_process)
@@ -278,15 +416,22 @@ def book_deferred_income_or_expense(doc, deferred_process, posting_date=None):
 			return
 
 		if getdate(end_date) < getdate(posting_date) and not last_gl_entry:
+			print("##########################################  recursion",getdate(end_date),getdate(posting_date))
 			_book_deferred_revenue_or_expense(item, via_journal_entry, submit_journal_entry, book_deferred_entries_based_on)
 
 	via_journal_entry = cint(frappe.db.get_singles_value('Accounts Settings', 'book_deferred_entries_via_journal_entry'))
 	submit_journal_entry = cint(frappe.db.get_singles_value('Accounts Settings', 'submit_journal_entries'))
 	book_deferred_entries_based_on = frappe.db.get_singles_value('Accounts Settings', 'book_deferred_entries_based_on')
 
-	for item in doc.get('items'):
-		if item.get(enable_check):
-			_book_deferred_revenue_or_expense(item, via_journal_entry, submit_journal_entry, book_deferred_entries_based_on)
+	if doc.doctype == "Expense Claim  Multi Company":
+		for item in doc.get('accounts'):
+			if item.get(enable_check):
+				_book_deferred_revenue_or_expense(item, via_journal_entry, submit_journal_entry,
+												  book_deferred_entries_based_on)
+	else:
+		for item in doc.get('items'):
+			if item.get(enable_check):
+				_book_deferred_revenue_or_expense(item, via_journal_entry, submit_journal_entry, book_deferred_entries_based_on)
 
 def process_deferred_accounting(posting_date=None):
 	''' Converts deferred income/expense into income/expense
@@ -324,47 +469,92 @@ def make_gl_entries(doc, credit_account, debit_account, against,
 
 	if amount == 0: return
 
-	gl_entries = []
-	gl_entries.append(
-		doc.get_gl_dict({
-			"account": credit_account,
-			"against": against,
-			"credit": base_amount,
-			"credit_in_account_currency": amount,
-			"cost_center": cost_center,
-			"voucher_detail_no": item.name,
-			'posting_date': posting_date,
-			'project': project,
-			'against_voucher_type': 'Process Deferred Accounting',
-			'against_voucher': deferred_process
-		}, account_currency, item=item)
-	)
-	# GL Entry to debit the amount from the expense
-	gl_entries.append(
-		doc.get_gl_dict({
-			"account": debit_account,
-			"against": against,
-			"debit": base_amount,
-			"debit_in_account_currency": amount,
-			"cost_center": cost_center,
-			"voucher_detail_no": item.name,
-			'posting_date': posting_date,
-			'project': project,
-			'against_voucher_type': 'Process Deferred Accounting',
-			'against_voucher': deferred_process
-		}, account_currency, item=item)
-	)
+	if doc.doctype == "Expense Claim  Multi Company":
+		gl_entries = []
+		gl_entries.append(
+			doc.get_gl_dict({
+				"account": credit_account,
+				"against": against,
+				"credit": base_amount,
+				"credit_in_account_currency": amount,
+				"cost_center": cost_center,
+				"voucher_detail_no": item.name,
+				'posting_date': posting_date,
+				'project': project,
+				'against_voucher_type': 'Process Deferred Accounting',
+				'against_voucher': deferred_process
+			}, account_currency, item=item)
+		)
 
-	if gl_entries:
-		try:
-			make_gl_entries(gl_entries, cancel=(doc.docstatus == 2), merge_entries=True)
-			frappe.db.commit()
-		except:
-			frappe.db.rollback()
-			traceback = frappe.get_traceback()
-			frappe.log_error(message=traceback)
+		# GL Entry to debit the amount from the expense
+		gl_entries.append(
+			doc.get_gl_dict({
+				"account": debit_account,
+				"against": against,
+				"debit": base_amount,
+				"debit_in_account_currency": amount,
+				"cost_center": cost_center,
+				"voucher_detail_no": item.name,
+				'posting_date': posting_date,
+				'project': project,
+				'against_voucher_type': 'Process Deferred Accounting',
+				'against_voucher': deferred_process
+			}, account_currency, item=item)
+		)
 
-			frappe.flags.deferred_accounting_error = True
+		if gl_entries:
+			try:
+				make_gl_entries(gl_entries, cancel=(doc.docstatus == 2), merge_entries=True)
+				frappe.db.commit()
+			except:
+				frappe.db.rollback()
+				traceback = frappe.get_traceback()
+				frappe.log_error(message=traceback)
+
+				frappe.flags.deferred_accounting_error = True
+	else:
+		gl_entries = []
+		gl_entries.append(
+			doc.get_gl_dict({
+				"account": credit_account,
+				"against": against,
+				"credit": base_amount,
+				"credit_in_account_currency": amount,
+				"cost_center": cost_center,
+				"voucher_detail_no": item.name,
+				'posting_date': posting_date,
+				'project': project,
+				'against_voucher_type': 'Process Deferred Accounting',
+				'against_voucher': deferred_process
+			}, account_currency, item=item)
+		)
+
+		# GL Entry to debit the amount from the expense
+		gl_entries.append(
+			doc.get_gl_dict({
+				"account": debit_account,
+				"against": against,
+				"debit": base_amount,
+				"debit_in_account_currency": amount,
+				"cost_center": cost_center,
+				"voucher_detail_no": item.name,
+				'posting_date': posting_date,
+				'project': project,
+				'against_voucher_type': 'Process Deferred Accounting',
+				'against_voucher': deferred_process
+			}, account_currency, item=item)
+		)
+
+		if gl_entries:
+			try:
+				make_gl_entries(gl_entries, cancel=(doc.docstatus == 2), merge_entries=True)
+				frappe.db.commit()
+			except:
+				frappe.db.rollback()
+				traceback = frappe.get_traceback()
+				frappe.log_error(message=traceback)
+
+				frappe.flags.deferred_accounting_error = True
 
 def send_mail(deferred_process):
 	title = _("Error while processing deferred accounting for {0}").format(deferred_process)
@@ -378,10 +568,38 @@ def book_revenue_via_journal_entry(doc, credit_account, debit_account, against,
 	deferred_process=None, submit='No'):
 
 	if amount == 0: return
+	if doc.doctype == "Expense Claim  Multi Company":
+		# comp_abbr = frappe.db.get_value("Company",doc.company,'abbr')
+		# # for credit abbr
+		# credit_to_acc_name = frappe.db.sql(""" select name,account_name,account_number
+		# 										from `tabAccount` where name = %(name)s """,
+		# 								   {'name': credit_account}, as_dict=True)
+		# val_acc = ""
+		# for acc in credit_to_acc_name:
+		# 	if acc.account_number:
+		# 		val_acc = acc.account_number + " - " + acc.account_name + " - " +comp_abbr
+		# 	elif acc.account_name:
+		# 		val_acc = acc.account_name + " - " +comp_abbr
+		# if val_acc != "":
+		# 	credit_account = val_acc
+		# # for debit abbr
+		# debit_to_acc_name = frappe.db.sql(""" select name,account_name,account_number
+		# 												from `tabAccount` where name = %(name)s """,
+		# 								   {'name': debit_account}, as_dict=True)
+		# val_acc = ""
+		# for acc in debit_to_acc_name:
+		# 	if acc.account_number:
+		# 		val_acc = acc.account_number + " - " + acc.account_name + " - " + comp_abbr
+		# 	elif acc.account_name:
+		# 		val_acc = acc.account_name + " - " + comp_abbr
+		# if val_acc != "":
+		# 	debit_account = val_acc
 
+		print("credit--------------------------------", credit_account)
+		print("debit---------------------------------",debit_account)
 	journal_entry = frappe.new_doc('Journal Entry')
 	journal_entry.posting_date = posting_date
-	journal_entry.company = doc.company
+	journal_entry.company = item.company
 	journal_entry.voucher_type = 'Deferred Revenue' if doc.doctype == 'Sales Invoice' \
 		else 'Deferred Expense'
 
@@ -421,21 +639,29 @@ def book_revenue_via_journal_entry(doc, credit_account, debit_account, against,
 		credit_entry.update({
 			dimension: item.get(dimension)
 		})
+	# if doc.doctype == "Expense Claim  Multi Company":
+	# 	debit_entry.update({
+	# 		'cost_center': frappe.db.get_value("Company",doc.company,'cost_center')
+	# 	})
+	#
+	# 	credit_entry.update({
+	# 		'cost_center': frappe.db.get_value("Company",doc.company,'cost_center')
+	# 	})
 
 	journal_entry.append('accounts', debit_entry)
 	journal_entry.append('accounts', credit_entry)
 
-	try:
-		journal_entry.save()
-
-		if submit:
-			journal_entry.submit()
-	except:
-		frappe.db.rollback()
-		traceback = frappe.get_traceback()
-		frappe.log_error(message=traceback)
-
-		frappe.flags.deferred_accounting_error = True
+	# try:
+	journal_entry.save()
+	journal_entry.submit()
+	# 	if submit:
+	# 		journal_entry.submit()
+	# except:
+	# 	frappe.db.rollback()
+	# 	traceback = frappe.get_traceback()
+	# 	frappe.log_error(message=traceback)
+	#
+	# 	frappe.flags.deferred_accounting_error = True
 
 def get_deferred_booking_accounts(doctype, voucher_detail_no, dr_or_cr):
 
