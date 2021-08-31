@@ -43,7 +43,7 @@ class AccountingDimension(Document):
 		if frappe.flags.in_test:
 			make_dimension_in_accounting_doctypes(doc=self)
 		else:
-			frappe.enqueue(make_dimension_in_accounting_doctypes, doc=self, queue='long')
+			make_dimension_in_accounting_doctypes(doc=self)
 
 	def on_trash(self):
 		if frappe.flags.in_test:
@@ -69,34 +69,34 @@ def make_dimension_in_accounting_doctypes(doc, doclist=None):
 	count = 0
 
 	for doctype in doclist:
+		if doctype != "Asset":
+			if (doc_count + 1) % 2 == 0:
+				insert_after_field = 'dimension_col_break'
+			else:
+				insert_after_field = 'accounting_dimensions_section'
 
-		if (doc_count + 1) % 2 == 0:
-			insert_after_field = 'dimension_col_break'
-		else:
-			insert_after_field = 'accounting_dimensions_section'
-
-		df = {
+			df = {
 			"fieldname": doc.fieldname,
 			"label": doc.label,
 			"fieldtype": "Link",
 			"options": doc.document_type,
 			"insert_after": insert_after_field,
 			"owner": "Administrator"
-		}
+			}
 
-		meta = frappe.get_meta(doctype, cached=False)
-		fieldnames = [d.fieldname for d in meta.get("fields")]
+			meta = frappe.get_meta(doctype, cached=False)
+			fieldnames = [d.fieldname for d in meta.get("fields")]
 
-		if df['fieldname'] not in fieldnames:
-			if doctype == "Budget":
-				add_dimension_to_budget_doctype(df.copy(), doc)
-			else:
-				create_custom_field(doctype, df)
+			if df['fieldname'] not in fieldnames:
+				if doctype == "Budget":
+					add_dimension_to_budget_doctype(df.copy(), doc)
+				else:
+					create_custom_field(doctype, df)
 
-		count += 1
+			count += 1
 
-		frappe.publish_progress(count*100/len(doclist), title = _("Creating Dimensions..."))
-		frappe.clear_cache(doctype=doctype)
+			frappe.publish_progress(count*100/len(doclist), title = _("Creating Dimensions..."))
+			frappe.clear_cache(doctype=doctype)
 
 def add_dimension_to_budget_doctype(df, doc):
 	df.update({

@@ -134,7 +134,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 			}
 		}
 
-		this.frm.set_df_property("drop_ship", "hidden", !is_drop_ship);
+		//this.frm.set_df_property("drop_ship", "hidden", !is_drop_ship);
 
 		if(doc.docstatus == 1) {
 			this.frm.fields_dict.items_section.wrapper.addClass("hide-border");
