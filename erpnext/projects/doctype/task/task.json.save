@@ -11,7 +11,8 @@
   "subject",
   "project",
   "issue",
-  "type1",
+  "item",
+  "type",
   "color",
   "is_group",
   "is_template",
@@ -81,10 +82,19 @@
    "search_index": 1
   },
   {
-   "fieldname": "issue",
+   "fieldname": "item",
+ {
+   "fieldtype": "Link", "fieldname": "issue",
+   "label": "Item", "fieldtype": "Link",
+   "mandatory_depends_on": "eval:doc.is_template", "label": "Issue",
+   "options": "Item" "options": "Issue"
+  }
+  },
+  {
+   "fieldname": "type",
    "fieldtype": "Link",
-   "label": "Issue",
-   "options": "Issue"
+   "label": "Type",
+   "options": "Task Type"
   },
   {
    "bold": 1,
@@ -385,12 +395,6 @@
    "fieldtype": "Date",
    "label": "Completed On",
    "mandatory_depends_on": "eval: doc.status == \"Completed\""
-  },
-  {
-   "fieldname": "type1",
-   "fieldtype": "Link",
-   "label": "Type",
-   "options": "Task Type"
   }
  ],
  "icon": "fa fa-check",
@@ -398,7 +402,7 @@
  "is_tree": 1,
  "links": [],
  "max_attachments": 5,
- "modified": "2021-08-30 15:58:18.092273",
+ "modified": "2021-08-14 12:29:21.452393",
  "modified_by": "Administrator",
  "module": "Projects",
  "name": "Task",

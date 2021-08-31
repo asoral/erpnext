@@ -12,13 +12,21 @@ from erpnext.hr.utils import validate_active_employee
 
 class Attendance(Document):
 	def validate(self):
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>1")
 		from erpnext.controllers.status_updater import validate_status
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>2")
 		validate_status(self.status, ["Present", "Absent", "On Leave", "Half Day", "Work From Home"])
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>3")
 		validate_active_employee(self.employee)
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4")
 		self.validate_attendance_date()
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>5")
 		self.validate_duplicate_record()
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>6")
 		self.validate_employee_status()
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>7")
 		self.check_leave_record()
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>8")
 
 	def validate_attendance_date(self):
 		date_of_joining = frappe.db.get_value("Employee", self.employee, "date_of_joining")

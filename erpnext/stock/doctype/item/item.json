@@ -175,9 +175,7 @@
    "in_standard_filter": 1,
    "label": "Variant Of",
    "options": "Item",
-   "read_only": 1,
-   "search_index": 1,
-   "set_only_once": 1
+   "search_index": 1
   },
   {
    "bold": 1,
@@ -1067,7 +1065,7 @@
  "index_web_pages_for_search": 1,
  "links": [],
  "max_attachments": 1,
- "modified": "2021-03-18 14:04:38.575519",
+ "modified": "2021-08-13 21:55:23.388946",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",
