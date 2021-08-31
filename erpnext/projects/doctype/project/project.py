@@ -66,7 +66,8 @@ class Project(Document):
 						required.append(i.particulars)
 						child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
 						for i in child_list:
-							required.append(i.name)
+							if i.name:
+								required.append(i.name)
 				for task in template.tasks:
 					if task not in required:
 						template_task_details = frappe.get_doc("Task", task.task)
@@ -94,7 +95,8 @@ class Project(Document):
 					required.append(i.particulars)
 					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
 					for i in child_list:
-						required.append(i.name)
+						if i.name:
+							required.append(i.name)
 			if task_details.name not in required:
 				return frappe.get_doc(dict(
 					doctype = 'Task',
@@ -153,7 +155,8 @@ class Project(Document):
 					required.append(i.particulars)
 					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
 					for i in child_list:
-						required.append(i.name)
+						if i.name:
+							required.append(i.name)
 			for template_task in template_tasks:
 				print(type(template_task))
 				if template_task.name not in required:
