@@ -8,14 +8,16 @@ from erpnext.controllers.status_updater import StatusUpdater
 from frappe.utils import flt
 from six.moves import reduce
 from frappe import _
-
+# from erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool import check_matching,get_queries
 class BankTransaction(StatusUpdater):
 	def after_insert(self):
 		self.unallocated_amount = abs(flt(self.withdrawal) - flt(self.deposit))
 
 	def on_submit(self):
+		# self.match_entries()
+		self.update_allocations()
 		self.clear_linked_payment_entries()
-		self.set_status()
+		self.set_status(update=True)
 
 	def on_update_after_submit(self):
 		self.update_allocations()
@@ -41,6 +43,7 @@ class BankTransaction(StatusUpdater):
 			frappe.db.set_value(self.doctype, self.name, "status", "Reconciled")
 
 		self.reload()
+	# def match_entries(self):
 
 	def clear_linked_payment_entries(self):
 		for payment_entry in self.payment_entries:
@@ -105,4 +108,131 @@ def unclear_reference_payment(doctype, docname):
 			frappe.db.set_value(doc.payment_document, doc.payment_entry, "clearance_date", None)
 
 		return doc.payment_entry
+
+# for bank reconcilation matching entries on submit
+@frappe.whitelist()
+def get_linked_payments(bank_transaction_name, document_types ):
+
+	# get all matching payments for a bank transaction
+	transaction = frappe.get_doc("Bank Transaction", bank_transaction_name)
+	bank_account = frappe.db.get_values(
+		"Bank Account",
+		transaction.bank_account,
+		["account", "company"],
+		as_dict=True)[0]
+	(account, company) = (bank_account.account, bank_account.company)
+	matching = check_matching(account, company, transaction, document_types)
+	return matching
+
+def check_matching(bank_account, company, transaction, document_types):
+	# combine all types of vocuhers
+	subquery = get_queries(bank_account, company, transaction, document_types)
+	filters = {
+			"amount": transaction.unallocated_amount,
+			"payment_type" : "Receive" if transaction.deposit > 0 else "Pay",
+			"reference_no": transaction.reference_number,
+			"party_type": transaction.party_type,
+			"party": transaction.party,
+			"bank_account":  bank_account
+		}
+
+	matching_vouchers = []
+	for query in subquery:
+		matching_vouchers.extend(
+			frappe.db.sql(query, filters,)
+		)
+
+	return sorted(matching_vouchers, key = lambda x: x[0], reverse=True) if matching_vouchers else []
+
+def get_queries(bank_account, company, transaction, document_types):
+	# get queries to get matching vouchers
+	amount_condition = "="
+	account_from_to = "paid_to" if transaction.deposit > 0 else "paid_from"
+	queries = []
+
+	if "payment_entry" in document_types:
+		pe_amount_matching = get_pe_matching_query(amount_condition, account_from_to, transaction)
+		queries.extend([pe_amount_matching])
+
+	if "journal_entry" in document_types:
+#		print("*********************Amt******",je_amount_matching)
+		je_amount_matching = get_je_matching_query(amount_condition, transaction)
+		print("*********************Amt******",je_amount_matching)
+		queries.extend([je_amount_matching])
+
+	# if transaction.deposit > 0 and "sales_invoice" in document_types:
+	# 	si_amount_matching =  get_si_matching_query(amount_condition)
+	# 	queries.extend([si_amount_matching])
+	#
+	# if transaction.withdrawal > 0:
+	# 	if "purchase_invoice" in document_types:
+	# 		pi_amount_matching = get_pi_matching_query(amount_condition)
+	# 		queries.extend([pi_amount_matching])
+	#
+	# 	if "expense_claim" in document_types:
+	# 		ec_amount_matching = get_ec_matching_query(bank_account, company, amount_condition)
+	# 		queries.extend([ec_amount_matching])
+
+	return queries
+
+def get_pe_matching_query(amount_condition, account_from_to, transaction):
+	# get matching payment entries query
+	if transaction.deposit > 0:
+		currency_field = "paid_to_account_currency as currency"
+	else:
+		currency_field = "paid_from_account_currency as currency"
+	return  f"""
+	SELECT
+		(CASE WHEN reference_no=%(reference_no)s THEN 1 ELSE 0 END
+		+ CASE WHEN (party_type = %(party_type)s AND party = %(party)s ) THEN 1 ELSE 0  END
+		+ 1 ) AS rank,
+		'Payment Entry' as doctype,
+		name,
+		paid_amount,
+		reference_no,
+		reference_date,
+		party,
+		party_type,
+		posting_date,
+		{currency_field}
+	FROM
+		`tabPayment Entry`
+	WHERE
+		paid_amount {amount_condition} %(amount)s
+		AND docstatus = 1
+		AND payment_type IN (%(payment_type)s, 'Internal Transfer')
+		AND ifnull(clearance_date, '') = ""
+		AND {account_from_to} = %(bank_account)s and reference_no = %(reference_no)s
+	"""
+
+
+def get_je_matching_query(amount_condition, transaction):
+	# get matching journal entry query
+	cr_or_dr = "credit" if transaction.withdrawal > 0 else "debit"
+	return f"""
+
+		SELECT
+			(CASE WHEN je.cheque_no=%(reference_no)s THEN 1 ELSE 0 END
+			+ 1) AS rank ,
+			'Journal Entry' as doctype,
+			je.name,
+			jea.{cr_or_dr}_in_account_currency as paid_amount,
+			je.cheque_no as reference_no,
+			je.cheque_date as reference_date,
+			je.pay_to_recd_from as party,
+			jea.party_type,
+			je.posting_date,
+			jea.account_currency as currency
+		FROM
+			`tabJournal Entry Account` as jea
+		JOIN
+			`tabJournal Entry` as je
+		ON
+			jea.parent = je.name
+		WHERE
+			(je.clearance_date is null or je.clearance_date='0000-00-00')
+			AND jea.account = %(bank_account)s
+			AND jea.{cr_or_dr}_in_account_currency {amount_condition} %(amount)s
+			AND je.docstatus = 1 and je.cheque_no = %(reference_no)s
+	"""
 
