@@ -33,7 +33,7 @@ class Project(Document):
 
 	def validate(self):
 		if not self.is_new():
-			self.queue_action('copy_from_template', timeout=16000)
+			self.copy_from_template()
 		self.send_welcome_email()
 		self.update_costing()
 		self.update_percent_complete()
@@ -65,8 +65,8 @@ class Project(Document):
 						t = frappe.get_doc("Task",i.particulars)
 						required.append(i.particulars)
 						child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-						for i in child_list:
-							if i.name:
+						if child_list:
+							for i in child_list:
 								required.append(i.name)
 				for task in template.tasks:
 					if task not in required:
@@ -94,8 +94,8 @@ class Project(Document):
 					t = frappe.get_doc("Task",i.particulars)
 					required.append(i.particulars)
 					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-					for i in child_list:
-						if i.name:
+					if child_list:
+						for i in child_list:
 							required.append(i.name)
 			if task_details.name not in required:
 				return frappe.get_doc(dict(
@@ -154,8 +154,8 @@ class Project(Document):
 					t = frappe.get_doc("Task",i.particulars)
 					required.append(i.particulars)
 					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-					for i in child_list:
-						if i.name:
+					if child_list:
+						for i in child_list:
 							required.append(i.name)
 			for template_task in template_tasks:
 				print(type(template_task))
