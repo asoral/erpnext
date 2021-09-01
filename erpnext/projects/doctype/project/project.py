@@ -33,7 +33,7 @@ class Project(Document):
 
 	def validate(self):
 		if not self.is_new():
-			self.copy_from_template()
+			self.queue_action('copy_from_template', timeout=20000)
 		self.send_welcome_email()
 		self.update_costing()
 		self.update_percent_complete()
