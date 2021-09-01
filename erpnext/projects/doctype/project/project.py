@@ -98,7 +98,7 @@ class Project(Document):
 						for i in child_list:
 							required.append(i.name)
 			if task_details.name not in required:
-				return frappe.get_doc(dict(
+				taskdoc= frappe.get_doc(dict(
 					doctype = 'Task',
 					subject = task_details.subject,
 					project = self.name,
@@ -113,6 +113,8 @@ class Project(Document):
 					issue = task_details.issue,
 					is_group = task_details.is_group
 				)).insert()
+				frappe.db.commit()
+				return taskdoc
 		else:
 			return frappe.get_doc(dict(
 				doctype = 'Task',
