@@ -61,7 +61,7 @@ class Project(Document):
 				doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
 				required=[]
 				for i in doc.project_milestone_list:
-					if i.is_required==0 :
+					if i.is_required==1 :
 						t = frappe.get_doc("Task",i.particulars)
 						required.append(i.particulars)
 						child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
@@ -90,7 +90,7 @@ class Project(Document):
 			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
 			required=[]
 			for i in doc.project_milestone_list:
-				if i.is_required==0 :
+				if i.is_required==1 :
 					t = frappe.get_doc("Task",i.particulars)
 					required.append(i.particulars)
 					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
@@ -152,7 +152,7 @@ class Project(Document):
 			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
 			required=[]
 			for i in doc.project_milestone_list:
-				if i.is_required==0 :
+				if i.is_required==1 :
 					t = frappe.get_doc("Task",i.particulars)
 					required.append(i.particulars)
 					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
