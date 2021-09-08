@@ -33,8 +33,7 @@ class Project(Document):
 
 	def validate(self):
 		if not self.is_new():
-			# self.queue_action('copy_from_template', timeout=20000)
-			self.copy_from_template()
+			self.queue_action('copy_from_template', timeout=20000)
 		self.send_welcome_email()
 		self.update_costing()
 		self.update_percent_complete()
@@ -149,11 +148,12 @@ class Project(Document):
 				self.start_date = add_days(self.expected_start_date, task_details.start)
 				self.start_date = self.update_if_holiday(self.start_date)
 				return self.start_date
-	
 		else:
 			self.start_date = add_days(self.expected_start_date, task_details.start)
 			self.start_date = self.update_if_holiday(self.start_date)
 			return self.start_date
+
+
 	def calculate_end_date(self, task_details):
 		if self.scope_of_supply:
 			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
@@ -172,7 +172,6 @@ class Project(Document):
 		else:
 			self.end_date = add_days(self.start_date, task_details.duration)
 			return self.update_if_holiday(self.end_date)
-
 
 	def update_if_holiday(self, date):
 		holiday_list = self.holiday_list or get_holiday_list(self.company)
@@ -218,7 +217,7 @@ class Project(Document):
 					if child_list:
 						for i in child_list:
 							required.append(i.name)
-			if template_task not in required:
+			if template_task.name not in required:
 				if template_task.get("depends_on") and not project_task.get("depends_on"):
 					for child_task in template_task.get("depends_on"):
 						child_task_subject = frappe.db.get_value("Task", child_task.task, "subject")
@@ -239,32 +238,33 @@ class Project(Document):
 						})
 						project_task.save()
 
+
 	def check_for_parent_tasks(self, template_task, project_task, project_tasks):
-			if self.scope_of_supply:
-				doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-				required=[]
-				for i in doc.project_milestone_list:
-					if i.is_required==0 :
-						t = frappe.get_doc("Task",i.particulars)
-						required.append(i.particulars)
-						child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-						if child_list:
-							for i in child_list:
-								required.append(i.name)
-				if template_task not in required:
-					if template_task.get("parent_task") and not project_task.get("parent_task"):
-						parent_task_subject = frappe.db.get_value("Task", template_task.get("parent_task"), "subject")
-						corresponding_project_task = list(filter(lambda x: x.subject == parent_task_subject, project_tasks))
-						if len(corresponding_project_task):
-							project_task.parent_task = corresponding_project_task[0].name
-							project_task.save()
-			else:
+		if self.scope_of_supply:
+			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
+			required=[]
+			for i in doc.project_milestone_list:
+				if i.is_required==0 :
+					t = frappe.get_doc("Task",i.particulars)
+					required.append(i.particulars)
+					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
+					if child_list:
+						for i in child_list:
+							required.append(i.name)
+			if template_task.name not in required:
 				if template_task.get("parent_task") and not project_task.get("parent_task"):
 					parent_task_subject = frappe.db.get_value("Task", template_task.get("parent_task"), "subject")
 					corresponding_project_task = list(filter(lambda x: x.subject == parent_task_subject, project_tasks))
 					if len(corresponding_project_task):
 						project_task.parent_task = corresponding_project_task[0].name
 						project_task.save()
+		else:
+			if template_task.get("parent_task") and not project_task.get("parent_task"):
+				parent_task_subject = frappe.db.get_value("Task", template_task.get("parent_task"), "subject")
+				corresponding_project_task = list(filter(lambda x: x.subject == parent_task_subject, project_tasks))
+				if len(corresponding_project_task):
+					project_task.parent_task = corresponding_project_task[0].name
+					project_task.save()
 
 	def is_row_updated(self, row, existing_task_data, fields):
 		if self.get("__islocal") or not existing_task_data: return True
