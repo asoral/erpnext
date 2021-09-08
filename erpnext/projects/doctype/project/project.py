@@ -33,11 +33,28 @@ class Project(Document):
 
 	def validate(self):
 		if not self.is_new():
-			self.queue_action('copy_from_template', timeout=20000)
+			self.queue_action('copy_from_template', timeout=30000)
 		self.send_welcome_email()
 		self.update_costing()
 		self.update_percent_complete()
 
+
+	# def get_task(self):
+	# 	required=[]
+	# 	if self.scope_of_supply:
+	# 		doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
+	# 		for i in doc.project_milestone_list:
+	# 			if i.is_required==0:
+	# 				t = frappe.get_doc("Task",i.particulars)
+	# 				required.append(i.particulars)
+	# 				child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
+	# 				if child_list:
+	# 					for i in child_list:
+	# 						required.append(i.name)
+	# 		self.copy_from_template(required)
+	# 	else:
+	# 		self.copy_from_template(required)
+	
 	def copy_from_template(self):
 		'''
 		Copy tasks from template
@@ -61,7 +78,7 @@ class Project(Document):
 				doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
 				required=[]
 				for i in doc.project_milestone_list:
-					if i.is_required==0 :
+					if i.is_required==0:
 						t = frappe.get_doc("Task",i.particulars)
 						required.append(i.particulars)
 						child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
@@ -72,11 +89,11 @@ class Project(Document):
 					if task not in required:
 						template_task_details = frappe.get_doc("Task", task.task)
 						tmp_task_details.append(template_task_details)
-						task = self.create_task_from_template(template_task_details)
+						task = self.create_task_from_template(template_task_details,required)
 						if task:
 							print(task)
 							project_tasks.append(task)
-					self.dependency_mapping(tmp_task_details, project_tasks)
+					self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
 					template_task_details = frappe.get_doc("Task", task.task)
@@ -85,18 +102,8 @@ class Project(Document):
 					project_tasks.append(task)
 				self.dependency_mapping(tmp_task_details, project_tasks)
 
-	def create_task_from_template(self, task_details):
+	def create_task_from_template(self, task_details,required):
 		if self.scope_of_supply:
-			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-			required=[]
-			for i in doc.project_milestone_list:
-				if i.is_required==0 :
-					t = frappe.get_doc("Task",i.particulars)
-					required.append(i.particulars)
-					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-					if child_list:
-						for i in child_list:
-							required.append(i.name)
 			if task_details.name not in required:
 				taskdoc= frappe.get_doc(dict(
 					doctype = 'Task',
@@ -105,8 +112,8 @@ class Project(Document):
 					status = 'Open',
 					item_code=task_details.item_code,
 					is_milestone=task_details.is_milestone,
-					exp_start_date = self.calculate_start_date(task_details),
-					exp_end_date = self.calculate_end_date(task_details),
+					exp_start_date = self.calculate_start_date(task_details,required),
+					exp_end_date = self.calculate_end_date(task_details,required),
 					description = task_details.description,
 					task_weight = task_details.task_weight,
 					type = task_details.type,
@@ -132,18 +139,8 @@ class Project(Document):
 				is_group = task_details.is_group
 			)).insert()
 
-	def calculate_start_date(self, task_details):
+	def calculate_start_date(self, task_details,required):
 		if self.scope_of_supply:
-			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-			required=[]
-			for i in doc.project_milestone_list:
-				if i.is_required==0 :
-					t = frappe.get_doc("Task",i.particulars)
-					required.append(i.particulars)
-					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-					if child_list:
-						for i in child_list:
-							required.append(i.name)
 			if task_details.name not in required:
 				self.start_date = add_days(self.expected_start_date, task_details.start)
 				self.start_date = self.update_if_holiday(self.start_date)
@@ -153,19 +150,8 @@ class Project(Document):
 			self.start_date = self.update_if_holiday(self.start_date)
 			return self.start_date
 
-
-	def calculate_end_date(self, task_details):
+	def calculate_end_date(self, task_details,required):
 		if self.scope_of_supply:
-			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-			required=[]
-			for i in doc.project_milestone_list:
-				if i.is_required==0 :
-					t = frappe.get_doc("Task",i.particulars)
-					required.append(i.particulars)
-					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-					if child_list:
-						for i in child_list:
-							required.append(i.name)
 			if task_details.name not in required:
 				self.end_date = add_days(self.start_date, task_details.duration)
 				return self.update_if_holiday(self.end_date)
@@ -179,25 +165,15 @@ class Project(Document):
 			date = add_days(date, 1)
 		return date
 
-	def dependency_mapping(self, template_tasks, project_tasks):
+	def dependency_mapping(self, template_tasks, project_tasks,required):
 		if self.scope_of_supply:
-			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-			required=[]
-			for i in doc.project_milestone_list:
-				if i.is_required==0 :
-					t = frappe.get_doc("Task",i.particulars)
-					required.append(i.particulars)
-					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-					if child_list:
-						for i in child_list:
-							required.append(i.name)
 			for template_task in template_tasks:
 				print(type(template_task))
 				if template_task.name not in required:
 					project_task = list(filter(lambda x: x.subject == template_task.subject, project_tasks))[0]
 					project_task = frappe.get_doc("Task", project_task.name)
-					self.check_depends_on_value(template_task, project_task, project_tasks)
-					self.check_for_parent_tasks(template_task, project_task, project_tasks)
+					self.check_depends_on_value(template_task, project_task, project_tasks,required)
+					self.check_for_parent_tasks(template_task, project_task, project_tasks,required)
 		else:
 			for template_task in template_tasks:
 				project_task = list(filter(lambda x: x.subject == template_task.subject, project_tasks))[0]
@@ -205,18 +181,8 @@ class Project(Document):
 				self.check_depends_on_value(template_task, project_task, project_tasks)
 				self.check_for_parent_tasks(template_task, project_task, project_tasks)
 
-	def check_depends_on_value(self, template_task, project_task, project_tasks):
+	def check_depends_on_value(self, template_task, project_task, project_tasks,required):
 		if self.scope_of_supply:
-			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-			required=[]
-			for i in doc.project_milestone_list:
-				if i.is_required==0 :
-					t = frappe.get_doc("Task",i.particulars)
-					required.append(i.particulars)
-					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-					if child_list:
-						for i in child_list:
-							required.append(i.name)
 			if template_task.name not in required:
 				if template_task.get("depends_on") and not project_task.get("depends_on"):
 					for child_task in template_task.get("depends_on"):
@@ -239,18 +205,8 @@ class Project(Document):
 						project_task.save()
 
 
-	def check_for_parent_tasks(self, template_task, project_task, project_tasks):
+	def check_for_parent_tasks(self, template_task, project_task, project_tasks,required):
 		if self.scope_of_supply:
-			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-			required=[]
-			for i in doc.project_milestone_list:
-				if i.is_required==0 :
-					t = frappe.get_doc("Task",i.particulars)
-					required.append(i.particulars)
-					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-					if child_list:
-						for i in child_list:
-							required.append(i.name)
 			if template_task.name not in required:
 				if template_task.get("parent_task") and not project_task.get("parent_task"):
 					parent_task_subject = frappe.db.get_value("Task", template_task.get("parent_task"), "subject")
@@ -265,7 +221,7 @@ class Project(Document):
 				if len(corresponding_project_task):
 					project_task.parent_task = corresponding_project_task[0].name
 					project_task.save()
-
+				
 	def is_row_updated(self, row, existing_task_data, fields):
 		if self.get("__islocal") or not existing_task_data: return True
 
