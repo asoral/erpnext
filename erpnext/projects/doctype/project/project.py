@@ -72,28 +72,28 @@ class Project(Document):
 				for task in template.tasks:
 					if task not in required:
 						template_task_details = frappe.get_doc("Task", task.task)
-						if not template_task_details.parent_task and template_task_details.is_group==1:
-							tmp_task_details.append(template_task_details)
-							task = self.create_task_from_template(template_task_details,required)
-							if task:
-								project_tasks.append(task)
+						# if not template_task_details.parent_task and template_task_details.is_group==1:
+						tmp_task_details.append(template_task_details)
+						task = self.create_task_from_template(template_task_details,required)
+						if task:
+							project_tasks.append(task)
 
-				for task in template.tasks:
-					if task not in required:
-						template_task_details = frappe.get_doc("Task", task.task)
-						if template_task_details.parent_task and template_task_details.is_group==1:
-							tmp_task_details.append(template_task_details)
-							task = self.create_task_from_template(template_task_details,required)
-							if task:
-								project_tasks.append(task)
-				for task in template.tasks:
-					if task not in required:
-						template_task_details = frappe.get_doc("Task", task.task)
-						if template_task_details.parent_task and template_task_details.is_group==0:
-							tmp_task_details.append(template_task_details)
-							task = self.create_task_from_template(template_task_details,required)
-							if task:
-								project_tasks.append(task)
+				# for task in template.tasks:
+				# 	if task not in required:
+				# 		template_task_details = frappe.get_doc("Task", task.task)
+				# 		if template_task_details.parent_task and template_task_details.is_group==1:
+				# 			tmp_task_details.append(template_task_details)
+				# 			task = self.create_task_from_template(template_task_details,required)
+				# 			if task:
+				# 				project_tasks.append(task)
+				# for task in template.tasks:
+				# 	if task not in required:
+				# 		template_task_details = frappe.get_doc("Task", task.task)
+				# 		if template_task_details.parent_task and template_task_details.is_group==0:
+				# 			tmp_task_details.append(template_task_details)
+				# 			task = self.create_task_from_template(template_task_details,required)
+				# 			if task:
+				# 				project_tasks.append(task)
 				self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
@@ -169,7 +169,6 @@ class Project(Document):
 	def dependency_mapping(self, template_tasks, project_tasks,required):
 		if self.scope_of_supply:
 			for template_task in template_tasks:
-				print(type(template_task))
 				if template_task.name not in required:
 					project_task = list(filter(lambda x: x.subject == template_task.subject, project_tasks))[0]
 					project_task = frappe.get_doc("Task", project_task.name)
