@@ -38,22 +38,6 @@ class Project(Document):
 		self.update_costing()
 		self.update_percent_complete()
 
-
-	# def get_task(self):
-	# 	required=[]
-	# 	if self.scope_of_supply:
-	# 		doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-	# 		for i in doc.project_milestone_list:
-	# 			if i.is_required==0:
-	# 				t = frappe.get_doc("Task",i.particulars)
-	# 				required.append(i.particulars)
-	# 				child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
-	# 				if child_list:
-	# 					for i in child_list:
-	# 						required.append(i.name)
-	# 		self.copy_from_template(required)
-	# 	else:
-	# 		self.copy_from_template(required)
 	
 	def copy_from_template(self):
 		'''
@@ -93,17 +77,24 @@ class Project(Document):
 							task = self.create_task_from_template(template_task_details,required)
 							if task:
 								project_tasks.append(task)
+
+				for task in template.tasks:
+					if task not in required:
+						template_task_details = frappe.get_doc("Task", task.task)
 						if template_task_details.parent_task and template_task_details.is_group==1:
 							tmp_task_details.append(template_task_details)
 							task = self.create_task_from_template(template_task_details,required)
 							if task:
 								project_tasks.append(task)
+				for task in template.tasks:
+					if task not in required:
+						template_task_details = frappe.get_doc("Task", task.task)
 						if template_task_details.parent_task and template_task_details.is_group==0:
 							tmp_task_details.append(template_task_details)
 							task = self.create_task_from_template(template_task_details,required)
 							if task:
 								project_tasks.append(task)
-						self.dependency_mapping(tmp_task_details, project_tasks,required)
+				self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
 					template_task_details = frappe.get_doc("Task", task.task)
