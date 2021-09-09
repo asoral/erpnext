@@ -37,7 +37,6 @@ class Project(Document):
 		self.send_welcome_email()
 		self.update_costing()
 		self.update_percent_complete()
-
 	
 	def copy_from_template(self):
 		'''
@@ -58,9 +57,9 @@ class Project(Document):
 			# create tasks from template
 			project_tasks = []
 			tmp_task_details = []
+			required=[]
 			if self.scope_of_supply:
 				doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-				required=[]
 				for i in doc.project_milestone_list:
 					if i.is_required==0:
 						t = frappe.get_doc("Task",i.particulars)
@@ -101,7 +100,7 @@ class Project(Document):
 					task_weight = task_details.task_weight,
 					type = task_details.type,
 					issue = task_details.issue,
-					is_group =task_details.is_group
+					is_group = task_details.is_group
 				)).insert()
 				frappe.db.commit()
 				return taskdoc
@@ -119,7 +118,7 @@ class Project(Document):
 				task_weight = task_details.task_weight,
 				type = task_details.type,
 				issue = task_details.issue,
-				is_group =task_details.is_group
+				is_group = task_details.is_group
 			)).insert()
 
 	def calculate_start_date(self, task_details,required):
