@@ -37,7 +37,6 @@ class Project(Document):
 		self.send_welcome_email()
 		self.update_costing()
 		self.update_percent_complete()
-
 	
 	def copy_from_template(self):
 		'''
@@ -58,9 +57,9 @@ class Project(Document):
 			# create tasks from template
 			project_tasks = []
 			tmp_task_details = []
+			required=[]
 			if self.scope_of_supply:
 				doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-				required=[]
 				for i in doc.project_milestone_list:
 					if i.is_required==0:
 						t = frappe.get_doc("Task",i.particulars)
@@ -72,27 +71,10 @@ class Project(Document):
 				for task in template.tasks:
 					if task not in required:
 						template_task_details = frappe.get_doc("Task", task.task)
-						if not template_task_details.parent_task and template_task_details.is_group==1:
-							tmp_task_details.append(template_task_details)
-							task = self.create_task_from_template(template_task_details,required)
-							if task:
-								project_tasks.append(task)
-				for task in template.tasks:
-					if task not in required:
-						template_task_details = frappe.get_doc("Task", task.task)
-						if template_task_details.parent_task and template_task_details.is_group==1:
-							tmp_task_details.append(template_task_details)
-							task = self.create_task_from_template(template_task_details,required)
-							if task:
-								project_tasks.append(task)
-				for task in template.tasks:
-					if task not in required:
-						template_task_details = frappe.get_doc("Task", task.task)
-						if template_task_details.parent_task and template_task_details.is_group==0:
-							tmp_task_details.append(template_task_details)
-							task = self.create_task_from_template(template_task_details,required)
-							if task:
-								project_tasks.append(task)
+						tmp_task_details.append(template_task_details)
+						task = self.create_task_from_template(template_task_details,required)
+						if task:
+							project_tasks.append(task)
 				self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
