@@ -81,11 +81,33 @@ class Project(Document):
 			self.dependency_mapping(tmp_task_details, project_tasks)
 
 	def create_task_from_template(self, task_details):
-		return frappe.get_doc(dict(
+		if self.scope_of_supply:
+			# if task_details.name not in required:
+			taskdoc= frappe.get_doc(dict(
 				doctype = 'Task',
 				subject = task_details.subject,
 				project = self.name,
 				status = 'Open',
+				# item_code=task_details.item_code,
+				is_milestone=task_details.is_milestone,
+				exp_start_date = self.calculate_start_date(task_details),
+				exp_end_date = self.calculate_end_date(task_details),
+				description = task_details.description,
+				task_weight = task_details.task_weight,
+				type = task_details.type,
+				issue = task_details.issue,
+				is_group = task_details.is_group
+			)).insert()
+			frappe.db.commit()
+			return taskdoc
+		else:
+			return frappe.get_doc(dict(
+				doctype = 'Task',
+				subject = task_details.subject,
+				project = self.name,
+				status = 'Open',
+				# item_code=task_details.item_code,
+				is_milestone=task_details.is_milestone,
 				exp_start_date = self.calculate_start_date(task_details),
 				exp_end_date = self.calculate_end_date(task_details),
 				description = task_details.description,
