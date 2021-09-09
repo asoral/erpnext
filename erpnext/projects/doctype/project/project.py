@@ -88,17 +88,16 @@ class Project(Document):
 								req.append(i.name)
 				for i in template.tasks:
 					for j in req:
-						if i != j:
+						if i.task != j:
 							required.append(i)
-				for task in template.tasks:
-					if task not in required:
-						template_task_details = frappe.get_doc("Task", task.task)
-						tmp_task_details.append(template_task_details)
-						task = self.create_task_from_template(template_task_details,required)
-						if task:
-							print(task)
-							project_tasks.append(task)
-					self.dependency_mapping(tmp_task_details, project_tasks,required)
+				for task in required:
+					template_task_details = frappe.get_doc("Task", task.task)
+					tmp_task_details.append(template_task_details)
+					task = self.create_task_from_template(template_task_details,required)
+					if task:
+						print(task)
+						project_tasks.append(task)
+				self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
 					template_task_details = frappe.get_doc("Task", task.task)
