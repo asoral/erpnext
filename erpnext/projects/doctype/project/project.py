@@ -77,7 +77,7 @@ class Project(Document):
 						task = self.create_task_from_template(template_task_details,required)
 						if task:
 							project_tasks.append(task)
-				self.dependency_mapping(tmp_task_details, project_tasks,required)
+					self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
 					template_task_details = frappe.get_doc("Task", task.task)
@@ -149,8 +149,20 @@ class Project(Document):
 			date = add_days(date, 1)
 		return date
 
-	def dependency_mapping(self, template_tasks, project_tasks,required):
+	def dependency_mapping(self, template_tasks, project_tasks):
+		req=[]
 		if self.scope_of_supply:
+			doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
+			for i in doc.project_milestone_list:
+				if i.is_required==0:
+					t = frappe.get_doc("Task",i.particulars)
+					req.append(i.particulars)
+					child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
+					if child_list:
+						for i in child_list:
+							req.append(i.name)
+			a=set(req)
+			required=list(a)
 			for template_task in template_tasks:
 				if template_task.name not in required:
 					project_task = list(filter(lambda x: x.subject == template_task.subject, project_tasks))[0]
