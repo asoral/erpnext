@@ -86,7 +86,8 @@ class Project(Document):
 							for i in child_list:
 								required.append(i.name)
 				for task in template.tasks:
-					if not task.parent_task and task.is_group==1:
+					temp = frappe.get_doc('Task', task.task)
+					if not temp.parent_task and temp.is_group==1:
 						if task not in required:
 							template_task_details = frappe.get_doc("Task", task.task)
 							tmp_task_details.append(template_task_details)
@@ -94,7 +95,7 @@ class Project(Document):
 							if task:
 								project_tasks.append(task)
 						self.dependency_mapping(tmp_task_details, project_tasks,required)
-					if task.parent_task and task.is_group==1:
+					if temp.parent_task and temp.is_group==1:
 						if task not in required:
 							template_task_details = frappe.get_doc("Task", task.task)
 							tmp_task_details.append(template_task_details)
@@ -102,7 +103,7 @@ class Project(Document):
 							if task:
 								project_tasks.append(task)
 						self.dependency_mapping(tmp_task_details, project_tasks,required)
-					if task.parent_task and task.is_group==0:
+					if temp.parent_task and temp.is_group==0:
 						if task not in required:
 							template_task_details = frappe.get_doc("Task", task.task)
 							tmp_task_details.append(template_task_details)
