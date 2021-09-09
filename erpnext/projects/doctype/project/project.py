@@ -176,7 +176,7 @@ class Project(Document):
 				self.check_depends_on_value(template_task, project_task, project_tasks)
 				self.check_for_parent_tasks(template_task, project_task, project_tasks)
 
-	def check_depends_on_value(self, template_task, project_task, project_tasks,required):
+	def check_depends_on_value(self, template_task, project_task, project_tasks):
 		# if self.scope_of_supply:
 		# 	if template_task.name not in required:
 		# 		if template_task.get("depends_on") and not project_task.get("depends_on"):
