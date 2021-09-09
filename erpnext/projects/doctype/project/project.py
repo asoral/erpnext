@@ -73,11 +73,22 @@ class Project(Document):
 				for task in template.tasks:
 					if task not in required:
 						template_task_details = frappe.get_doc("Task", task.task)
-						tmp_task_details.append(template_task_details)
-						task = self.create_task_from_template(template_task_details,required)
-						if task:
-							project_tasks.append(task)
-					self.dependency_mapping(tmp_task_details, project_tasks)
+						if not tmp_task_details.parent_task and tmp_task_details.is_group==1:
+							tmp_task_details.append(template_task_details)
+							task = self.create_task_from_template(template_task_details,required)
+							if task:
+								project_tasks.append(task)
+						if tmp_task_details.parent_task and tmp_task_details.is_group==1:
+							tmp_task_details.append(template_task_details)
+							task = self.create_task_from_template(template_task_details,required)
+							if task:
+								project_tasks.append(task)
+						if tmp_task_details.parent_task and tmp_task_details.is_group==0:
+							tmp_task_details.append(template_task_details)
+							task = self.create_task_from_template(template_task_details,required)
+							if task:
+								project_tasks.append(task)
+					self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
 					template_task_details = frappe.get_doc("Task", task.task)
@@ -167,7 +178,7 @@ class Project(Document):
 				if template_task.name not in required:
 					project_task = list(filter(lambda x: x.subject == template_task.subject, project_tasks))[0]
 					project_task = frappe.get_doc("Task", project_task.name)
-					self.check_depends_on_value(template_task, project_task, project_tasks)
+					self.check_depends_on_value(template_task, project_task, project_tasks,required)
 					self.check_for_parent_tasks(template_task, project_task, project_tasks,required)
 		else:
 			for template_task in template_tasks:
@@ -176,28 +187,28 @@ class Project(Document):
 				self.check_depends_on_value(template_task, project_task, project_tasks)
 				self.check_for_parent_tasks(template_task, project_task, project_tasks)
 
-	def check_depends_on_value(self, template_task, project_task, project_tasks):
-		# if self.scope_of_supply:
-		# 	if template_task.name not in required:
-		# 		if template_task.get("depends_on") and not project_task.get("depends_on"):
-		# 			for child_task in template_task.get("depends_on"):
-		# 				child_task_subject = frappe.db.get_value("Task", child_task.task, "subject")
-		# 				corresponding_project_task = list(filter(lambda x: x.subject == child_task_subject, project_tasks))
-		# 				if len(corresponding_project_task):
-		# 					project_task.append("depends_on",{
-		# 						"task": corresponding_project_task[0].name
-		# 					})
-		# 					project_task.save()
-		# else:
-		if template_task.get("depends_on") and not project_task.get("depends_on"):
-			for child_task in template_task.get("depends_on"):
-				child_task_subject = frappe.db.get_value("Task", child_task.task, "subject")
-				corresponding_project_task = list(filter(lambda x: x.subject == child_task_subject, project_tasks))
-				if len(corresponding_project_task):
-					project_task.append("depends_on",{
-						"task": corresponding_project_task[0].name
-					})
-					project_task.save()
+	def check_depends_on_value(self, template_task, project_task, project_tasks,required):
+		if self.scope_of_supply:
+			if template_task.name not in required:
+				if template_task.get("depends_on") and not project_task.get("depends_on"):
+					for child_task in template_task.get("depends_on"):
+						child_task_subject = frappe.db.get_value("Task", child_task.task, "subject")
+						corresponding_project_task = list(filter(lambda x: x.subject == child_task_subject, project_tasks))
+						if len(corresponding_project_task):
+							project_task.append("depends_on",{
+								"task": corresponding_project_task[0].name
+							})
+							project_task.save()
+		else:
+			if template_task.get("depends_on") and not project_task.get("depends_on"):
+				for child_task in template_task.get("depends_on"):
+					child_task_subject = frappe.db.get_value("Task", child_task.task, "subject")
+					corresponding_project_task = list(filter(lambda x: x.subject == child_task_subject, project_tasks))
+					if len(corresponding_project_task):
+						project_task.append("depends_on",{
+							"task": corresponding_project_task[0].name
+						})
+						project_task.save()
 
 
 	def check_for_parent_tasks(self, template_task, project_task, project_tasks,required):
