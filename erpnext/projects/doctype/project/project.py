@@ -74,30 +74,26 @@ class Project(Document):
 			# create tasks from template
 			project_tasks = []
 			tmp_task_details = []
-			required=[]
-			req=[]
 			if self.scope_of_supply:
 				doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
+				required=[]
 				for i in doc.project_milestone_list:
 					if i.is_required==0:
 						t = frappe.get_doc("Task",i.particulars)
-						req.append(i.particulars)
+						required.append(i.particulars)
 						child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
 						if child_list:
 							for i in child_list:
-								req.append(i.name)
-				for i in template.tasks:
-					for j in req:
-						if i.task != j:
-							required.append(i)
-				for task in required:
-					template_task_details = frappe.get_doc("Task", task.task)
-					tmp_task_details.append(template_task_details)
-					task = self.create_task_from_template(template_task_details,required)
-					if task:
-						print(task)
-						project_tasks.append(task)
-				self.dependency_mapping(tmp_task_details, project_tasks,required)
+								required.append(i.name)
+				for task in template.tasks:
+					if task not in required:
+						template_task_details = frappe.get_doc("Task", task.task)
+						tmp_task_details.append(template_task_details)
+						task = self.create_task_from_template(template_task_details,required)
+						if task:
+							print(task)
+							project_tasks.append(task)
+					self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
 					template_task_details = frappe.get_doc("Task", task.task)
