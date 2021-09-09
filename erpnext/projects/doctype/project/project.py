@@ -178,16 +178,16 @@ class Project(Document):
 	def check_depends_on_value(self, template_task, project_task, project_tasks,required):
 		if self.scope_of_supply:
 			if template_task.name not in required:
-				if project_tasks.name not in required:
-					if template_task.get("depends_on") and not project_task.get("depends_on"):
-						for child_task in template_task.get("depends_on"):
-							child_task_subject = frappe.db.get_value("Task", child_task.task, "subject")
-							corresponding_project_task = list(filter(lambda x: x.subject == child_task_subject, project_tasks))
-							if len(corresponding_project_task):
-								project_task.append("depends_on",{
-									"task": corresponding_project_task[0].name
-								})
-								project_task.save()
+				# if project_task.name not in required:
+				if template_task.get("depends_on") and not project_task.get("depends_on"):
+					for child_task in template_task.get("depends_on"):
+						child_task_subject = frappe.db.get_value("Task", child_task.task, "subject")
+						corresponding_project_task = list(filter(lambda x: x.subject == child_task_subject, project_tasks))
+						if len(corresponding_project_task):
+							project_task.append("depends_on",{
+								"task": corresponding_project_task[0].name
+							})
+							project_task.save()
 		else:
 			if template_task.get("depends_on") and not project_task.get("depends_on"):
 				for child_task in template_task.get("depends_on"):
