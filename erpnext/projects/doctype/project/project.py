@@ -74,17 +74,22 @@ class Project(Document):
 			# create tasks from template
 			project_tasks = []
 			tmp_task_details = []
+			required=[]
+			req=[]
 			if self.scope_of_supply:
 				doc=frappe.get_doc("Scope of Supply",self.scope_of_supply)
-				required=[]
 				for i in doc.project_milestone_list:
 					if i.is_required==0:
 						t = frappe.get_doc("Task",i.particulars)
-						required.append(i.particulars)
+						req.append(i.particulars)
 						child_list =  frappe.db.get_all ("Task", {"lft":[">", t.get("lft")], "rgt":["<",t.get("rgt")]},['name'])
 						if child_list:
 							for i in child_list:
-								required.append(i.name)
+								req.append(i.name)
+				for i in template.tasks:
+					for j in req:
+						if i != j:
+							required.append(i)
 				for task in template.tasks:
 					if task not in required:
 						template_task_details = frappe.get_doc("Task", task.task)
