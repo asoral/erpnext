@@ -72,10 +72,27 @@ class Project(Document):
 				for task in template.tasks:
 					if task not in required:
 						template_task_details = frappe.get_doc("Task", task.task)
-						tmp_task_details.append(template_task_details)
-						task = self.create_task_from_template(template_task_details,required)
-						if task:
-							project_tasks.append(task)
+						if not template_task_details.parent_task and template_task_details.is_group==1:
+							tmp_task_details.append(template_task_details)
+							task = self.create_task_from_template(template_task_details,required)
+							if task:
+								project_tasks.append(task)
+				for task in template.tasks:
+					if task not in required:
+						template_task_details = frappe.get_doc("Task", task.task)
+						if template_task_details.parent_task and template_task_details.is_group==1:
+							tmp_task_details.append(template_task_details)
+							task = self.create_task_from_template(template_task_details,required)
+							if task:
+								project_tasks.append(task)
+				for task in template.tasks:
+					if task not in required:
+						template_task_details = frappe.get_doc("Task", task.task)
+						if template_task_details.parent_task and template_task_details.is_group==0:
+							tmp_task_details.append(template_task_details)
+							task = self.create_task_from_template(template_task_details,required)
+							if task:
+								project_tasks.append(task)
 				self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
@@ -101,7 +118,7 @@ class Project(Document):
 					task_weight = task_details.task_weight,
 					type = task_details.type,
 					issue = task_details.issue,
-					is_group =task_details.is_group
+					is_group = task_details.is_group
 				)).insert()
 				frappe.db.commit()
 				return taskdoc
@@ -119,7 +136,7 @@ class Project(Document):
 				task_weight = task_details.task_weight,
 				type = task_details.type,
 				issue = task_details.issue,
-				is_group =task_details.is_group
+				is_group = task_details.is_group
 			)).insert()
 
 	def calculate_start_date(self, task_details,required):
