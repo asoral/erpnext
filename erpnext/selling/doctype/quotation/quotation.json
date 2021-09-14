@@ -24,6 +24,9 @@
   "transaction_date",
   "valid_till",
   "order_type",
+  "sheets_section",
+  "sheet_id",
+  "open_sheet",
   "contact_section",
   "customer_address",
   "address_display",
@@ -958,6 +961,23 @@
    "hidden": 1,
    "label": "Company Address Display",
    "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sheets_section",
+   "fieldtype": "Section Break",
+   "label": "Sheets"
+  },
+  {
+   "fieldname": "sheet_id",
+   "fieldtype": "Data",
+   "label": "Sheet ID"
+  },
+  {
+   "bold": 1,
+   "fieldname": "open_sheet",
+   "fieldtype": "Button",
+   "label": "Open Sheet"
   }
  ],
  "icon": "fa fa-shopping-cart",
@@ -965,7 +985,7 @@
  "is_submittable": 1,
  "links": [],
  "max_attachments": 1,
- "modified": "2021-07-22 13:59:46.196082",
+ "modified": "2021-09-02 11:46:47.677930",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

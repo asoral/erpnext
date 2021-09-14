@@ -33,7 +33,15 @@ frappe.ui.form.on('Quotation', {
 
 	set_label: function(frm) {
 		frm.fields_dict.customer_address.set_label(__(frm.doc.quotation_to + " Address"));
+	},
+
+	//New Button In side Quotation to open sheet 02/09/21
+	open_sheet: function(frm){
+		// frappe.set_route("newsheet")
+		// frappe.urllib.geturl
+		window.location.href = "http://0.0.0.0:8000/newsheet";
 	}
+
 });
 
 erpnext.selling.QuotationController = erpnext.selling.SellingController.extend({

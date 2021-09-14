@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "creation": "2021-09-08 11:14:05.730282",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "get_authorization_code",
+  "authorization_code",
+  "refresh_token"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "description": "Get an authorization code and set it in the field below.",
+   "fieldname": "get_authorization_code",
+   "fieldtype": "Button",
+   "label": "Get Authorization Code"
+  },
+  {
+   "fieldname": "authorization_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": " Authorization Code",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "refresh_token",
+   "fieldtype": "Check",
+   "label": "Refresh token set",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2021-09-08 11:23:32.000871",
+ "modified_by": "Administrator",
+ "module": "Office",
+ "name": "Google Drive Authorization",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -9,6 +9,7 @@
  "doctype": "Workspace",
  "extends_another_page": 0,
  "hide_custom": 0,
+ "icon": "",
  "idx": 0,
  "is_default": 0,
  "is_standard": 1,
@@ -26,14 +27,23 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Template",
-   "link_to": "Template",
+   "label": "Google Drive Template",
+   "link_to": "Google Drive Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Set Up Token",
+   "link_to": "Google Drive Authorization",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2021-08-24 12:02:32.043342",
+ "modified": "2021-09-09 17:10:42.477580",
  "modified_by": "Administrator",
  "module": "Office",
  "name": "Office",
