@@ -353,7 +353,6 @@
   },
   {
    "fieldname": "scan_barcode",
-   "options": "Barcode",
    "fieldtype": "Data",
    "label": "Scan Barcode"
   },
