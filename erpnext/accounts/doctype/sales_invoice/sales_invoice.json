@@ -695,8 +695,7 @@
    "hide_days": 1,
    "hide_seconds": 1,
    "label": "Scan Barcode",
-   "length": 1,
-   "options": "Barcode"
+   "length": 1
   },
   {
    "allow_bulk_edit": 1,
