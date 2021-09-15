@@ -484,7 +484,6 @@
    "fieldname": "scan_barcode",
    "fieldtype": "Data",
    "label": "Scan Barcode",
-   "options": "Barcode",
    "show_days": 1,
    "show_seconds": 1
   },
