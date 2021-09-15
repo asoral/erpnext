@@ -667,8 +667,7 @@
   {
    "fieldname": "scan_barcode",
    "fieldtype": "Data",
-   "label": "Scan Barcode",
-   "options": "Barcode"
+   "label": "Scan Barcode"
   },
   {
    "allow_bulk_edit": 1,
