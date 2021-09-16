@@ -264,14 +264,22 @@
   {
    "fieldname": "drop_ship",
    "fieldtype": "Section Break",
+<<<<<<< HEAD
    "hidden": 1,
+=======
+>>>>>>> 79d1cf161e35ed767bedc32fb32e03abd500a7dd
    "label": "Drop Ship"
   },
   {
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
+<<<<<<< HEAD
    "options": "Customer"
+=======
+   "options": "Customer",
+   "read_only": 1
+>>>>>>> 79d1cf161e35ed767bedc32fb32e03abd500a7dd
   },
   {
    "bold": 1,
@@ -1145,7 +1153,7 @@
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-08-17 20:16:12.737743",
+ "modified": "2021-08-30 20:03:14.008804",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

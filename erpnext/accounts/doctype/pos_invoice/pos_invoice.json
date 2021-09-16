@@ -621,6 +621,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "packed_items",
    "fieldname": "packing_list",
    "fieldtype": "Section Break",
    "label": "Packing List",
@@ -628,6 +629,7 @@
    "print_hide": 1
   },
   {
+   "depends_on": "packed_items",
    "fieldname": "packed_items",
    "fieldtype": "Table",
    "label": "Packed Items",
@@ -1563,7 +1565,7 @@
  "icon": "fa fa-file-text",
  "is_submittable": 1,
  "links": [],
- "modified": "2021-08-24 18:19:20.728433",
+ "modified": "2021-08-27 20:12:57.306772",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Invoice",
