@@ -264,25 +264,16 @@
   {
    "fieldname": "drop_ship",
    "fieldtype": "Section Break",
-<<<<<<< HEAD
    "hidden": 1,
-=======
->>>>>>> 79d1cf161e35ed767bedc32fb32e03abd500a7dd
    "label": "Drop Ship"
   },
   {
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-<<<<<<< HEAD
    "options": "Customer"
-=======
-   "options": "Customer",
-   "read_only": 1
->>>>>>> 79d1cf161e35ed767bedc32fb32e03abd500a7dd
   },
   {
-   "bold": 1,
    "fieldname": "customer_name",
    "fieldtype": "Data",
    "label": "Customer Name",
