@@ -1117,6 +1117,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "description": "Track this Sales Order against any Project",
    "fieldname": "project",
    "fieldtype": "Link",
@@ -1511,7 +1512,7 @@
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-01 15:12:24.115483",
+ "modified": "2021-09-19 10:34:03.103913",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",
