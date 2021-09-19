@@ -33,6 +33,8 @@ class Project(Document):
 
 
 	def validate(self):
+		frappe.db.sql("""update `tabSales Order` set project='{0}' where name='{1}'""".format(self.name,self.sales_order))
+		frappe.db.sql("""update `tabScope of Supply` set project='{0}' where name='{1}'""".format(self.name,self.scope_of_supply))
 		if not self.is_new():
 			self.queue_action('copy_from_template', timeout=30000)
 		self.send_welcome_email()
