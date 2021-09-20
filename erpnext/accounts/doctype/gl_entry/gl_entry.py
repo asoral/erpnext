@@ -2,19 +2,32 @@
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
-import frappe, erpnext
+
+import frappe
 from frappe import _
-from frappe.utils import flt, fmt_money, getdate, formatdate, cint
 from frappe.model.document import Document
-from frappe.model.naming import set_name_from_naming_options
 from frappe.model.meta import get_field_precision
-from erpnext.accounts.party import validate_party_gle_currency, validate_party_frozen_disabled
-from erpnext.accounts.utils import get_account_currency
-from erpnext.accounts.utils import get_fiscal_year
-from erpnext.exceptions import InvalidAccountCurrency, InvalidAccountDimensionError, MandatoryAccountDimensionError
-from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import get_checks_for_pl_and_bs_accounts
-from erpnext.accounts.doctype.accounting_dimension_filter.accounting_dimension_filter import get_dimension_filter_map
+from frappe.model.naming import set_name_from_naming_options
+from frappe.utils import flt, fmt_money
 from six import iteritems
+import datetime
+import nepali_datetime
+from datetime import timedelta
+
+import erpnext
+from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
+	get_checks_for_pl_and_bs_accounts,
+)
+from erpnext.accounts.doctype.accounting_dimension_filter.accounting_dimension_filter import (
+	get_dimension_filter_map,
+)
+from erpnext.accounts.party import validate_party_frozen_disabled, validate_party_gle_currency
+from erpnext.accounts.utils import get_account_currency, get_fiscal_year
+from erpnext.exceptions import (
+	InvalidAccountCurrency,
+	InvalidAccountDimensionError,
+	MandatoryAccountDimensionError,
+)
 
 exclude_from_linked_with = True
 class GLEntry(Document):
@@ -36,6 +49,9 @@ class GLEntry(Document):
 			self.check_pl_account()
 			self.validate_party()
 			self.validate_currency()
+		company = frappe.db.get_single_value("System Settings",'country')
+		if company == 'Nepal':
+			self.set_nepali_date()
 
 	def on_update(self):
 		adv_adj = self.flags.adv_adj
@@ -64,8 +80,8 @@ class GLEntry(Document):
 			if not self.get(k):
 				frappe.throw(_("{0} is required").format(_(self.meta.get_label(k))))
 
-		account_type = frappe.get_cached_value("Account", self.account, "account_type")
 		if not (self.party_type and self.party):
+			account_type = frappe.get_cached_value("Account", self.account, "account_type")
 			if account_type == "Receivable":
 				frappe.throw(_("{0} {1}: Customer is required against Receivable account {2}")
 					.format(self.voucher_type, self.voucher_no, self.account))
@@ -79,6 +95,11 @@ class GLEntry(Document):
 				.format(self.voucher_type, self.voucher_no, self.account))
 
 	def pl_must_have_cost_center(self):
+		"""Validate that profit and loss type account GL entries have a cost center."""
+
+		if self.cost_center or self.voucher_type == 'Period Closing Voucher':
+			return
+
 		if frappe.get_cached_value("Account", self.account, "report_type") == "Profit and Loss":
 			if not self.cost_center and self.voucher_type != 'Period Closing Voucher':
 				msg = _("{0} {1}: Cost Center is required for 'Profit and Loss' account {2}.").format(
@@ -88,7 +109,11 @@ class GLEntry(Document):
 					self.voucher_type)
 
 				frappe.throw(msg, title=_("Missing Cost Center"))
-
+	def set_nepali_date(self):
+		from erpnext.nepali_date import get_converted_date
+		if self.posting_date:
+			nepali_date = get_converted_date(self.posting_date)
+			self.posting_datenepali = nepali_date
 	def validate_dimensions_for_pl_and_bs(self):
 		account_type = frappe.db.get_value("Account", self.account, "report_type")
 
@@ -127,8 +152,7 @@ class GLEntry(Document):
 
 	def check_pl_account(self):
 		if self.is_opening=='Yes' and \
-				frappe.db.get_value("Account", self.account, "report_type")=="Profit and Loss" and \
-				self.voucher_type not in ['Purchase Invoice', 'Sales Invoice']:
+				frappe.db.get_value("Account", self.account, "report_type")=="Profit and Loss":
 			frappe.throw(_("{0} {1}: 'Profit and Loss' type account {2} not allowed in Opening Entry")
 				.format(self.voucher_type, self.voucher_no, self.account))
 

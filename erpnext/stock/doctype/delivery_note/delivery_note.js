@@ -78,6 +78,21 @@ frappe.ui.form.on("Delivery Note", {
 		});
 
 		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
+
+		frm.set_df_property('packed_items', 'cannot_add_rows', true);
+		frm.set_df_property('packed_items', 'cannot_delete_rows', true);
+	},
+
+	before_save:function(frm){
+		frm.call({
+			method:"get_commision",
+			doc:frm.doc,
+			callback: function(r)
+			{
+				
+				frm.refresh_field("total_commission")
+			}
+		});
 	},
 
 	print_without_amount: function(frm) {
@@ -409,3 +424,22 @@ erpnext.stock.delivery_note.set_print_hide = function(doc, cdt, cdn){
 	}
 }
 
+
+frappe.tour['Delivery Note'] = [
+	{
+		fieldname: "customer",
+		title: __("Customer"),
+		description: __("This field is used to set the 'Customer'.")
+	},
+	{
+		fieldname: "items",
+		title: __("Items"),
+		description: __("This table is used to set details about the 'Item', 'Qty', 'Basic Rate', etc.") + " " +
+		__("Different 'Source Warehouse' and 'Target Warehouse' can be set for each row.")
+	},
+	{
+		fieldname: "set_posting_time",
+		title: __("Edit Posting Date and Time"),
+		description: __("This option can be checked to edit the 'Posting Date' and 'Posting Time' fields.")
+	}
+]

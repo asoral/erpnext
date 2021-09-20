@@ -4,17 +4,17 @@
 from __future__ import unicode_literals
 
 import frappe
-import frappe.defaults
-from erpnext.controllers.selling_controller import SellingController
-from erpnext.stock.doctype.batch.batch import set_batch_nos
-from erpnext.stock.doctype.serial_no.serial_no import get_delivery_note_serial_no
 from frappe import _
 from frappe.contacts.doctype.address.address import get_company_address
 from frappe.desk.notifications import clear_doctype_notifications
 from frappe.model.mapper import get_mapped_doc
 from frappe.model.utils import get_fetch_values
 from frappe.utils import cint, flt
+
 from erpnext.controllers.accounts_controller import get_taxes_and_charges
+from erpnext.controllers.selling_controller import SellingController
+from erpnext.stock.doctype.batch.batch import set_batch_nos
+from erpnext.stock.doctype.serial_no.serial_no import get_delivery_note_serial_no
 
 form_grid_templates = {
 	"items": "templates/form_grid/item_grid.html"
@@ -128,12 +128,14 @@ class DeliveryNote(SellingController):
 		self.validate_uom_is_integer("stock_uom", "stock_qty")
 		self.validate_uom_is_integer("uom", "qty")
 		self.validate_with_previous_doc()
-
-		if self._action != 'submit' and not self.is_return:
-			set_batch_nos(self, 'warehouse', True)
+		self.pick_update_validate()
 
 		from erpnext.stock.doctype.packed_item.packed_item import make_packing_list
 		make_packing_list(self)
+
+		if self._action != 'submit' and not self.is_return:
+			set_batch_nos(self, 'warehouse', throw=True)
+			set_batch_nos(self, 'warehouse', throw=True, child_table="packed_items")
 
 		self.update_current_stock()
 
@@ -177,13 +179,25 @@ class DeliveryNote(SellingController):
 			if not res:
 				frappe.throw(_("Customer {0} does not belong to project {1}").format(self.customer, self.project))
 
+	def pick_update_validate(self):
+		if self.pick_list:
+			doc = frappe.get_doc("Pick List",self.pick_list)
+			doc.delivery_note_done =1
+			doc.db_update()
+
+	def update_pick_lists():
+		pick_list = frappe.db.sql("""select pick_list from `tabDelivery Note` where pick_list is not null""", as_dict =True)
+		for p in pick_list:
+			doc = frappe.get_doc("Pick List", p.get("pick_list"))
+			doc.delivery_note_done = 1
+			doc.db_update()
+
 	def validate_warehouse(self):
 		super(DeliveryNote, self).validate_warehouse()
 
 		for d in self.get_item_list():
-			if frappe.db.get_value("Item", d['item_code'], "is_stock_item") == 1:
-				if not d['warehouse']:
-					frappe.throw(_("Warehouse required for stock Item {0}").format(d["item_code"]))
+			if not d['warehouse'] and frappe.db.get_value("Item", d['item_code'], "is_stock_item") == 1:
+				frappe.throw(_("Warehouse required for stock Item {0}").format(d["item_code"]))
 
 
 	def update_current_stock(self):
@@ -228,6 +242,7 @@ class DeliveryNote(SellingController):
 		self.update_prevdoc_status()
 		self.update_billing_status()
 
+		self.pick_update_cancel()
 		# Updating stock ledger should always be called after updating prevdoc status,
 		# because updating reserved qty in bin depends upon updated delivered qty in SO
 		self.update_stock_ledger()
@@ -237,6 +252,13 @@ class DeliveryNote(SellingController):
 		self.make_gl_entries_on_cancel()
 		self.repost_future_sle_and_gle()
 		self.ignore_linked_doctypes = ('GL Entry', 'Stock Ledger Entry', 'Repost Item Valuation')
+
+
+	def pick_update_cancel(self):
+		if self.pick_list:
+			doc = frappe.get_doc("Pick List",self.pick_list)
+			doc.delivery_note_done = 0
+			doc.db_update()
 
 	def check_credit_limit(self):
 		from erpnext.selling.doctype.customer.customer import check_credit_limit
@@ -264,7 +286,7 @@ class DeliveryNote(SellingController):
 		"""
 			Validate that if packed qty exists, it should be equal to qty
 		"""
-		if not any([flt(d.get('packed_qty')) for d in self.get("items")]):
+		if not any(flt(d.get('packed_qty')) for d in self.get("items")):
 			return
 		has_error = False
 		for d in self.get("items"):
@@ -320,6 +342,20 @@ class DeliveryNote(SellingController):
 			dn_doc.update_billing_percentage(update_modified=update_modified)
 
 		self.load_from_db()
+		
+	@frappe.whitelist()
+	def get_commision(self):
+		tot=[]
+		if self.sales_partner:
+			doc=frappe.get_doc("Sales Partner",self.sales_partner)
+			if self.commission_based_on_target_lines==1: 
+				for i in self.items:
+					for j in doc.item_target_details:
+						if i.item_code==j.item_code:
+							if j.commision_formula:
+								data=eval(j.commision_formula)
+								tot.append(data)
+								self.total_commission=sum(tot)	 
 
 	def make_return_invoice(self):
 		try:
@@ -331,7 +367,7 @@ class DeliveryNote(SellingController):
 			credit_note_link = frappe.utils.get_link_to_form('Sales Invoice', return_invoice.name)
 
 			frappe.msgprint(_("Credit Note {0} has been created automatically").format(credit_note_link))
-		except:
+		except Exception:
 			frappe.throw(_("Could not create Credit Note automatically, please uncheck 'Issue Credit Note' and submit again"))
 
 def update_billed_amount_based_on_so(so_detail, update_modified=True):
@@ -503,6 +539,10 @@ def make_sales_invoice(source_name, target_doc=None):
 		}
 	}, target_doc, set_missing_values)
 
+	automatically_fetch_payment_terms = cint(frappe.db.get_single_value('Accounts Settings', 'automatically_fetch_payment_terms'))
+	if automatically_fetch_payment_terms:
+		doc.set_payment_schedule()
+
 	return doc
 
 @frappe.whitelist()
@@ -664,8 +704,13 @@ def make_inter_company_purchase_receipt(source_name, target_doc=None):
 	return make_inter_company_transaction("Delivery Note", source_name, target_doc)
 
 def make_inter_company_transaction(doctype, source_name, target_doc=None):
-	from erpnext.accounts.doctype.sales_invoice.sales_invoice import (validate_inter_company_transaction,
-		get_inter_company_details, update_address, update_taxes, set_purchase_references)
+	from erpnext.accounts.doctype.sales_invoice.sales_invoice import (
+		get_inter_company_details,
+		set_purchase_references,
+		update_address,
+		update_taxes,
+		validate_inter_company_transaction,
+	)
 
 	if doctype == 'Delivery Note':
 		source_doc = frappe.get_doc(doctype, source_name)
@@ -695,7 +740,7 @@ def make_inter_company_transaction(doctype, source_name, target_doc=None):
 				target.append('taxes', tax)
 
 	def update_details(source_doc, target_doc, source_parent):
-		target_doc.inter_company_invoice_reference = source_doc.nametaxes
+		target_doc.inter_company_invoice_reference = source_doc.name
 		if target_doc.doctype == 'Purchase Receipt':
 			target_doc.company = details.get("company")
 			target_doc.supplier = details.get("party")

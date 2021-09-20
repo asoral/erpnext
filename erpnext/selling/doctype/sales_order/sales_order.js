@@ -43,6 +43,9 @@ frappe.ui.form.on("Sales Order", {
 				}
 			}
 		});
+
+		frm.set_df_property('packed_items', 'cannot_add_rows', true);
+		frm.set_df_property('packed_items', 'cannot_delete_rows', true);
 	},
 	refresh: function(frm) {
 
@@ -71,7 +74,7 @@ frappe.ui.form.on("Sales Order", {
 			}
 		})
 	},
-	onload: function(frm) {
+	onload: function(frm,cdt,cdn) {
 		if (!frm.doc.transaction_date){
 			frm.set_value('transaction_date', frappe.datetime.get_today())
 		}
@@ -89,7 +92,31 @@ frappe.ui.form.on("Sales Order", {
 		});
 
 		erpnext.queries.setup_warehouse_query(frm);
+
+		frappe.call({
+			method: 'erpnext.selling.doctype.customer_pricing_rule.customer_pricing_rule.fetch_order_warehouse_num',
+			args: {
+				'so_num': frm.doc.name
+			},
+			callback: function(resp){
+				if(resp.message && frm.doc.docstatus !== 1){
+					frappe.model.set_value(cdt,cdn,'order_warehouse_rule_number', resp.message[0])
+					frappe.model.set_value(cdt,cdn,'set_warehouse', resp.message[1])
+				}
+			}
+		})
 	},
+	before_save:function(frm){
+		frm.call({
+			method:"get_commision",
+			doc:frm.doc,
+			callback: function(r)
+			{
+				
+				frm.refresh_field("total_commission")
+			}
+		});
+	 },
 
 	delivery_date: function(frm) {
 		$.each(frm.doc.items || [], function(i, d) {
@@ -97,6 +124,28 @@ frappe.ui.form.on("Sales Order", {
 		});
 		refresh_field("items");
 	},
+	customer: function(frm,cdt,cdn) {
+	
+		frm.call({
+			method:"erpnext.selling.doctype.sales_order.sales_order.get_list",
+			args: {
+				"customer": frm.doc.customer,
+			},
+			callback: function(r)
+			{
+				if (r.message) {
+					cur_frm.fields_dict['items'].grid.get_field('item_code').get_query = function(doc, cdt, cdn) {
+						return {
+							filters: [
+									   ['item_code', 'in' , r.message]
+							]
+						}
+					}
+				}
+				frm.refresh_field("items")
+			}
+		});
+	 },
 
 	transaction_date: function(frm){
 		frappe.call({
@@ -110,47 +159,34 @@ frappe.ui.form.on("Sales Order", {
 				}
 			}
 		})
-	},
-	// delivery_date: function(frm){
-	// 	frappe.call({
-	// 		method:"erpnext.nepali_date.get_converted_date",
-	// 		args: {
-	// 			date: frm.doc.delivery_date
-	// 		},
-	// 		callback: function(resp){
-	// 			if(resp.message){
-	// 				cur_frm.set_value("delivery_date_nepali",resp.message)
-	// 			}
-	// 		}
-	// 	})
-	// },
-	// from_date: function(frm){
-	// 	frappe.call({
-	// 		method:"erpnext.nepali_date.get_converted_date",
-	// 		args: {
-	// 			date: frm.doc.from_date
-	// 		},
-	// 		callback: function(resp){
-	// 			if(resp.message){
-	// 				cur_frm.set_value("from_date_nepali",resp.message)
-	// 			}
-	// 		}
-	// 	})
-	// },
-	// to_date: function(frm){
-	// 	frappe.call({
-	// 		method:"erpnext.nepali_date.get_converted_date",
-	// 		args: {
-	// 			date: frm.doc.to_date
-	// 		},
-	// 		callback: function(resp){
-	// 			if(resp.message){
-	// 				cur_frm.set_value("to_date_nepali",resp.message)
-	// 			}
-	// 		}
-	// 	})
-	// },
+	}
 });
+
+function set_filter(frm){
+    frm.fields_dict["items"].grid.get_field("uom").get_query = function(doc,cdt,cdn){
+        var item = locals[cdt][cdn];
+        let p = `${frm.doc.customer}${item.item_code}`
+        return frappe.call({
+             method: "erpnext.selling.doctype.customer_pricing_rule.customer_pricing_rule.fetch_uom",
+                args: {
+                        "parent":p
+                },
+                callback: function(resp){
+                     if(resp){
+                          return{
+                                filters: {
+                                    'name':    ['in',resp.message]
+                                }
+                          }
+                     }
+                        frm.refresh_field("items")
+                        console.log("refresh...")
+                        
+                }
+        });
+        }
+}
+
 
 frappe.ui.form.on("Sales Order Item", {
 	item_code: function(frm,cdt,cdn) {

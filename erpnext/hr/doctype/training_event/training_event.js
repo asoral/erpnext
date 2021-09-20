@@ -20,7 +20,9 @@ frappe.ui.form.on('Training Event', {
 				frappe.set_route("List", "Training Feedback");
 			});
 		}
+		frm.events.set_employee_query(frm);
 	},
+	
 
 	start_time: function (frm) {
 		frappe.call({
@@ -49,11 +51,8 @@ frappe.ui.form.on('Training Event', {
 		})
 	},
 
-	
-});
 
-frappe.ui.form.on("Training Event Employee", {
-	employee: function (frm) {
+	set_employee_query: function(frm) {
 		let emp = [];
 		for (let d in frm.doc.employees) {
 			if (frm.doc.employees[d].employee) {
@@ -63,9 +62,16 @@ frappe.ui.form.on("Training Event Employee", {
 		frm.set_query("employee", "employees", function () {
 			return {
 				filters: {
-					name: ["NOT IN", emp]
+					name: ["NOT IN", emp],
+					status: "Active"
 				}
 			};
 		});
+	}
+});
+
+frappe.ui.form.on("Training Event Employee", {
+	employee: function(frm) {
+		frm.events.set_employee_query(frm);
 	}
 });

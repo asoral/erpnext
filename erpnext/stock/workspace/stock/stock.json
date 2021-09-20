@@ -129,6 +129,15 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Customer Pricing Rule",
+   "link_to": "Customer Pricing Rule",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Stock Transactions",
    "onboard": 0,
    "type": "Card Break"
@@ -263,6 +272,50 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Dispatch Planning",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Delivery Planning",
+   "link_to": "Delivery Planning",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Delivery Planning Item",
+   "link_to": "Delivery Planning Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transporter Wise Planning Item",
+   "link_to": "Transporter Wise Planning Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Orders Planning Item",
+   "link_to": "Purchase Orders Planning Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Settings",
    "link_type": "DocType",
    "onboard": 0,
@@ -334,6 +387,24 @@
    "is_query_report": 0,
    "label": "UOM Conversion Factor",
    "link_to": "UOM Conversion Factor",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Settings",
+   "link_to": "Stock Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Order Warehouse Rule",
+   "link_to": "Order Warehouse Rule",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -475,9 +546,37 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Bulk Delivery Note Pick List Creation Tool",
+   "link_to": "Bulk Delivery Note from Pick List Creation Tool",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bulk Pick List Creation Tool",
+   "link_to": "Bulk Pick List Creation Tool",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Key Reports",
    "onboard": 0,
    "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Delivery Planning Report",
+   "link_to": "Delivery Planning Report",
+   "link_type": "Report",
+   "onboard": 1,
+   "type": "Link"
   },
   {
    "dependencies": "Item Price",
@@ -497,15 +596,6 @@
    "link_to": "Stock Analytics",
    "link_type": "Report",
    "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 1,
-   "label": "Inter Company Challan Reconciliation",
-   "link_to": "Inter Company Challan Reconciliation",
-   "link_type": "Report",
-   "onboard": 0,
    "type": "Link"
   },
   {
@@ -574,6 +664,15 @@
    "is_query_report": 1,
    "label": "Batch-Wise Balance History",
    "link_to": "Batch-Wise Balance History",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Material Purchase To Billied",
+   "link_to": "Indent to Bill Cycle Report",
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
@@ -664,9 +763,44 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Incorrect Data Report",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Incorrect Serial No Qty and Valuation",
+   "link_to": "Incorrect Serial No Valuation",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Incorrect Balance Qty After Transaction",
+   "link_to": "Incorrect Balance Qty After Transaction",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock and Account Value Comparison",
+   "link_to": "Stock and Account Value Comparison",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2021-06-21 16:51:28.600670",
+ "modified": "2021-08-13 12:21:03.525637",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock",
@@ -705,12 +839,12 @@
    "type": "DocType"
   },
   {
-   "color": "#CB2929",
+   "color": "#ECAD4B",
    "doc_view": "",
    "format": "{} Draft",
    "label": "Delivery Planning",
    "link_to": "Delivery Planning",
-   "stats_filter": "{ \"status\" : \"Draft\"}",
+   "stats_filter": "{\"docstatus\":[\"=\",\"0\"]}",
    "type": "DocType"
   },
   {
@@ -736,6 +870,12 @@
    "link_to": "Stock",
    "stats_filter": "",
    "type": "Dashboard"
+  },
+  {
+   "doc_view": "",
+   "label": "Inter Company Challan Reconciliation",
+   "link_to": "Inter Company Challan Reconciliation",
+   "type": "Report"
   }
  ],
  "shortcuts_label": "Quick Access"

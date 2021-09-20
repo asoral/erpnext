@@ -280,5 +280,3 @@ erpnext.EmployeeSelector = Class.extend({
 		mark_employee_toolbar.appendTo($(this.wrapper));
 	}
 });
-
-

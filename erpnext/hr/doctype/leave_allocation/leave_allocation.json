@@ -112,6 +112,7 @@
    "label": "Allocation"
   },
   {
+   "allow_on_submit": 1,
    "bold": 1,
    "fieldname": "new_leaves_allocated",
    "fieldtype": "Float",

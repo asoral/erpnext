@@ -75,7 +75,7 @@
   "stock_received_but_not_billed",
   "service_received_but_not_billed",
   "expenses_included_in_valuation",
-  "fixed_asset_depreciation_settings",
+  "fixed_asset_defaults",
   "accumulated_depreciation_account",
   "depreciation_expense_account",
   "series_for_depreciation_entry",
@@ -84,7 +84,12 @@
   "disposal_account",
   "depreciation_cost_center",
   "capital_work_in_progress_account",
+  "repair_and_maintenance_account",
   "asset_received_but_not_billed",
+  "hra_section1",
+  "basic_component",
+  "hra_component",
+  "arrear_component",
   "budget_detail",
   "exception_budget_approver_role",
   "company_info",
@@ -104,7 +109,10 @@
   "registration_details",
   "lft",
   "rgt",
-  "old_parent"
+  "old_parent",
+  "upi_section",
+  "upi_id",
+  "upi_qr_code_image"
  ],
  "fields": [
   {
@@ -523,12 +531,6 @@
    "options": "Account"
   },
   {
-   "collapsible": 1,
-   "fieldname": "fixed_asset_depreciation_settings",
-   "fieldtype": "Section Break",
-   "label": "Fixed Asset Depreciation Settings"
-  },
-  {
    "fieldname": "accumulated_depreciation_account",
    "fieldtype": "Link",
    "label": "Accumulated Depreciation Account",
@@ -736,6 +738,57 @@
    "fieldname": "default_discount_account",
    "fieldtype": "Link",
    "label": "Default Payment Discount Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "hra_section1",
+   "fieldtype": "Section Break",
+   "label": "HRA Settings"
+  },
+  {
+   "fieldname": "upi_qr_code_image",
+   "fieldtype": "Attach Image",
+   "label": "UPI QR Code Image"
+  },
+  {
+   "fieldname": "basic_component",
+   "fieldtype": "Link",
+   "label": "Basic Component",
+   "options": "Salary Component"
+  },
+  {
+   "fieldname": "hra_component",
+   "fieldtype": "Link",
+   "label": "HRA Component",
+   "options": "Salary Component"
+  },
+  {
+   "fieldname": "arrear_component",
+   "fieldtype": "Link",
+   "label": "Arrear Component",
+   "options": "Salary Component"
+  },
+  {
+   "fieldname": "upi_section",
+   "fieldtype": "Section Break",
+   "label": "UPI Details"
+  },
+  {
+   "fieldname": "upi_id",
+   "fieldtype": "Data",
+   "label": " UPI ID",
+   "translatable": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "fixed_asset_defaults",
+   "fieldtype": "Section Break",
+   "label": "Fixed Asset Defaults"
+  },
+  {
+   "fieldname": "repair_and_maintenance_account",
+   "fieldtype": "Link",
+   "label": "Repair and Maintenance Account",
    "options": "Account"
   },
   {

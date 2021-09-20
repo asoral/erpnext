@@ -12,6 +12,7 @@
   "issue",
   "type",
   "color",
+  "item_code",
   "is_group",
   "is_template",
   "column_break0",
@@ -392,6 +393,13 @@
    "fieldtype": "Date",
    "label": "Completed On",
    "mandatory_depends_on": "eval: doc.status == \"Completed\""
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "Item Code",
+   "mandatory_depends_on": "eval:doc.is_template",
+   "options": "Item"
   },
   {
    "fieldname": "expected_start_date_nepal",

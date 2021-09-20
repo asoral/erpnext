@@ -12,7 +12,6 @@ frappe.provide("erpnext.selling");
 erpnext.selling.SellingController = erpnext.TransactionController.extend({
 	setup: function() {
 		this._super();
-		this.frm.add_fetch("sales_partner", "commission_rate", "commission_rate");
 		this.frm.add_fetch("sales_person", "commission_rate", "commission_rate");
 	},
 
@@ -90,10 +89,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 
 		this.frm.toggle_display("customer_name",
 			(this.frm.doc.customer_name && this.frm.doc.customer_name!==this.frm.doc.customer));
-		if(this.frm.fields_dict.packed_items) {
-			var packing_list_exists = (this.frm.doc.packed_items || []).length;
-			this.frm.toggle_display("packing_list", packing_list_exists ? true : false);
-		}
+
 		this.toggle_editable_price_list_rate();
 	},
 
@@ -246,11 +242,18 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		var editable_price_list_rate = cint(frappe.defaults.get_default("editable_price_list_rate"));
 
 		if(df && editable_price_list_rate) {
-			df.read_only = 0;
+			const parent_field = frappe.meta.get_parentfield(this.frm.doc.doctype, this.frm.doc.doctype + " Item");
+			if (!this.frm.fields_dict[parent_field]) return;
+
+			this.frm.fields_dict[parent_field].grid.update_docfield_property(
+				'price_list_rate', 'read_only', 0
+			);
 		}
 	},
 
 	calculate_commission: function() {
+		if(this.frm.doc.commission_based_on_target_lines==0){
+		this.frm.add_fetch("sales_partner", "commission_rate", "commission_rate");
 		if(this.frm.fields_dict.commission_rate) {
 			if(this.frm.doc.commission_rate > 100) {
 				var msg = __(frappe.meta.get_label(this.frm.doc.doctype, "commission_rate", this.frm.doc.name)) +
@@ -258,9 +261,11 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 				frappe.msgprint(msg);
 				throw msg;
 			}
-
 			this.frm.doc.total_commission = flt(this.frm.doc.base_net_total * this.frm.doc.commission_rate / 100.0,
 				precision("total_commission"));
+
+			}
+			
 		}
 	},
 
@@ -390,6 +395,10 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 	},
 
 	_set_batch_number: function(doc) {
+		if (doc.batch_no) {
+			return
+		}
+
 		let args = {'item_code': doc.item_code, 'warehouse': doc.warehouse, 'qty': flt(doc.qty) * flt(doc.conversion_factor)};
 		if (doc.has_serial_no && doc.serial_no) {
 			args['serial_no'] = doc.serial_no
