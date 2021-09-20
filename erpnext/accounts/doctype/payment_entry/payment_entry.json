@@ -667,6 +667,7 @@
   {
    "fieldname": "base_paid_amount_after_tax",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Paid Amount After Tax (Company Currency)",
    "options": "Company:company:default_currency",
    "read_only": 1
@@ -690,18 +691,23 @@
    "options": "Account"
   },
   {
-   "depends_on": "eval:doc.received_amount",
+   "depends_on": "eval:doc.received_amount && doc.payment_type != 'Internal Transfer'",
    "fieldname": "received_amount_after_tax",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Received Amount After Tax",
-   "options": "paid_to_account_currency"
+   "options": "paid_to_account_currency",
+   "read_only": 1
   },
   {
    "depends_on": "doc.received_amount",
    "fieldname": "base_received_amount_after_tax",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Received Amount After Tax (Company Currency)",
-   "options": "Company:company:default_currency"
+   "options": "Company:company:default_currency",
+   "read_only": 1
+
   },
   {
    "bold": 1,

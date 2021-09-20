@@ -3,12 +3,20 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
-import frappe, json, erpnext
+
+import json
+
+import frappe
 from frappe import _
-from frappe.utils import flt, getdate, nowdate, add_days
-from erpnext.controllers.accounts_controller import AccountsController
+from frappe.utils import add_days, flt, getdate, nowdate
+
+import erpnext
+from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
+	get_accounting_dimensions,
+)
 from erpnext.accounts.general_ledger import make_gl_entries
-from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import get_accounting_dimensions
+from erpnext.controllers.accounts_controller import AccountsController
+
 
 class InvoiceDiscounting(AccountsController):
 	def validate(self):
@@ -42,7 +50,7 @@ class InvoiceDiscounting(AccountsController):
 					record.idx, frappe.bold(actual_outstanding), frappe.bold(record.sales_invoice)))
 
 	def calculate_total_amount(self):
-		self.total_amount = sum([flt(d.outstanding_amount) for d in self.invoices])
+		self.total_amount = sum(flt(d.outstanding_amount) for d in self.invoices)
 
 	def on_submit(self):
 		self.update_sales_invoice()

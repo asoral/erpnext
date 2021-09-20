@@ -174,51 +174,51 @@
   {
    "depends_on": "eval:doc.applicable_for=='Customer'",
    "fieldname": "customer",
-   "fieldtype": "Link",
+   "fieldtype": "Table MultiSelect",
    "label": "Customer",
-   "options": "Customer"
+   "options": "Customer Item"
   },
   {
    "depends_on": "eval:doc.applicable_for==\"Customer Group\"",
    "fieldname": "customer_group",
-   "fieldtype": "Link",
+   "fieldtype": "Table MultiSelect",
    "label": "Customer Group",
-   "options": "Customer Group"
+   "options": "Customer Group Item"
   },
   {
    "depends_on": "eval:doc.applicable_for==\"Territory\"",
    "fieldname": "territory",
-   "fieldtype": "Link",
+   "fieldtype": "Table MultiSelect",
    "label": "Territory",
-   "options": "Territory"
+   "options": "Territory Item"
   },
   {
    "depends_on": "eval:doc.applicable_for==\"Sales Partner\"",
    "fieldname": "sales_partner",
-   "fieldtype": "Link",
+   "fieldtype": "Table MultiSelect",
    "label": "Sales Partner",
-   "options": "Sales Partner"
+   "options": "Sales Partner Item"
   },
   {
    "depends_on": "eval:doc.applicable_for==\"Campaign\"",
    "fieldname": "campaign",
-   "fieldtype": "Link",
+   "fieldtype": "Table MultiSelect",
    "label": "Campaign",
-   "options": "Campaign"
+   "options": "Campaign Item"
   },
   {
    "depends_on": "eval:doc.applicable_for=='Supplier'",
    "fieldname": "supplier",
-   "fieldtype": "Link",
+   "fieldtype": "Table MultiSelect",
    "label": "Supplier",
-   "options": "Supplier"
+   "options": "Supplier Item"
   },
   {
    "depends_on": "eval:doc.applicable_for==\"Supplier Group\"",
    "fieldname": "supplier_group",
-   "fieldtype": "Link",
+   "fieldtype": "Table MultiSelect",
    "label": "Supplier Group",
-   "options": "Supplier Group"
+   "options": "Supplier Group Item"
   },
   {
    "fieldname": "period_settings_section",
@@ -277,22 +277,10 @@
    "fieldtype": "Table",
    "label": "Promotional Scheme Product Discount",
    "options": "Promotional Scheme Product Discount"
-  },
-  {
-   "fieldname": "valid_fromnepal",
-   "fieldtype": "Data",
-   "label": "Valid From(Nepal)",
-   "read_only": 1
-  },
-  {
-   "fieldname": "valid_uptonepal",
-   "fieldtype": "Data",
-   "label": "Valid Upto(Nepal)",
-   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2021-07-15 18:15:33.812427",
+ "modified": "2021-05-06 16:20:22.039078",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Promotional Scheme",

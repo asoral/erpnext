@@ -2,10 +2,11 @@
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
+
 import frappe
-from frappe.utils import flt, getdate, nowdate, fmt_money
-from frappe import msgprint, _
+from frappe import _, msgprint
 from frappe.model.document import Document
+from frappe.utils import flt, fmt_money, getdate, nowdate
 
 form_grid_templates = {
 	"journal_entries": "templates/form_grid/bank_reconciliation_grid.html"
@@ -67,7 +68,7 @@ class BankClearance(Document):
 			pos_sales_invoices = frappe.db.sql("""
 				select
 					"Sales Invoice Payment" as payment_document, sip.name as payment_entry, sip.amount as debit,
-					si.posting_date, si.customer as against_account,si.customer_name as party sip.clearance_date,
+					si.posting_date, si.customer as against_account,si.customer_name as party ,sip.clearance_date,
 					account.account_currency, 0 as credit
 				from `tabSales Invoice Payment` sip, `tabSales Invoice` si, `tabAccount` account
 				where

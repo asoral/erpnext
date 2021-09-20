@@ -37,6 +37,7 @@
   "column_break_24",
   "absent_days",
   "payment_days",
+  "months_of_service_in_payment_period",
   "hourly_wages",
   "timesheets",
   "column_break_20",
@@ -58,6 +59,8 @@
   "totals",
   "gross_pay",
   "base_gross_pay",
+  "gross_year_to_date",
+  "base_gross_year_to_date",
   "column_break_25",
   "total_deduction",
   "base_total_deduction",
@@ -634,6 +637,24 @@
    "label": "Total Leave(Current Month)"
   },
   {
+   "fieldname": "months_of_service_in_payment_period",
+   "fieldtype": "Int",
+   "label": "Months of Service in payment period"
+  },
+  {
+   "fieldname": "gross_year_to_date",
+   "fieldtype": "Currency",
+   "label": "Gross Year To Date",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_gross_year_to_date",
+   "fieldtype": "Currency",
+   "label": "Gross Year To Date(Company Currency)",
+   "options": "Company:company:default_currency"
+  },
+  {
    "fieldname": "posting_date_nepali",
    "fieldtype": "Data",
    "label": "Posting Date(Nepali)",
@@ -644,7 +665,7 @@
  "idx": 9,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-07-19 11:19:25.130478",
+ "modified": "2021-09-01 10:22:52.374549",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Salary Slip",

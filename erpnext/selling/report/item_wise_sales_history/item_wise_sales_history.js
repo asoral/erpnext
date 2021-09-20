@@ -59,6 +59,5 @@ frappe.query_reports["Item-wise Sales History"] = {
 			value = "<span style='color:green;'>" + value + "</span>";
 		}
 		return value;
-	},
-	
+	}
 };
