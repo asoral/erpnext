@@ -1965,18 +1965,23 @@ def update_child_qty_rate(parent_doctype, trans_items, parent_doctype_name, chil
 				prev_delivered_by_supplier,new_delivered_by_supplier=child_item.get("delivered_by_supplier"),d.get("delivered_by_supplier")
 				prev_task,new_task=child_item.get("task"),d.get("task")
 
+				supplier_unchanged= prev_supplier==new_supplier
+				task_unchanged=prev_task==new_task
+				delivered_by_supplier_unchanged=prev_delivered_by_supplier==new_delivered_by_supplier
+
+				if supplier_unchanged and delivered_by_supplier_unchanged and task_unchanged:
+					continue
+
 			elif parent_doctype == 'Purchase Order':
 				prev_date, new_date = child_item.get("schedule_date"), d.get("schedule_date")
 			
-			supplier_unchanged= prev_supplier==new_supplier
-			task_unchanged=prev_task==new_task
-			delivered_by_supplier_unchanged=prev_delivered_by_supplier==new_delivered_by_supplier
+	
 			rate_unchanged = prev_rate == new_rate
 			qty_unchanged = prev_qty == new_qty
 			uom_unchanged = prev_uom == new_uom
 			conversion_factor_unchanged = prev_con_fac == new_con_fac
 			date_unchanged = prev_date == getdate(new_date) if prev_date and new_date else False # in case of delivery note etc
-			if rate_unchanged and qty_unchanged and conversion_factor_unchanged and uom_unchanged and date_unchanged and supplier_unchanged and delivered_by_supplier_unchanged and task_unchanged:
+			if rate_unchanged and qty_unchanged and conversion_factor_unchanged and uom_unchanged and date_unchanged:
 				continue
 
 		validate_quantity(child_item, d)
