@@ -1,0 +1,182 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2021-09-20 15:37:41.955424",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "template_bom",
+  "item_code",
+  "parameters",
+  "column_break_4",
+  "qty",
+  "item_attribute",
+  "section_break_7",
+  "raw_material_items",
+  "section_break_9",
+  "total_raw_material_weight",
+  "column_break_10",
+  "raw_material_total_amount",
+  "scrap_sectiom_section",
+  "scrap_items",
+  "section_break_15",
+  "total_scrap_weight",
+  "column_break_15",
+  "scrap_total_amount_",
+  "add_ons_section",
+  "add_ons",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "template_bom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Template Bom",
+   "options": "BOM",
+   "reqd": 1
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "label": "Qty"
+  },
+  {
+   "fieldname": "raw_material_items",
+   "fieldtype": "Table",
+   "label": "Raw Material Items",
+   "options": "Bom Raw Material Item"
+  },
+  {
+   "fetch_from": "template_bom.item",
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "Item Code",
+   "options": "Item"
+  },
+  {
+   "fieldname": "item_attribute",
+   "fieldtype": "Small Text",
+   "label": "Item Attribute",
+   "read_only": 1
+  },
+  {
+   "fieldname": "parameters",
+   "fieldtype": "Button",
+   "label": "Parameters"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_7",
+   "fieldtype": "Section Break",
+   "label": "Raw Material Section"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Cost Calculator",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "scrap_sectiom_section",
+   "fieldtype": "Section Break",
+   "label": "Scrap Sectiom"
+  },
+  {
+   "fieldname": "scrap_items",
+   "fieldtype": "Table",
+   "label": "Scrap Items",
+   "options": "Scrap Material Item"
+  },
+  {
+   "fieldname": "total_raw_material_weight",
+   "fieldtype": "Float",
+   "label": "Total Raw Material Weight",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "raw_material_total_amount",
+   "fieldtype": "Currency",
+   "label": "Raw Material Total Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_scrap_weight",
+   "fieldtype": "Float",
+   "label": "Total Scrap Weight",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_15",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scrap_total_amount_",
+   "fieldtype": "Currency",
+   "label": "Scrap Total Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_15",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "add_ons_section",
+   "fieldtype": "Section Break",
+   "label": "Add Ons"
+  },
+  {
+   "fieldname": "add_ons",
+   "fieldtype": "Table",
+   "label": "Add Ons",
+   "options": "Add Ons"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "CC-.YYYY.-.##."
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2021-09-22 15:41:21.231285",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Cost Calculator",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
