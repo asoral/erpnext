@@ -71,3 +71,14 @@ class CostCalculator(Document):
 				doc=frappe.get_doc("Item",i.item_code)
 				i.amount=i.qty*i.rate*i.factor
 				
+		
+	def calculate_formula(self):
+		for j in self.raw_material_items:
+			if j.formula:
+				formula= j.formula
+				d="{"+str(j.item_attributes)+"}"
+				c=eval(d)
+				for i in c:
+					formula=formula.replace(i,str(c[i]))
+				a=eval(formula)
+				print(a)

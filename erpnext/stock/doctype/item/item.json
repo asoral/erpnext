@@ -24,6 +24,7 @@
   "staging_multiple",
   "stock_uom",
   "specific_gravity",
+  "cost_calculator_formula",
   "column_break0",
   "disabled",
   "allow_alternative_item",
@@ -129,7 +130,8 @@
   "synced_with_hub",
   "more_information_section",
   "published_in_website",
-  "total_projected_qty"
+  "total_projected_qty",
+  "website_image_alt"
  ],
  "fields": [
   {
@@ -992,6 +994,11 @@
    "fieldtype": "Check",
    "label": "Published in Website",
    "read_only": 1
+  },
+  {
+   "fieldname": "cost_calculator_formula",
+   "fieldtype": "Code",
+   "label": "Cost Calculator Formula"
   }
  ],
  "icon": "fa fa-tag",
@@ -1000,7 +1007,7 @@
  "index_web_pages_for_search": 1,
  "links": [],
  "max_attachments": 1,
- "modified": "2021-09-10 12:23:07.277077",
+ "modified": "2021-09-23 15:30:59.089285",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",
