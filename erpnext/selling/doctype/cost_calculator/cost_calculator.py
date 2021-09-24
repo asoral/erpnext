@@ -47,9 +47,8 @@ class CostCalculator(Document):
 		amount=[]
 		for i in self.raw_material_items:
 			if i.item_code:
-				doc=frappe.get_doc("Item",i.item_code)
 				i.amount=i.qty*i.rate
-				i.weight=i.qty*doc.weight_per_unit
+				i.weight=i.qty*i.wp_unit
 				weight.append(i.weight)
 				amount.append(i.amount)
 		self.total_raw_material_weight=sum(weight)
@@ -58,9 +57,8 @@ class CostCalculator(Document):
 		samount=[]
 		for i in self.scrap_items:
 			if i.item_code:
-				doc=frappe.get_doc("Item",i.item_code)
 				i.amount=i.qty*i.rate
-				i.weight=i.qty*doc.weight_per_unit
+				i.weight=i.qty*i.wp_unit
 				sweight.append(i.weight)
 				samount.append(i.amount)
 		self.total_scrap_weight=sum(sweight)
@@ -68,17 +66,50 @@ class CostCalculator(Document):
 		for i in self.add_ons:
 			i.qty=self.qty
 			if i.item_code:
-				doc=frappe.get_doc("Item",i.item_code)
 				i.amount=i.qty*i.rate*i.factor
 				
-		
+	@frappe.whitelist()
 	def calculate_formula(self):
 		for j in self.raw_material_items:
-			if j.formula:
-				formula= j.formula
-				d="{"+str(j.item_attributes)+"}"
+			try:
+				if j.formula:
+					formula= j.formula
+					d="{"+str(j.item_attributes)+"}"
+					c=eval(d)
+					for i in c:
+						formula=formula.replace(i,str(c[i]))
+					formu=eval(formula)
+					j.wp_unit=formu
+			except:
+				print("")
+
+	@frappe.whitelist()
+	def calculate_formula_bom_item(self):
+		for j in self.scrap_items:
+			try:
+				if j.formula:
+					formula= j.formula
+					d="{"+str(j.item_attributes)+"}"
+					c=eval(d)
+					for i in c:
+						formula=formula.replace(i,str(c[i]))
+					formu=eval(formula)
+					j.wp_unit=formu
+			except:
+				print("")
+
+
+
+	@frappe.whitelist()
+	def calculate_formula_scrap_item(self):
+		try:
+			if self.formula:
+				formula= self.formula
+				d="{"+str(self.item_attributes)+"}"
 				c=eval(d)
 				for i in c:
 					formula=formula.replace(i,str(c[i]))
-				a=eval(formula)
-				print(a)
+				formu=eval(formula)
+				self.wp_unit=formu
+		except:
+				print("")
