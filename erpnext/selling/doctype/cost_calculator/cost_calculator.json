@@ -13,6 +13,7 @@
   "column_break_4",
   "qty",
   "item_attribute",
+  "formula",
   "section_break_7",
   "raw_material_items",
   "section_break_9",
@@ -152,12 +153,20 @@
    "fieldtype": "Select",
    "label": "Series",
    "options": "CC-.YYYY.-.##."
+  },
+  {
+   "fetch_from": "item_code.cost_calculator_formula",
+   "fieldname": "formula",
+   "fieldtype": "Code",
+   "hidden": 1,
+   "label": "Formula",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-22 15:41:21.231285",
+ "modified": "2021-09-24 14:50:23.026553",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Cost Calculator",
