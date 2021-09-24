@@ -196,7 +196,7 @@ frappe.ui.form.on('Bom Raw Material Item', {
 			for(var i in args){
 				console.log(args[i])
 				// console.log(args[i].value)
-				a+=i+":"+args[i]+"\n"
+				a+="'"+i+"'"+":"+args[i]+","+"\n"
 			row.item_attributes = a;
 			frm.refresh_field("raw_material_items");
 			
