@@ -21,6 +21,7 @@ class CostCalculator(Document):
 				"item_code":i.item_code,
 				"item_name":i.item_name,
 				"qty":i.qty,
+				"stock_uom":i.stock_uom,
 				"weight_uom":i.weight_uom,
 				"rate":i.rate,
 				"amount":i.amount,
@@ -31,10 +32,19 @@ class CostCalculator(Document):
 				"item_code":i.item_code,
 				"item_name":i.item_name,
 				"qty":i.stock_qty,
-				"weight_uom":i.stock_uom,
+				"stock_uom":i.stock_uom,
 				"rate":i.rate,
 				"amount":i.amount,
-				})
+				})	
+		doc1=frappe.get_doc("Item",self.item_code)
+		for i in doc1.add_ons:
+			self.append("add_ons",{
+				"item_code":i.item_code,
+				"qty":i.qty,
+				"stock_uom":i.unit_of_measure,
+				"factor":i.qty_conversion_factor
+				})	
+	
 
 
 	@frappe.whitelist()
@@ -48,7 +58,10 @@ class CostCalculator(Document):
 		for i in self.raw_material_items:
 			if i.item_code:
 				i.amount=i.qty*i.rate
-				i.weight=i.qty*i.wp_unit
+				if i.scrap > 0:
+					i.weight=i.qty*i.wp_unit*i.scrap/100+1
+				else:
+					i.weight=i.qty*i.wp_unit+1
 				weight.append(i.weight)
 				amount.append(i.amount)
 		self.total_raw_material_weight=sum(weight)
@@ -58,7 +71,7 @@ class CostCalculator(Document):
 		for i in self.scrap_items:
 			if i.item_code:
 				i.amount=i.qty*i.rate
-				i.weight=i.qty*i.wp_unit
+				i.weight=i.qty*i.weight_per_unit
 				sweight.append(i.weight)
 				samount.append(i.amount)
 		self.total_scrap_weight=sum(sweight)
@@ -71,6 +84,34 @@ class CostCalculator(Document):
 	@frappe.whitelist()
 	def calculate_formula(self):
 		for j in self.raw_material_items:
+			if j.item_attributes:
+				d="{"+str(j.item_attributes)+"}"
+				c=eval(d)
+				lst=[]
+				for i in c:
+					lst.append(c[i])
+				t=tuple(lst)
+				if len(t) > 1:
+					doc=frappe.db.sql("""select distinct i.name from `tabItem` i join `tabItem Variant Attribute` ia on i.name=ia.parent
+								where i.variant_of='{0}' and attribute_value in {1}""".format(j.item_code,t),as_dict=1)
+				else:
+					ls=c[i].strip(",")
+					doc=frappe.db.sql("""select distinct i.name from `tabItem` i join `tabItem Variant Attribute` ia on i.name=ia.parent
+								where i.variant_of='{0}' and attribute_value = '{1}'""".format(j.item_code,c[i]),as_dict=1)
+				if doc:
+					for k in doc:
+						tab=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
+						if tab:
+							doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+							j.rate=doc1.price_list_rate
+				if not doc:
+					tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
+					if tab:
+						doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+						j.rate=doc1.price_list_rate
+		for j in self.raw_material_items:
+			weight=[]
+			amount=[]
 			try:
 				if j.formula:
 					formula= j.formula
@@ -82,9 +123,49 @@ class CostCalculator(Document):
 					j.wp_unit=formu
 			except:
 				print("")
-
+			if j.item_code:
+				j.amount=j.qty*j.rate
+				if j.scrap > 0:
+					j.weight=j.qty*j.wp_unit*(j.scrap/100+1)
+				else:
+					j.weight=j.qty*j.wp_unit+1
+				weight.append(j.weight)
+				amount.append(j.amount)
+		self.total_raw_material_weight=sum(weight)
+		self.raw_material_total_amount=sum(amount)
+		
 	@frappe.whitelist()
 	def calculate_formula_bom_item(self):
+		for j in self.scrap_items:
+			if j.item_attributes:
+				d="{"+str(j.item_attributes)+"}"
+				c=eval(d)
+				lst=[]
+				for i in c:
+					lst.append(c[i])
+				t=tuple(lst)
+				if len(t) > 1:
+					doc=frappe.db.sql("""select distinct i.name from `tabItem` i join `tabItem Variant Attribute` ia on i.name=ia.parent
+								where i.variant_of='{0}' and attribute_value in {1}""".format(j.item_code,t),as_dict=1)
+				if len(t) == 1:
+					ls=c[i].strip(",")
+					print("*********888888888",ls)
+					doc=frappe.db.sql("""select distinct i.name from `tabItem` i join `tabItem Variant Attribute` ia on i.name=ia.parent
+								where i.variant_of='{0}' and attribute_value = '{1}'""".format(j.item_code,c[i]),as_dict=1)
+				if doc:
+					for k in doc:
+						tab=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
+						if tab:
+							doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+							j.rate=doc1.price_list_rate
+				if not doc:
+					tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
+					if tab:
+						doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+						j.rate=doc1.price_list_rate
+		self.save()
+		sweight=[]
+		samount=[]
 		for j in self.scrap_items:
 			try:
 				if j.formula:
@@ -97,7 +178,13 @@ class CostCalculator(Document):
 					j.wp_unit=formu
 			except:
 				print("")
-
+			if j.item_code:
+				j.amount=j.qty*j.rate
+				j.weight=j.qty*j.weight_per_unit
+				sweight.append(j.weight)
+				samount.append(j.amount)
+		self.total_scrap_weight=sum(sweight)
+		self.scrap_total_amount_=sum(samount)
 
 
 	@frappe.whitelist()
@@ -113,3 +200,5 @@ class CostCalculator(Document):
 				self.wp_unit=formu
 		except:
 				print("")
+
+		

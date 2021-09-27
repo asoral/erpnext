@@ -8,6 +8,7 @@
   "item_code",
   "item_name",
   "qty",
+  "stock_uom",
   "rate",
   "item_attributes",
   "parameters",
@@ -99,13 +100,20 @@
   {
    "fieldname": "wp_unit",
    "fieldtype": "Float",
-   "label": "Weight Per Unit"
+   "label": "Weight Per Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stock_uom",
+   "fieldtype": "Link",
+   "label": "Stock UOM",
+   "options": "UOM"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-09-24 14:54:29.226122",
+ "modified": "2021-09-27 11:50:13.182279",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Bom Raw Material Item",

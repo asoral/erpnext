@@ -73,6 +73,8 @@
   "has_variants",
   "variant_based_on",
   "attributes",
+  "has_add_ons",
+  "add_ons",
   "defaults",
   "item_defaults",
   "purchase_details",
@@ -999,6 +1001,21 @@
    "fieldname": "cost_calculator_formula",
    "fieldtype": "Code",
    "label": "Cost Calculator Formula"
+  },
+  {
+   "default": "0",
+   "depends_on": "has_variants",
+   "fieldname": "has_add_ons",
+   "fieldtype": "Check",
+   "label": "Has Add Ons"
+  },
+  {
+   "depends_on": "has_add_ons",
+   "fieldname": "add_ons",
+   "fieldtype": "Table",
+   "label": "Add Ons",
+   "mandatory_depends_on": "has_add_ons",
+   "options": "Item Add Ons"
   }
  ],
  "icon": "fa fa-tag",
@@ -1007,7 +1024,7 @@
  "index_web_pages_for_search": 1,
  "links": [],
  "max_attachments": 1,
- "modified": "2021-09-23 15:30:59.089285",
+ "modified": "2021-09-24 16:14:32.899538",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

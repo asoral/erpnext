@@ -8,6 +8,7 @@
   "item_code",
   "item_name",
   "qty",
+  "stock_uom",
   "rate",
   "factor",
   "amount"
@@ -56,12 +57,18 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Amount"
+  },
+  {
+   "fieldname": "stock_uom",
+   "fieldtype": "Link",
+   "label": "Stock UOM",
+   "options": "UOM"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-09-22 15:42:45.211422",
+ "modified": "2021-09-24 17:25:32.914694",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Add Ons",
