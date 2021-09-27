@@ -2020,7 +2020,7 @@ def update_child_qty_rate(parent_doctype, trans_items, parent_doctype_name, chil
 			child_item.task=d.get("task")
 
 		if d.get("quotation") and parent_doctype == 'Sales Order':
-			child_item.task=d.get("quotation")
+			child_item.prevdoc_docname=d.get("quotation")
 
 		if d.get("delivered_by_supplier") and parent_doctype == 'Sales Order':
 			child_item.delivered_by_supplier=d.get("delivered_by_supplier")
