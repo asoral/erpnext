@@ -1964,12 +1964,14 @@ def update_child_qty_rate(parent_doctype, trans_items, parent_doctype_name, chil
 				prev_supplier,new_supplier=child_item.get("supplier"),d.get("supplier")
 				prev_delivered_by_supplier,new_delivered_by_supplier=child_item.get("delivered_by_supplier"),d.get("delivered_by_supplier")
 				prev_task,new_task=child_item.get("task"),d.get("task")
+				prev_quotation ,new_quotation=child_item.get("quotation"),d.get("quotation")
 
 				supplier_unchanged= prev_supplier==new_supplier
 				task_unchanged=prev_task==new_task
+				quotation_changed= prev_quotation==new_quotation
 				delivered_by_supplier_unchanged=prev_delivered_by_supplier==new_delivered_by_supplier
 
-				if supplier_unchanged and delivered_by_supplier_unchanged and task_unchanged:
+				if supplier_unchanged and delivered_by_supplier_unchanged and task_unchanged and quotation_changed:
 					continue
 
 			elif parent_doctype == 'Purchase Order':
@@ -2016,6 +2018,9 @@ def update_child_qty_rate(parent_doctype, trans_items, parent_doctype_name, chil
 
 		if d.get("task") and parent_doctype == 'Sales Order':
 			child_item.task=d.get("task")
+
+		if d.get("quotation") and parent_doctype == 'Sales Order':
+			child_item.task=d.get("quotation")
 
 		if d.get("delivered_by_supplier") and parent_doctype == 'Sales Order':
 			child_item.delivered_by_supplier=d.get("delivered_by_supplier")
