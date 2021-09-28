@@ -29,6 +29,8 @@
   "scrap_total_amount_",
   "add_ons_section",
   "add_ons",
+  "section_break_24",
+  "add_ons_amount",
   "amended_from"
  ],
  "fields": [
@@ -169,12 +171,22 @@
    "fieldtype": "Date",
    "label": "Date",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_24",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "add_ons_amount",
+   "fieldtype": "Currency",
+   "label": "Add Ons Amount",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-27 10:51:01.237443",
+ "modified": "2021-09-28 11:45:38.638595",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Cost Calculator",
