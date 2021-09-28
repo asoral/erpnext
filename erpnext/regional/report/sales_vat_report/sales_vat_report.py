@@ -68,7 +68,7 @@ def get_columns(filters):
 				"label": _("Goods/Services"),
 				"fieldname": 'goods',
 				"fieldtype": "Data",
-				"width": 2000
+				"width": 200
 			},
 			{
 				"label": _("Quantity"),
