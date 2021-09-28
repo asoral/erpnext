@@ -91,7 +91,7 @@ class Project(Document):
 							task = self.create_task_from_template(template_task_details,required)
 							if task:
 								project_tasks.append(task)
-				self.dependency_mapping(tmp_task_details, project_tasks,required)
+						self.dependency_mapping(tmp_task_details, project_tasks,required)
 			else:
 				for task in template.tasks:
 					template_task_details = frappe.get_doc("Task", task.task)
