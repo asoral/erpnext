@@ -5,6 +5,8 @@ frappe.ui.form.on('Cost Calculator', {
 	setup: function(frm) {
 		frm.call({
 			method:"get_bom",
+			freeze: true,
+			freeze_message: __("Fetching Bom Items..."),
 			doc:frm.doc,
 			callback: function(r) {
 				frm.set_query("template_bom", function() {

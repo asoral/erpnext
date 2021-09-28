@@ -15,35 +15,37 @@ class CostCalculator(Document):
 
 	@frappe.whitelist()
 	def get_all_value(self):
-		doc=frappe.get_doc("BOM",self.template_bom)
-		for i in doc.items:
-			self.append("raw_material_items",{
-				"item_code":i.item_code,
-				"item_name":i.item_name,
-				"qty":i.qty,
-				"stock_uom":i.stock_uom,
-				"weight_uom":i.weight_uom,
-				"rate":i.rate,
-				"amount":i.amount,
-				"scrap":i.scrap
-			})
-		for i in doc.scrap_items:					
-			self.append("scrap_items",{
-				"item_code":i.item_code,
-				"item_name":i.item_name,
-				"qty":i.stock_qty,
-				"stock_uom":i.stock_uom,
-				"rate":i.rate,
-				"amount":i.amount,
-				})	
-		doc1=frappe.get_doc("Item",self.item_code)
-		for i in doc1.add_ons:
-			self.append("add_ons",{
-				"item_code":i.item_code,
-				"qty":i.qty,
-				"stock_uom":i.unit_of_measure,
-				"factor":i.qty_conversion_factor
-				})	
+		lst=frappe.db.get_value("BOM",{"name":self.template_bom},["name"])
+		if lst:
+			doc=frappe.get_doc("BOM",self.template_bom)
+			for i in doc.items:
+				self.append("raw_material_items",{
+					"item_code":i.item_code,
+					"item_name":i.item_name,
+					"qty":i.qty,
+					"stock_uom":i.stock_uom,
+					"weight_uom":i.weight_uom,
+					"rate":i.rate,
+					"amount":i.amount,
+					"scrap":i.scrap
+				})
+			for i in doc.scrap_items:					
+				self.append("scrap_items",{
+					"item_code":i.item_code,
+					"item_name":i.item_name,
+					"qty":i.stock_qty,
+					"stock_uom":i.stock_uom,
+					"rate":i.rate,
+					"amount":i.amount,
+					})	
+			doc1=frappe.get_doc("Item",self.item_code)
+			for i in doc1.add_ons:
+				self.append("add_ons",{
+					"item_code":i.item_code,
+					"qty":i.qty,
+					"stock_uom":i.unit_of_measure,
+					"factor":i.qty_conversion_factor
+					})	
 	
 
 
@@ -112,7 +114,7 @@ class CostCalculator(Document):
 				samount.append(i.amount)
 		self.total_scrap_weight=sum(sweight)
 		self.scrap_total_amount_=sum(samount)
-		
+
 	@frappe.whitelist()
 	def calculate_value_addons(self):
 		aamount=[]
