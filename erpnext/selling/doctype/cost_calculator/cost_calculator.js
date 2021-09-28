@@ -77,21 +77,19 @@ frappe.ui.form.on('Cost Calculator', {
 			console.log(args)
 			var a=""
 			for(var i in args){
-				console.log(args[i])
-				// console.log(args[i].value)
-				a +=i+":"+args[i]+"\n"
+				a+="'"+i+"'"+":"+"'"+args[i]+"'"+","+"\n"
 			frm.doc.item_attribute = a;
 			frm.refresh_field("item_attribute");
-			frappe.call({
-				method: "calculate_formula_scrap_item",
-				doc:frm.doc,
-				callback: function(r) {
-					if (r.message) {
+			// frappe.call({
+			// 	method: "calculate_formula_scrap_item",
+			// 	doc:frm.doc,
+			// 	callback: function(r) {
+			// 		if (r.message) {
 						
-					}
-				}
-			});
-			frm.refresh_field("raw_material_items");
+			// 		}
+			// 	}
+			// });
+			// frm.refresh_field("raw_material_items");
 			
 			}
 			d.hide();
@@ -159,11 +157,30 @@ frappe.ui.form.on('Bom Raw Material Item', {
 	qty:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
 		row.amount=row.qty*row.rate
-		row.weight=row.qty*row.wp_unit
+		row.weight=row.qty*row.wp_unit*(1+row.scrap/100)
+		frm.refresh_field("raw_material_items");
+		frm.call({
+			method:"calculate_value_raw",
+			doc:frm.doc,
+			callback: function(r) {
+				
+			}
+			
+		});
 	},
 	rate:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
 		row.amount=row.qty*row.rate
+		frm.refresh_field("raw_material_items");
+		frm.call({
+			method:"calculate_value_raw",
+			doc:frm.doc,
+			callback: function(r) {
+				
+			}
+			
+		});
+		
 	},
 	parameters:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
@@ -204,18 +221,23 @@ frappe.ui.form.on('Bom Raw Material Item', {
 			for(var i in args){
 				a+="'"+i+"'"+":"+"'"+args[i]+"'"+","+"\n"
 			row.item_attributes = a;
-			frm.refresh_field("raw_material_items");
 			frappe.call({
 				method: "calculate_formula",
 				doc:frm.doc,
 				callback: function(r) {
 					if (r.message) {
-						
+						frm.call({
+							method:"calculate_value_raw",
+							doc:frm.doc,
+							callback: function(r) {
+								
+							}
+							
+						});
+						frm.refresh_field("raw_material_items");
 					}
 				}
 			});
-			frm.refresh_field("raw_material_items");
-			
 			}
 			d.hide();
 		});
@@ -282,13 +304,30 @@ frappe.ui.form.on('Scrap Material Item', {
 	qty:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
 		row.amount=row.qty*row.rate
-		// frappe.db.get_doc("Item",row.item_code).then(e  => {
 		row.weight=row.qty*row.wp_unit
-		// })
+		frm.refresh_field("scrap_items");
+		frm.call({
+			method:"calculate_value_scrap",
+			doc:frm.doc,
+			callback: function(r) {
+				
+			}
+			
+		});
+		
 	},
 	rate:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
 		row.amount=row.qty*row.rate
+		frm.refresh_field("scrap_items");
+		frm.call({
+			method:"calculate_value_scrap",
+			doc:frm.doc,
+			callback: function(r) {
+				
+			}
+			
+		});
 	},
 	parameters:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
@@ -327,22 +366,25 @@ frappe.ui.form.on('Scrap Material Item', {
 			console.log(args)
 			var a=""
 			for(var i in args){
-				console.log(args[i])
-				// console.log(args[i].value)
-				a+=i+":"+args[i]+"\n"
+				a+="'"+i+"'"+":"+"'"+args[i]+"'"+","+"\n"
 			row.item_attributes = a;
-			frm.refresh_field("scrap_items");
 			frappe.call({
-				method: "calculate_formula_bom_item",
+				method: "calculate_formula_scrap_item",
 				doc:frm.doc,
 				callback: function(r) {
 					if (r.message) {
+					frm.call({
+						method:"calculate_value_scrap",
+						doc:frm.doc,
+						callback: function(r) {
+							
+						}
 						
+					});
+					frm.refresh_field("scrap_items");
 					}
 				}
 			});
-			frm.refresh_field("raw_material_items");
-			
 			}
 			d.hide();
 		});
@@ -407,17 +449,38 @@ frappe.ui.form.on('Add Ons', {
 	qty:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
 		row.amount=row.qty*row.rate*row.factor
-		// frappe.db.get_doc("Item",row.item_code).then(e  => {
-		// row.weight=row.qty*e.weight_per_unit
-		// })
+		frm.call({
+			method:"calculate_value_addons",
+			doc:frm.doc,
+			callback: function(r) {
+				
+			}
+			
+		});
 	},
 	rate:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
 		row.amount=row.qty*row.rate*row.factor
+		frm.call({
+			method:"calculate_value_addons",
+			doc:frm.doc,
+			callback: function(r) {
+				
+			}
+			
+		});
 	},
 	factor:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
 		row.amount=row.qty*row.rate*row.factor
+		frm.call({
+			method:"calculate_value_addons",
+			doc:frm.doc,
+			callback: function(r) {
+				
+			}
+			
+		});
 	},
 
 })
