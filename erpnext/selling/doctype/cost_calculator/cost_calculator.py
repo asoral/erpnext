@@ -84,7 +84,7 @@ class CostCalculator(Document):
 			if i.item_code:
 				i.amount=i.qty*i.rate*i.factor
 				aamount.append(i.amount)
-		self.add_ons_amount_=sum(aamount)
+		self.add_ons_amount=sum(aamount)
 
 	@frappe.whitelist()
 	def calculate_value_raw(self):
@@ -123,7 +123,7 @@ class CostCalculator(Document):
 			if i.item_code:
 				i.amount=i.qty*i.rate*i.factor
 				aamount.append(i.amount)
-		self.add_ons_amount_=sum(aamount)
+		self.add_ons_amount=sum(aamount)
 				
 	@frappe.whitelist()
 	def calculate_formula(self):
