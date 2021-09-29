@@ -38,7 +38,7 @@
   },
   {
    "fieldname": "naming_series",
-   "fieldtype": "Select",
+   "fieldtype": "Data",
    "label": "Series",
    "no_copy": 1,
    "oldfieldname": "naming_series",
@@ -78,6 +78,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "default": "Present",
    "fieldname": "status",
    "fieldtype": "Select",
@@ -205,7 +206,7 @@
  "idx": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2020-09-18 17:26:09.703215",
+ "modified": "2021-09-29 12:24:50.701042",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Attendance",
