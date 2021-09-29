@@ -37,6 +37,7 @@
   "column_break_24",
   "absent_days",
   "payment_days",
+  "total_overtime",
   "hourly_wages",
   "timesheets",
   "column_break_20",
@@ -638,13 +639,18 @@
    "fieldtype": "Data",
    "label": "Posting Date(Nepali)",
    "read_only": 1
+  },
+  {
+   "fieldname": "total_overtime",
+   "fieldtype": "Data",
+   "label": "Total Overtime"
   }
  ],
  "icon": "fa fa-file-text",
  "idx": 9,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-07-19 11:19:25.130478",
+ "modified": "2021-09-29 18:01:27.887931",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Salary Slip",

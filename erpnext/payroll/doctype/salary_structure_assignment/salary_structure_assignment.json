@@ -21,6 +21,7 @@
   "currency",
   "section_break_7",
   "base",
+  "rate",
   "column_break_9",
   "variable",
   "amended_from"
@@ -148,11 +149,16 @@
    "fieldtype": "Data",
    "label": "From Date(Nepali)",
    "read_only": 1
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "label": "Rate/hr"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-07-16 15:25:54.321024",
+ "modified": "2021-09-29 17:02:41.436912",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Salary Structure Assignment",

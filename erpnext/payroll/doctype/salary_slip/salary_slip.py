@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import frappe, erpnext
 import datetime, math
 import calendar
+from datetime import timedelta
 from frappe.utils import add_days, cint, cstr, flt, getdate, rounded, date_diff, money_in_words, formatdate, get_first_day
 from frappe.model.naming import make_autoname
 from datetime import datetime, timedelta
@@ -162,6 +163,11 @@ class SalarySlip(TransactionBase):
 			self.end_date = date_details.end_date
 
 	@frappe.whitelist()
+	def get_overtime(self):
+		self.total_overtime = 20
+		return 301
+
+	@frappe.whitelist()
 	def get_emp_and_working_day_details(self):
 		'''First time, load all the components from salary structure'''
 		if self.employee:
@@ -276,6 +282,7 @@ class SalarySlip(TransactionBase):
 
 		self.leave_without_pay = lwp
 		self.total_working_days = working_days
+		self.total_overtime = self.calculate_overtime()
 
 		payment_days = self.get_payment_days(joining_date,
 			relieving_date, include_holidays_in_total_working_days)
@@ -299,6 +306,29 @@ class SalarySlip(TransactionBase):
 		else:
 			self.payment_days = 0
 
+	def calculate_overtime(self):
+		request_days = date_diff(self.end_date, self.start_date) + 1
+		for number in range(request_days):
+			attendance_date = add_days(self.start_date, number)
+		all_ot_data = frappe.db.get_all("Overtime Details",{"login":["between",(self.start_date,self.end_date)]},["name","parent"])
+		ot_doc_name_list = []
+		for i in all_ot_data:
+			ot_doc_name_list.append(i.get("parent"))
+		distinct_parent = list(set(ot_doc_name_list))
+
+		ot_count = timedelta(hours=0, minutes=00)
+		for i in distinct_parent:
+			doc = frappe.get_doc("Overtime",i)
+			if doc.get("employee") == self.employee:
+				for t in doc.get("overtime_details"):
+					splited_time = t.get("total_overtime").split(":")
+					ot_in_time_delta = timedelta(hours=int(splited_time[0]), minutes=int(splited_time[1]))
+					if ot_in_time_delta >= timedelta(hours=1, minutes=00):
+						ot_count += ot_in_time_delta
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>: ",ot_count.total_seconds())
+		return ot_count
+				
+		#print(all_ot_data)
 	def get_unmarked_days(self):
 		marked_days = frappe.get_all("Attendance", filters = {
 					"attendance_date": ["between", [self.start_date, self.end_date]],
