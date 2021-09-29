@@ -132,7 +132,7 @@ class Project(Document):
 
 	def calculate_start_date(self, task_details,req):
 		if self.scope_of_supply:
-			if task_details.name not in req:
+			if task_details.name in req:
 				self.start_date = add_days(self.expected_start_date, task_details.start)
 				self.start_date = self.update_if_holiday(self.start_date)
 				return self.start_date
