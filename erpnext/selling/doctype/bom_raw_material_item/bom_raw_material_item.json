@@ -12,6 +12,7 @@
   "rate",
   "item_attributes",
   "parameters",
+  "base_amount",
   "amount",
   "scrap",
   "weight",
@@ -63,12 +64,14 @@
    "fieldname": "rate",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Rate"
+   "label": "Rate",
+   "options": "currency"
   },
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
    "label": "Amount",
+   "options": "currency",
    "read_only": 1
   },
   {
@@ -108,12 +111,19 @@
    "fieldtype": "Link",
    "label": "Stock UOM",
    "options": "UOM"
+  },
+  {
+   "fieldname": "base_amount",
+   "fieldtype": "Currency",
+   "label": "Base Amount",
+   "options": "Company:company:default_currency",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-09-27 11:50:13.182279",
+ "modified": "2021-09-30 18:28:41.543242",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Bom Raw Material Item",

@@ -19,7 +19,86 @@ frappe.ui.form.on('Cost Calculator', {
 			}
 			
 		});
+		frm.set_query("quotation_to", function() {
+			return{
+				"filters": {
+					"name": ["in", ["Customer", "Lead"]],
+				}
+			}
+		});
 
+	},
+	refresh:function(frm){
+		if(frm.doc.docstatus==1){
+			cur_frm.add_custom_button(__('Quotation'), function() {
+				frm.call({
+					method:"make_quotation",
+					doc:frm.doc,
+					callback: function(r) {
+						frappe.throw("Quotation Created!!!")
+					}
+					
+				});
+			}, __('Create'))
+			}
+		doctype = doc.quotation_to == 'Customer' ? 'Customer':'Lead';
+		frappe.dynamic_link = {doc: this.frm.doc, fieldname: 'party_name', doctype: doctype}
+
+		frm.set_query("price_list", function() {
+			return {
+				filters: {
+					"buying":1
+				}
+			}
+		});
+		
+	},
+	set_dynamic_field_label: function(){
+		if (this.frm.doc.quotation_to == "Customer")
+		{
+			this.frm.set_df_property("party_name", "label", "Customer");
+			this.frm.fields_dict.party_name.get_query = null;
+		}
+
+		if (this.frm.doc.quotation_to == "Lead")
+		{
+			this.frm.set_df_property("party_name", "label", "Lead");
+
+			this.frm.fields_dict.party_name.get_query = function() {
+				return{	query: "erpnext.controllers.queries.lead_query" }
+			}
+		}
+	},
+
+	currency:function(frm){
+		frm.doc.conversion_rate=0
+		frm.doc.plc_conversion_rate=0
+		frm.call({
+			method:"set_price_list_currency",
+			freeze: true,
+			freeze_message: __("Fetching Currency Rates..."),
+			doc:frm.doc,
+			callback: function(r) {
+				
+			}
+			
+		});
+	},
+	price_list:function(frm){
+		
+		frm.doc.conversion_rate=0
+		frm.doc.plc_conversion_rate=0
+		frm.call({
+			method:"set_price_list_currency",
+			freeze: true,
+			freeze_message: __("Fetching Currency Rates..."),
+			doc:frm.doc,
+			callback: function(r) {
+				
+			}
+			
+		});
+		
 	},
 	template_bom:function(frm){
 		frm.clear_table("raw_material_items");
