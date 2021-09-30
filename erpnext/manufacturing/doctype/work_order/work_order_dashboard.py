@@ -1,9 +1,14 @@
 from __future__ import unicode_literals
+
 from frappe import _
+
 
 def get_data():
 	return {
 		'fieldname': 'work_order',
+		'non_standard_fieldnames': {
+			'Batch': 'reference_name'
+		},
 		'transactions': [
 			{
 				'label': _('Transactions'),
@@ -13,5 +18,9 @@ def get_data():
 				'label': _('Material'),
 				'items': ['Material Request', 'Material Consumption', 'Material Produce','Add Alternate Item']
 			},
+			{
+				'label': _('Reference'),
+				'items': ['Serial No', 'Batch']
+			}
 		]
 	}

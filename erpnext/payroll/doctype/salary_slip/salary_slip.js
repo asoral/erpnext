@@ -46,11 +46,11 @@ frappe.ui.form.on("Salary Slip", {
 			};
 		});
 	},
-
 	start_date: function(frm) {
 		if (frm.doc.start_date) {
 			frm.trigger("set_end_date");
 		}
+		
 	},
 
 	end_date: function(frm) {
@@ -135,15 +135,15 @@ frappe.ui.form.on("Salary Slip", {
 
 	change_form_labels: function(frm, company_currency) {
 		frm.set_currency_labels(["base_hour_rate", "base_gross_pay", "base_total_deduction",
-			"base_net_pay", "base_rounded_total", "base_total_in_words", "base_year_to_date", "base_month_to_date"],
+			"base_net_pay", "base_rounded_total", "base_total_in_words", "base_year_to_date", "base_month_to_date", "gross_base_year_to_date"],
 		company_currency);
 
-		frm.set_currency_labels(["hour_rate", "gross_pay", "total_deduction", "net_pay", "rounded_total", "total_in_words", "year_to_date", "month_to_date"],
+		frm.set_currency_labels(["hour_rate", "gross_pay", "total_deduction", "net_pay", "rounded_total", "total_in_words", "year_to_date", "month_to_date", "gross_year_to_date"],
 			frm.doc.currency);
 
 		// toggle fields
 		frm.toggle_display(["exchange_rate", "base_hour_rate", "base_gross_pay", "base_total_deduction",
-			"base_net_pay", "base_rounded_total", "base_total_in_words", "base_year_to_date", "base_month_to_date"],
+			"base_net_pay", "base_rounded_total", "base_total_in_words", "base_year_to_date", "base_month_to_date", "base_gross_year_to_date"],
 		frm.doc.currency != company_currency);
 	},
 
@@ -164,6 +164,30 @@ frappe.ui.form.on("Salary Slip", {
 		frm.fields_dict['deductions'].grid.set_column_disp(salary_detail_fields, false);
 		frm.trigger("set_dynamic_labels");
 
+		if(frm.doc.start_date){
+			frappe.call({
+				method: 'get_payroll',
+				doc:frm.doc,
+				callback: function(r) {
+					if(r.message) {
+					frm.set_value('months_of_service_in_payment_period', r.message);
+					frm.refresh_field("months_of_service_in_payment_period");
+					}
+				}
+			});
+		}
+		if(frm.doc.start_date){
+			frappe.call({
+				method: 'get_total_leave_in_current_month',
+				doc:frm.doc,
+				
+				callback: function(r) {
+					console.log("****************",r.message)
+					frm.set_value('leave', r.message);
+					frm.refresh_field("leave");
+				}
+			});
+		}
 		frappe.call({
 			method:"erpnext.nepali_date.get_converted_date",
 			args: {
@@ -202,7 +226,7 @@ frappe.ui.form.on("Salary Slip", {
 		frm.set_value('end_date', '');
 	},
 
-	employee: function(frm,cdt,cdn) {
+	employee:function(frm) {
 		frm.events.get_emp_and_working_day_details(frm);
 		calculate_over_time(frm,cdt,cdn)
 	},

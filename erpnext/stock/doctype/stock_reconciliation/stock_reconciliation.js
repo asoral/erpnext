@@ -17,6 +17,14 @@ frappe.ui.form.on("Stock Reconciliation", {
 				}
 			}
 		});
+		frm.set_query("batch_no", "items", function(doc, cdt, cdn) {
+			var item = locals[cdt][cdn];
+			return {
+				filters: {
+					'item': item.item_code
+				}
+			};
+		});
 
 		if (frm.doc.company) {
 			erpnext.queries.setup_queries(frm, "Warehouse", function() {
@@ -48,41 +56,69 @@ frappe.ui.form.on("Stock Reconciliation", {
 	},
 
 	get_items: function(frm) {
-		frappe.prompt({label:"Warehouse", fieldname: "warehouse", fieldtype:"Link", options:"Warehouse", reqd: 1,
+		let fields = [{
+			label: 'Warehouse', fieldname: 'warehouse', fieldtype: 'Link', options: 'Warehouse', reqd: 1,
 			"get_query": function() {
 				return {
 					"filters": {
 						"company": frm.doc.company,
 					}
-				}
-			}},
-			function(data) {
-				frappe.call({
-					method:"erpnext.stock.doctype.stock_reconciliation.stock_reconciliation.get_items",
-					args: {
-						warehouse: data.warehouse,
-						posting_date: frm.doc.posting_date,
-						posting_time: frm.doc.posting_time,
-						company:frm.doc.company
-					},
-					callback: function(r) {
-						var items = [];
-						frm.clear_table("items");
-						for(var i=0; i< r.message.length; i++) {
-							var d = frm.add_child("items");
-							$.extend(d, r.message[i]);
-							if(!d.qty) d.qty = null;
-							if(!d.valuation_rate) d.valuation_rate = null;
-						}
-						frm.refresh_field("items");
-					}
-				});
+				};
 			}
-		, __("Get Items"), __("Update"));
+		}, {
+			label: "Item Code", fieldname: "item_code", fieldtype: "Link", options: "Item",
+			"get_query": function() {
+				return {
+					"filters": {
+						"disabled": 0,
+					}
+				};
+			}
+		}];
+
+		frappe.prompt(fields, function(data) {
+			frappe.call({
+				method: "erpnext.stock.doctype.stock_reconciliation.stock_reconciliation.get_items",
+				args: {
+					warehouse: data.warehouse,
+					posting_date: frm.doc.posting_date,
+					posting_time: frm.doc.posting_time,
+					company: frm.doc.company,
+					item_code: data.item_code
+				},
+				callback: function(r) {
+					frm.clear_table("items");
+					for (var i=0; i<r.message.length; i++) {
+						var d = frm.add_child("items");
+						$.extend(d, r.message[i]);
+
+						if (!d.qty) {
+							d.qty = 0;
+						}
+
+						if (!d.valuation_rate) {
+							d.valuation_rate = 0;
+						}
+					}
+					frm.refresh_field("items");
+				}
+			});
+		}, __("Get Items"), __("Update"));
 	},
 
 	posting_date: function(frm) {
 		frm.trigger("set_valuation_rate_and_qty_for_all_items");
+		frappe.call({
+			method: "erpnext.nepali_date.get_converted_date",
+			args: {
+				date: frm.doc.posting_date
+			},
+			callback: function (resp) {
+				if (resp.message) {
+					cur_frm.set_value("posting_date_nepal", resp.message)
+				}
+			}
+		})
 	},
 
 	posting_time: function(frm) {
@@ -263,3 +299,4 @@ erpnext.stock.StockReconciliation = erpnext.stock.StockController.extend({
 });
 
 cur_frm.cscript = new erpnext.stock.StockReconciliation({frm: cur_frm});
+

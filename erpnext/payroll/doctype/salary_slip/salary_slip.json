@@ -38,6 +38,7 @@
   "absent_days",
   "payment_days",
   "total_overtime",
+  "months_of_service_in_payment_period",
   "hourly_wages",
   "timesheets",
   "column_break_20",
@@ -59,6 +60,8 @@
   "totals",
   "gross_pay",
   "base_gross_pay",
+  "gross_year_to_date",
+  "base_gross_year_to_date",
   "column_break_25",
   "total_deduction",
   "base_total_deduction",
@@ -633,6 +636,24 @@
    "fieldname": "leave",
    "fieldtype": "Data",
    "label": "Total Leave(Current Month)"
+  },
+  {
+   "fieldname": "months_of_service_in_payment_period",
+   "fieldtype": "Int",
+   "label": "Months of Service in payment period"
+  },
+  {
+   "fieldname": "gross_year_to_date",
+   "fieldtype": "Currency",
+   "label": "Gross Year To Date",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_gross_year_to_date",
+   "fieldtype": "Currency",
+   "label": "Gross Year To Date(Company Currency)",
+   "options": "Company:company:default_currency"
   },
   {
    "fieldname": "posting_date_nepali",

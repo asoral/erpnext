@@ -29,33 +29,33 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 	company: function() {
 		erpnext.accounts.dimensions.update_dimension(this.frm, this.frm.doctype);
 	},
-	from_date: function(doc){
-		console.log(">>>>>>>>>>>")
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: doc.from_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("from_datenepali",resp.message)
-				}
-			}	
-		})
-	},
-	to_date: function(doc){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: doc.to_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("to_datenepali",resp.message)
-				}
-			}	
-		})
-	},
+	// from_date: function(doc){
+	// 	console.log(">>>>>>>>>>>")
+	// 	frappe.call({
+	// 		method:"erpnext.nepali_date.get_converted_date",
+	// 		args: {
+	// 			date: doc.from_date
+	// 		},
+	// 		callback: function(resp){
+	// 			if(resp.message){
+	// 				cur_frm.set_value("from_datenepali",resp.message)
+	// 			}
+	// 		}	
+	// 	})
+	// },
+	// to_date: function(doc){
+	// 	frappe.call({
+	// 		method:"erpnext.nepali_date.get_converted_date",
+	// 		args: {
+	// 			date: doc.to_date
+	// 		},
+	// 		callback: function(resp){
+	// 			if(resp.message){
+	// 				cur_frm.set_value("to_datenepali",resp.message)
+	// 			}
+	// 		}	
+	// 	})
+	// },
 	bill_date: function(doc){
 		frappe.call({
 			method:"erpnext.nepali_date.get_converted_date",
@@ -83,6 +83,46 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 			}	
 		})
 	},
+	service_stop_date: function(doc){
+		frappe.call({
+			method:"erpnext.nepali_date.get_converted_date",
+			args: {
+				date: doc.service_stop_date
+			},
+			callback: function(resp){
+				if(resp.message){
+					cur_frm.set_value("service_stop_date_nepal",resp.message)
+				}
+			}	
+		})
+	},
+	service_start_date: function(doc){
+		frappe.call({
+			method:"erpnext.nepali_date.get_converted_date",
+			args: {
+				date: doc.service_start_date
+			},
+			callback: function(resp){
+				if(resp.message){
+					cur_frm.set_value("service_start_date_nepal",resp.message)
+				}
+			}	
+		})
+	},
+	service_end_date: function(doc){
+		frappe.call({
+			method:"erpnext.nepali_date.get_converted_date",
+			args: {
+				date: doc.service_end_date
+			},
+			callback: function(resp){
+				if(resp.message){
+					cur_frm.set_value("service_end_date_nepal",resp.message)
+				}
+			}	
+		})
+	},
+
 	
 	onload: function() {
 		this._super();
@@ -104,17 +144,6 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 	},
 
 	refresh: function(doc) {
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: doc.posting_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("datenepali",resp.message)
-				}
-			}	
-		})
 		const me = this;
 		this._super();
 
@@ -202,7 +231,7 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 					},
 					get_query_filters: {
 						docstatus: 1,
-						status: ["not in", ["Closed", "Completed"]],
+						status: ["not in", ["Closed", "Completed", "Return Issued"]],
 						company: me.frm.doc.company,
 						is_return: 0
 					}
@@ -226,7 +255,7 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 
 		this.frm.set_df_property("tax_withholding_category", "hidden", doc.apply_tds ? 0 : 1);
 	},
-
+	
 	unblock_invoice: function() {
 		const me = this;
 		frappe.call({
@@ -349,6 +378,7 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 			}
 		})
 	},
+	
 
 	supplier: function() {
 		var me = this;
@@ -364,7 +394,8 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 				party: this.frm.doc.supplier,
 				party_type: "Supplier",
 				account: this.frm.doc.credit_to,
-				price_list: this.frm.doc.buying_price_list
+				price_list: this.frm.doc.buying_price_list,
+				fetch_payment_terms_template: cint(!this.frm.doc.ignore_default_payment_terms_template)
 			}, function() {
 				me.apply_pricing_rule();
 				me.frm.doc.apply_tds = me.frm.supplier_tds ? 1 : 0;
@@ -446,7 +477,7 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 	items_add: function(doc, cdt, cdn) {
 		var row = frappe.get_doc(cdt, cdn);
 		this.frm.script_manager.copy_from_first_row("items", row,
-			["expense_account", "cost_center", "project"]);
+			["expense_account", "discount_account", "cost_center", "project"]);
 	},
 
 	on_submit: function() {
@@ -580,10 +611,30 @@ frappe.ui.form.on("Purchase Invoice", {
 			'Payment Entry': 'Payment'
 		}
 
+		frm.set_query("additional_discount_account", function() {
+			return {
+				filters: {
+					company: frm.doc.company,
+					is_group: 0,
+					report_type: "Profit and Loss",
+				}
+			};
+		});
+
 		frm.fields_dict['items'].grid.get_field('deferred_expense_account').get_query = function(doc) {
 			return {
 				filters: {
 					'root_type': 'Asset',
+					'company': doc.company,
+					"is_group": 0
+				}
+			}
+		}
+
+		frm.fields_dict['items'].grid.get_field('discount_account').get_query = function(doc) {
+			return {
+				filters: {
+					'report_type': 'Profit and Loss',
 					'company': doc.company,
 					"is_group": 0
 				}
@@ -646,5 +697,9 @@ frappe.ui.form.on("Purchase Invoice", {
 			frm: frm,
 			freeze_message: __("Creating Purchase Receipt ...")
 		})
-	}
+	},
+
+	company: function(frm) {
+		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
+	},
 })

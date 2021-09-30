@@ -15,6 +15,8 @@
   "naming_series",
   "customer",
   "customer_name",
+  "_party_balance",
+  "update_party_balance",
   "order_type",
   "skip_delivery_note",
   "column_break1",
@@ -23,6 +25,7 @@
   "transaction_date",
   "delivery_date",
   "po_no",
+  "order_warehouse_rule_number",
   "po_date",
   "customers_purchase_order_date_nepal",
   "tax_id",
@@ -39,6 +42,8 @@
   "col_break46",
   "shipping_address_name",
   "shipping_address",
+  "dispatch_address_name",
+  "dispatch_address",
   "customer_group",
   "territory",
   "transporter_information_section",
@@ -57,6 +62,8 @@
   "items_section",
   "scan_barcode",
   "items",
+  "packing_list",
+  "packed_items",
   "pricing_rule_details",
   "pricing_rules",
   "section_break_31",
@@ -103,8 +110,6 @@
   "in_words",
   "advance_paid",
   "disable_rounded_total",
-  "packing_list",
-  "packed_items",
   "payment_schedule_section",
   "payment_terms_template",
   "payment_schedule",
@@ -135,6 +140,7 @@
   "billing_status",
   "sales_team_section_break",
   "sales_partner",
+  "commission_based_on_target_lines",
   "column_break7",
   "commission_rate",
   "total_commission",
@@ -573,7 +579,8 @@
    "fieldtype": "Data",
    "hide_days": 1,
    "hide_seconds": 1,
-   "label": "Scan Barcode"
+   "label": "Scan Barcode",
+   "options": "Barcode"
   },
   {
    "allow_bulk_edit": 1,
@@ -1020,6 +1027,7 @@
   {
    "collapsible": 1,
    "collapsible_depends_on": "packed_items",
+   "depends_on": "packed_items",
    "fieldname": "packing_list",
    "fieldtype": "Section Break",
    "hide_days": 1,
@@ -1030,14 +1038,14 @@
    "print_hide": 1
   },
   {
+   "depends_on": "packed_items",
    "fieldname": "packed_items",
    "fieldtype": "Table",
    "hide_days": 1,
    "hide_seconds": 1,
    "label": "Packed Items",
    "options": "Packed Item",
-   "print_hide": 1,
-   "read_only": 1
+   "print_hide": 1
   },
   {
    "fieldname": "payment_schedule_section",
@@ -1354,6 +1362,7 @@
    "width": "50%"
   },
   {
+   "depends_on": "eval:!doc.commission_based_on_target_lines",
    "fieldname": "commission_rate",
    "fieldtype": "Float",
    "hide_days": 1,
@@ -1492,6 +1501,36 @@
    "label": "Disable Rounded Total"
   },
   {
+   "fieldname": "column_break_62",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "section_break_64",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "_party_balance",
+   "fieldtype": "Currency",
+   "label": "Party Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "update_party_balance",
+   "fieldtype": "Button",
+   "label": "Update Party Balance"
+  },
+  {
+   "fieldname": "order_warehouse_rule_number",
+   "fieldtype": "Read Only",
+   "label": "Order Warehouse Rule Number"
+  },
+  {
    "fieldname": "transporter",
    "fieldtype": "Link",
    "label": "Transporter",
@@ -1508,6 +1547,31 @@
    "fieldname": "transporter_information_section",
    "fieldtype": "Section Break",
    "label": "Transporter Information"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "dispatch_address_name",
+   "fieldtype": "Link",
+   "label": "Dispatch Address Name",
+   "options": "Address",
+   "print_hide": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "depends_on": "dispatch_address_name",
+   "fieldname": "dispatch_address",
+   "fieldtype": "Small Text",
+   "label": "Dispatch Address",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fetch_from": "sales_partner.commission_based_on_target_lines",
+   "fieldname": "commission_based_on_target_lines",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Commission Based On Target Lines",
+   "read_only": 1
   },
   {
    "depends_on": "eval:doc.po_no",

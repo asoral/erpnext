@@ -15,7 +15,7 @@ frappe.ui.form.on("Contract", {
 						let contract_template = r.message.contract_template;
 						frm.set_value("contract_terms", r.message.contract_terms);
 						frm.set_value("requires_fulfilment", contract_template.requires_fulfilment);
-						
+
 						if (frm.doc.requires_fulfilment) {
 							// Populate the fulfilment terms table from a contract template, if any
 							r.message.contract_template.fulfilment_terms.forEach(element => {
@@ -23,7 +23,7 @@ frappe.ui.form.on("Contract", {
 								d.requirement = element.requirement;
 							});
 							frm.refresh_field("fulfilment_terms");
-						}		
+						}
 					}
 				}
 			});
@@ -57,4 +57,17 @@ frappe.ui.form.on("Contract", {
 		})
 		set_fulfilment_deadline(this.frm);
 	},
+	signed_on: function(frm) {
+		frappe.call({
+			method:"erpnext.nepali_date.get_converted_date",
+			args: {
+				date: frm.doc.signed_on
+			},
+			callback: function(resp){
+				if(resp.message){
+					cur_frm.set_value("signed_on_nepal",resp.message)
+				}
+			}
+		})
+	}
 });

@@ -13,6 +13,7 @@
   "disable_capacity_planning",
   "allow_overtime",
   "allow_production_on_holidays",
+  "enable_specific_gravity",
   "column_break_5",
   "capacity_planning_for_days",
   "mins_between_operations",
@@ -25,11 +26,20 @@
   "overproduction_percentage_for_sales_order",
   "column_break_16",
   "overproduction_percentage_for_work_order",
+  "job_card_section",
+  "add_corrective_operation_cost_in_finished_good_valuation",
+  "column_break_24",
+  "job_card_excess_transfer",
   "other_settings_section",
   "update_bom_costs_automatically",
   "staging_section",
   "enable_staging",
-  "staging_details"
+  "staging_details",
+  "allowed_consumption_deviation_percentage",
+  "allowed_production_deviation_percentage",
+  "add_corrective_operation_cost_in_finished_good_valuation",
+  "column_break_23",
+  "make_serial_no_batch_from_work_order"
  ],
  "fields": [
   {
@@ -96,10 +106,10 @@
   },
   {
    "default": "0",
-   "description": "Allow multiple material consumptions against a Work Order",
+   "description": "Allow material consumptions without immediately manufacturing finished goods against a Work Order",
    "fieldname": "material_consumption",
    "fieldtype": "Check",
-   "label": "Allow Multiple Material Consumption"
+   "label": "Allow Continuous Material Consumption"
   },
   {
    "default": "0",
@@ -186,13 +196,52 @@
    "fieldname": "allowed_production_deviation_percentage",
    "fieldtype": "Float",
    "label": "Allowed Production Deviation percentage"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_specific_gravity",
+   "fieldtype": "Check",
+   "label": "Enable Specific Gravity"
+  },
+  {
+   "fieldname": "column_break_23",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "System will automatically create the serial numbers / batch for the Finished Good on submission of work order",
+   "fieldname": "make_serial_no_batch_from_work_order",
+   "fieldtype": "Check",
+   "label": "Make Serial No / Batch from Work Order"
+  },
+  {
+   "default": "0",
+   "fieldname": "add_corrective_operation_cost_in_finished_good_valuation",
+   "fieldtype": "Check",
+   "label": "Add Corrective Operation Cost in Finished Good Valuation"
+  },
+  {
+   "fieldname": "job_card_section",
+   "fieldtype": "Section Break",
+   "label": "Job Card"
+  },
+  {
+   "fieldname": "column_break_24",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Allow transferring raw materials even after the Required Quantity is fulfilled",
+   "fieldname": "job_card_excess_transfer",
+   "fieldtype": "Check",
+   "label": "Allow Excess Material Transfer"
   }
  ],
  "icon": "icon-wrench",
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-05-12 17:55:28.519418",
+ "modified": "2021-09-13 22:09:09.401559",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Manufacturing Settings",

@@ -15,6 +15,7 @@
   "quotation_to",
   "party_name",
   "customer_name",
+  "party_balance",
   "column_break1",
   "amended_from",
   "company",
@@ -45,6 +46,8 @@
   "ignore_pricing_rule",
   "items_section",
   "items",
+  "bundle_items_section",
+  "packed_items",
   "pricing_rule_details",
   "pricing_rules",
   "sec_break23",
@@ -666,6 +669,7 @@
   {
    "fieldname": "base_rounded_total",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Rounded Total (Company Currency)",
    "oldfieldname": "rounded_total",
    "oldfieldtype": "Currency",
@@ -705,6 +709,7 @@
    "bold": 1,
    "fieldname": "rounded_total",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Rounded Total",
    "oldfieldname": "rounded_total_export",
    "oldfieldtype": "Currency",
@@ -715,6 +720,7 @@
   {
    "fieldname": "in_words",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "In Words",
    "length": 240,
    "oldfieldname": "in_words_export",
@@ -925,8 +931,31 @@
    "fieldname": "lost_reasons",
    "fieldtype": "Table MultiSelect",
    "label": "Lost Reasons",
-   "options": "Quotation Lost Reason Detail",
+   "options": "Quotation Lost Reason Detail"
+  },
+  {
+   "fieldname": "party_balance",
+   "fieldtype": "Currency",
+   "label": "Party Balance",
    "read_only": 1
+  },
+  {
+   "depends_on": "packed_items",
+   "fieldname": "packed_items",
+   "fieldtype": "Table",
+   "label": "Bundle Items",
+   "options": "Packed Item",
+   "print_hide": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "packed_items",
+   "depends_on": "packed_items",
+   "fieldname": "bundle_items_section",
+   "fieldtype": "Section Break",
+   "label": "Bundle Items",
+   "options": "fa fa-suitcase",
+   "print_hide": 1
   },
   {
    "fieldname": "valid_till_nepal",

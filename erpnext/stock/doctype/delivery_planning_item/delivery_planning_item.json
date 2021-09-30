@@ -7,17 +7,21 @@
  "engine": "InnoDB",
  "field_order": [
   "transporter",
+  "transporter_name",
   "customer",
+  "customer_name",
   "item_code",
   "item_name",
   "ordered_qty",
   "pending_qty",
   "qty_to_deliver",
   "weight_to_deliver",
+  "d_status",
   "column_break_9",
   "sales_order",
   "sorce_warehouse",
   "postal_code",
+  "planned_date",
   "delivery_date",
   "current_stock",
   "available_stock",
@@ -32,9 +36,21 @@
   "stock_uom",
   "section_break_24",
   "related_delivey_planning",
+  "column_break_28",
   "delivery_note",
+  "column_break_30",
+  "pick_list",
+  "column_break_34",
   "purchase_order",
-  "d_status"
+  "section_break_34",
+  "is_split",
+  "split_from_item",
+  "sd_item",
+  "item_dname",
+  "rate",
+  "is_updated",
+  "company",
+  "amended_from"
  ],
  "fields": [
   {
@@ -44,12 +60,14 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Transporter",
+   "mandatory_depends_on": "eval: doc.supplier_dc == 0",
    "options": "Supplier"
   },
   {
    "fieldname": "customer",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Customer",
    "options": "Customer",
    "read_only": 1,
@@ -57,11 +75,15 @@
   },
   {
    "fieldname": "item_code",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Item Code",
+   "options": "Item",
    "read_only": 1
   },
   {
+   "fetch_from": "item_code.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -72,6 +94,7 @@
    "fieldname": "ordered_qty",
    "fieldtype": "Float",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Ordered Qty",
    "read_only": 1
   },
@@ -98,6 +121,7 @@
    "fieldname": "sales_order",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Sales Order",
    "options": "Sales Order",
    "read_only": 1,
@@ -107,6 +131,7 @@
    "fieldname": "postal_code",
    "fieldtype": "Data",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Postal Code",
    "read_only": 1
   },
@@ -121,18 +146,22 @@
   {
    "fieldname": "current_stock",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Projected Stock ",
    "read_only": 1
   },
   {
    "fieldname": "available_stock",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Actual Stock",
    "read_only": 1
   },
   {
    "fieldname": "related_delivey_planning",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Related Delivery Planning",
    "options": "Delivery Planning",
    "read_only": 1
@@ -144,20 +173,21 @@
   {
    "fieldname": "approved",
    "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
+   "hidden": 1,
    "label": "Approved",
    "options": "\nYes\nNo"
   },
   {
+   "fetch_from": "item_code.weight_per_unit",
    "fieldname": "weight_per_unit",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "hidden": 1,
    "label": "Weight per unit"
   },
   {
    "fieldname": "sorce_warehouse",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Source Warehouse",
    "options": "Warehouse"
   },
@@ -165,12 +195,14 @@
    "default": "0",
    "fieldname": "supplier_dc",
    "fieldtype": "Check",
+   "in_list_view": 1,
    "label": " Supplier delivers to Customer "
   },
   {
    "depends_on": "eval: doc.supplier_dc == 1",
    "fieldname": "supplier",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Supplier",
    "mandatory_depends_on": "eval: doc.supplier_dc == 1",
    "options": "Supplier"
@@ -178,10 +210,10 @@
   {
    "fieldname": "split",
    "fieldtype": "Button",
-   "hidden": 1,
    "label": "Split"
   },
   {
+   "fetch_from": "item_code.stock_uom",
    "fieldname": "uom",
    "fieldtype": "Link",
    "hidden": 1,
@@ -202,41 +234,148 @@
   },
   {
    "fieldname": "section_break_24",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Connected Documents"
   },
   {
    "fieldname": "delivery_note",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "hidden": 1,
    "label": "Delivery Note",
-   "options": "Delivery Note",
    "read_only": 1
   },
   {
    "fieldname": "purchase_order",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "hidden": 1,
    "label": "Purchase Order",
-   "options": "Purchase Order",
    "read_only": 1
   },
   {
    "default": "Incomplete",
    "fieldname": "d_status",
    "fieldtype": "Select",
-   "label": "Document Status",
-   "options": "\nComplete\nIncomplete"
+   "in_list_view": 1,
+   "label": "Item Planning Status",
+   "options": "Incomplete\nComplete",
+   "read_only": 1
   },
   {
    "depends_on": "eval: doc.supplier_dc == 1",
    "fetch_from": "supplier.supplier_name",
    "fieldname": "supplier_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Supplier Name",
+   "read_only": 1,
+   "read_only_depends_on": "eval: doc.approved == \"Yes\" || doc.approved == \"No\""
+  },
+  {
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Customer Name",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_28",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_30",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval: doc.supplier_dc == 0",
+   "fetch_from": "transporter.supplier_name",
+   "fieldname": "transporter_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Transporter Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_dname",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Item_dname"
+  },
+  {
+   "fetch_from": "item_code.standard_rate",
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "rate"
+  },
+  {
+   "fieldname": "section_break_34",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_split",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Split"
+  },
+  {
+   "fieldname": "split_from_item",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Split from item"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Delivery Planning Item",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "sd_item",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Split D Item"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_updated",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Updated"
+  },
+  {
+   "fieldname": "column_break_34",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pick_list",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Pick List",
+   "read_only": 1
+  },
+  {
+   "fieldname": "planned_date",
+   "fieldtype": "Date",
+   "label": "Planned Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Company ",
+   "options": "Company"
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2021-06-30 10:26:25.465716",
+ "modified": "2021-09-22 15:50:05.272288",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Delivery Planning Item",
@@ -253,9 +392,23 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "share": 1,
+   "submit": 1,
+   "write": 1
   }
  ],
- "sort_field": "modified",
- "sort_order": "DESC",
+ "sort_field": "name",
+ "sort_order": "ASC",
  "track_changes": 1
 }

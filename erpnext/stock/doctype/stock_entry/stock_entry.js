@@ -335,7 +335,7 @@ frappe.ui.form.on('Stock Entry', {
 					get_query_filters: {
 						docstatus: 1,
 						material_request_type: ["in", allowed_request_types],
-						status: ["not in", ["Transferred", "Issued"]]
+						status: ["not in", ["Transferred", "Issued", "Cancelled", "Stopped"]]
 					}
 				})
 			}, __("Get Items From"));
@@ -1197,6 +1197,10 @@ erpnext.stock.select_batch_and_serial_no = (frm, item) => {
 }
 
 function attach_bom_items(bom_no) {
+	if (!bom_no) {
+		return
+	}
+
 	if (check_should_not_attach_bom_items(bom_no)) return
 	frappe.db.get_doc("BOM", bom_no).then(bom => {
 		const { name, items } = bom
