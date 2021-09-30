@@ -49,7 +49,8 @@ def get_columns(filters):
 			{
 				"label": _("Invoices No/ PP No"),
 				"fieldname": 'invoice_no',
-				"fieldtype": "Data",
+				"fieldtype": "Link",
+				"options": "Sales Invoice",
 				"width": 150
 			},
 			{
@@ -62,7 +63,7 @@ def get_columns(filters):
 				"label": _("Customer Pan No"),
 				"fieldname": 'customer_pan_no',
 				"fieldtype": "Data",
-				"width": 120
+				"width": 110
 			},
 			{
 				"label": _("Goods/Services"),
@@ -94,7 +95,7 @@ def get_columns(filters):
 				"label": _("Taxable Sales"),
 				"fieldname": 'taxable_sales',
 				"fieldtype": "float",
-				"width": 100
+				"width": 120
 			},
 			{
 				"label": _("Local Tax"),
@@ -119,16 +120,14 @@ def get_columns(filters):
 				"label": _("PP No"),
 				"fieldname": 'pp_no',
 				"fieldtype": "data",
-				"width": 50
+				"width": 100
 			},
 			{
 				"label": _("PP Date"),
 				"fieldname": 'pp_date',
 				"fieldtype": "Date",
 				"width": 100
-			}
-			
-			
+			}		
 		
 	]
 	return columns	
@@ -169,14 +168,14 @@ def get_data(filters):
 		END as goods,
 
 		si.total_qty,
-		si.grand_total total,
+		si.total,
 		si.exempted_from_tax,
-		IF(si.exempted_from_tax > 0, si.grand_total, 0) as exempted_sales,
+		IF(si.exempted_from_tax > 0, si.total, 0) as exempted_sales,
 		IF(si.exempted_from_tax = 0 AND si.country = 'Nepal' , si.total, 0 ) as taxable_sales,
-		IF(si.exempted_from_tax = 0 AND si.country = 'Nepal' AND si.total_taxes_and_charges > 0, si.total*13/100 , 0) as local_tax,
+		IF(si.exempted_from_tax = 0 AND si.country = 'Nepal' , si.total*13/100 , 0) as local_tax,
 		si.country,
 
-		IF(si.country != "Nepal", si.grand_total, 0) as export_sales,
+		IF(si.country != "Nepal", si.total, 0) as export_sales,
 		IF(si.country != "Nepal" , si.country, " ") as country,
 		si.pp_no ,
 		si.pp_date 

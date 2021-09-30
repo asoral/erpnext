@@ -32,6 +32,12 @@ def get_columns(filters):
 				"fieldtype": "Data",
 				"width": 100
 			},
+			{
+				"label": _("PP No"),
+				"fieldname": 'pp_no',
+				"fieldtype": "data",
+				"width": 120
+			},
 			# {
 			# 	"label": _("Month"),
 			# 	"fieldname": "month",
@@ -131,7 +137,8 @@ def get_columns(filters):
 				"fieldname": 'capital_tax',
 				"fieldtype": "float",
 				"width": 100
-			}
+			}			
+
 	]
 	return columns	
 
@@ -179,7 +186,7 @@ def get_data(filters):
 		pi.country,
 		
 		CASE  
-		WHEN pai.is_fixed_asset = 0 THEN
+		WHEN pai.is_fixed_asset = 0 and pi.exempted_from_tax = 0 THEN
 		(select sum(pii.amount) from `tabPurchase Invoice Item` as pii  
 		Left join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
 		where pd.posting_date = pi.posting_date 
@@ -192,7 +199,7 @@ def get_data(filters):
 
 		CASE  
 		WHEN pai.is_fixed_asset = 0 and pi.exempted_from_tax = 0 THEN
-		(select sum(pii.amount)*13/100 from `tabPurchase Invoice Item` as pii  
+		(select abs(sum(pii.amount)*13/100) from `tabPurchase Invoice Item` as pii  
 		Left join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
 		where pd.posting_date = pi.posting_date 
 		and pii.is_fixed_asset = 0 
@@ -228,7 +235,7 @@ def get_data(filters):
 		END as import_tax,
 	
 		CASE  
-		WHEN pai.is_fixed_asset = 1 THEN
+		WHEN pi.exempted_from_tax = 0 and pai.is_fixed_asset = 1 THEN
 		(select sum(pii.amount) from `tabPurchase Invoice Item` as pii  
 		inner join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
 		where pd.posting_date = pi.posting_date 
@@ -250,7 +257,10 @@ def get_data(filters):
 		and pd.docstatus=1)
 
 		ELSE 0
-		END as capital_tax
+		END as capital_tax,
+
+		bill_no as pp_no,
+		bill_date as pp_date
 
 		from `tabPurchase Invoice` as pi
 		left join `tabSupplier` as s
