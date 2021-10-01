@@ -282,7 +282,7 @@ class CostCalculator(Document):
 									j.rate=doc1.price_list_rate
 								else:
 									docname=frappe.get_doc("Item Price",tab.name)
-									a="2050-12-31"
+									a="2150-12-31"
 									date=datetime.strptime(a, "%Y-%m-%d")
 									docname.valid_upto=date.date()
 									docname.save()
@@ -297,7 +297,7 @@ class CostCalculator(Document):
 								j.rate=doc1.price_list_rate
 							else:
 								docname=frappe.get_doc("Item Price",tab.name)
-								a="2050-12-31"
+								a="2150-12-31"
 								date=datetime.strptime(a, "%Y-%m-%d")
 								docname.valid_upto=date.date()
 								docname.save()
@@ -313,7 +313,7 @@ class CostCalculator(Document):
 							j.rate=doc1.price_list_rate
 						else:
 							docname=frappe.get_doc("Item Price",tab.name)
-							a="2050-12-31"
+							a="2150-12-31"
 							date=datetime.strptime(a, "%Y-%m-%d")
 							docname.valid_upto=date.date()
 							docname.save()
@@ -327,7 +327,7 @@ class CostCalculator(Document):
 							j.rate=doc1.price_list_rate
 						else:
 							docname=frappe.get_doc("Item Price",tab.name)
-							a="2050-12-31"
+							a="2150-12-31"
 							date=datetime.strptime(a, "%Y-%m-%d")
 							docname.valid_upto=date.date()
 							docname.save()
@@ -380,7 +380,7 @@ class CostCalculator(Document):
 									j.rate=doc1.price_list_rate
 								else:
 									docname=frappe.get_doc("Item Price",tab.name)
-									a="2050-12-31"
+									a="2150-12-31"
 									date=datetime.strptime(a, "%Y-%m-%d")
 									docname.valid_upto=date.date()
 									docname.save()
@@ -395,7 +395,7 @@ class CostCalculator(Document):
 								j.rate=doc1.price_list_rate
 							else:
 								docname=frappe.get_doc("Item Price",tab.name)
-								a="2050-12-31"
+								a="2150-12-31"
 								date=datetime.strptime(a, "%Y-%m-%d")
 								docname.valid_upto=date.date()
 								docname.save()
@@ -412,7 +412,7 @@ class CostCalculator(Document):
 							print(doc1)
 						else:
 							docname=frappe.get_doc("Item Price",tab.name)
-							a="2050-12-31"
+							a="2150-12-31"
 							date=datetime.strptime(a, "%Y-%m-%d")
 							docname.valid_upto=date.date()
 							docname.save()
@@ -426,7 +426,7 @@ class CostCalculator(Document):
 							j.rate=doc1.price_list_rate
 						else:
 							docname=frappe.get_doc("Item Price",tab.name)
-							a="2050-12-31"
+							a="2150-12-31"
 							date=datetime.strptime(a, "%Y-%m-%d")
 							docname.valid_upto=date.date()
 							docname.save()
