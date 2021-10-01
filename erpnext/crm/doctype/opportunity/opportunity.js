@@ -94,7 +94,14 @@ frappe.ui.form.on("Opportunity", {
 						frm.trigger("make_request_for_quotation")
 					}, __('Create'));
 			}
-
+			if(frm.doc.docstatus==0){
+				cur_frm.add_custom_button(__('Cost Calculator'), function() {
+					frappe.new_doc("Cost Calculator", {
+						"quotation_to":frm.doc.opportunity_from,
+						"party_name":frm.doc.party_name
+					})
+				}, __('Create'))
+				}
 			if (frm.doc.opportunity_from != "Customer") {
 				frm.add_custom_button(__('Customer'),
 					function() {
