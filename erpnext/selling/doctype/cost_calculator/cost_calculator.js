@@ -35,7 +35,7 @@ frappe.ui.form.on('Cost Calculator', {
 					method:"make_quotation",
 					doc:frm.doc,
 					callback: function(r) {
-						frappe.throw("Quotation Created!!!")
+						msgprint("Quotation Created!!!")
 					}
 					
 				});
@@ -71,18 +71,20 @@ frappe.ui.form.on('Cost Calculator', {
 	},
 
 	currency:function(frm){
-		frm.doc.conversion_rate=0
-		frm.doc.plc_conversion_rate=0
-		frm.call({
-			method:"set_price_list_currency",
-			freeze: true,
-			freeze_message: __("Fetching Currency Rates..."),
-			doc:frm.doc,
-			callback: function(r) {
+		if(frm.doc.currency!="INR"){
+			frm.doc.conversion_rate=0
+			frm.doc.plc_conversion_rate=0
+			frm.call({
+				method:"set_price_list_currency",
+				freeze: true,
+				freeze_message: __("Fetching Currency Rates..."),
+				doc:frm.doc,
+				callback: function(r) {
+					
+				}
 				
-			}
-			
-		});
+			});
+		}
 	},
 	price_list:function(frm){
 		

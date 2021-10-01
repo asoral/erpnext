@@ -1,6 +1,7 @@
 # Copyright (c) 2021, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
+from datetime import date, datetime
 from erpnext.setup.utils import get_exchange_rate
 import frappe
 from frappe.model.document import Document
@@ -63,6 +64,7 @@ class CostCalculator(Document):
 		itemvalue.scope_of_supply=self.name
 		itemvalue.end_of_life=idoc.end_of_life
 		itemvalue.shelf_life_in_days=idoc.shelf_life_in_days
+		itemvalue.cost_calculator=self.name
 		d="{"+str(self.item_attribute)+"}"
 		c=eval(d)
 		for i in c:
@@ -85,6 +87,7 @@ class CostCalculator(Document):
 		doc=frappe.new_doc("Quotation")
 		doc.quotation_to=self.quotation_to
 		doc.party_name=self.party_name
+		doc.cost_calculator=self.name
 		doc.append("items",{
 			"item_code":self.variant_item_code,
 			"qty":self.qty,
@@ -92,6 +95,7 @@ class CostCalculator(Document):
 			"weight_per_unit":self.weight_per_unit		
 			})
 		doc.save()
+		frappe.db.commit()
 		return True
 
 	@frappe.whitelist()
@@ -270,26 +274,63 @@ class CostCalculator(Document):
 				if doc:
 					if not self.price_list:
 						for k in doc:
-							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
-							if tab:
-								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-								j.rate=doc1.price_list_rate
+							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
+							tab1=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
+							if tab1:
+								if tab.valid_upto:
+									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+									j.rate=doc1.price_list_rate
+								else:
+									docname=frappe.get_doc("Item Price",tab.name)
+									a="2050-12-31"
+									date=datetime.strptime(a, "%Y-%m-%d")
+									docname.valid_upto=date.date()
+									docname.save()
+									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+									j.rate=doc1.price_list_rate
 					if self.price_list:
 						for k in doc:
-							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
-							if tab:
+							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
+							tab1=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
+							if tab1 and tab.valid_upto:
+								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+								j.rate=doc1.price_list_rate
+							else:
+								docname=frappe.get_doc("Item Price",tab.name)
+								a="2050-12-31"
+								date=datetime.strptime(a, "%Y-%m-%d")
+								docname.valid_upto=date.date()
+								docname.save()
 								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 								j.rate=doc1.price_list_rate
 
 				if not doc:
 					if not self.price_list:
-						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
-						if tab:
+						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
+						tab1=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
+						if tab1 and tab.valid_upto:
+							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+							j.rate=doc1.price_list_rate
+						else:
+							docname=frappe.get_doc("Item Price",tab.name)
+							a="2050-12-31"
+							date=datetime.strptime(a, "%Y-%m-%d")
+							docname.valid_upto=date.date()
+							docname.save()
 							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 							j.rate=doc1.price_list_rate
 					if self.price_list:
-						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
-						if tab:
+						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
+						tab1=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
+						if tab1 and tab.valid_upto:
+							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+							j.rate=doc1.price_list_rate
+						else:
+							docname=frappe.get_doc("Item Price",tab.name)
+							a="2050-12-31"
+							date=datetime.strptime(a, "%Y-%m-%d")
+							docname.valid_upto=date.date()
+							docname.save()
 							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 							j.rate=doc1.price_list_rate
 
@@ -327,32 +368,70 @@ class CostCalculator(Document):
 					ls=c[i].strip(",")
 					doc=frappe.db.sql("""select distinct i.name from `tabItem` i join `tabItem Variant Attribute` ia on i.name=ia.parent
 								where i.variant_of='{0}' and attribute_value = '{1}'""".format(j.item_code,c[i]),as_dict=1)
+
 				if doc:
 					if not self.price_list:
 						for k in doc:
-							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
-							if tab:
-								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-								j.rate=doc1.price_list_rate
+							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
+							tab1=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
+							if tab1:
+								if tab.valid_upto:
+									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+									j.rate=doc1.price_list_rate
+								else:
+									docname=frappe.get_doc("Item Price",tab.name)
+									a="2050-12-31"
+									date=datetime.strptime(a, "%Y-%m-%d")
+									docname.valid_upto=date.date()
+									docname.save()
+									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+									j.rate=doc1.price_list_rate
 					if self.price_list:
 						for k in doc:
-							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
-							if tab:
+							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
+							tab1=frappe.db.get_value("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
+							if tab1 and tab.valid_upto:
+								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+								j.rate=doc1.price_list_rate
+							else:
+								docname=frappe.get_doc("Item Price",tab.name)
+								a="2050-12-31"
+								date=datetime.strptime(a, "%Y-%m-%d")
+								docname.valid_upto=date.date()
+								docname.save()
 								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 								j.rate=doc1.price_list_rate
 
 				if not doc:
 					if not self.price_list:
-						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
-						if tab:
+						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
+						tab1=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
+						if tab1 and tab.valid_upto:
+							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+							j.rate=doc1.price_list_rate
+							print(doc1)
+						else:
+							docname=frappe.get_doc("Item Price",tab.name)
+							a="2050-12-31"
+							date=datetime.strptime(a, "%Y-%m-%d")
+							docname.valid_upto=date.date()
+							docname.save()
 							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 							j.rate=doc1.price_list_rate
 					if self.price_list:
-						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"])
-						if tab:
+						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
+						tab1=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
+						if tab1 and tab.valid_upto:
 							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 							j.rate=doc1.price_list_rate
-
+						else:
+							docname=frappe.get_doc("Item Price",tab.name)
+							a="2050-12-31"
+							date=datetime.strptime(a, "%Y-%m-%d")
+							docname.valid_upto=date.date()
+							docname.save()
+							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+							j.rate=doc1.price_list_rate
 		sweight=[]
 		samount=[]
 		for j in self.scrap_items:
