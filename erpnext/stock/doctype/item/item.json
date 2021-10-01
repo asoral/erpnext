@@ -133,7 +133,8 @@
   "more_information_section",
   "published_in_website",
   "total_projected_qty",
-  "website_image_alt"
+  "website_image_alt",
+  "cost_calculator"
  ],
  "fields": [
   {
@@ -1016,6 +1017,12 @@
    "label": "Add Ons",
    "mandatory_depends_on": "has_add_ons",
    "options": "Item Add Ons"
+  },
+  {
+   "fieldname": "cost_calculator",
+   "fieldtype": "Link",
+   "label": "Cost Calculator",
+   "options": "Cost Calculator"
   }
  ],
  "icon": "fa fa-tag",
@@ -1024,7 +1031,7 @@
  "index_web_pages_for_search": 1,
  "links": [],
  "max_attachments": 1,
- "modified": "2021-09-24 16:14:32.899538",
+ "modified": "2021-10-01 10:43:14.696899",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

@@ -111,7 +111,8 @@
   "enq_det",
   "supplier_quotation",
   "opportunity",
-  "lost_reasons"
+  "lost_reasons",
+  "cost_calculator"
  ],
  "fields": [
   {
@@ -955,6 +956,13 @@
    "label": "Bundle Items",
    "options": "fa fa-suitcase",
    "print_hide": 1
+  },
+  {
+   "fieldname": "cost_calculator",
+   "fieldtype": "Link",
+   "label": "Cost Calculator",
+   "options": "Cost Calculator",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-shopping-cart",
@@ -962,7 +970,7 @@
  "is_submittable": 1,
  "links": [],
  "max_attachments": 1,
- "modified": "2021-08-27 20:10:07.864951",
+ "modified": "2021-10-01 10:42:14.032637",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",
