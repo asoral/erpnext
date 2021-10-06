@@ -318,6 +318,7 @@ class CostCalculator(Document):
 				frappe.db.commit()
 		bom=frappe.get_doc("BOM",self.template_bom)
 		bdoc=frappe.new_doc("BOM")
+		bdoc.cost_calcualtor=self.name
 		bdoc.item=self.variant_item_code
 		bdoc.location=bom.location
 		bdoc.quantity=self.qty

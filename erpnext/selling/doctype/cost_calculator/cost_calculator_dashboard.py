@@ -12,6 +12,10 @@ def get_data():
 			{
 				'label': _('Item'),
 				'items': ['Item']
+			},
+			{
+				'label': _('Item'),
+				'items': ['BOM']
 			}
 		]
 	}
