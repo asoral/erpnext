@@ -213,7 +213,7 @@ class BOM(WebsiteGenerator):
 			self.yeild = flt((self.fg_weight/self.rm_weight)*100, self.precision('yeild'))
 	
 	def get_volume(self):
-		if self.fg_specific_gravity>0  and self.bom_weight > 0:
+		if self.fg_specific_gravity and self.bom_weight:
 			self.bom_volume=self.bom_weight/self.fg_specific_gravity
 
 	@frappe.whitelist()

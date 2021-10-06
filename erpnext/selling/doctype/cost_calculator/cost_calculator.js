@@ -26,6 +26,33 @@ frappe.ui.form.on('Cost Calculator', {
 				}
 			}
 		});
+		frm.set_query("item_code", "add_ons", function(doc, cdt, cdn) {
+			var row = locals[cdt][cdn];
+			return {
+				filters: {
+					"is_stock_item": 0,
+					"has_variants":0
+				}
+			}
+		});
+		frm.set_query("bom_no", "raw_material_items", function(doc, cdt, cdn) {
+			var row = locals[cdt][cdn];
+			return {
+				filters: {
+					"item": row.item_code
+					
+				}
+			}
+		});
+		frm.set_query("bom_no", "add_ons", function(doc, cdt, cdn) {
+			var row = locals[cdt][cdn];
+			return {
+				filters: {
+					"item": row.item_code
+					
+				}
+			}
+		});
 
 	},
 	refresh:function(frm){
@@ -41,8 +68,20 @@ frappe.ui.form.on('Cost Calculator', {
 				});
 			}, __('Create'))
 			}
-		doctype = doc.quotation_to == 'Customer' ? 'Customer':'Lead';
-		frappe.dynamic_link = {doc: this.frm.doc, fieldname: 'party_name', doctype: doctype}
+		if(frm.doc.docstatus==1){
+			cur_frm.add_custom_button(__('BOM'), function() {
+				frm.call({
+					method:"make_bom",
+					doc:frm.doc,
+					callback: function(r) {
+						msgprint("Bom Created!!!")
+					}
+					
+				});
+			}, __('Create'))
+			}
+		// doctype = doc.quotation_to == 'Customer' ? 'Customer':'Lead';
+		// frappe.dynamic_link = {doc: this.frm.doc, fieldname: 'party_name', doctype: doctype}
 
 		frm.set_query("price_list", function() {
 			return {
@@ -160,21 +199,23 @@ frappe.ui.form.on('Cost Calculator', {
 			console.log(args)
 			var a=""
 			for(var i in args){
+				
 				a+="'"+i+"'"+":"+"'"+args[i]+"'"+","+"\n"
-			frm.doc.item_attribute = a;
-			frm.refresh_field("item_attribute");
-			// frappe.call({
-			// 	method: "calculate_formula_scrap_item",
-			// 	doc:frm.doc,
-			// 	callback: function(r) {
-			// 		if (r.message) {
-						
-			// 		}
-			// 	}
-			// });
-			// frm.refresh_field("raw_material_items");
-			
+				frm.doc.item_attribute = a;
 			}
+			frm.refresh_field("item_attribute");
+			frappe.call({
+				method: "set_value",
+				doc:frm.doc,
+				callback: function(r) {
+					if (r.message) {
+						frm.refresh_field("raw_material_items");
+					}
+				}
+			});
+			
+			
+			
 			d.hide();
 		});
 
@@ -302,8 +343,26 @@ frappe.ui.form.on('Bom Raw Material Item', {
 			console.log(args)
 			var a=""
 			for(var i in args){
-				a+="'"+i+"'"+":"+"'"+args[i]+"'"+","+"\n"
-			row.item_attributes = a;
+				// if(row.item_attributes){
+				// 	
+				// 	a+=String(row.item_attributes)
+				// 	const f="{"+String(row.item_attributes)+"}"
+				// 	console.log(f)
+				// 	// var c=JSON.parse(f)
+				// 	for(var j in f){
+				// 		if(i!=j){
+				// 			a+="'"+i+"'"+":"+"'"+args[i]+"'"+","+"\n"
+				// 		}
+				// 	}
+					
+				// }
+				// else{
+					a+="'"+i+"'"+":"+"'"+args[i]+"'"+","+"\n"
+					
+				
+				row.item_attributes = a;
+			}
+			
 			frappe.call({
 				method: "calculate_formula",
 				doc:frm.doc,
@@ -321,7 +380,7 @@ frappe.ui.form.on('Bom Raw Material Item', {
 					}
 				}
 			});
-			}
+			
 			d.hide();
 		});
 

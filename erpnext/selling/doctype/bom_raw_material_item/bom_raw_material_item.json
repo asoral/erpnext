@@ -7,18 +7,34 @@
  "field_order": [
   "item_code",
   "item_name",
+  "instruction_",
+  "type",
+  "operation",
+  "column_break_6",
+  "bom_no",
+  "source_warehouse",
+  "allow_alternative_item",
+  "allow_to_change_qty_in_wo_",
+  "qty___rate_section",
   "qty",
   "stock_uom",
   "rate",
-  "item_attributes",
-  "parameters",
+  "scrap",
+  "column_break_10",
   "base_amount",
   "amount",
-  "scrap",
+  "section_break_14",
+  "item_attributes",
+  "parameters",
+  "weight_details_section",
   "weight",
   "wp_unit",
+  "column_break_20",
   "formula",
-  "weight_uom"
+  "weight_uom",
+  "section_break_23",
+  "include_item_in_manufacturing",
+  "sourced_by_supplier"
  ],
  "fields": [
   {
@@ -118,12 +134,97 @@
    "label": "Base Amount",
    "options": "Company:company:default_currency",
    "read_only": 1
+  },
+  {
+   "fieldname": "instruction_",
+   "fieldtype": "Data",
+   "label": "Instruction"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "RM\nPKG",
+   "reqd": 1
+  },
+  {
+   "fieldname": "operation",
+   "fieldtype": "Link",
+   "label": "Item Operation",
+   "options": "Operation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "qty___rate_section",
+   "fieldtype": "Section Break",
+   "label": "Qty  &  Rate"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "weight_details_section",
+   "fieldtype": "Section Break",
+   "label": "Weight Details"
+  },
+  {
+   "fieldname": "section_break_14",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_23",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "include_item_in_manufacturing",
+   "fieldtype": "Check",
+   "label": "include Item In Manufacturing"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bom_no",
+   "fieldtype": "Link",
+   "label": "Bom No",
+   "options": "BOM"
+  },
+  {
+   "fieldname": "source_warehouse",
+   "fieldtype": "Link",
+   "label": "Source Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_alternative_item",
+   "fieldtype": "Check",
+   "label": "Allow Alternative Item"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_to_change_qty_in_wo_",
+   "fieldtype": "Check",
+   "label": "Allow to change Qty In WO"
+  },
+  {
+   "default": "0",
+   "fieldname": "sourced_by_supplier",
+   "fieldtype": "Check",
+   "label": "Sourced by Supplier"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-09-30 18:28:41.543242",
+ "modified": "2021-10-06 11:05:04.879968",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Bom Raw Material Item",

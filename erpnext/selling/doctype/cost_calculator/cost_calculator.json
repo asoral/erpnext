@@ -52,6 +52,13 @@
   "base_add_ons_amount",
   "column_break_42",
   "add_ons_amount",
+  "operation_section_section",
+  "with_operations",
+  "column_break_49",
+  "transfer_material_against",
+  "routing",
+  "section_break_52",
+  "operations",
   "amended_from"
  ],
  "fields": [
@@ -338,12 +345,52 @@
    "label": "Variant Item Code",
    "options": "Item",
    "read_only": 1
+  },
+  {
+   "fieldname": "operation_section_section",
+   "fieldtype": "Section Break",
+   "label": "Operation Section"
+  },
+  {
+   "default": "0",
+   "fieldname": "with_operations",
+   "fieldtype": "Check",
+   "label": "With Operations"
+  },
+  {
+   "fieldname": "column_break_49",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "with_operations",
+   "fieldname": "routing",
+   "fieldtype": "Link",
+   "label": "Routing",
+   "options": "Routing"
+  },
+  {
+   "fieldname": "section_break_52",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "with_operations",
+   "fieldname": "operations",
+   "fieldtype": "Table",
+   "label": "Operations",
+   "options": "BOM Operation"
+  },
+  {
+   "depends_on": "with_operations",
+   "fieldname": "transfer_material_against",
+   "fieldtype": "Select",
+   "label": "Transfer Material Against",
+   "options": "\nWork Order\nJob Card"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-30 21:24:46.501942",
+ "modified": "2021-10-04 17:09:53.795001",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Cost Calculator",
