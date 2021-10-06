@@ -29,9 +29,16 @@ class CostCalculator(Document):
 					"item_code":i.item_code,
 					"item_name":i.item_name,
 					"qty":i.qty,
+					"type":i.type,
+					"operation":i.operation,
 					"stock_uom":i.stock_uom,
 					"weight_uom":i.weight_uom,
 					"rate":i.rate,
+					"include_item_in_manufacturing":i.include_item_in_manufacturing,
+					"allow_alternative_item":i.allow_alternative_item,
+					"allow_to_change_qty_in_wo_":i.allowed_to_change_qty_in_wo,
+					"bom_no":i.bom_no,
+					"source_warehouse":i.source_warehouse,
 					"amount":i.amount,
 					"scrap":i.scrap
 				})
@@ -43,7 +50,7 @@ class CostCalculator(Document):
 					"stock_uom":i.stock_uom,
 					"rate":i.rate,
 					"amount":i.amount,
-					})	
+					})
 			doc1=frappe.get_doc("Item",self.item_code)
 			for i in doc1.add_ons:
 				self.append("add_ons",{
@@ -52,8 +59,33 @@ class CostCalculator(Document):
 					"stock_uom":i.unit_of_measure,
 					"factor":i.qty_conversion_factor
 					})	
+			self.with_operations=doc.with_operations
+			self.transfer_material_against=doc.transfer_material_against
+			self.routing=doc.routing
+			for i in doc.operations:
+				self.append("operations",{
+					"operation":i.operation,
+					"workstation":i.workstation,
+					"time_in_mins":i.time_in_mins,
+					"hour_rate":i.hour_rate,
+					"base_hour_rate":i.base_hour_rate,
+					"operating_cost":i.operating_cost,
+					"base_operating_cost":i.base_operating_cost,
+					"batch_size":i.batch_size,
+					"set_cost_based_on_bom_qty":i.set_cost_based_on_bom_qty,
+					"cost_per_unit":i.cost_per_unit,
+					"base_cost_per_unit":i.base_cost_per_unit,
+					"description":i.description,
+					"image":i.image,
+					"sequence_id":i.sequence_id
+				})
+		
 	
 	def before_submit(self):
+		for i in self.operations:
+			i.time_in_mins=i.time_in_mins*self.qty
+			hour=i.time_in_mins*i.hour_rate/60
+			i.operating_cost=hour
 		idoc=frappe.get_doc("Item",self.item_code)
 		variant=frappe.get_doc("Item Variant Settings")
 		itemdoc=frappe.db.sql("""select fieldname from `tabDocField` where parent="Item" """,as_dict=1)
@@ -81,7 +113,7 @@ class CostCalculator(Document):
 		self.variant_item_code=itemvalue.name
 		frappe.db.commit()
 
-
+	
 	@frappe.whitelist()
 	def make_quotation(self):
 		doc=frappe.new_doc("Quotation")
@@ -139,7 +171,9 @@ class CostCalculator(Document):
 		if self.qty > 0:
 			self.rate_per_unit=total_amount/self.qty
 			self.weight_per_unit=total_weight/self.qty
+		
 
+			
 	@frappe.whitelist()
 	def set_price_list_currency(self):
 		if self.meta.get_field("posting_date"):
@@ -211,6 +245,190 @@ class CostCalculator(Document):
 			if total_weight > 0:
 				self.weight_per_unit=total_weight/self.qty
 
+	@frappe.whitelist()
+	def make_bom(self):
+		for i in self.raw_material_items:
+			
+			idoc=frappe.get_doc("Item",i.item_code)
+			if idoc.has_variants==1:
+				variant=frappe.get_doc("Item Variant Settings")
+				itemdoc=frappe.db.sql("""select fieldname from `tabDocField` where parent="Item" """,as_dict=1)
+				itemvalue=frappe.new_doc("Item")
+				itemvalue.variant_of=i.item_code
+				d="{"+str(i.item_attributes)+"}"
+				c=eval(d)
+				a=""
+				for j in c:
+					a+=c[j]+"-"
+				b=a[:-1]
+				itemvalue.item_code=str(idoc.name)+"-"+str(b)
+				itemvalue.item_group=idoc.item_group
+				itemvalue.stock_uom=idoc.stock_uom
+				itemvalue.scope_of_supply=self.name
+				itemvalue.end_of_life=idoc.end_of_life
+				itemvalue.shelf_life_in_days=idoc.shelf_life_in_days
+				itemvalue.cost_calculator=self.name
+				d="{"+str(i.item_attributes)+"}"
+				c=eval(d)
+				for i in c:
+					itemvalue.append("attributes",{
+							"attribute":i,
+							"attribute_value":c[i]
+						})
+				for field in variant.fields:
+					for i in itemdoc:
+						if field.field_name==i.fieldname:
+							op=field.field_name
+							itemvalue.set(op, idoc.get(op))
+				itemvalue.insert(ignore_permissions=True)
+				frappe.db.commit()
+		for i in self.scrap_items:
+			idoc=frappe.get_doc("Item",i.item_code)
+			if idoc.has_variants==1:
+				variant=frappe.get_doc("Item Variant Settings")
+				itemdoc=frappe.db.sql("""select fieldname from `tabDocField` where parent="Item" """,as_dict=1)
+				itemvalue=frappe.new_doc("Item")
+				itemvalue.variant_of=i.item_code
+				d="{"+str(i.item_attributes)+"}"
+				c=eval(d)
+				a=""
+				for j in c:
+					a+=c[j]+"-"
+				b=a[:-1]
+				itemvalue.item_code=str(idoc.name)+"-"+str(b)
+				itemvalue.item_group=idoc.item_group
+				itemvalue.stock_uom=idoc.stock_uom
+				itemvalue.scope_of_supply=self.name
+				itemvalue.end_of_life=idoc.end_of_life
+				itemvalue.shelf_life_in_days=idoc.shelf_life_in_days
+				itemvalue.cost_calculator=self.name
+				d="{"+str(i.item_attributes)+"}"
+				c=eval(d)
+				for i in c:
+					itemvalue.append("attributes",{
+							"attribute":i,
+							"attribute_value":c[i]
+						})
+				for field in variant.fields:
+					for i in itemdoc:
+						if field.field_name==i.fieldname:
+							op=field.field_name
+							itemvalue.set(op, idoc.get(op))
+				itemvalue.insert(ignore_permissions=True)
+				frappe.db.commit()
+		bom=frappe.get_doc("BOM",self.template_bom)
+		bdoc=frappe.new_doc("BOM")
+		bdoc.item=self.variant_item_code
+		bdoc.location=bom.location
+		bdoc.quantity=self.qty
+		bdoc.currency=self.currency
+		bdoc.rm_cost_as_per="Price List"
+		bdoc.buying_price_list=self.price_list
+		bdoc.with_operations=self.with_operations
+		bdoc.transfer_material_against=self.transfer_material_against
+		bdoc.routing==self.routing
+		for i in self.operations:
+			bdoc.append("operations",{
+				"operation":i.operation,
+				"workstation":i.workstation,
+				"time_in_mins":i.time_in_mins,
+				"hour_rate":i.hour_rate,
+				"base_hour_rate":i.base_hour_rate,
+				"operating_cost":i.operating_cost,
+				"base_operating_cost":i.base_operating_cost,
+				"batch_size":i.batch_size,
+				"set_cost_based_on_bom_qty":i.set_cost_based_on_bom_qty,
+				"cost_per_unit":i.cost_per_unit,
+				"base_cost_per_unit":i.base_cost_per_unit,
+				"description":i.description,
+				"image":i.image,
+				"sequence_id":i.sequence_id
+			})
+		bdoc.inspection_required=bom.inspection_required
+		bdoc.quality_inspection_template=bom.quality_inspection_template
+		for i in self.raw_material_items:
+			d="{"+str(i.item_attributes)+"}"
+			c=eval(d)
+			a=""
+			for j in c:
+				a+=c[j]+"-"
+			b=a[:-1]
+			item=frappe.get_doc("Item",i.item_code)
+			if item.has_variants==1:
+				bdoc.append("items",{
+					"item_code":str(i.item_code)+"-"+str(b),
+					"type":i.type,
+					"operation":i.operation,
+					"bom_no":i.bom_no,
+					"source_warehouse":i.source_warehouse,
+					"instruction_":i.instruction_,
+					"allow_alternative_item":i.allow_alternative_item,
+					"allowed_to_change_qty_in_wo":i.allow_to_change_qty_in_wo_,
+					"qty":i.qty,
+					"uom":i.stock_uom,
+					"rate":i.rate,
+					"scrap":i.scrap,
+					"weight_per_unit":i.wp_unit,
+					"weight_uom":i.weight_uom,
+					"include_item_in_manufacturing":i.include_item_in_manufacturing,
+					"sourced_by_supplier":i.sourced_by_supplier
+
+				})
+			else:
+				bdoc.append("items",{
+					"item_code":str(i.item_code),
+					"type":i.type,
+					"operation":i.operation,
+					"bom_no":i.bom_no,
+					"source_warehouse":i.source_warehouse,
+					"instruction_":i.instruction_,
+					"allow_alternative_item":i.allow_alternative_item,
+					"allowed_to_change_qty_in_wo":i.allow_to_change_qty_in_wo_,
+					"qty":i.qty,
+					"uom":i.stock_uom,
+					"rate":i.rate,
+					"scrap":i.scrap,
+					"weight_per_unit":i.wp_unit,
+					"weight_uom":i.weight_uom,
+					"include_item_in_manufacturing":i.include_item_in_manufacturing,
+					"sourced_by_supplier":i.sourced_by_supplier
+
+				})
+		for i in self.scrap_items:
+			d="{"+str(i.item_attributes)+"}"
+			c=eval(d)
+			a=""
+			for j in c:
+				a+=c[j]+"-"
+			b=a[:-1]
+			item=frappe.get_doc("Item",i.item_code)
+			if item.has_variants==1:
+				bdoc.append("scrap_items",{
+					"item_code":str(i.item_code)+"-"+str(b),
+					"is_process_loss":i.is_process_loss,
+					"qty":i.qty,
+					"stock_uom":i.stock_uom,
+					"rate":i.rate
+
+				})
+		for i in self.add_ons:
+			bdoc.append("items",{
+				"item_code":str(i.item_code),
+				"type":i.type,
+				"operation":i.operation,
+				"bom_no":i.bom_no,
+				"source_warehouse":i.source_warehouse,
+				# "instruction_":i.instruction_,
+				"allow_alternative_item":i.allow_alternative_item,
+				"allowed_to_change_qty_in_wo":i.allow_to_change_qty_in_wo,
+				"qty":i.qty,
+				"uom":i.stock_uom,
+				"rate":i.rate,
+				"include_item_in_manufacturing":i.include_item_in_manufacturing,
+				"sourced_by_supplier":i.sourced_by_supplier
+
+				})
+		bdoc.save()
 
 	@frappe.whitelist()
 	def calculate_value_scrap(self):
@@ -238,7 +456,7 @@ class CostCalculator(Document):
 	def calculate_value_addons(self):
 		aamount=[]
 		for i in self.add_ons:
-			i.qty=self.qty
+			# i.qty=self.qty
 			if i.item_code:
 				if i.qty and i.rate and i.factor:
 					i.amount=i.qty*i.rate*i.factor
@@ -281,13 +499,14 @@ class CostCalculator(Document):
 									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 									j.rate=doc1.price_list_rate
 								else:
-									docname=frappe.get_doc("Item Price",tab.name)
-									a="2150-12-31"
-									date=datetime.strptime(a, "%Y-%m-%d")
-									docname.valid_upto=date.date()
-									docname.save()
-									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-									j.rate=doc1.price_list_rate
+									if tab:
+										docname=frappe.get_doc("Item Price",tab.name)
+										a="2150-12-31"
+										date=datetime.strptime(a, "%Y-%m-%d")
+										docname.valid_upto=date.date()
+										docname.save()
+										doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+										j.rate=doc1.price_list_rate
 					if self.price_list:
 						for k in doc:
 							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
@@ -296,13 +515,14 @@ class CostCalculator(Document):
 								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 								j.rate=doc1.price_list_rate
 							else:
-								docname=frappe.get_doc("Item Price",tab.name)
-								a="2150-12-31"
-								date=datetime.strptime(a, "%Y-%m-%d")
-								docname.valid_upto=date.date()
-								docname.save()
-								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-								j.rate=doc1.price_list_rate
+								if tab:
+									docname=frappe.get_doc("Item Price",tab.name)
+									a="2150-12-31"
+									date=datetime.strptime(a, "%Y-%m-%d")
+									docname.valid_upto=date.date()
+									docname.save()
+									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+									j.rate=doc1.price_list_rate
 
 				if not doc:
 					if not self.price_list:
@@ -312,13 +532,14 @@ class CostCalculator(Document):
 							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 							j.rate=doc1.price_list_rate
 						else:
-							docname=frappe.get_doc("Item Price",tab.name)
-							a="2150-12-31"
-							date=datetime.strptime(a, "%Y-%m-%d")
-							docname.valid_upto=date.date()
-							docname.save()
-							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-							j.rate=doc1.price_list_rate
+							if tab:
+								docname=frappe.get_doc("Item Price",tab.name)
+								a="2150-12-31"
+								date=datetime.strptime(a, "%Y-%m-%d")
+								docname.valid_upto=date.date()
+								docname.save()
+								doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+								j.rate=doc1.price_list_rate
 					if self.price_list:
 						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
 						tab1=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
@@ -326,13 +547,14 @@ class CostCalculator(Document):
 							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 							j.rate=doc1.price_list_rate
 						else:
-							docname=frappe.get_doc("Item Price",tab.name)
-							a="2150-12-31"
-							date=datetime.strptime(a, "%Y-%m-%d")
-							docname.valid_upto=date.date()
-							docname.save()
-							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-							j.rate=doc1.price_list_rate
+							if tab:
+								docname=frappe.get_doc("Item Price",tab.name)
+								a="2150-12-31"
+								date=datetime.strptime(a, "%Y-%m-%d")
+								docname.valid_upto=date.date()
+								docname.save()
+								doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+								j.rate=doc1.price_list_rate
 
 		for j in self.raw_material_items:
 			weight=[]
@@ -379,13 +601,14 @@ class CostCalculator(Document):
 									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 									j.rate=doc1.price_list_rate
 								else:
-									docname=frappe.get_doc("Item Price",tab.name)
-									a="2150-12-31"
-									date=datetime.strptime(a, "%Y-%m-%d")
-									docname.valid_upto=date.date()
-									docname.save()
-									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-									j.rate=doc1.price_list_rate
+									if tab:
+										docname=frappe.get_doc("Item Price",tab.name)
+										a="2150-12-31"
+										date=datetime.strptime(a, "%Y-%m-%d")
+										docname.valid_upto=date.date()
+										docname.save()
+										doc1=frappe.get_doc("Item Price",{"item_code":k.name,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+										j.rate=doc1.price_list_rate
 					if self.price_list:
 						for k in doc:
 							tab=frappe.db.get_value("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
@@ -394,13 +617,14 @@ class CostCalculator(Document):
 								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 								j.rate=doc1.price_list_rate
 							else:
-								docname=frappe.get_doc("Item Price",tab.name)
-								a="2150-12-31"
-								date=datetime.strptime(a, "%Y-%m-%d")
-								docname.valid_upto=date.date()
-								docname.save()
-								doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-								j.rate=doc1.price_list_rate
+								if tab:
+									docname=frappe.get_doc("Item Price",tab.name)
+									a="2150-12-31"
+									date=datetime.strptime(a, "%Y-%m-%d")
+									docname.valid_upto=date.date()
+									docname.save()
+									doc1=frappe.get_doc("Item Price",{"item_code":k.name,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+									j.rate=doc1.price_list_rate
 
 				if not doc:
 					if not self.price_list:
@@ -411,13 +635,14 @@ class CostCalculator(Document):
 							j.rate=doc1.price_list_rate
 							print(doc1)
 						else:
-							docname=frappe.get_doc("Item Price",tab.name)
-							a="2150-12-31"
-							date=datetime.strptime(a, "%Y-%m-%d")
-							docname.valid_upto=date.date()
-							docname.save()
-							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-							j.rate=doc1.price_list_rate
+							if tab:
+								docname=frappe.get_doc("Item Price",tab.name)
+								a="2150-12-31"
+								date=datetime.strptime(a, "%Y-%m-%d")
+								docname.valid_upto=date.date()
+								docname.save()
+								doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+								j.rate=doc1.price_list_rate
 					if self.price_list:
 						tab=frappe.db.get_value("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date]},["name","valid_upto"],order_by='valid_from desc, batch_no desc, uom desc',as_dict=1)
 						tab1=frappe.db.get_value("Item Price",{"item_code":j.item_code,"buying":1,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]},["name"],order_by='valid_from desc, batch_no desc, uom desc')
@@ -425,13 +650,14 @@ class CostCalculator(Document):
 							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 							j.rate=doc1.price_list_rate
 						else:
-							docname=frappe.get_doc("Item Price",tab.name)
-							a="2150-12-31"
-							date=datetime.strptime(a, "%Y-%m-%d")
-							docname.valid_upto=date.date()
-							docname.save()
-							doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
-							j.rate=doc1.price_list_rate
+							if tab:
+								docname=frappe.get_doc("Item Price",tab.name)
+								a="2150-12-31"
+								date=datetime.strptime(a, "%Y-%m-%d")
+								docname.valid_upto=date.date()
+								docname.save()
+								doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
+								j.rate=doc1.price_list_rate
 		sweight=[]
 		samount=[]
 		for j in self.scrap_items:
@@ -447,3 +673,20 @@ class CostCalculator(Document):
 			except:
 				print("")
 		return True
+
+	@frappe.whitelist()
+	def set_value(self):
+		d="{"+str(self.item_attribute)+"}"
+		c=eval(d)
+		# for i in c:
+		
+		for i in self.raw_material_items:
+			doc=frappe.get_doc("Item",i.item_code)
+			a=""
+			for k in doc.attributes:
+				for j in c:
+					if k.attribute==j:
+						a+="'"+j+"'"+":"+"'"+c[j]+"'"+","+"\n"
+			i.item_attributes=a
+		return True
+			

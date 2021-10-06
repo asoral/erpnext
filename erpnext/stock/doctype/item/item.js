@@ -10,7 +10,7 @@ frappe.ui.form.on("Item", {
 		frm.add_fetch('attribute', 'to_range', 'to_range');
 		frm.add_fetch('attribute', 'increment', 'increment');
 		frm.add_fetch('tax_type', 'tax_rate', 'tax_rate');
-		frm.set_query("item_code", "add_ons", function(doc, cdt, cdn) {
+	frm.set_query("item_code", "add_ons", function(doc, cdt, cdn) {
 			var row = locals[cdt][cdn];
 			return {
 				filters: {
@@ -18,7 +18,7 @@ frappe.ui.form.on("Item", {
 					"has_variants":0
 				}
 			}
-		});
+	});
 	},
 	onload: function(frm) {
 		erpnext.item.setup_queries(frm);
