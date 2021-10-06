@@ -77,7 +77,8 @@
   "bom_weight",
   "column_break_70",
   "yeild",
-  "fg_specific_gravity"
+  "fg_specific_gravity",
+  "cost_calculator"
  ],
  "fields": [
   {
@@ -542,11 +543,6 @@
    "hide_border": 1
   },
   {
-   "fieldname": "batch_size",
-   "fieldtype": "Float",
-   "label": "Batch Size"
-  },
-  {
    "fieldname": "weight_details_section",
    "fieldtype": "Section Break",
    "label": "Weight Details"
@@ -584,6 +580,18 @@
   {
    "fieldname": "column_break_70",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "batch_size",
+   "fieldtype": "Float",
+   "label": "Batch Size"
+  },
+  {
+   "fieldname": "cost_calculator",
+   "fieldtype": "Link",
+   "label": "Cost Calcualtor",
+   "options": "Cost Calculator",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-sitemap",
@@ -591,7 +599,7 @@
  "image_field": "image",
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-23 20:29:54.609337",
+ "modified": "2021-10-06 17:54:43.417749",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "BOM",
