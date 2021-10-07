@@ -679,15 +679,24 @@ class CostCalculator(Document):
 	def set_value(self):
 		d="{"+str(self.item_attribute)+"}"
 		c=eval(d)
-		# for i in c:
+		if self.bom_item_attribute_set_to_raw_material_scrap:
+			for i in self.raw_material_items:
+				doc=frappe.get_doc("Item",i.item_code)
+				a=""
+				for k in doc.attributes:
+					for j in c:
+						if k.attribute==j:
+							a+="'"+j+"'"+":"+"'"+c[j]+"'"+","+"\n"
+				i.item_attributes=a
+
+			for i in self.scrap_items:
+				doc=frappe.get_doc("Item",i.item_code)
+				a=""
+				for k in doc.attributes:
+					for j in c:
+						if k.attribute==j:
+							a+="'"+j+"'"+":"+"'"+c[j]+"'"+","+"\n"
+				i.item_attributes=a
 		
-		for i in self.raw_material_items:
-			doc=frappe.get_doc("Item",i.item_code)
-			a=""
-			for k in doc.attributes:
-				for j in c:
-					if k.attribute==j:
-						a+="'"+j+"'"+":"+"'"+c[j]+"'"+","+"\n"
-			i.item_attributes=a
 		return True
 			

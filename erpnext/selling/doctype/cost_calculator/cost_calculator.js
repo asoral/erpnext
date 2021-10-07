@@ -210,6 +210,7 @@ frappe.ui.form.on('Cost Calculator', {
 				callback: function(r) {
 					if (r.message) {
 						frm.refresh_field("raw_material_items");
+						frm.refresh_field("scrap_items");
 					}
 				}
 			});

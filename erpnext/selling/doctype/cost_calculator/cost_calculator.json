@@ -9,6 +9,7 @@
   "naming_series",
   "template_bom",
   "item_code",
+  "bom_item_attribute_set_to_raw_material_scrap",
   "parameters",
   "quotation_to",
   "party_name",
@@ -330,13 +331,15 @@
    "fieldname": "quotation_to",
    "fieldtype": "Link",
    "label": "Quotation To",
-   "options": "DocType"
+   "options": "DocType",
+   "reqd": 1
   },
   {
    "fieldname": "party_name",
    "fieldtype": "Dynamic Link",
    "label": "Party",
-   "options": "quotation_to"
+   "options": "quotation_to",
+   "reqd": 1
   },
   {
    "allow_on_submit": 1,
@@ -392,12 +395,18 @@
    "fieldtype": "Link",
    "label": "Opportunity",
    "options": "Opportunity"
+  },
+  {
+   "default": "0",
+   "fieldname": "bom_item_attribute_set_to_raw_material_scrap",
+   "fieldtype": "Check",
+   "label": "Bom Item Attribute Set To Raw Material & Scrap Items"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-06 17:37:22.754245",
+ "modified": "2021-10-07 10:54:06.612420",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Cost Calculator",
