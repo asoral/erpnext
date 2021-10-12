@@ -62,7 +62,15 @@ frappe.ui.form.on("Customer", {
 					'is_company_account': 1
 				}
 			}
-		});
+		})
+
+		frm.set_query('primary_cust',function(){
+			return{
+				filters:{
+					'is_a_secondary_cust':0
+				}
+			}
+		})
 	},
 	customer_primary_address: function(frm){
 		if(frm.doc.customer_primary_address){

@@ -1,0 +1,151 @@
+{
+ "actions": [],
+ "autoname": "B-.#####",
+ "creation": "2021-09-08 19:01:22.607042",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "week_start_date",
+  "week_end_date",
+  "column_break_2",
+  "territory",
+  "column_break_4",
+  "sales_manager",
+  "section_break_7",
+  "beatct",
+  "statistics_section",
+  "sales_person_count",
+  "column_break_10",
+  "t_visit",
+  "column_break_12",
+  "working_day",
+  "column_break_15",
+  "sch_visits",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "week_start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Week Start Date",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "territory.territory_manager",
+   "fieldname": "sales_manager",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sales Manager",
+   "reqd": 1
+  },
+  {
+   "fieldname": "territory",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Territory",
+   "options": "Territory",
+   "reqd": 1
+  },
+  {
+   "fieldname": "beatct",
+   "fieldtype": "Table",
+   "label": "Beat Items",
+   "options": "Beat Items"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Beat",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_7",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "statistics_section",
+   "fieldtype": "Section Break",
+   "label": "Statistics"
+  },
+  {
+   "fieldname": "sales_person_count",
+   "fieldtype": "Int",
+   "label": "No. of Sales Persons",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "t_visit",
+   "fieldtype": "Data",
+   "label": "Territories To Visit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "working_day",
+   "fieldtype": "Data",
+   "label": "Working Days",
+   "read_only": 1
+  },
+  {
+   "fieldname": "week_end_date",
+   "fieldtype": "Date",
+   "label": "Week End Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_15",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sch_visits",
+   "fieldtype": "Data",
+   "label": "Scheduled Visits"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2021-09-28 12:55:17.498061",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Beat",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "week_start_date,territory,sales_manager",
+ "show_name_in_global_search": 1,
+ "sort_order": "DESC",
+ "track_changes": 1
+}

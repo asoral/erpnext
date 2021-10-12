@@ -16,6 +16,7 @@
  "hide_custom": 1,
  "icon": "sell",
  "idx": 0,
+ "is_default": 0,
  "is_standard": 1,
  "label": "Selling",
  "links": [
@@ -92,6 +93,33 @@
    "is_query_report": 0,
    "label": "Sales Person",
    "link_to": "Sales Person",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Beat",
+   "link_to": "Beat",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Beat Plan",
+   "link_to": "Beat Plan",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Beat Visit",
+   "link_to": "Beat Visit",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -515,7 +543,7 @@
    "type": "Link"
   }
  ],
- "modified": "2020-12-01 13:38:35.971277",
+ "modified": "2021-09-29 12:02:51.221945",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",

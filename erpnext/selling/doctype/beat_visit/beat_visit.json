@@ -1,0 +1,353 @@
+{
+ "actions": [],
+ "autoname": "BV-.#####",
+ "creation": "2021-09-28 15:18:16.528582",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "column_break_2",
+  "beat",
+  "column_break_4",
+  "beat_plan",
+  "section_break_6",
+  "sales_manager",
+  "column_break_8",
+  "sales_person",
+  "column_break_10",
+  "parent_territory",
+  "section_break_13",
+  "date",
+  "visit_territory",
+  "column_break_15",
+  "customer",
+  "primary_customer",
+  "column_break_172",
+  "price_list",
+  "column_break_19",
+  "item_group",
+  "section_break_19",
+  "last_order_date",
+  "column_break_24",
+  "last_visit_date",
+  "column_break_26",
+  "last_item_ordered",
+  "customer_statistics_section",
+  "target_quantity",
+  "target_ach",
+  "column_break_32",
+  "target_amount",
+  "target_amt_ach",
+  "cb",
+  "monthly_potential",
+  "mon_po_ach",
+  "section_break_33",
+  "pymt",
+  "ref_no",
+  "column_break_35",
+  "payment_mode",
+  "ref_date",
+  "section_break_37",
+  "visit_order",
+  "section_break_21",
+  "visit_gift",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "beat",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Beat",
+   "options": "Beat",
+   "reqd": 1
+  },
+  {
+   "fieldname": "beat_plan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Beat Plan",
+   "options": "Beat Plan",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "beat_plan.sales_person",
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "Sales Person",
+   "options": "Sales Person",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "beat_plan.sales_manager",
+   "fieldname": "sales_manager",
+   "fieldtype": "Link",
+   "label": "Sales Manager",
+   "options": "Sales Person",
+   "read_only": 1
+  },
+  {
+   "depends_on": "beat_plan",
+   "fetch_from": "beat_plan.territory",
+   "fieldname": "parent_territory",
+   "fieldtype": "Link",
+   "label": "Parent Territory",
+   "options": "Territory",
+   "read_only": 1
+  },
+  {
+   "fieldname": "visit_territory",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Territory to Visit",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Secondary Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Beat Visit",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_13",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_15",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_19",
+   "fieldtype": "Section Break",
+   "label": "Customer History",
+   "read_only": 1
+  },
+  {
+   "fieldname": "visit_gift",
+   "fieldtype": "Table",
+   "label": "Visit Gift",
+   "options": "Visit Gift"
+  },
+  {
+   "fieldname": "section_break_21",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "visit_order",
+   "fieldtype": "Table",
+   "label": "Visit Order",
+   "options": "Visit Order"
+  },
+  {
+   "fieldname": "column_break_19",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Price List",
+   "options": "Price List",
+   "reqd": 1
+  },
+  {
+   "fieldname": "last_order_date",
+   "fieldtype": "Date",
+   "label": "Last Order Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_visit_date",
+   "fieldtype": "Date",
+   "label": "Last Visit Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monthly_potential",
+   "fieldtype": "Data",
+   "label": "Monthly Potential",
+   "read_only": 1
+  },
+  {
+   "fieldname": "target_quantity",
+   "fieldtype": "Data",
+   "label": "Target Quantity",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_item_ordered",
+   "fieldtype": "Data",
+   "label": "Last Item Ordered",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_33",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "pymt",
+   "fieldtype": "Currency",
+   "label": "Payment Collected"
+  },
+  {
+   "fieldname": "column_break_35",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "label": "Payment Mode",
+   "options": "Mode of Payment"
+  },
+  {
+   "fieldname": "section_break_37",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "customer.primary_cust",
+   "fieldname": "primary_customer",
+   "fieldtype": "Link",
+   "label": "Primary Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_172",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ref_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Cheque/Reference No."
+  },
+  {
+   "fieldname": "ref_date",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": "Cheque/Reference Date"
+  },
+  {
+   "fieldname": "column_break_24",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_statistics_section",
+   "fieldtype": "Section Break",
+   "label": "Sales Person Statistics"
+  },
+  {
+   "fieldname": "target_ach",
+   "fieldtype": "Data",
+   "label": "Target Qty. Achieved",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_32",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "target_amount",
+   "fieldtype": "Data",
+   "label": "Target Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "target_amt_ach",
+   "fieldtype": "Data",
+   "label": "Target Amount Achieved",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mon_po_ach",
+   "fieldtype": "Data",
+   "label": "Monthly Potential Achieved",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2021-10-12 12:06:05.740108",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Beat Visit",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

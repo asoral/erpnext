@@ -1,0 +1,95 @@
+{
+ "actions": [],
+ "creation": "2021-09-09 11:22:09.032989",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sales_person",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Sales Person",
+   "options": "Sales Person",
+   "reqd": 1,
+   "width": "25px"
+  },
+  {
+   "columns": 1,
+   "fieldname": "monday",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Monday",
+   "options": "Territory",
+   "width": "25px"
+  },
+  {
+   "columns": 1,
+   "fieldname": "tuesday",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tuesday",
+   "options": "Territory",
+   "width": "25px"
+  },
+  {
+   "columns": 1,
+   "fieldname": "wednesday",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Wednesday",
+   "options": "Territory",
+   "width": "30px"
+  },
+  {
+   "columns": 1,
+   "fieldname": "thursday",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Thursday",
+   "options": "Territory",
+   "width": "25px"
+  },
+  {
+   "columns": 1,
+   "fieldname": "friday",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Friday",
+   "options": "Territory",
+   "width": "25px"
+  },
+  {
+   "columns": 1,
+   "fieldname": "saturday",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Saturday",
+   "options": "Territory",
+   "width": "25px"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2021-09-13 17:06:42.291835",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Beat Items",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

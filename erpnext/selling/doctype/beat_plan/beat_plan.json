@@ -1,0 +1,157 @@
+{
+ "actions": [],
+ "autoname": "BP-.#####",
+ "creation": "2021-09-15 13:27:07.876700",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "beat_id",
+  "status",
+  "section_break_5",
+  "beat_start_date",
+  "beat_end_date",
+  "column_break_5",
+  "sales_manager",
+  "column_break_7",
+  "territory",
+  "section_break_9",
+  "sales_person",
+  "column_break_11",
+  "working_days",
+  "section_break_13",
+  "vcp",
+  "beat_plan_items",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "beat_id",
+   "fieldtype": "Link",
+   "label": "Beat ID",
+   "options": "Beat"
+  },
+  {
+   "fetch_from": "beat_id.week_start_date",
+   "fieldname": "beat_start_date",
+   "fieldtype": "Date",
+   "label": "Beat Start Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "Sales Person",
+   "options": "Sales Person"
+  },
+  {
+   "fetch_from": "beat_id.sales_manager",
+   "fieldname": "sales_manager",
+   "fieldtype": "Data",
+   "label": "Sales Manager",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "beat_id.territory",
+   "fieldname": "territory",
+   "fieldtype": "Data",
+   "label": "Territory",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "beat_plan_items",
+   "fieldtype": "Table",
+   "label": "Beat Plan Items",
+   "options": "Beat Plan Items"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "beat_id.week_end_date",
+   "fieldname": "beat_end_date",
+   "fieldtype": "Date",
+   "label": "Beat End Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Beat Plan",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "beat_id.working_day",
+   "fieldname": "working_days",
+   "fieldtype": "Data",
+   "label": "Working Days"
+  },
+  {
+   "fieldname": "section_break_13",
+   "fieldtype": "Section Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "Not Started",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Not Started\nPartially Completed\nCompleted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "vcp",
+   "fieldtype": "Percent",
+   "label": "Visit Completion Percentage",
+   "precision": "0",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2021-10-05 14:54:56.669551",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Beat Plan",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "sales_manager,sales_person,territory",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

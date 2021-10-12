@@ -32,6 +32,8 @@
   "disabled",
   "is_internal_customer",
   "represents_company",
+  "is_a_secondary_cust",
+  "primary_cust",
   "allowed_to_transact_section",
   "companies",
   "currency_and_price_list",
@@ -493,6 +495,19 @@
    "fieldtype": "Link",
    "label": "Tax Withholding Category",
    "options": "Tax Withholding Category"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_a_secondary_cust",
+   "fieldtype": "Check",
+   "label": "Is a Secondary Customer"
+  },
+  {
+   "depends_on": "is_a_secondary_cust",
+   "fieldname": "primary_cust",
+   "fieldtype": "Link",
+   "label": "Primary Customer",
+   "options": "Customer"
   }
  ],
  "icon": "fa fa-user",
@@ -500,7 +515,7 @@
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-01-28 12:54:57.258959",
+ "modified": "2021-10-08 13:02:48.977392",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Customer",
