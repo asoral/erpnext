@@ -211,6 +211,40 @@ frappe.ui.form.on('Cost Calculator', {
 					if (r.message) {
 						frm.refresh_field("raw_material_items");
 						frm.refresh_field("scrap_items");
+						frappe.call({
+							method: "calculate_formula",
+							doc:frm.doc,
+							callback: function(r) {
+								if (r.message) {
+									frm.call({
+										method:"calculate_value_raw",
+										doc:frm.doc,
+										callback: function(r) {
+											
+										}
+										
+									});
+									frm.refresh_field("raw_material_items");
+								}
+							}
+						});
+					}
+				}
+			});
+			frappe.call({
+				method: "calculate_formula_scrap_item",
+				doc:frm.doc,
+				callback: function(r) {
+					if (r.message) {
+					frm.call({
+						method:"calculate_value_scrap",
+						doc:frm.doc,
+						callback: function(r) {
+							
+						}
+						
+					});
+					frm.refresh_field("scrap_items");
 					}
 				}
 			});
