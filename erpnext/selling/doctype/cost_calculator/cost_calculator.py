@@ -304,7 +304,7 @@ class CostCalculator(Document):
 				itemvalue.insert(ignore_permissions=True)
 		bom=frappe.get_doc("BOM",self.template_bom)
 		bdoc=frappe.new_doc("BOM")
-		bdoc.cost_calcualtor=self.name
+		bdoc.cost_calculator=self.name
 		bdoc.item=self.variant_item_code
 		bdoc.location=bom.location
 		bdoc.quantity=self.qty
