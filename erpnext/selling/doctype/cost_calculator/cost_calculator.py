@@ -91,9 +91,9 @@ class CostCalculator(Document):
 		itemdoc=frappe.db.sql("""select fieldname from `tabDocField` where parent="Item" """,as_dict=1)
 		itemvalue=frappe.new_doc("Item")
 		itemvalue.variant_of=self.item_code
+		itemvalue.item_code=str(self.item_code)+str(self.cost_calculator)
 		itemvalue.item_group=idoc.item_group
 		itemvalue.stock_uom=idoc.stock_uom
-		itemvalue.scope_of_supply=self.name
 		itemvalue.end_of_life=idoc.end_of_life
 		itemvalue.shelf_life_in_days=idoc.shelf_life_in_days
 		itemvalue.cost_calculator=self.name
