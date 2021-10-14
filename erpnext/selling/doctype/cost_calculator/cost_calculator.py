@@ -91,12 +91,12 @@ class CostCalculator(Document):
 		itemdoc=frappe.db.sql("""select fieldname from `tabDocField` where parent="Item" """,as_dict=1)
 		itemvalue=frappe.new_doc("Item")
 		itemvalue.variant_of=self.item_code
+		itemvalue.cost_calculator=self.name
 		itemvalue.item_code=str(self.item_code)+str(self.name)
 		itemvalue.item_group=idoc.item_group
 		itemvalue.stock_uom=idoc.stock_uom
 		itemvalue.end_of_life=idoc.end_of_life
 		itemvalue.shelf_life_in_days=idoc.shelf_life_in_days
-		itemvalue.cost_calculator=self.name
 		d="{"+str(self.item_attribute)+"}"
 		c=eval(d)
 		for i in c:
@@ -255,19 +255,13 @@ class CostCalculator(Document):
 				itemdoc=frappe.db.sql("""select fieldname from `tabDocField` where parent="Item" """,as_dict=1)
 				itemvalue=frappe.new_doc("Item")
 				itemvalue.variant_of=i.item_code
-				d="{"+str(i.item_attributes)+"}"
-				c=eval(d)
-				a=""
-				for j in c:
-					a+=c[j]+"-"
-				b=a[:-1]
-				itemvalue.item_code=str(idoc.name)+"-"+str(b)
+				itemvalue.cost_calculator=self.name
+				itemvalue.item_code=str(idoc.name)+"-"+str(self.name)
 				itemvalue.item_group=idoc.item_group
 				itemvalue.stock_uom=idoc.stock_uom
 				itemvalue.scope_of_supply=self.name
 				itemvalue.end_of_life=idoc.end_of_life
 				itemvalue.shelf_life_in_days=idoc.shelf_life_in_days
-				itemvalue.cost_calculator=self.name
 				d="{"+str(i.item_attributes)+"}"
 				c=eval(d)
 				for i in c:
@@ -281,7 +275,6 @@ class CostCalculator(Document):
 							op=field.field_name
 							itemvalue.set(op, idoc.get(op))
 				itemvalue.insert(ignore_permissions=True)
-				frappe.db.commit()
 		for i in self.scrap_items:
 			idoc=frappe.get_doc("Item",i.item_code)
 			if idoc.has_variants==1:
@@ -289,19 +282,13 @@ class CostCalculator(Document):
 				itemdoc=frappe.db.sql("""select fieldname from `tabDocField` where parent="Item" """,as_dict=1)
 				itemvalue=frappe.new_doc("Item")
 				itemvalue.variant_of=i.item_code
-				d="{"+str(i.item_attributes)+"}"
-				c=eval(d)
-				a=""
-				for j in c:
-					a+=c[j]+"-"
-				b=a[:-1]
-				itemvalue.item_code=str(idoc.name)+"-"+str(b)
+				itemvalue.item_code=str(idoc.name)+"-"+str(self.name)
 				itemvalue.item_group=idoc.item_group
+				itemvalue.cost_calculator=self.name
 				itemvalue.stock_uom=idoc.stock_uom
 				itemvalue.scope_of_supply=self.name
 				itemvalue.end_of_life=idoc.end_of_life
 				itemvalue.shelf_life_in_days=idoc.shelf_life_in_days
-				itemvalue.cost_calculator=self.name
 				d="{"+str(i.item_attributes)+"}"
 				c=eval(d)
 				for i in c:
@@ -315,7 +302,6 @@ class CostCalculator(Document):
 							op=field.field_name
 							itemvalue.set(op, idoc.get(op))
 				itemvalue.insert(ignore_permissions=True)
-				frappe.db.commit()
 		bom=frappe.get_doc("BOM",self.template_bom)
 		bdoc=frappe.new_doc("BOM")
 		bdoc.cost_calcualtor=self.name
@@ -348,16 +334,10 @@ class CostCalculator(Document):
 		bdoc.inspection_required=bom.inspection_required
 		bdoc.quality_inspection_template=bom.quality_inspection_template
 		for i in self.raw_material_items:
-			d="{"+str(i.item_attributes)+"}"
-			c=eval(d)
-			a=""
-			for j in c:
-				a+=c[j]+"-"
-			b=a[:-1]
 			item=frappe.get_doc("Item",i.item_code)
 			if item.has_variants==1:
 				bdoc.append("items",{
-					"item_code":str(i.item_code)+"-"+str(b),
+					"item_code":str(i.item_code)+"-"+str(self.name),
 					"type":i.type,
 					"operation":i.operation,
 					"bom_no":i.bom_no,
@@ -396,16 +376,10 @@ class CostCalculator(Document):
 
 				})
 		for i in self.scrap_items:
-			d="{"+str(i.item_attributes)+"}"
-			c=eval(d)
-			a=""
-			for j in c:
-				a+=c[j]+"-"
-			b=a[:-1]
 			item=frappe.get_doc("Item",i.item_code)
 			if item.has_variants==1:
 				bdoc.append("scrap_items",{
-					"item_code":str(i.item_code)+"-"+str(b),
+					"item_code":str(i.item_code)+"-"+str(self.name),
 					"is_process_loss":i.is_process_loss,
 					"qty":i.qty,
 					"stock_uom":i.stock_uom,
