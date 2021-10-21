@@ -156,6 +156,7 @@ frappe.ui.form.on("Salary Slip", {
 	},
 
 	refresh: function(frm) {
+		// calculate_over_time(frm)
 		frm.trigger("toggle_fields");
 
 		var salary_detail_fields = ["formula", "abbr", "statistical_component", "variable_based_on_taxable_salary"];
@@ -202,6 +203,7 @@ frappe.ui.form.on("Salary Slip", {
 
 	employee:function(frm) {
 		frm.events.get_emp_and_working_day_details(frm);
+		calculate_over_time(frm,cdt,cdn)
 	},
 
 	leave_without_pay: function(frm) {
@@ -317,3 +319,17 @@ frappe.ui.form.on('Salary Detail', {
 		}
 	}
 });
+function calculate_over_time(frm,cdt,cdn){
+	frappe.call({
+		method: 'get_overtime',
+		doc: frm.doc,
+		callback: function(r) {
+			if(r.message){
+				//frm.refresh();
+				console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>: ", r.message)
+				//frappe.model.set_value(cdt,cdn,"total_overtime",r.message)				
+			}
+			//frm.refresh();
+		}
+	});
+}

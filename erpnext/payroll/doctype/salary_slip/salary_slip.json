@@ -36,6 +36,7 @@
   "column_break_24",
   "absent_days",
   "payment_days",
+  "total_overtime",
   "months_of_service_in_payment_period",
   "hourly_wages",
   "timesheets",
@@ -652,6 +653,17 @@
    "fieldtype": "Currency",
    "label": "Gross Year To Date(Company Currency)",
    "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "posting_date_nepali",
+   "fieldtype": "Data",
+   "label": "Posting Date(Nepali)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_overtime",
+   "fieldtype": "Data",
+   "label": "Total Overtime"
   }
  ],
  "icon": "fa fa-file-text",
