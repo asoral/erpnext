@@ -7,7 +7,6 @@
  "engine": "InnoDB",
  "field_order": [
   "posting_date",
-  "posting_date_nepali",
   "employee",
   "employee_name",
   "department",
@@ -332,7 +331,7 @@
   {
    "fieldname": "earning_deduction",
    "fieldtype": "Section Break",
-   "label": "Earning & Deduction",
+   "label": "Earnings & Deductions",
    "oldfieldtype": "Section Break"
   },
   {
@@ -383,7 +382,7 @@
    "depends_on": "total_loan_repayment",
    "fieldname": "loan_repayment",
    "fieldtype": "Section Break",
-   "label": "Loan repayment"
+   "label": "Loan Repayment"
   },
   {
    "fieldname": "loans",
@@ -428,7 +427,7 @@
   {
    "fieldname": "net_pay_info",
    "fieldtype": "Section Break",
-   "label": "net pay info"
+   "label": "Net Pay Info"
   },
   {
    "fieldname": "net_pay",
@@ -653,19 +652,13 @@
    "fieldtype": "Currency",
    "label": "Gross Year To Date(Company Currency)",
    "options": "Company:company:default_currency"
-  },
-  {
-   "fieldname": "posting_date_nepali",
-   "fieldtype": "Data",
-   "label": "Posting Date(Nepali)",
-   "read_only": 1
   }
  ],
  "icon": "fa fa-file-text",
  "idx": 9,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-01 10:22:52.374549",
+ "modified": "2021-10-08 11:48:47.098248",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Salary Slip",

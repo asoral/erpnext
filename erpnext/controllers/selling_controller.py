@@ -121,7 +121,16 @@ class SellingController(StockController):
 			self.in_words = money_in_words(amount, self.currency)
 
 	def calculate_commission(self):
-		if self.commission_based_on_target_lines==0:
+		if self.doctype !="Quotation":
+			if self.commission_based_on_target_lines==0:
+				if self.meta.get_field("commission_rate"):
+					self.round_floats_in(self, ["base_net_total", "commission_rate"])
+					if self.commission_rate > 100.0:
+						throw(_("Commission rate cannot be greater than 100"))
+
+					self.total_commission = flt(self.base_net_total * self.commission_rate / 100.0,
+						self.precision("total_commission"))
+		else:
 			if self.meta.get_field("commission_rate"):
 				self.round_floats_in(self, ["base_net_total", "commission_rate"])
 				if self.commission_rate > 100.0:
@@ -129,17 +138,18 @@ class SellingController(StockController):
 
 				self.total_commission = flt(self.base_net_total * self.commission_rate / 100.0,
 					self.precision("total_commission"))
-		if self.commission_based_on_target_lines==1: 
-			tot=[]
-			if self.sales_partner:
-				doc=frappe.get_doc("Sales Partner",self.sales_partner)
-				for i in self.items:
-					for j in doc.item_target_details:
-						if i.item_code==j.item_code:
-							if j.commision_formula:
-								data=eval(j.commision_formula)
-								tot.append(data)
-								self.total_commission=sum(tot)			
+		if self.doctype !="Quotation":
+			if self.commission_based_on_target_lines==1: 
+				tot=[]
+				if self.sales_partner:
+					doc=frappe.get_doc("Sales Partner",self.sales_partner)
+					for i in self.items:
+						for j in doc.item_target_details:
+							if i.item_code==j.item_code:
+								if j.commision_formula:
+									data=eval(j.commision_formula)
+									tot.append(data)
+									self.total_commission=sum(tot)			
 
 
 	def calculate_contribution(self):
@@ -437,7 +447,7 @@ class SellingController(StockController):
 					or (cint(self.is_return) and self.docstatus==2)):
 						sl_entries.append(self.get_sle_for_source_warehouse(d))
 
-				if d.target_warehouse and self.get("is_internal_customer"):
+				if d.target_warehouse:
 					sl_entries.append(self.get_sle_for_target_warehouse(d))
 
 				if d.warehouse and ((not cint(self.is_return) and self.docstatus==2)
@@ -571,6 +581,12 @@ class SellingController(StockController):
 				warehouse = frappe.bold(d.get("target_warehouse"))
 				frappe.throw(_("Row {0}: Delivery Warehouse ({1}) and Customer Warehouse ({2}) can not be same")
 					.format(d.idx, warehouse, warehouse))
+
+		if not self.get("is_internal_customer") and any(d.get("target_warehouse") for d in items):
+			msg = _("Target Warehouse is set for some items but the customer is not an internal customer.")
+			msg += " " + _("This {} will be treated as material transfer.").format(_(self.doctype))
+			frappe.msgprint(msg, title="Internal Transfer", alert=True)
+
 
 	def validate_items(self):
 		# validate items to see if they have is_sales_item enabled

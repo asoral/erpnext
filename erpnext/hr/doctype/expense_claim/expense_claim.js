@@ -10,6 +10,26 @@ frappe.ui.form.on('Expense Claim', {
 	},
 	company: function(frm) {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
+		var expenses = frm.doc.expenses;
+		for (var i = 0; i < expenses.length; i++) {
+			var expense = expenses[i];
+			if (!expense.expense_type) {
+				continue;
+			}
+			frappe.call({
+				method: "erpnext.hr.doctype.expense_claim.expense_claim.get_expense_claim_account_and_cost_center",
+				args: {
+					"expense_claim_type": expense.expense_type,
+					"company": frm.doc.company
+				},
+				callback: function(r) {
+					if (r.message) {
+						expense.default_account = r.message.account;
+						expense.cost_center = r.message.cost_center;
+					}
+				}
+			});
+		}
 	},
 });
 
@@ -240,32 +260,6 @@ frappe.ui.form.on("Expense Claim", {
 			frm.add_custom_button(__('Payment'),
 				function() { frm.events.make_payment_entry(frm); }, __('Create'));
 		}
-	},
-	posting_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.posting_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("posting_date_nepal", resp.message)
-				}
-			}
-		})
-	},
-	clearance_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.clearance_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("clearance_date_nepal", resp.message)
-				}
-			}
-		})
 	},
 
 

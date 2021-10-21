@@ -407,9 +407,13 @@ frappe.ui.form.on('Stock Entry', {
 		frm.trigger("setup_quality_inspection");
 		attach_bom_items(frm.doc.bom_no)
 	},
+	before_save: function(frm) {
+		frm.doc.items.forEach((item) => {
+			item.uom = item.uom || item.stock_uom;
+		})
+	},
 
-
-	stock_entry_type: function (frm) {
+	stock_entry_type: function(frm){
 		frm.remove_custom_button('Bill of Materials', "Get Items From");
 		frm.events.show_bom_custom_button(frm);
 		frm.trigger('add_to_transit');
@@ -644,6 +648,7 @@ frappe.ui.form.on('Stock Entry', {
 	calculate_basic_amount: function (frm, item) {
 		item.basic_amount = flt(flt(item.transfer_qty) * flt(item.basic_rate),
 			precision("basic_amount", item));
+		frm.events.calculate_total_additional_costs(frm);
 
 		frm.events.calculate_amount(frm);
 	},
@@ -877,11 +882,6 @@ frappe.ui.form.on('Landed Cost Taxes and Charges', {
 	amount: function (frm, cdt, cdn) {
 		frm.events.set_base_amount(frm, cdt, cdn);
 
-		// Adding this check because same table in used in LCV
-		// This causes an error if you try to post an LCV immediately after a Stock Entry
-		if (frm.doc.doctype == 'Stock Entry') {
-			frm.events.calculate_amount(frm);
-		}
 	},
 
 	expense_account: function (frm, cdt, cdn) {
@@ -971,20 +971,6 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		erpnext.hide_company();
 		erpnext.utils.add_item(this.frm);
 	},
-	posting_date: function (doc) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: doc.posting_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("posting_date_nepali", resp.message)
-				}
-			}
-		})
-	},
-
 	scan_barcode: function () {
 		let transaction_controller = new erpnext.TransactionController({ frm: this.frm });
 		transaction_controller.scan_barcode();

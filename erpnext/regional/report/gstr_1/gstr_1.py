@@ -172,13 +172,6 @@ class Gstr1Report(object):
 		self.invoices = frappe._dict()
 		conditions = self.get_conditions()
 
-		company_gstins = get_company_gstin_number(self.filters.get('company'), all_gstins=True)
-
-		if company_gstins:
-			self.filters.update({
-				'company_gstins': company_gstins
-			})
-
 		invoice_data = frappe.db.sql("""
 			select
 				{select_columns}
@@ -204,13 +197,21 @@ class Gstr1Report(object):
 
 	def get_conditions(self):
 		conditions = ""
-
+		agroup = self.filters.get("address_group")
+		add_data = frappe.get_list('Address Group Item', filters={'parent':agroup},fields='*')
+		add_lst =[]
+		for a in add_data:
+			if a.address:
+				add_lst.append(a.address)
+		add_lst.append(" ")
 		for opts in (("company", " and company=%(company)s"),
 			("from_date", " and posting_date>=%(from_date)s"),
 			("to_date", " and posting_date<=%(to_date)s"),
-			("company_address", " and company_address=%(company_address)s")):
+			("company_address", " and company_address=%(company_address)s"),
+			("address_group", " and company_address in {0}".format(tuple(add_lst)))):
 				if self.filters.get(opts[0]):
 					conditions += opts[1]
+					# print(";dfj self filter 214", opts,"== opts1-- ", opts[1], "-  opts[0]  -",opts[0])
 
 
 		if self.filters.get("type_of_business") ==  "B2B":
@@ -242,8 +243,9 @@ class Gstr1Report(object):
 		elif self.filters.get("type_of_business") ==  "EXPORT":
 			conditions += """ AND is_return !=1 and gst_category = 'Overseas' """
 
-		conditions += " AND IFNULL(billing_address_gstin, '') NOT IN %(company_gstins)s"
+		conditions += " AND IFNULL(billing_address_gstin, '') != company_gstin"
 
+		# print("Ciodnutinb  ======",conditions)
 		return conditions
 
 	def get_invoice_items(self):
