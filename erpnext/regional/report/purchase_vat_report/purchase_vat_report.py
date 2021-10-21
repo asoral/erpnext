@@ -51,11 +51,11 @@ def get_columns(filters):
 			# 	"width": 50
 			# },
 			{
-				"label": _("Invoices No/ PP No"),
+				"label": _("Invoices No"),
 				"fieldname": 'invoice_no',
 				"fieldtype": "Link",
 				"options": "Purchase Invoice",
-				"width": 100
+				"width": 180
 			},
 			{
 				"label": _("Supplier Name"),
@@ -94,12 +94,18 @@ def get_columns(filters):
 				"fieldtype": "float",
 				"width": 100
 			},
-			# {
-			# 	"label": _("Import Country"),
-			# 	"fieldname": 'country',
-			# 	"fieldtype": "data",
-			# 	"width": 100
-			# },
+			{
+				"label": _("Country"),
+				"fieldname": 'country',
+				"fieldtype": "data",
+				"width": 100
+			},
+			{
+				"label": _("Is Service"),
+				"fieldname": 'is_service',
+				"fieldtype": "check",
+				"width": 100
+			},
 
 			{
 				"label": _("Taxable Purchase"),
@@ -158,7 +164,7 @@ def get_condition(filters):
 
 def get_data(filters):
 	conditions = get_condition(filters)	
-
+	head = "Vat claim due"
 	doc = frappe.db.sql("""
 		Select 
 		pi.company,
@@ -168,9 +174,10 @@ def get_data(filters):
 		pi.name as invoice_no,
 		pi.supplier_name,
 		s.pan as supplier_pan_no,
+		pi.is_import_services as is_service,
 
 		CASE 
-		WHEN abs(pi.total) >= 0 THEN
+		WHEN pi.total >= 0 THEN
 		(SELECT pii.item_name from `tabPurchase Invoice Item` as pii  
 		Left join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
 		where pd.posting_date = pi.posting_date 
@@ -186,7 +193,7 @@ def get_data(filters):
 		pi.country,
 		
 		CASE  
-		WHEN pai.is_fixed_asset = 0 and pi.exempted_from_tax = 0 THEN
+		WHEN pi.country = "Nepal" and pii.is_fixed_asset = 0 and pi.exempted_from_tax = 0 THEN
 		(select sum(pii.amount) from `tabPurchase Invoice Item` as pii  
 		Left join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
 		where pd.posting_date = pi.posting_date 
@@ -198,8 +205,8 @@ def get_data(filters):
 		END as taxable_purchase,
 
 		CASE  
-		WHEN pai.is_fixed_asset = 0 and pi.exempted_from_tax = 0 THEN
-		(select abs(sum(pii.amount)*13/100) from `tabPurchase Invoice Item` as pii  
+		WHEN pi.country = "Nepal" and pii.is_fixed_asset = 0 and pi.exempted_from_tax = 0 THEN
+		(select ROUND(sum(pii.amount)*13/100) from `tabPurchase Invoice Item` as pii  
 		Left join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
 		where pd.posting_date = pi.posting_date 
 		and pii.is_fixed_asset = 0 
@@ -211,50 +218,73 @@ def get_data(filters):
 		END as local_tax,
 
 		CASE  
-		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0 and pai.is_fixed_asset = 0 THEN	
-		(select sum(pii.amount) from `tabPurchase Invoice Item` as pii  
-		inner join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
-		where pd.posting_date = pi.posting_date 
-		and pii.is_fixed_asset = 0 
+		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0 
+		and pii.is_fixed_asset = 0 and pi.is_import_services = 0
+		THEN	
+		(select je.custom_valuation_amount from `tabJournal Entry` as je
+		Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
+		where pd.docstatus = 1
+        and voucher_type = "Import Purchase"
 		and pd.name = pi.name
-		and pd.docstatus=1)
+		LIMIT 1)
+  
+		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0
+		and pii.is_fixed_asset = 0 and pi.is_import_services = 1
+		THEN	
+		(Select pd.total from `tabPurchase Invoice` pd 
+		where pd.name = pi.name)
 
 		ELSE 0	
 		END as taxable_import,
 
 		CASE  
-		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0 and pai.is_fixed_asset = 0 THEN	
-		(select sum(pii.amount)*13/100 from `tabPurchase Invoice Item` as pii  
-		inner join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
-		where pd.posting_date = pi.posting_date 
-		and pii.is_fixed_asset = 0 
+		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0 
+		and pii.is_fixed_asset = 0 and pi.is_import_services = 0
+		THEN	
+		(select  ROUND((je.custom_valuation_amount)*13/100) from `tabJournal Entry` as je
+		Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
+		where pd.docstatus = 1
+        and voucher_type = "Import Purchase"
 		and pd.name = pi.name
-		and pd.docstatus=1)
+		LIMIT 1)
+
+		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0
+		and pii.is_fixed_asset = 0 and pi.is_import_services = 1
+		THEN	
+		(Select ptc.total from `tabPurchase Taxes and Charges` as ptc
+		Inner Join  `tabPurchase Invoice` as pd on pd.name = ptc.parent 
+		where pd.docstatus =1
+		and pd.name = pi.name		
+		and ptc.account_head = "Vat claim due - CTHPL" OR ptc.account_head = "Vat claim due - SLPL"
+ 	  	Order by pd.docstatus desc
+		limit 1)
 
 		ELSE 0
 		END as import_tax,
 	
 		CASE  
-		WHEN pi.exempted_from_tax = 0 and pai.is_fixed_asset = 1 THEN
+		WHEN pi.country = "Nepal" and pi.exempted_from_tax = 0 and pii.is_fixed_asset = 1 THEN
 		(select sum(pii.amount) from `tabPurchase Invoice Item` as pii  
 		inner join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
 		where pd.posting_date = pi.posting_date 
 		and pd.name = pi.name
 		and pii.is_fixed_asset = 1 
-		and pd.docstatus=1)
+		and pd.docstatus=1
+		LIMIT 1 )
 		
 		Else 0
 		END as capital_purchase,
 
 		
 		CASE  
-		WHEN pi.exempted_from_tax = 0 and pai.is_fixed_asset = 1  THEN
-		(select sum(pii.amount)*13/100 from `tabPurchase Invoice Item` as pii  
+		WHEN pi.country = "Nepal" and pi.exempted_from_tax = 0 and pii.is_fixed_asset = 1  THEN
+		(select ROUND((sum(pii.amount))*13/100) from `tabPurchase Invoice Item` as pii  
 		inner join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
 		where pd.posting_date = pi.posting_date 
 		and pd.name = pi.name
 		and pii.is_fixed_asset = 1 
-		and pd.docstatus=1)
+		and pd.docstatus=1
+		LIMIT 1)
 
 		ELSE 0
 		END as capital_tax,
@@ -265,8 +295,8 @@ def get_data(filters):
 		from `tabPurchase Invoice` as pi
 		left join `tabSupplier` as s
 		on s.name = pi.supplier
-		left join `tabPurchase Invoice Item` as pai
-		on pai.parent = pi.name		
+		left join `tabPurchase Invoice Item` as pii
+		on pii.parent = pi.name		
 
 		where pi.docstatus=1 {conditions}
 
@@ -293,3 +323,16 @@ def get_data(filters):
 
 	# print(doc)
 	return doc
+
+# Old column K Taxable Import
+	CASE  
+		# WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0 and pii.is_fixed_asset = 0 THEN	
+		# (select sum(pii.amount) from `tabPurchase Invoice Item` as pii  
+		# inner join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
+		# where pd.posting_date = pi.posting_date 
+		# and pii.is_fixed_asset = 0 
+		# and pd.name = pi.name
+		# and pd.docstatus=1)
+
+		# ELSE 0	
+		# END as taxable_import,
