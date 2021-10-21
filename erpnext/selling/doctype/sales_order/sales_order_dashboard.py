@@ -12,7 +12,8 @@ def get_data():
 			'Payment Entry': 'reference_name',
 			'Payment Request': 'reference_name',
 			'Auto Repeat': 'reference_document',
-			'Maintenance Visit': 'prevdoc_docname'
+			'Maintenance Visit': 'prevdoc_docname',
+			'Container':'order_no'
 		},
 		'internal_links': {
 			'Quotation': ['items', 'prevdoc_docname']
@@ -20,7 +21,7 @@ def get_data():
 		'transactions': [
 			{
 				'label': _('Fulfillment'),
-				'items': ['Sales Invoice', 'Pick List', 'Delivery Note', 'Maintenance Visit']
+				'items': ['Sales Invoice', 'Pick List', 'Delivery Note', 'Maintenance Visit',"Container"]
 			},
 			{
 				'label': _('Purchasing'),
@@ -41,6 +42,10 @@ def get_data():
 			{
 				'label': _('Payment'),
 				'items': ['Payment Entry', 'Payment Request', 'Journal Entry']
+			},
+			{
+				'label': _('Export Import'),
+				'items': ['Container']
 			},
 		]
 	}

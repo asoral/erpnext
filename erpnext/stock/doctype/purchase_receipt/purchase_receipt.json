@@ -132,7 +132,8 @@
   "transporter_name",
   "column_break5",
   "lr_no",
-  "lr_date"
+  "lr_date",
+  "container"
  ],
  "fields": [
   {
@@ -1145,13 +1146,19 @@
    "label": "Represents Company",
    "options": "Company",
    "read_only": 1
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Link",
+   "label": "Container",
+   "options": "Container"
   }
  ],
  "icon": "fa fa-truck",
  "idx": 261,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-28 13:11:10.181328",
+ "modified": "2021-10-20 15:13:25.822594",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Purchase Receipt",

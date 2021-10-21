@@ -1,0 +1,394 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2021-10-12 21:14:28.154765",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "import_type",
+  "ventures_section",
+  "ventures_list",
+  "section_break_5",
+  "weight_percentage",
+  "column_break_6",
+  "cbm_percentage",
+  "general_info_section",
+  "container",
+  "shipping_company",
+  "status",
+  "date_in_transit",
+  "warehouse_received_date",
+  "warehouse",
+  "eta",
+  "vessel_name",
+  "etd",
+  "freight_carrier",
+  "column_break_13",
+  "automatic_tracking",
+  "vizion_reference",
+  "vizion_reference_date_created",
+  "description",
+  "container_type",
+  "custom_status",
+  "fda_status",
+  "import_entry_number",
+  "import_entry_date",
+  "vender_invoice_number",
+  "lc_number",
+  "destination",
+  "port_of_origin",
+  "trans_shipment_info_section",
+  "arrival_port",
+  "vessel",
+  "voyage_number",
+  "bl_number",
+  "bl_date",
+  "links_section",
+  "custom_house_broker",
+  "associate_delivery",
+  "container_estimates_section",
+  "oceanair_freight",
+  "cargo_insurance",
+  "customs_broker_fee",
+  "incidentalmisc",
+  "column_break_42",
+  "drayage",
+  "warehousing",
+  "bank_charge",
+  "finance_charge",
+  "container_against",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_info_section",
+   "fieldtype": "Section Break",
+   "label": "General Info"
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Container"
+  },
+  {
+   "fieldname": "shipping_company",
+   "fieldtype": "Link",
+   "label": "Shipping Company",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "At Source\nIn Transit\nMoved To Warehouse",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_in_transit",
+   "fieldtype": "Date",
+   "label": "Date In Transit"
+  },
+  {
+   "fieldname": "warehouse_received_date",
+   "fieldtype": "Date",
+   "label": "Warehouse Received Date"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "voyage_number",
+   "fieldtype": "Data",
+   "label": "Voyage Number"
+  },
+  {
+   "fieldname": "vessel_name",
+   "fieldtype": "Data",
+   "label": "Vessel Name"
+  },
+  {
+   "fieldname": "eta",
+   "fieldtype": "Date",
+   "label": "ETA"
+  },
+  {
+   "fieldname": "etd",
+   "fieldtype": "Date",
+   "label": "ETD"
+  },
+  {
+   "fieldname": "freight_carrier",
+   "fieldtype": "Data",
+   "label": "Freight Carrier"
+  },
+  {
+   "fieldname": "arrival_port",
+   "fieldtype": "Link",
+   "label": "Arrival Port",
+   "options": "Port",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bl_number",
+   "fieldtype": "Data",
+   "label": "B/L Number"
+  },
+  {
+   "default": "0",
+   "fieldname": "automatic_tracking",
+   "fieldtype": "Check",
+   "label": "Automatic Tracking"
+  },
+  {
+   "fieldname": "vizion_reference",
+   "fieldtype": "Data",
+   "label": "Vizion Reference"
+  },
+  {
+   "fieldname": "vizion_reference_date_created",
+   "fieldtype": "Date",
+   "label": "Vizion Reference Date Created"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "container_type",
+   "fieldtype": "Link",
+   "label": "Container Type",
+   "options": "Container Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Container",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "custom_status",
+   "fieldtype": "Data",
+   "label": "Custom Status"
+  },
+  {
+   "fieldname": "fda_status",
+   "fieldtype": "Data",
+   "label": "FDA Status"
+  },
+  {
+   "fieldname": "import_entry_number",
+   "fieldtype": "Data",
+   "label": "Import Entry Number"
+  },
+  {
+   "fieldname": "import_entry_date",
+   "fieldtype": "Date",
+   "label": "Import Entry Date"
+  },
+  {
+   "fieldname": "vender_invoice_number",
+   "fieldtype": "Data",
+   "label": "Vender Invoice Number"
+  },
+  {
+   "fieldname": "lc_number",
+   "fieldtype": "Data",
+   "label": "LC Number"
+  },
+  {
+   "fieldname": "destination",
+   "fieldtype": "Link",
+   "label": "Destination",
+   "options": "Port",
+   "reqd": 1
+  },
+  {
+   "fieldname": "port_of_origin",
+   "fieldtype": "Link",
+   "label": "Port Of Origin",
+   "options": "Port",
+   "reqd": 1
+  },
+  {
+   "fieldname": "trans_shipment_info_section",
+   "fieldtype": "Section Break",
+   "label": "Trans Shipment Info"
+  },
+  {
+   "fieldname": "vessel",
+   "fieldtype": "Data",
+   "label": "Vessel"
+  },
+  {
+   "fieldname": "ventures_section",
+   "fieldtype": "Section Break",
+   "label": "Ventures"
+  },
+  {
+   "fieldname": "bl_date",
+   "fieldtype": "Date",
+   "label": "B/L Date"
+  },
+  {
+   "fieldname": "links_section",
+   "fieldtype": "Section Break",
+   "label": "Links"
+  },
+  {
+   "fieldname": "custom_house_broker",
+   "fieldtype": "Link",
+   "label": "Custom House Broker",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "associate_delivery",
+   "fieldtype": "Data",
+   "label": "Associate Delivery"
+  },
+  {
+   "fieldname": "container_estimates_section",
+   "fieldtype": "Section Break",
+   "label": "Container Estimates"
+  },
+  {
+   "fieldname": "oceanair_freight",
+   "fieldtype": "Currency",
+   "label": "Ocean/Air Freight"
+  },
+  {
+   "fieldname": "cargo_insurance",
+   "fieldtype": "Currency",
+   "label": "Cargo Insurance"
+  },
+  {
+   "fieldname": "customs_broker_fee",
+   "fieldtype": "Currency",
+   "label": "Customs Broker Fee"
+  },
+  {
+   "fieldname": "incidentalmisc",
+   "fieldtype": "Currency",
+   "label": "Incidental/Misc"
+  },
+  {
+   "fieldname": "drayage",
+   "fieldtype": "Currency",
+   "label": "Drayage"
+  },
+  {
+   "fieldname": "warehousing",
+   "fieldtype": "Currency",
+   "label": "Warehousing"
+  },
+  {
+   "fieldname": "bank_charge",
+   "fieldtype": "Currency",
+   "label": "Bank Charge"
+  },
+  {
+   "fieldname": "finance_charge",
+   "fieldtype": "Currency",
+   "label": "Finance Charge"
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_42",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ventures_list",
+   "fieldtype": "Table",
+   "label": "Ventures List",
+   "options": "Ventures",
+   "reqd": 1
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "CAN.YYYY.####"
+  },
+  {
+   "fieldname": "container_against",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Container Against",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "import_type",
+   "fieldtype": "Select",
+   "label": "Import Type",
+   "options": "Incoming\nOutgoing",
+   "reqd": 1
+  },
+  {
+   "fieldname": "weight_percentage",
+   "fieldtype": "Percent",
+   "label": "Weight Percentage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cbm_percentage",
+   "fieldtype": "Percent",
+   "label": "CBM Percentage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_5",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2021-10-19 23:48:37.023603",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Container",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "set_user_permissions": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

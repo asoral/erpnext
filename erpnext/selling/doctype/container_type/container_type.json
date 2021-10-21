@@ -1,0 +1,100 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "container_name",
+ "creation": "2021-10-13 12:25:24.043382",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "container_name",
+  "active",
+  "internal_length",
+  "internal_width",
+  "internal_height",
+  "column_break_6",
+  "tare_weight",
+  "max_allowed_weight",
+  "max_cbm",
+  "uom"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "fieldname": "tare_weight",
+   "fieldtype": "Float",
+   "label": "Tare Weight"
+  },
+  {
+   "fieldname": "max_allowed_weight",
+   "fieldtype": "Float",
+   "label": "Max Allowed Weight"
+  },
+  {
+   "fieldname": "max_cbm",
+   "fieldtype": "Float",
+   "label": "Max CBM"
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "internal_length",
+   "fieldtype": "Float",
+   "label": "Internal Length"
+  },
+  {
+   "fieldname": "internal_width",
+   "fieldtype": "Float",
+   "label": "internal Width"
+  },
+  {
+   "fieldname": "internal_height",
+   "fieldtype": "Float",
+   "label": "Internal Height"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "container_name",
+   "fieldtype": "Data",
+   "label": "Container Name"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-10-19 11:09:29.507534",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Container Type",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "container_name",
+ "track_changes": 1
+}

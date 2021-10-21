@@ -380,6 +380,34 @@ class SalesOrder(SellingController):
 			self.indicator_title = _("Paid")
 
 	@frappe.whitelist()
+	def create_container(self):
+		doc=frappe.new_doc("Container")
+		doc.container_against=self.doctype
+		for k in self.items:
+			doc.append("ventures_list",{
+				
+				"venture":str(self.name)+"*"+str(k.idx),
+				"venture_to":"Customer",
+				"venture_id":self.customer,
+				"order_to":"Sales Order",
+				"order_no":self.name,
+				"product":k.item_code,
+				"qty_ordered":k.projected_qty,
+				"venture_qty":k.qty-k.delivered_qty,
+				"total_cbm":k.total_cbm,
+				"total_weight":k.total_weight,
+				"total_pallets":k.total_pallet,
+				"warehouse":k.warehouse
+
+			})
+		doc.insert(ignore_mandatory=True,ignore_permissions=True)
+
+		doc.container=doc.name
+		doc.save(ignore_permissions=True)
+
+		return True
+
+	@frappe.whitelist()
 	def get_commision(self):
 		tot=[]
 		if self.sales_partner:
@@ -576,6 +604,34 @@ def make_project(source_name, target_doc=None):
 	}, target_doc, postprocess)
 
 	return doc
+
+@frappe.whitelist()
+def get_container_item(name,a,container):
+	con="["+str(container)+"]"
+	con=eval(con)
+	for i in con:
+		doc=frappe.get_doc("Container",i.get("container"))
+		sidoc=frappe.get_doc("Sales Order Item",name)
+		sdoc=frappe.get_doc("Sales Order",sidoc.parent)
+		doc.append("ventures_list",{
+			"venture":str(sdoc.name)+"*"+str(sidoc.idx),
+			"venture_to":"Customer",
+			"venture_id":sdoc.customer,
+			"order_to":"Sales Order",
+			"order_no":sdoc.name,
+			"product":sidoc.item_code,
+			"qty_ordered":sidoc.projected_qty,
+			"venture_qty":sidoc.qty-sidoc.delivered_qty,
+			"total_cbm":sidoc.total_cbm,
+			"total_weight":sidoc.total_weight,
+			"total_pallets":sidoc.total_pallet,
+			"warehouse":sidoc.warehouse
+
+		})
+		doc.insert(ignore_mandatory=True,ignore_permissions=True)
+	return True
+
+		
 
 @frappe.whitelist()
 def make_delivery_note(source_name, target_doc=None, skip_item_mapping=False):

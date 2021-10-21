@@ -331,6 +331,32 @@ class PurchaseOrder(BuyingController):
 			so.set_status(update=True)
 			so.notify_update()
 
+	@frappe.whitelist()
+	def create_container(self):
+		doc=frappe.new_doc("Container")
+		doc.container_against=self.doctype
+		for k in self.items:
+			doc.append("ventures_list",{
+				
+				"venture":str(self.name)+"*"+str(k.idx),
+				"venture_to":"Customer",
+				"venture_id":self.customer,
+				"product":k.item_code,
+				"order_to":"Purchase Order",
+				"order_no":self.name,
+				"qty_ordered":k.actual_qty,
+				"venture_qty":k.qty-k.received_qty,
+				"total_cbm":k.total_cbm,
+				"total_weight":k.total_weight,
+				"total_pallets":k.total_pallet,
+				"warehouse":k.warehouse
+
+			})
+		doc.insert(ignore_mandatory=True,ignore_permissions=True)
+		doc.container=doc.name
+		
+		return True
+
 	def has_drop_ship_item(self):
 		return any(d.delivered_by_supplier for d in self.items)
 
@@ -502,6 +528,33 @@ def get_mapped_purchase_invoice(source_name, target_doc=None, ignore_permissions
 		target_doc, postprocess, ignore_permissions=ignore_permissions)
 
 	return doc
+
+@frappe.whitelist()
+def get_container_item(name,a,container):
+	con="["+str(container)+"]"
+	con=eval(con)
+	for i in con:
+		doc=frappe.get_doc("Container",i.get("container"))
+		sidoc=frappe.get_doc("Purchase Order Item",name)
+		sdoc=frappe.get_doc("Purchase Order",sidoc.parent)
+		doc.append("ventures_list",{
+			"venture":str(sdoc.name)+"*"+str(sidoc.idx),
+			"venture_to":"Supplier",
+			"venture_id":sdoc.supplier,
+			"order_to":"Purchase Order",
+			"order_no":sdoc.name,
+			"product":sidoc.item_code,
+			"qty_ordered":sidoc.actual_qty,
+			"venture_qty":sidoc.qty-sidoc.received_qty,
+			"total_cbm":sidoc.total_cbm,
+			"total_weight":sidoc.total_weight,
+			"total_pallets":sidoc.total_pallet,
+			"warehouse":sidoc.warehouse
+
+		})
+		doc.save(ignore_permissions=True)
+		# doc.insert(ignore_mandatory=True,ignore_permissions=True)
+	return True
 
 @frappe.whitelist()
 def make_rm_stock_entry(purchase_order, rm_items):

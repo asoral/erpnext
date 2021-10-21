@@ -9,7 +9,8 @@ def get_data():
 		'non_standard_fieldnames': {
 			'Journal Entry': 'reference_name',
 			'Payment Entry': 'reference_name',
-			'Auto Repeat': 'reference_document'
+			'Auto Repeat': 'reference_document',
+			'Container':'order_no'
 		},
 		'internal_links': {
 			'Material Request': ['items', 'material_request'],
@@ -32,6 +33,10 @@ def get_data():
 			{
 				'label': _('Sub-contracting'),
 				'items': ['Stock Entry']
+			},
+			{
+				'label': _('Export Import'),
+				'items': ['Container']
 			},
 		]
 	}

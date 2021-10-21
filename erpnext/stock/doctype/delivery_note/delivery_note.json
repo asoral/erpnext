@@ -150,7 +150,8 @@
   "total_commission",
   "section_break1",
   "sales_team",
-  "related_delivery_planning"
+  "related_delivery_planning",
+  "container"
  ],
  "fields": [
   {
@@ -1324,13 +1325,19 @@
    "hidden": 1,
    "label": "Commission Based on Target Lines",
    "read_only": 1
+  },
+  {
+   "fieldname": "container",
+   "fieldtype": "Link",
+   "label": "Container",
+   "options": "Container"
   }
  ],
  "icon": "fa fa-truck",
  "idx": 146,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-28 13:10:09.761714",
+ "modified": "2021-10-20 14:49:17.435186",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Delivery Note",

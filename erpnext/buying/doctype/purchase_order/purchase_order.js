@@ -57,6 +57,24 @@ frappe.ui.form.on("Purchase Order", {
 
 	refresh: function(frm) {
 		frm.trigger('get_materials_from_supplier');
+		
+		if(frm.doc.docstatus==1){
+			cur_frm.add_custom_button(__('Create Container'), function() { 
+				frm.call({
+					method:"create_container",
+					doc:frm.doc,
+					callback: function(r) {
+						if(r.message){
+							frappe.msgprint("Container Created")
+						}
+						
+					}
+					
+				});
+				
+	
+		}, __('Create'))
+		}
 	},
 
 	get_materials_from_supplier: function(frm) {
@@ -99,6 +117,14 @@ frappe.ui.form.on("Purchase Order Item", {
 				set_schedule_date(frm);
 			}
 		}
+	},
+	qty:function(frm,cdt,cdn){
+		var row = locals[cdt][cdn];
+		frappe.db.get_doc("Item",row.item_code).then(e  => {
+			row.total_cbm=row.qty/e.unit_per_carton*e.cbm_per_carton
+			row.total_pallet=(row.qty/e.unit_per_carton)/e.cartons_per_pallet
+			refresh_field("items")
+		})
 	},
 });
 

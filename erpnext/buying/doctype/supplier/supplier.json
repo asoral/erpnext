@@ -19,6 +19,7 @@
   "tax_category",
   "tax_withholding_category",
   "is_transporter",
+  "broker",
   "is_internal_supplier",
   "represents_company",
   "image",
@@ -426,6 +427,12 @@
    "fieldtype": "Link",
    "label": "Supplier Primary Address",
    "options": "Address"
+  },
+  {
+   "default": "0",
+   "fieldname": "broker",
+   "fieldtype": "Check",
+   "label": "Is Broker"
   }
  ],
  "icon": "fa fa-user",
@@ -433,12 +440,12 @@
  "image_field": "image",
  "links": [
   {
-   "group": "Allowed Items",
-   "link_doctype": "Party Specific Item",
-   "link_fieldname": "party"
+   "group": "Item Group",
+   "link_doctype": "Supplier Item Group",
+   "link_fieldname": "supplier"
   }
  ],
- "modified": "2021-09-06 17:37:56.522233",
+ "modified": "2021-10-13 12:48:41.115845",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Supplier",

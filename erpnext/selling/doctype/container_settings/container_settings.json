@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2021-10-19 15:31:54.929190",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "oceanair_freight",
+  "cargo_insurance",
+  "customs_broker_fee",
+  "incidentalmisc",
+  "drayage",
+  "warehousing",
+  "bank_charge",
+  "finance_charge"
+ ],
+ "fields": [
+  {
+   "fieldname": "oceanair_freight",
+   "fieldtype": "Link",
+   "label": "Ocean/Air Freight",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cargo_insurance",
+   "fieldtype": "Link",
+   "label": "Cargo Insurance",
+   "options": "Account"
+  },
+  {
+   "fieldname": "customs_broker_fee",
+   "fieldtype": "Link",
+   "label": "Customs Broker Fee",
+   "options": "Account"
+  },
+  {
+   "fieldname": "incidentalmisc",
+   "fieldtype": "Link",
+   "label": "Incidental/Misc",
+   "options": "Account"
+  },
+  {
+   "fieldname": "drayage",
+   "fieldtype": "Link",
+   "label": "Drayage",
+   "options": "Account"
+  },
+  {
+   "fieldname": "warehousing",
+   "fieldtype": "Link",
+   "label": "Warehousing",
+   "options": "Account"
+  },
+  {
+   "fieldname": "bank_charge",
+   "fieldtype": "Link",
+   "label": "Bank Charge",
+   "options": "Account"
+  },
+  {
+   "fieldname": "finance_charge",
+   "fieldtype": "Link",
+   "label": "Finance Charge",
+   "options": "Account"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "remember_last_selected_value": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2021-10-20 17:43:14.014751",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Container Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

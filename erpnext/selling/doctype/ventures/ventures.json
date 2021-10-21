@@ -1,0 +1,128 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2021-10-13 13:35:06.112469",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "venture",
+  "venture_to",
+  "venture_id",
+  "order_to",
+  "order_no",
+  "warehouse",
+  "product",
+  "product_name",
+  "qty_ordered",
+  "venture_qty",
+  "total_cbm",
+  "total_weight",
+  "total_pallets"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "venture",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Venture"
+  },
+  {
+   "fieldname": "venture_to",
+   "fieldtype": "Link",
+   "label": "Venture To",
+   "options": "DocType"
+  },
+  {
+   "columns": 2,
+   "fieldname": "venture_id",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Partner",
+   "options": "venture_to"
+  },
+  {
+   "columns": 2,
+   "fieldname": "product",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Product ID",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "product.item_name",
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Name",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty_ordered",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Projected Qty",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "venture_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Venture Qty"
+  },
+  {
+   "fieldname": "total_cbm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total CBM"
+  },
+  {
+   "fieldname": "total_weight",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total Weight"
+  },
+  {
+   "fieldname": "total_pallets",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Total Pallets"
+  },
+  {
+   "fieldname": "order_to",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Order To",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "order_no",
+   "fieldtype": "Dynamic Link",
+   "label": "Order No",
+   "options": "order_to",
+   "read_only": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Delivery Warehouse",
+   "options": "Warehouse"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2021-10-20 12:34:40.158317",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Ventures",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

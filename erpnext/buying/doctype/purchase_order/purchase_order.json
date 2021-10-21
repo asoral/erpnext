@@ -43,6 +43,7 @@
   "shipping_address_display",
   "billing_address",
   "billing_address_display",
+  "port",
   "currency_and_price_list",
   "currency",
   "conversion_rate",
@@ -1147,13 +1148,19 @@
    "fieldtype": "Link",
    "label": "Tax Withholding Category",
    "options": "Tax Withholding Category"
+  },
+  {
+   "fieldname": "port",
+   "fieldtype": "Link",
+   "label": "Port",
+   "options": "Port"
   }
  ],
  "icon": "fa fa-file-text",
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-28 13:10:47.955401",
+ "modified": "2021-10-20 16:43:40.616673",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

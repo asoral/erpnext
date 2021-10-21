@@ -22,6 +22,43 @@ frappe.ui.form.on("Item", {
 		}
 	},
 
+	length_per_carton:function(frm){
+		const lengthm=frm.doc.length_per_carton*0.0254
+		console.log(frm.doc.length_per_carton)
+		const lengthf=frm.doc.legth_per_carton*0.0833333
+		const widthm=frm.doc.width_per_carton*0.0254
+		const widthf=frm.doc.width_per_carton*0.0833333
+		const heightm=frm.doc.height_per_carton*0.0254
+		const heightf=frm.doc.height_per_carton*0.0833333
+		frm.doc.cbm_per_carton=lengthm*widthm*heightm
+		frm.doc.cbf_per_carton=lengthf*widthf*heightf
+		refresh_field("cbm_per_carton")
+		refresh_field("cbf_per_carton")
+	},
+	width_per_carton:function(frm){
+		const lengthm=frm.doc.length_per_carton*0.0254
+		const lengthf=frm.doc.length_per_carton*0.0833333
+		const widthm=frm.doc.width_per_carton*0.0254
+		const widthf=frm.doc.width_per_carton*0.0833333
+		const heightm=frm.doc.height_per_carton*0.0254
+		const heightf=frm.doc.height_per_carton*0.0833333
+		frm.doc.cbm_per_carton=lengthm*widthm*heightm
+		frm.doc.cbf_per_carton=lengthf*widthf*heightf
+		refresh_field("cbm_per_carton")
+		refresh_field("cbf_per_carton")
+	},
+	height_per_carton:function(frm){
+		const lengthm=frm.doc.length_per_carton*0.0254
+		const lengthf=frm.doc.length_per_carton*0.0833333
+		const widthm=frm.doc.width_per_carton*0.0254
+		const widthf=frm.doc.width_per_carton*0.0833333
+		const heightm=frm.doc.height_per_carton*0.0254
+		const heightf=frm.doc.height_per_carton*0.0833333
+		frm.doc.cbm_per_carton=lengthm*widthm*heightm
+		frm.doc.cbf_per_carton=lengthf*widthf*heightf
+		refresh_field("cbm_per_carton")
+		refresh_field("cbf_per_carton")
+	},
 	refresh: function(frm) {
 		if (frm.doc.include_item_in_manufacturing === 1) {
 			frm.set_df_property("bom_item_type", "reqd", 1)
@@ -162,7 +199,6 @@ frappe.ui.form.on("Item", {
 	is_customer_provided_item: function(frm) {
 		frm.toggle_reqd('customer', frm.doc.is_customer_provided_item ? 1:0);
 	},
-
 	is_fixed_asset: function(frm) {
 		// set serial no to false & toggles its visibility
 		frm.set_value('has_serial_no', 0);
