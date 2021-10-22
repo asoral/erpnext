@@ -11,7 +11,6 @@ from frappe.model.naming import set_name_from_naming_options
 from frappe.utils import flt, fmt_money
 from six import iteritems
 import datetime
-import nepali_datetime
 from datetime import timedelta
 
 import erpnext
@@ -50,8 +49,7 @@ class GLEntry(Document):
 			self.validate_party()
 			self.validate_currency()
 		company = frappe.db.get_single_value("System Settings",'country')
-		if company == 'Nepal':
-			self.set_nepali_date()
+		
 
 	def on_update(self):
 		adv_adj = self.flags.adv_adj
@@ -103,11 +101,7 @@ class GLEntry(Document):
 					self.voucher_type)
 
 				frappe.throw(msg, title=_("Missing Cost Center"))
-	def set_nepali_date(self):
-		from erpnext.nepali_date import get_converted_date
-		if self.posting_date:
-			nepali_date = get_converted_date(self.posting_date)
-			self.posting_datenepali = nepali_date
+	
 	def validate_dimensions_for_pl_and_bs(self):
 		account_type = frappe.db.get_value("Account", self.account, "report_type")
 
