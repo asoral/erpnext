@@ -89,6 +89,7 @@
   "actual_qty",
   "ordered_qty",
   "planned_qty",
+  "port",
   "column_break_69",
   "work_order_qty",
   "delivered_qty",
@@ -852,12 +853,20 @@
    "fieldname": "rate_of_stock_uom",
    "fieldtype": "Currency",
    "label": "Rate of Stock UOM"
+  },
+  {
+   "fieldname": "port",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Port",
+   "options": "Port",
+   "read_only": 1
   }
  ],
  "idx": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-10-14 14:42:36.234526",
+ "modified": "2021-10-21 23:02:50.868057",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order Item",

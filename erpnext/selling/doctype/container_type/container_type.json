@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "container_name",
+ "autoname": "field:container_name",
  "creation": "2021-10-13 12:25:24.043382",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -13,10 +13,10 @@
   "internal_width",
   "internal_height",
   "column_break_6",
+  "uom",
   "tare_weight",
   "max_allowed_weight",
-  "max_cbm",
-  "uom"
+  "max_cbm"
  ],
  "fields": [
   {
@@ -28,7 +28,8 @@
   {
    "fieldname": "tare_weight",
    "fieldtype": "Float",
-   "label": "Tare Weight"
+   "label": "Tare Weight",
+   "read_only": 1
   },
   {
    "fieldname": "max_allowed_weight",
@@ -36,22 +37,27 @@
    "label": "Max Allowed Weight"
   },
   {
+   "description": "Uom of CBM is m3",
    "fieldname": "max_cbm",
    "fieldtype": "Float",
-   "label": "Max CBM"
+   "label": "Max CBM",
+   "read_only": 1
   },
   {
+   "default": "KGS",
    "fieldname": "uom",
    "fieldtype": "Link",
    "label": "UOM",
    "options": "UOM"
   },
   {
+   "description": "uom is m",
    "fieldname": "internal_length",
    "fieldtype": "Float",
    "label": "Internal Length"
   },
   {
+   "description": "uom is m",
    "fieldname": "internal_width",
    "fieldtype": "Float",
    "label": "internal Width"
@@ -62,18 +68,20 @@
    "label": "Internal Height"
   },
   {
+   "description": "uom is m",
    "fieldname": "column_break_6",
    "fieldtype": "Column Break"
   },
   {
    "fieldname": "container_name",
    "fieldtype": "Data",
-   "label": "Container Name"
+   "label": "Container Name",
+   "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-10-19 11:09:29.507534",
+ "modified": "2021-10-22 11:31:22.814199",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Container Type",

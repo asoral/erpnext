@@ -8,6 +8,7 @@
  "doctype": "Workspace",
  "extends_another_page": 0,
  "hide_custom": 0,
+ "icon": "export",
  "idx": 0,
  "is_default": 0,
  "is_standard": 1,
@@ -101,7 +102,7 @@
    "type": "Link"
   }
  ],
- "modified": "2021-10-19 16:40:29.902722",
+ "modified": "2021-10-21 18:28:37.537348",
  "modified_by": "Administrator",
  "module": "Export Import",
  "name": "Export Import",

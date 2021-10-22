@@ -6,16 +6,19 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "information_section",
   "venture",
   "venture_to",
   "venture_id",
+  "column_break_5",
   "order_to",
   "order_no",
-  "warehouse",
   "product",
   "product_name",
+  "qty_weight",
   "qty_ordered",
   "venture_qty",
+  "column_break_13",
   "total_cbm",
   "total_weight",
   "total_pallets"
@@ -32,7 +35,8 @@
    "fieldname": "venture_to",
    "fieldtype": "Link",
    "label": "Venture To",
-   "options": "DocType"
+   "options": "DocType",
+   "read_only": 1
   },
   {
    "columns": 2,
@@ -40,14 +44,15 @@
    "fieldtype": "Dynamic Link",
    "in_list_view": 1,
    "label": "Partner",
-   "options": "venture_to"
+   "options": "venture_to",
+   "read_only": 1
   },
   {
    "columns": 2,
    "fieldname": "product",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Product ID",
+   "label": "Item",
    "options": "Item"
   },
   {
@@ -55,7 +60,7 @@
    "fieldname": "product_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Product Name",
+   "label": "Item  Name",
    "read_only": 1
   },
   {
@@ -71,25 +76,28 @@
    "fieldname": "venture_qty",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Venture Qty"
+   "label": "Qty Ordered"
   },
   {
    "fieldname": "total_cbm",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Total CBM"
+   "label": "Total CBM",
+   "read_only": 1
   },
   {
    "fieldname": "total_weight",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Total Weight"
+   "label": "Total Weight",
+   "read_only": 1
   },
   {
    "fieldname": "total_pallets",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Total Pallets"
+   "label": "Total Pallets",
+   "read_only": 1
   },
   {
    "fieldname": "order_to",
@@ -107,16 +115,28 @@
    "read_only": 1
   },
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Delivery Warehouse",
-   "options": "Warehouse"
+   "fieldname": "information_section",
+   "fieldtype": "Section Break",
+   "label": "Information"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty_weight",
+   "fieldtype": "Section Break",
+   "label": "QTy & Weight"
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-10-20 12:34:40.158317",
+ "modified": "2021-10-22 10:12:55.265731",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Ventures",

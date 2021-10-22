@@ -31,7 +31,10 @@ erpnext.stock.LandedCostVoucher = erpnext.stock.StockController.extend({
 		this.frm.add_fetch("receipt_document", "posting_date", "posting_date");
 		this.frm.add_fetch("receipt_document", "base_grand_total", "grand_total");
 	},
-
+	validate:function(frm){
+		this.set_applicable_charges_for_item();
+	},
+	
 	refresh: function() {
 		var help_content =
 			`<br><br>
@@ -127,7 +130,7 @@ erpnext.stock.LandedCostVoucher = erpnext.stock.StockController.extend({
 	distribute_charges_based_on: function (frm) {
 		this.set_applicable_charges_for_item();
 	},
-
+	
 	items_remove: () => {
 		this.trigger('set_applicable_charges_for_item');
 	}

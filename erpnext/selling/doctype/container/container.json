@@ -9,6 +9,9 @@
  "field_order": [
   "naming_series",
   "import_type",
+  "column_break_3",
+  "destination",
+  "port_of_origin",
   "ventures_section",
   "ventures_list",
   "section_break_5",
@@ -16,7 +19,6 @@
   "column_break_6",
   "cbm_percentage",
   "general_info_section",
-  "container",
   "shipping_company",
   "status",
   "date_in_transit",
@@ -38,16 +40,16 @@
   "import_entry_date",
   "vender_invoice_number",
   "lc_number",
-  "destination",
-  "port_of_origin",
   "trans_shipment_info_section",
   "arrival_port",
-  "vessel",
   "voyage_number",
+  "column_break_37",
   "bl_number",
   "bl_date",
   "links_section",
   "custom_house_broker",
+  "broker_name",
+  "column_break_44",
   "associate_delivery",
   "container_estimates_section",
   "oceanair_freight",
@@ -67,12 +69,6 @@
    "fieldname": "general_info_section",
    "fieldtype": "Section Break",
    "label": "General Info"
-  },
-  {
-   "fieldname": "container",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Container"
   },
   {
    "fieldname": "shipping_company",
@@ -111,17 +107,21 @@
   {
    "fieldname": "vessel_name",
    "fieldtype": "Data",
-   "label": "Vessel Name"
+   "label": "Vessel Name",
+   "reqd": 1
   },
   {
    "fieldname": "eta",
    "fieldtype": "Date",
-   "label": "ETA"
+   "in_list_view": 1,
+   "label": "ETA",
+   "reqd": 1
   },
   {
    "fieldname": "etd",
    "fieldtype": "Date",
-   "label": "ETD"
+   "label": "ETD",
+   "reqd": 1
   },
   {
    "fieldname": "freight_carrier",
@@ -210,6 +210,7 @@
   {
    "fieldname": "destination",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Destination",
    "options": "Port",
    "reqd": 1
@@ -217,6 +218,7 @@
   {
    "fieldname": "port_of_origin",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Port Of Origin",
    "options": "Port",
    "reqd": 1
@@ -225,11 +227,6 @@
    "fieldname": "trans_shipment_info_section",
    "fieldtype": "Section Break",
    "label": "Trans Shipment Info"
-  },
-  {
-   "fieldname": "vessel",
-   "fieldtype": "Data",
-   "label": "Vessel"
   },
   {
    "fieldname": "ventures_section",
@@ -334,6 +331,7 @@
   {
    "fieldname": "import_type",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Import Type",
    "options": "Incoming\nOutgoing",
    "reqd": 1
@@ -357,12 +355,31 @@
   {
    "fieldname": "section_break_5",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_37",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "custom_house_broker.supplier_name",
+   "fieldname": "broker_name",
+   "fieldtype": "Data",
+   "label": "Broker Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_44",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-19 23:48:37.023603",
+ "modified": "2021-10-21 21:27:11.374055",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Container",

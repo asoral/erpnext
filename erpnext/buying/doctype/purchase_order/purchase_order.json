@@ -1150,6 +1150,7 @@
    "options": "Tax Withholding Category"
   },
   {
+   "fetch_from": "shipping_address.port",
    "fieldname": "port",
    "fieldtype": "Link",
    "label": "Port",
@@ -1160,7 +1161,7 @@
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-20 16:43:40.616673",
+ "modified": "2021-10-21 18:14:49.941968",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

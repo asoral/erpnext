@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+import erpnext
 from frappe.model.document import Document
 
 class Container(Document):
@@ -34,7 +35,7 @@ class Container(Document):
 						'stock_uom': idoc.stock_uom,
 						'conversion_factor':1,
 						'against_sales_order': vdoc.order_no,
-						"warehouse":vdoc.warehouse
+						# "warehouse":vdoc.warehouse
 					})
 
 				if sdoc.additional_discount_percentage:
@@ -106,7 +107,7 @@ class Container(Document):
 						'stock_uom': idoc.stock_uom,
 						'conversion_factor':1,
 						'purchase_order': vdoc.order_no,
-						"warehouse":vdoc.warehouse
+						# "warehouse":vdoc.warehouse
 					})
 
 				if pdoc.additional_discount_percentage:
@@ -129,8 +130,8 @@ class Container(Document):
 						"account_head":i.account_head,
 						"cost_center":i.cost_center
 					})
-				# if pdoc.tc_name:	
-				# 	doc.tc_name = pdoc.tc_name
+				if pdoc.tc_name:	
+					doc.tc_name = pdoc.tc_name
 
 				
 				# if pdoc.transporter:	
@@ -173,24 +174,97 @@ class Container(Document):
 	@frappe.whitelist()
 	def set_updating_qty(self):
 		for i in self.ventures_list:
-			if i.warehouse and i.product:
-				doc=frappe.db.get_all("Bin",{"item_code":i.product,"warehouse":i.warehouse},["projected_qty"])
+			if self.warehouse and i.product:
+				doc=frappe.db.get_all("Bin",{"item_code":i.product,"warehouse":self.warehouse},["projected_qty"])
 				for j in doc:
 					qty=[]
 					qty.append(j.projected_qty)
-				i.qty_ordered=sum(qty)
+					i.qty_ordered=sum(qty)
 		return True
 
 
 
 	@frappe.whitelist()
 	def make_landed_cost_voucher(self):
-		doc=frappe.new_doc("Landed Cost Voucher")
 		pdoc=frappe.db.get_all("Purchase Receipt",{"container":self.name},["name"])
 		for i in pdoc:
+			doc=frappe.new_doc("Landed Cost Voucher")
+			doc.distribute_charges_based_on="Qty"
+			doc.container=self.container
+			purchase=frappe.get_doc("Purchase Receipt",i.name)
 			doc.append('purchase_receipts', {
 				"receipt_document_type":"Purchase Receipt",
-				"receipt_document":i.name
+				"receipt_document":purchase.name,
+				"supplier":purchase.supplier,
+				"grand_total":purchase.grand_total,
+				"posting_date":purchase.posting_date
+				
 			})
-		return True
-		# doc.insert(ignore_permissions=True)
+			self.set("items", [])
+			if i.name:
+				pr_items = frappe.db.sql("""select pr_item.item_code, pr_item.description,
+					pr_item.qty, pr_item.base_rate, pr_item.base_amount, pr_item.name,
+					pr_item.cost_center, pr_item.is_fixed_asset
+					from `tabPurchase Receipt Item` pr_item where parent = '{0}'
+					and exists(select name from tabItem
+						where name = pr_item.item_code and (is_stock_item = 1 or is_fixed_asset=1))
+					""".format(i.name), as_dict=True)
+
+				for d in pr_items:
+					item = doc.append("items")
+					item.item_code = d.item_code
+					item.description = d.description
+					item.qty = d.qty
+					item.rate = d.base_rate
+					item.cost_center = d.cost_center or \
+						erpnext.get_default_cost_center(self.company)
+					item.amount = d.base_amount
+					item.receipt_document_type = "Purchase Receipt"
+					item.receipt_document = i.name
+					item.purchase_receipt_item = d.name
+					item.is_fixed_asset = d.is_fixed_asset
+					# item.applicable_charges=0
+			cdoc=frappe.get_doc("Container Settings")
+			if self.oceanair_freight > 0:
+				doc.append("taxes",{
+					"expense_account":cdoc.oceanair_freight,
+					"amount":self.oceanair_freight
+				})
+			if self.cargo_insurance > 0:
+				doc.append("taxes",{
+					"expense_account":cdoc.cargo_insurance,
+					"amount":self.cargo_insurance
+				})
+			if self.customs_broker_fee > 0:
+				doc.append("taxes",{
+					"expense_account":cdoc.customs_broker_fee,
+					"amount":self.customs_broker_fee
+				})
+			if self.incidentalmisc > 0:
+				doc.append("taxes",{
+					"expense_account":cdoc.incidentalmisc,
+					"amount":self.incidentalmisc
+				})
+			if self.drayage >0:
+				doc.append("taxes",{
+					"expense_account":cdoc.drayage,
+					"amount":self.drayage
+				})
+			if self.warehousing > 0:
+				doc.append("taxes",{
+					"expense_account":cdoc.warehousing,
+					"amount":self.warehousing
+				})
+			if self.bank_charge > 0:
+				doc.append("taxes",{
+					"expense_account":cdoc.bank_charge,
+					"amount":self.bank_charge
+				})
+			if self.finance_charge > 0:
+				doc.append("taxes",{
+					"expense_account":cdoc.finance_charge,
+					"amount":self.finance_charge
+				})
+			doc.insert(ignore_mandatory=True)
+			return True
+		

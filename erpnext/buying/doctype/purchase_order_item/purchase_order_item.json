@@ -90,6 +90,7 @@
   "item_weight_details",
   "weight_per_unit",
   "total_weight",
+  "port",
   "column_break_40",
   "weight_uom",
   "accounting_dimensions_section",
@@ -851,13 +852,21 @@
    "fieldtype": "Float",
    "label": "Total Pallet",
    "read_only": 1
+  },
+  {
+   "fieldname": "port",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Port",
+   "options": "Port",
+   "read_only": 1
   }
  ],
  "idx": 1,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-10-14 14:37:40.012168",
+ "modified": "2021-10-21 23:01:27.514921",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

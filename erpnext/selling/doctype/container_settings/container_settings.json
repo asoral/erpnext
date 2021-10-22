@@ -11,6 +11,7 @@
   "cargo_insurance",
   "customs_broker_fee",
   "incidentalmisc",
+  "column_break_6",
   "drayage",
   "warehousing",
   "bank_charge",
@@ -71,12 +72,16 @@
    "label": "Company",
    "options": "Company",
    "remember_last_selected_value": 1
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-10-20 17:43:14.014751",
+ "modified": "2021-10-21 19:11:54.199335",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Container Settings",

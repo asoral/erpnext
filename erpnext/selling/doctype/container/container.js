@@ -70,7 +70,10 @@ frappe.ui.form.on('Container', {
 						],
 						get_query_filters: {
 							company: me.frm.doc.company,
+							port: me.frm.doc.destination,
 							docstatus: 1,
+							
+
 						}
 					})
 				
@@ -118,6 +121,7 @@ frappe.ui.form.on('Container', {
 						],
 						get_query_filters: {
 							company: me.frm.doc.company,
+							port: me.frm.doc.destination,
 							docstatus: 1,
 						}
 					})
@@ -137,7 +141,7 @@ frappe.ui.form.on('Container', {
 					callback: function(r) {
 						if(r.message){
 							
-							frm.reload()
+							frappe.msgprint("Delivery Note Created")
 							
 						}
 						
@@ -161,7 +165,7 @@ frappe.ui.form.on('Container', {
 				callback: function(r) {
 					if(r.message){
 						
-						frm.reload()
+						frappe.msgprint("Purchase Receipt Created")
 						
 					}
 					
@@ -187,7 +191,7 @@ frappe.ui.form.on('Container', {
 				callback: function(r) {
 					if(r.message){
 						
-						
+						frappe.msgprint("Landed Cost Voucher Created")
 						
 					}
 					

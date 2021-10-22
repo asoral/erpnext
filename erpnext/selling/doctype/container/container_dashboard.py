@@ -15,5 +15,9 @@ def get_data():
 				'label': _('Purchase Receipt'),
 				'items': ['Purchase Receipt']
 			},
+			{
+				'label': _('Landed Cost Voucher'),
+				'items': ['Landed Cost Voucher']
+			},
         ]
     }

@@ -339,8 +339,8 @@ class PurchaseOrder(BuyingController):
 			doc.append("ventures_list",{
 				
 				"venture":str(self.name)+"*"+str(k.idx),
-				"venture_to":"Customer",
-				"venture_id":self.customer,
+				"venture_to":"Supplier",
+				"venture_id":self.supplier,
 				"product":k.item_code,
 				"order_to":"Purchase Order",
 				"order_no":self.name,

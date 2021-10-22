@@ -3,87 +3,73 @@
 
 frappe.ui.form.on('Container Settings', {
 	onload: function(frm) {
-		cur_frm.set_query("oceanair_freight", function (doc) {
-			var account_type = ["Tax", "Chargeable", "Income Account", "Expenses Included In Valuation"];
-			return {
-				query: "erpnext.controllers.queries.tax_account_query",
-				filters: {
-					"account_type": account_type,
-					"company": doc.company
+		frm.call({
+			method:"account_query",
+			doc:frm.doc,
+			callback: function(r) {
+				if(r.message){
+					
+					cur_frm.set_query("oceanair_freight", function (doc) {
+						return {
+							filters: {
+								"name": ["in", r.message],
+							}
+						}
+					});
+					cur_frm.set_query("cargo_insurance", function (doc) {
+						return {
+							filters: {
+								"name": ["in", r.message],
+							}
+						}
+					});
+					cur_frm.set_query("customs_broker_fee", function (doc) {
+						return {
+							filters: {
+								"name": ["in", r.message],
+							}
+						}
+					});
+					cur_frm.set_query("incidentalmisc", function (doc) {
+						return {
+							filters: {
+								"name": ["in", r.message],
+							}
+						}
+					});
+					cur_frm.set_query("drayage", function (doc) {
+						return {
+							filters: {
+								"name": ["in", r.message],
+							}
+						}
+					});
+					cur_frm.set_query("warehousing", function (doc) {
+						return {
+							filters: {
+								"name": ["in", r.message],
+							}
+						}
+					});
+					cur_frm.set_query("bank_charge", function (doc) {
+						return {
+							filters: {
+								"name": ["in", r.message],
+							}
+						}
+					});
+					cur_frm.set_query("finance_charge", function (doc) {
+						return {
+							filters: {
+								"name": ["in", r.message],
+							}
+						}
+					});
+				
 				}
+				
 			}
+			
 		});
-		cur_frm.set_query("cargo_insurance", function (doc) {
-			var account_type = ["Tax", "Chargeable", "Income Account", "Expenses Included In Valuation"];
-			return {
-				query: "erpnext.controllers.queries.tax_account_query",
-				filters: {
-					"account_type": account_type,
-					"company": doc.company
-				}
-			}
-		});
-		cur_frm.set_query("customs_broker_fee", function (doc) {
-			var account_type = ["Tax", "Chargeable", "Income Account", "Expenses Included In Valuation"];
-			return {
-				query: "erpnext.controllers.queries.tax_account_query",
-				filters: {
-					"account_type":[ "in",["Tax", "Chargeable", "Income Account", "Expenses Included In Valuation"]],
-					"company": doc.company
-				}
-			}
-		});
-		cur_frm.set_query("incidentalmisc", function (doc) {
-			var account_type = ["Tax", "Chargeable", "Income Account", "Expenses Included In Valuation"];
-			return {
-				query: "erpnext.controllers.queries.tax_account_query",
-				filters: {
-					"account_type": account_type,
-					"company": doc.company
-				}
-			}
-		});
-		cur_frm.set_query("drayage", function (doc) {
-			var account_type = ["Tax", "Chargeable", "Income Account", "Expenses Included In Valuation"];
-			return {
-				query: "erpnext.controllers.queries.tax_account_query",
-				filters: {
-					"account_type": account_type,
-					"company": doc.company
-				}
-			}
-		});
-		cur_frm.set_query("warehousing", function (doc) {
-			var account_type = ["Tax", "Chargeable", "Income Account", "Expenses Included In Valuation"];
-			return {
-				query: "erpnext.controllers.queries.tax_account_query",
-				filters: {
-					"account_type": account_type,
-					"company": doc.company
-				}
-			}
-		});
-		cur_frm.set_query("bank_charge", function (doc) {
-			var account_type = ["Tax", "Chargeable", "Income Account", "Expenses Included In Valuation"];
-			return {
-				query: "erpnext.controllers.queries.tax_account_query",
-				filters: {
-					"account_type": account_type,
-					"company": doc.company
-				}
-			}
-		});
-		cur_frm.set_query("finance_charge", function (doc) {
-			var account_type = ["Tax", "Chargeable", "Income Account", "Expenses Included In Valuation"];
-			return {
-				query: "erpnext.controllers.queries.tax_account_query",
-				filters: {
-					"account_type": account_type,
-					"company": doc.company
-				}
-			}
-		});
-		
-
 	}
 });

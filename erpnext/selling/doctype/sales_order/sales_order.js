@@ -67,7 +67,7 @@ frappe.ui.form.on("Sales Order", {
 					doc:frm.doc,
 					callback: function(r) {
 						if(r.message){
-							frappe.throw("Container Created")
+							frappe.msgprint("Container Created")
 						}
 						
 					}
@@ -202,7 +202,14 @@ frappe.ui.form.on("Sales Order Item", {
 		if(!frm.doc.delivery_date) {
 			erpnext.utils.copy_value_in_all_rows(frm.doc, cdt, cdn, "items", "delivery_date");
 		}
-	}
+	},
+	item_code: function(frm,cdt,cdn){
+		var row = locals[cdt][cdn];
+		if(frm.doc.port){
+			row.port=frm.doc.port
+			refresh_field("port")
+		}
+	},
 });
 
 erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend({

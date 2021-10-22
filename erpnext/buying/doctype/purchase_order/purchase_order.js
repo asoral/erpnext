@@ -46,7 +46,6 @@ frappe.ui.form.on("Purchase Order", {
 
 		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
 	},
-
 	apply_tds: function(frm) {
 		if (!frm.doc.apply_tds) {
 			frm.set_value("tax_withholding_category", '');
@@ -125,6 +124,13 @@ frappe.ui.form.on("Purchase Order Item", {
 			row.total_pallet=(row.qty/e.unit_per_carton)/e.cartons_per_pallet
 			refresh_field("items")
 		})
+	},
+	item_code: function(frm,cdt,cdn){
+		var row = locals[cdt][cdn];
+		if(frm.doc.port){
+			row.port=frm.doc.port
+			refresh_field("port")
+		}
 	},
 });
 
