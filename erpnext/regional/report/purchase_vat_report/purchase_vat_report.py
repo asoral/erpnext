@@ -95,17 +95,23 @@ def get_columns(filters):
 				"width": 100
 			},
 			{
-				"label": _("Country"),
-				"fieldname": 'country',
-				"fieldtype": "data",
+				"label": _("Exempted/ Non-Taxable Import"),
+				"fieldname": 'exempted_import',
+				"fieldtype": "float",
 				"width": 100
 			},
-			{
-				"label": _("Is Service"),
-				"fieldname": 'is_service',
-				"fieldtype": "check",
-				"width": 100
-			},
+			# {
+			# 	"label": _("Country"),
+			# 	"fieldname": 'country',
+			# 	"fieldtype": "data",
+			# 	"width": 100
+			# },
+			# {
+			# 	"label": _("Is Service"),
+			# 	"fieldname": 'is_service',
+			# 	"fieldtype": "check",
+			# 	"width": 100
+			# },
 
 			{
 				"label": _("Taxable Purchase"),
@@ -188,7 +194,9 @@ def get_data(filters):
 
 		pi.total_qty,
 		pi.total,
-		IF(pi.exempted_from_tax > 0, pi.total, 0) as exempted_purchase,
+		IF(pi.exempted_from_tax > 1 and pi.country = "Nepal", pi.total, 0) as exempted_purchase,
+
+		IF(pi.exempted_from_tax > 1 and pi.country != "Nepal", pi.total, 0) as exempted_import,
 
 		pi.country,
 		
@@ -244,7 +252,7 @@ def get_data(filters):
 		(select  ROUND((je.custom_valuation_amount)*13/100) from `tabJournal Entry` as je
 		Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
 		where pd.docstatus = 1
-        and voucher_type = "Import Purchase"
+        and je.voucher_type = "Import Purchase"
 		and pd.name = pi.name
 		LIMIT 1)
 
