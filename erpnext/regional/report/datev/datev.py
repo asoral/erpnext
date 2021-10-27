@@ -367,10 +367,10 @@ def run_query(filters, extra_fields, extra_joins, extra_filters, as_dict=1):
 
 			/* Kontonummer */
 			LEFT JOIN `tabAccount` acc
-				ON gl.account = acc.name
+			ON gl.account = acc.name
 
 			LEFT JOIN `tabParty Account` par
-				ON par.parent = gl.party
+			ON par.parent = gl.party
 			AND par.parenttype = gl.party_type
 			AND par.company = %(company)s
 

@@ -122,24 +122,14 @@ class EmployeeBoardingController(Document):
 		for activity in self.activities:
 			activity.db_set("task", "")
 
+import erpnext
+from erpnext.hr.doctype.employee.employee import (
+	InactiveEmployeeStatusError,
+	get_holiday_list_for_employee,
+)
 
-@frappe.whitelist()
-def get_onboarding_details(parent, parenttype):
-	return frappe.get_all("Employee Boarding Activity",
-		fields=["activity_name", "role", "user", "required_for_employee_creation", "description", "task_weight"],
-		filters={"parent": parent, "parenttype": parenttype},
-		order_by= "idx")
 
-@frappe.whitelist()
-def get_boarding_status(project):
-	status = 'Pending'
-	if project:
-		doc = frappe.get_doc('Project', project)
-		if flt(doc.percent_complete) > 0.0 and flt(doc.percent_complete) < 100.0:
-			status = 'In Process'
-		elif flt(doc.percent_complete) == 100.0:
-			status = 'Completed'
-		return status
+class DuplicateDeclarationError(frappe.ValidationError): pass
 
 def set_employee_name(doc):
 	if doc.employee and not doc.employee_name:

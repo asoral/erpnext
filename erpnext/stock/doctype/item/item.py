@@ -2,6 +2,7 @@
 # License: GNU General Public License v3. See license.txt
 
 import copy
+import itertools
 import json
 from typing import List
 
@@ -30,6 +31,20 @@ from erpnext.controllers.item_variant import (
 	validate_item_variant_attributes,
 )
 from erpnext.setup.doctype.item_group.item_group import invalidate_cache_for
+from erpnext.stock.doctype.item_default.item_default import ItemDefault
+
+import erpnext
+from erpnext.controllers.item_variant import (
+	ItemVariantExistsError,
+	copy_attributes_to_variant,
+	get_variant,
+	make_variant_item_code,
+	validate_item_variant_attributes,
+)
+from erpnext.setup.doctype.item_group.item_group import (
+	get_parent_item_groups,
+	invalidate_cache_for,
+)
 from erpnext.stock.doctype.item_default.item_default import ItemDefault
 
 

@@ -12,10 +12,10 @@ from frappe.utils import cint, cstr, flt, get_fullname
 from frappe.utils.nestedset import get_root_of
 
 from erpnext.accounts.utils import get_account_name
-from erpnext.e_commerce.doctype.e_commerce_settings.e_commerce_settings import (
+from erpnext.shopping_cart.doctype.shopping_cart_settings.shopping_cart_settings import (
 	get_shopping_cart_settings,
 )
-from erpnext.utilities.product import get_web_item_qty_in_stock
+from erpnext.utilities.product import get_qty_in_stock
 
 
 class WebsitePriceListMissingError(frappe.ValidationError):

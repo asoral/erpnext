@@ -384,16 +384,16 @@ frappe.ui.form.on("BOM", {
 	}
 });
 
-erpnext.bom.BomController = erpnext.TransactionController.extend({
-	conversion_rate: function(doc) {
+erpnext.bom.BomController = class BomController extends erpnext.TransactionController {
+	conversion_rate(doc) {
 		if(this.frm.doc.currency === this.get_company_currency()) {
 			this.frm.set_value("conversion_rate", 1.0);
 		} else {
 			erpnext.bom.update_cost(doc);
 		}
-	},
+	}
 
-	item_code: function(doc, cdt, cdn){
+	item_code(doc, cdt, cdn){
 		var scrap_items = false;
 		var child = locals[cdt][cdn];
 		if (child.doctype == 'BOM Scrap Item') {
@@ -405,19 +405,19 @@ erpnext.bom.BomController = erpnext.TransactionController.extend({
 		}
 
 		get_bom_material_detail(doc, cdt, cdn, scrap_items);
-	},
+	}
 
-	buying_price_list: function(doc) {
+	buying_price_list(doc) {
 		this.apply_price_list();
-	},
+	}
 
-	plc_conversion_rate: function(doc) {
+	plc_conversion_rate(doc) {
 		if (!this.in_apply_price_list) {
 			this.apply_price_list(null, true);
 		}
-	},
+	}
 
-	conversion_factor: function(doc, cdt, cdn) {
+	conversion_factor(doc, cdt, cdn) {
 		if (frappe.meta.get_docfield(cdt, "stock_qty", cdn)) {
 			var item = frappe.get_doc(cdt, cdn);
 			frappe.model.round_floats_in(item, ["qty", "conversion_factor"]);
@@ -426,10 +426,10 @@ erpnext.bom.BomController = erpnext.TransactionController.extend({
 			this.toggle_conversion_factor(item);
 			this.frm.events.update_cost(this.frm);
 		}
-	},
-});
+	}
+};
 
-$.extend(cur_frm.cscript, new erpnext.bom.BomController({frm: cur_frm}));
+extend_cscript(cur_frm.cscript, new erpnext.bom.BomController({frm: cur_frm}));
 
 cur_frm.cscript.hour_rate = function(doc) {
 	erpnext.bom.calculate_op_cost(doc);
@@ -685,6 +685,29 @@ frappe.ui.form.on("BOM", "with_operations", function(frm) {
 		frm.set_value("operations", []);
 	}
 });
+
+frappe.tour['BOM'] = [
+	{
+		fieldname: "item",
+		title: "Item",
+		description: __("Select the Item to be manufactured. The Item name, UoM, Company, and Currency will be fetched automatically.")
+	},
+	{
+		fieldname: "quantity",
+		title: "Quantity",
+		description: __("Enter the quantity of the Item that will be manufactured from this Bill of Materials.")
+	},
+	{
+		fieldname: "with_operations",
+		title: "With Operations",
+		description: __("To add Operations tick the 'With Operations' checkbox.")
+	},
+	{
+		fieldname: "items",
+		title: "Raw Materials",
+		description: __("Select the raw materials (Items) required to manufacture the Item")
+	}
+];
 
 frappe.ui.form.on("BOM Scrap Item", {
 	item_code(frm, cdt, cdn) {

@@ -11,8 +11,10 @@ from frappe.model.naming import make_autoname
 from frappe.utils import add_days, flt, getdate, nowdate
 from six import iteritems
 
+import erpnext
 from erpnext.accounts.doctype.account.test_account import create_account, get_inventory_account
 from erpnext.accounts.doctype.pos_profile.test_pos_profile import make_pos_profile
+from erpnext.accounts.doctype.purchase_invoice.purchase_invoice import WarehouseMissingError
 from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import (
 	unlink_payment_on_cancel_of_invoice,
 )
@@ -1931,6 +1933,7 @@ class TestSalesInvoice(unittest.TestCase):
 
 			supplier.insert()
 
+		# begin test
 		si = create_sales_invoice(
 			company = "Wind Power LLC",
 			customer = "_Test Internal Customer",
@@ -1940,22 +1943,62 @@ class TestSalesInvoice(unittest.TestCase):
 			expense_account = "Cost of Goods Sold - WP",
 			cost_center = "Main - WP",
 			currency = "USD",
+			update_stock = 1,
 			do_not_save = 1
 		)
-
 		si.selling_price_list = "_Test Price List Rest of the World"
 		si.submit()
 
 		target_doc = make_inter_company_transaction("Sales Invoice", si.name)
-		target_doc.items[0].update({
-			"expense_account": "Cost of Goods Sold - _TC1",
-			"cost_center": "Main - _TC1",
-			"warehouse": "Stores - _TC1"
-		})
-		target_doc.submit()
 
-		self.assertEqual(target_doc.company, "_Test Company 1")
-		self.assertEqual(target_doc.supplier, "_Test Internal Supplier")
+		# in absence of warehouse Stock Received But Not Billed is set as expense account while mapping
+		# mapping is not obstructed
+		self.assertIsNone(target_doc.items[0].warehouse)
+		self.assertEqual(target_doc.items[0].expense_account, "Stock Received But Not Billed - _TC1")
+
+		target_doc.items[0].update({"cost_center": "Main - _TC1"})
+
+		# missing warehouse is validated on save, after mapping
+		self.assertRaises(WarehouseMissingError, target_doc.save)
+
+		target_doc.items[0].update({"warehouse": "Stores - _TC1"})
+		target_doc.save()
+
+		# after warehouse is set, linked account or default inventory account is set
+		self.assertEqual(target_doc.items[0].expense_account, 'Stock In Hand - _TC1')
+
+		# tear down
+		frappe.local.enable_perpetual_inventory['_Test Company 1'] = old_perpetual_inventory
+		frappe.db.set_value("Stock Settings", None, "allow_negative_stock", old_negative_stock)
+
+	def test_sle_for_target_warehouse(self):
+		se = make_stock_entry(
+			item_code="138-CMS Shoe",
+			target="Finished Goods - _TC",
+			company = "_Test Company",
+			qty=1,
+			basic_rate=500
+		)
+
+		si = frappe.copy_doc(test_records[0])
+		si.update_stock = 1
+		si.set_warehouse = "Finished Goods - _TC"
+		si.set_target_warehouse = "Stores - _TC"
+		si.get("items")[0].warehouse = "Finished Goods - _TC"
+		si.get("items")[0].target_warehouse = "Stores - _TC"
+		si.insert()
+		si.submit()
+
+		sles = frappe.get_all("Stock Ledger Entry", filters={"voucher_no": si.name},
+			fields=["name", "actual_qty"])
+
+		# check if both SLEs are created
+		self.assertEqual(len(sles), 2)
+		self.assertEqual(sum(d.actual_qty for d in sles), 0.0)
+
+		# tear down
+		si.cancel()
+		se.cancel()
 
 	def test_sle_for_target_warehouse(self):
 		se = make_stock_entry(
@@ -2093,54 +2136,6 @@ class TestSalesInvoice(unittest.TestCase):
 		self.assertEqual(data['billLists'][0]['itemList'][0]['taxableAmount'], 60000)
 		self.assertEqual(data['billLists'][0]['actualFromStateCode'],7)
 		self.assertEqual(data['billLists'][0]['fromStateCode'],27)
-
-	def test_einvoice_submission_without_irn(self):
-		# init
-		einvoice_settings = frappe.get_doc('E Invoice Settings')
-		einvoice_settings.enable = 1
-		einvoice_settings.applicable_from = nowdate()
-		einvoice_settings.append('credentials', {
-			'company': '_Test Company',
-			'gstin': '27AAECE4835E1ZR',
-			'username': 'test',
-			'password': 'test'
-		})
-		einvoice_settings.save()
-
-		country = frappe.flags.country
-		frappe.flags.country = 'India'
-
-		si = make_sales_invoice_for_ewaybill()
-		self.assertRaises(frappe.ValidationError, si.submit)
-
-		si.irn = 'test_irn'
-		si.submit()
-
-		# reset
-		einvoice_settings = frappe.get_doc('E Invoice Settings')
-		einvoice_settings.enable = 0
-		frappe.flags.country = country
-
-	def test_einvoice_json(self):
-		from erpnext.regional.india.e_invoice.utils import make_einvoice, validate_totals
-
-		si = get_sales_invoice_for_e_invoice()
-		si.discount_amount = 100
-		si.save()
-
-		einvoice = make_einvoice(si)
-		self.assertTrue(einvoice['EwbDtls'])
-		validate_totals(einvoice)
-
-		si.apply_discount_on = 'Net Total'
-		si.save()
-		einvoice = make_einvoice(si)
-		validate_totals(einvoice)
-
-		[d.set('included_in_print_rate', 1) for d in si.taxes]
-		si.save()
-		einvoice = make_einvoice(si)
-		validate_totals(einvoice)
 
 	def test_item_tax_net_range(self):
 		item = create_item("T Shirt")
@@ -2379,11 +2374,11 @@ def get_sales_invoice_for_e_invoice():
 
 	return si
 
-
 def make_test_address_for_ewaybill():
 	if not frappe.db.exists('Address', '_Test Address for Eway bill-Billing'):
 		address = frappe.get_doc({
 			"address_line1": "_Test Address Line 1",
+			"address_line2": "_Test Address Line 2",
 			"address_title": "_Test Address for Eway bill",
 			"address_type": "Billing",
 			"city": "_Test City",
@@ -2405,11 +2400,12 @@ def make_test_address_for_ewaybill():
 
 		address.save()
 
-	if not frappe.db.exists('Address', '_Test Customer-Address for Eway bill-Shipping'):
+	if not frappe.db.exists('Address', '_Test Customer-Address for Eway bill-Billing'):
 		address = frappe.get_doc({
 			"address_line1": "_Test Address Line 1",
+			"address_line2": "_Test Address Line 2",
 			"address_title": "_Test Customer-Address for Eway bill",
-			"address_type": "Shipping",
+			"address_type": "Billing",
 			"city": "_Test City",
 			"state": "Test State",
 			"country": "India",
@@ -2429,9 +2425,34 @@ def make_test_address_for_ewaybill():
 
 		address.save()
 
+	if not frappe.db.exists('Address', '_Test Customer-Address for Eway bill-Shipping'):
+		address = frappe.get_doc({
+			"address_line1": "_Test Address Line 1",
+			"address_line2": "_Test Address Line 2",
+			"address_title": "_Test Customer-Address for Eway bill",
+			"address_type": "Shipping",
+			"city": "_Test City",
+			"state": "Test State",
+			"country": "India",
+			"doctype": "Address",
+			"is_primary_address": 1,
+			"phone": "+910000000000",
+			"gst_state": "Maharashtra",
+			"gst_state_number": "27",
+			"pincode": "410098"
+		}).insert()
+
+		address.append("links", {
+			"link_doctype": "Customer",
+			"link_name": "_Test Customer"
+		})
+
+		address.save()
+
 	if not frappe.db.exists('Address', '_Test Dispatch-Address for Eway bill-Shipping'):
 		address = frappe.get_doc({
 			"address_line1": "_Test Dispatch Address Line 1",
+			"address_line2": "_Test Dispatch Address Line 2",
 			"address_title": "_Test Dispatch-Address for Eway bill",
 			"address_type": "Shipping",
 			"city": "_Test City",
@@ -2445,11 +2466,6 @@ def make_test_address_for_ewaybill():
 			"gst_state_number": "07",
 			"pincode": "1100101"
 		}).insert()
-
-		address.append("links", {
-			"link_doctype": "Company",
-			"link_name": "_Test Company"
-		})
 
 		address.save()
 
@@ -2490,7 +2506,8 @@ def make_sales_invoice_for_ewaybill():
 
 	si.distance = 2000
 	si.company_address = "_Test Address for Eway bill-Billing"
-	si.customer_address = "_Test Customer-Address for Eway bill-Shipping"
+	si.customer_address = "_Test Customer-Address for Eway bill-Billing"
+	si.shipping_address_name = "_Test Customer-Address for Eway bill-Shipping"
 	si.dispatch_address_name = "_Test Dispatch-Address for Eway bill-Shipping"
 	si.vehicle_no = "KA12KA1234"
 	si.gst_category = "Registered Regular"
@@ -2562,6 +2579,7 @@ def create_sales_invoice(**args):
 		"asset": args.asset or None,
 		"discount_account": args.discount_account or None,
 		"discount_amount": args.discount_amount or 0,
+		"asset": args.asset or None,
 		"cost_center": args.cost_center or "_Test Cost Center - _TC",
 		"serial_no": args.serial_no,
 		"conversion_factor": 1,

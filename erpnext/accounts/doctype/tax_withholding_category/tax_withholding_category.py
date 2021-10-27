@@ -325,6 +325,9 @@ def get_tds_amount(ldc, parties, inv, tax_details, tax_deducted, vouchers):
 		else:
 			tds_amount = supp_credit_amt * tax_details.rate / 100 if supp_credit_amt > 0 else 0
 
+	if cint(tax_details.round_off_tax_amount):
+		tds_amount = round(tds_amount)
+
 	return tds_amount
 
 def get_tcs_amount(parties, inv, tax_details, vouchers, adv_vouchers):

@@ -2,6 +2,7 @@
 # See license.txt
 from __future__ import unicode_literals
 
+import datetime
 import unittest
 
 import frappe
@@ -16,6 +17,10 @@ from erpnext.support.doctype.service_level_agreement.test_service_level_agreemen
 class TestSetUp(unittest.TestCase):
 	def setUp(self):
 		frappe.db.sql("delete from `tabService Level Agreement`")
+		frappe.db.sql("delete from `tabService Level Priority`")
+		frappe.db.sql("delete from `tabSLA Fulfilled On Status`")
+		frappe.db.sql("delete from `tabPause SLA On Status`")
+		frappe.db.sql("delete from `tabService Day`")
 		frappe.db.set_value("Support Settings", None, "track_service_level_agreement", 1)
 		create_service_level_agreements_for_issues()
 
@@ -74,6 +79,8 @@ class TestIssue(TestSetUp):
 
 		frappe.flags.current_time = get_datetime("2019-03-04 15:00")
 
+		frappe.flags.current_time = get_datetime("2019-03-04 15:00")
+		issue.reload()
 		issue.status = 'Closed'
 		issue.save()
 

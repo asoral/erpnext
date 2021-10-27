@@ -561,7 +561,6 @@ def make_employee_salary_slip(user, payroll_frequency, salary_structure=None):
 	if not salary_structure:
 		salary_structure = payroll_frequency + " Salary Structure Test for Salary Slip"
 
-
 	employee = frappe.db.get_value("Employee",
 					{
 						"user_id": user
@@ -910,7 +909,7 @@ def setup_test():
 def make_holiday_list():
 	fiscal_year = get_fiscal_year(nowdate(), company=erpnext.get_default_company())
 	holiday_list = frappe.db.exists("Holiday List", "Salary Slip Test Holiday List")
-	if not frappe.db.get_value("Holiday List", "Salary Slip Test Holiday List"):
+	if not holiday_list:
 		holiday_list = frappe.get_doc({
 			"doctype": "Holiday List",
 			"holiday_list_name": "Salary Slip Test Holiday List",
@@ -993,13 +992,14 @@ def make_salary_structure_for_payment_days_based_component_dependency():
 	return salary_structure_doc
 
 def make_salary_slip_for_payment_days_dependency_test(employee, salary_structure):
-	employee = frappe.db.get_value("Employee", {
-			"user_id": employee
-		},
+	employee = frappe.db.get_value(
+		"Employee",
+		{"user_id": employee},
 		["name", "company", "employee_name"],
-		as_dict=True)
+		as_dict=True
+	)
 
-	salary_slip_name = frappe.db.get_value("Salary Slip", {"employee": frappe.db.get_value("Employee", {"user_id": employee})})
+	salary_slip_name = frappe.db.get_value("Salary Slip", {"employee": employee.name})
 
 	if not salary_slip_name:
 		salary_slip = make_salary_slip(salary_structure, employee=employee.name)
