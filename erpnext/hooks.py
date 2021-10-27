@@ -288,10 +288,6 @@ doc_events = {
 			'erpnext.regional.india.utils.validate_gstin_for_india',
 			'erpnext.regional.italy.utils.set_state_code',
 			'erpnext.regional.india.utils.update_gst_category',
-<<<<<<< HEAD
-			'erpnext.healthcare.utils.update_address_links'
-=======
->>>>>>> e1cd9ae4f3eb1f0b5c56da065f42cd20a6b0b1b0
 		],
 	},
 	'Supplier': {
@@ -303,11 +299,7 @@ doc_events = {
 	"Contact": {
 		"on_trash": "erpnext.support.doctype.issue.issue.update_issue",
 		"after_insert": "erpnext.telephony.doctype.call_log.call_log.link_existing_conversations",
-<<<<<<< HEAD
-		"validate": ["erpnext.crm.utils.update_lead_phone_numbers", "erpnext.healthcare.utils.update_patient_email_and_phone_numbers"]
-=======
 		"validate": ["erpnext.crm.utils.update_lead_phone_numbers"]
->>>>>>> e1cd9ae4f3eb1f0b5c56da065f42cd20a6b0b1b0
 	},
 	"Email Unsubscribe": {
 		"after_insert": "erpnext.crm.doctype.email_campaign.email_campaign.unsubscribe_recipient"
@@ -340,10 +332,6 @@ scheduler_events = {
 	},
 	"all": [
 		"erpnext.projects.doctype.project.project.project_status_update_reminder",
-<<<<<<< HEAD
-		"erpnext.healthcare.doctype.patient_appointment.patient_appointment.send_appointment_reminder",
-=======
->>>>>>> e1cd9ae4f3eb1f0b5c56da065f42cd20a6b0b1b0
 		"erpnext.hr.doctype.interview.interview.send_interview_reminder",
 		"erpnext.crm.doctype.social_media_post.social_media_post.process_scheduled_social_media_posts"
 	],
@@ -387,12 +375,7 @@ scheduler_events = {
 		"erpnext.selling.doctype.quotation.quotation.set_expired_status",
 		"erpnext.buying.doctype.supplier_quotation.supplier_quotation.set_expired_status",
 		"erpnext.accounts.doctype.process_statement_of_accounts.process_statement_of_accounts.send_auto_email",
-<<<<<<< HEAD
 		"erpnext.non_profit.doctype.membership.membership.set_expired_status",
-		"erpnext.stock.doctype.delivery_note.delivery_note.update_pick_lists",
-=======
-		"erpnext.non_profit.doctype.membership.membership.set_expired_status"
->>>>>>> e1cd9ae4f3eb1f0b5c56da065f42cd20a6b0b1b0
 		"erpnext.hr.doctype.interview.interview.send_daily_feedback_reminder"
 	],
 	"daily_long": [
