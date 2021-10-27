@@ -7,13 +7,16 @@ import copy
 
 import frappe
 from frappe import _
-from frappe.utils import cint
+from frappe.utils import cint, cstr, nowdate
 from frappe.utils.nestedset import NestedSet
-from frappe.website.render import clear_cache
+from frappe.website.utils import clear_cache
 from frappe.website.website_generator import WebsiteGenerator
 from six.moves.urllib.parse import quote
 
-from erpnext.e_commerce.product_data_engine.filters import ProductFiltersBuilder
+from erpnext.shopping_cart.filters import ProductFiltersBuilder
+from erpnext.shopping_cart.product_info import set_product_info_for_website
+from erpnext.shopping_cart.product_query import ProductQuery
+from erpnext.utilities.product import get_qty_in_stock
 
 
 class ItemGroup(NestedSet, WebsiteGenerator):
@@ -118,22 +121,67 @@ class ItemGroup(NestedSet, WebsiteGenerator):
 		from erpnext.stock.doctype.item.item import validate_item_default_company_links
 		validate_item_default_company_links(self.item_group_defaults)
 
-def get_child_groups_for_website(item_group_name, immediate=False):
-	"""Returns child item groups *excluding* passed group."""
-	item_group = frappe.get_cached_value("Item Group", item_group_name, ["lft", "rgt"], as_dict=1)
-	filters = {
-		"lft": [">", item_group.lft],
-		"rgt": ["<", item_group.rgt],
-		"show_in_website": 1
-	}
+@frappe.whitelist(allow_guest=True)
+def get_product_list_for_group(product_group=None, start=0, limit=10, search=None):
+	if product_group:
+		item_group = frappe.get_cached_doc('Item Group', product_group)
+		if item_group.is_group:
+			# return child item groups if the type is of "Is Group"
+			return get_child_groups_for_list_in_html(item_group, start, limit, search)
 
-	if immediate:
-		filters["parent_item_group"] = item_group_name
+	child_groups = ", ".join(frappe.db.escape(i[0]) for i in get_child_groups(product_group))
 
-	return frappe.get_all(
-		"Item Group",
-		filters=filters,
-		fields=["name", "route"]
+	# base query
+	query = """select I.name, I.item_name, I.item_code, I.route, I.image, I.website_image, I.thumbnail, I.item_group,
+			I.description, I.web_long_description as website_description, I.is_stock_item,
+			case when (S.actual_qty - S.reserved_qty) > 0 then 1 else 0 end as in_stock, I.website_warehouse,
+			I.has_batch_no
+		from `tabItem` I
+		left join tabBin S on I.item_code = S.item_code and I.website_warehouse = S.warehouse
+		where I.show_in_website = 1
+			and I.disabled = 0
+			and (I.end_of_life is null or I.end_of_life='0000-00-00' or I.end_of_life > %(today)s)
+			and (I.variant_of = '' or I.variant_of is null)
+			and (I.item_group in ({child_groups})
+			or I.name in (select parent from `tabWebsite Item Group` where item_group in ({child_groups})))
+			""".format(child_groups=child_groups)
+	# search term condition
+	if search:
+		query += """ and (I.web_long_description like %(search)s
+				or I.item_name like %(search)s
+				or I.name like %(search)s)"""
+		search = "%" + cstr(search) + "%"
+
+	query += """order by I.weightage desc, in_stock desc, I.modified desc limit %s, %s""" % (cint(start), cint(limit))
+
+	data = frappe.db.sql(query, {"product_group": product_group,"search": search, "today": nowdate()}, as_dict=1)
+	data = adjust_qty_for_expired_items(data)
+
+	if cint(frappe.db.get_single_value("Shopping Cart Settings", "enabled")):
+		for item in data:
+			set_product_info_for_website(item)
+
+	return data
+
+def get_child_groups_for_list_in_html(item_group, start, limit, search):
+	search_filters = None
+	if search_filters:
+		search_filters = [
+			dict(name = ('like', '%{}%'.format(search))),
+			dict(description = ('like', '%{}%'.format(search)))
+		]
+	data = frappe.db.get_all('Item Group',
+		fields = ['name', 'route', 'description', 'image'],
+		filters = dict(
+			show_in_website = 1,
+			parent_item_group = item_group.name,
+			lft = ('>', item_group.lft),
+			rgt = ('<', item_group.rgt),
+		),
+		or_filters = search_filters,
+		order_by = 'weightage desc, name asc',
+		start = start,
+		limit = limit
 	)
 
 def get_child_item_groups(item_group_name):

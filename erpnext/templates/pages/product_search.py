@@ -1,18 +1,11 @@
 # Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
-import frappe
-from frappe.utils import cint, cstr
-from redisearch import AutoCompleter, Client, Query
+from __future__ import unicode_literals
 
-from erpnext.e_commerce.redisearch import (
-	WEBSITE_ITEM_CATEGORY_AUTOCOMPLETE,
-	WEBSITE_ITEM_INDEX,
-	WEBSITE_ITEM_NAME_AUTOCOMPLETE,
-	is_search_module_loaded,
-	make_key,
-)
-from erpnext.e_commerce.shopping_cart.product_info import set_product_info_for_website
+import frappe
+from frappe.utils import cint, cstr, nowdate
+
 from erpnext.setup.doctype.item_group.item_group import get_item_for_list_in_html
 
 no_cache = 1
@@ -62,78 +55,4 @@ def search(query):
 	product_results = product_search(query)
 	category_results = get_category_suggestions(query)
 
-	return {
-		"product_results": product_results.get("results") or [],
-		"category_results": category_results.get("results") or []
-	}
-
-@frappe.whitelist(allow_guest=True)
-def product_search(query, limit=10, fuzzy_search=True):
-	search_results = {"from_redisearch": True, "results": []}
-
-	if not is_search_module_loaded():
-		# Redisearch module not loaded
-		search_results["from_redisearch"] = False
-		search_results["results"] = get_product_data(query, 0, limit)
-		return search_results
-
-	if not query:
-		return search_results
-
-	red = frappe.cache()
-	query = clean_up_query(query)
-
-	ac = AutoCompleter(make_key(WEBSITE_ITEM_NAME_AUTOCOMPLETE), conn=red)
-	client = Client(make_key(WEBSITE_ITEM_INDEX), conn=red)
-	suggestions = ac.get_suggestions(
-		query,
-		num=limit,
-		fuzzy= fuzzy_search and len(query) > 3 # Fuzzy on length < 3 can be real slow
-	)
-
-	# Build a query
-	query_string = query
-
-	for s in suggestions:
-		query_string += f"|('{clean_up_query(s.string)}')"
-
-	q = Query(query_string)
-
-	results = client.search(q)
-	search_results['results'] = list(map(convert_to_dict, results.docs))
-	search_results['results'] = sorted(search_results['results'], key=lambda k: frappe.utils.cint(k['ranking']), reverse=True)
-
-	return search_results
-
-def clean_up_query(query):
-	return ''.join(c for c in query if c.isalnum() or c.isspace())
-
-def convert_to_dict(redis_search_doc):
-	return redis_search_doc.__dict__
-
-@frappe.whitelist(allow_guest=True)
-def get_category_suggestions(query):
-	search_results = {"results": []}
-
-	if not is_search_module_loaded():
-		# Redisearch module not loaded, query db
-		categories = frappe.db.get_all(
-			"Item Group",
-			filters={
-				"name": ["like", "%{0}%".format(query)],
-				"show_in_website": 1
-			},
-			fields=["name", "route"]
-		)
-		search_results['results'] = categories
-		return search_results
-
-	if not query:
-		return search_results
-
-	ac = AutoCompleter(make_key(WEBSITE_ITEM_CATEGORY_AUTOCOMPLETE), conn=frappe.cache())
-	suggestions = ac.get_suggestions(query, num=10)
-
-	search_results['results'] = [s.string for s in suggestions]
-
-	return search_results
+	return [get_item_for_list_in_html(r) for r in data]

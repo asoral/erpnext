@@ -15,7 +15,6 @@ from erpnext.accounts.deferred_revenue import validate_service_stop_date
 from erpnext.accounts.doctype.gl_entry.gl_entry import update_outstanding_amt
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import (
 	check_if_return_invoice_linked_with_payment_entry,
-	get_total_in_party_account_currency,
 	is_overdue,
 	unlink_inter_company_doc,
 	update_linked_doc,
@@ -41,6 +40,9 @@ from erpnext.stock.doctype.purchase_receipt.purchase_receipt import (
 	get_item_account_wise_additional_cost,
 	update_billed_amount_based_on_po,
 )
+
+
+class WarehouseMissingError(frappe.ValidationError): pass
 
 form_grid_templates = {
 	"items": "templates/form_grid/item_grid.html"
@@ -233,8 +235,8 @@ class PurchaseInvoice(BuyingController):
 		if self.update_stock and for_validate:
 			for d in self.get('items'):
 				if not d.warehouse:
-					frappe.throw(_("Warehouse required at Row No {0}, please set default warehouse for the item {1} for the company {2}").
-						format(d.idx, d.item_code, self.company))
+					frappe.throw(_("Row No {0}: Warehouse is required. Please set a Default Warehouse for Item {1} and Company {2}").
+						format(d.idx, d.item_code, self.company), exc=WarehouseMissingError)
 
 		super(PurchaseInvoice, self).validate_warehouse()
 
@@ -272,7 +274,7 @@ class PurchaseInvoice(BuyingController):
 				and (not item.po_detail or
 					not frappe.db.get_value("Purchase Order Item", item.po_detail, "delivered_by_supplier")):
 
-				if self.update_stock and (not item.from_warehouse):
+				if self.update_stock and item.warehouse and (not item.from_warehouse):
 					if for_validate and item.expense_account and item.expense_account != warehouse_account[item.warehouse]["account"]:
 						msg = _("Row {0}: Expense Head changed to {1} because account {2} is not linked to warehouse {3} or it is not the default inventory account").format(
 							item.idx, frappe.bold(warehouse_account[item.warehouse]["account"]), frappe.bold(item.expense_account), frappe.bold(item.warehouse))
@@ -547,6 +549,10 @@ class PurchaseInvoice(BuyingController):
 			if d.category in ('Valuation', 'Total and Valuation')
 			and flt(d.base_tax_amount_after_discount_amount)]
 
+		exchange_rate_map, net_rate_map = get_purchase_document_details(self)
+
+		enable_discount_accounting = cint(frappe.db.get_single_value('Accounts Settings', 'enable_discount_accounting'))
+
 		for item in self.get("items"):
 			if flt(item.base_net_amount):
 				account_currency = get_account_currency(item.expense_account)
@@ -663,6 +669,34 @@ class PurchaseInvoice(BuyingController):
 								"cost_center": item.cost_center,
 								"project": item.project or self.project
 							}, account_currency, item=item))
+
+						# check if the exchange rate has changed
+						if item.get('purchase_receipt'):
+							if exchange_rate_map[item.purchase_receipt] and \
+								self.conversion_rate != exchange_rate_map[item.purchase_receipt] and \
+								item.net_rate == net_rate_map[item.pr_detail]:
+
+								discrepancy_caused_by_exchange_rate_difference = (item.qty * item.net_rate) * \
+									(exchange_rate_map[item.purchase_receipt] - self.conversion_rate)
+
+								gl_entries.append(
+									self.get_gl_dict({
+										"account": expense_account,
+										"against": self.supplier,
+										"debit": discrepancy_caused_by_exchange_rate_difference,
+										"cost_center": item.cost_center,
+										"project": item.project or self.project
+									}, account_currency, item=item)
+								)
+								gl_entries.append(
+									self.get_gl_dict({
+										"account": self.get_company_default("exchange_gain_loss_account"),
+										"against": self.supplier,
+										"credit": discrepancy_caused_by_exchange_rate_difference,
+										"cost_center": item.cost_center,
+										"project": item.project or self.project
+									}, account_currency, item=item)
+								)
 
 					# If asset is bought through this document and not linked to PR
 					if self.update_stock and item.landed_cost_voucher_amount:
@@ -1167,9 +1201,9 @@ class PurchaseInvoice(BuyingController):
 			elif self.docstatus == 1:
 				if self.is_internal_transfer():
 					self.status = 'Internal Transfer'
-				elif is_overdue(self, total):
+				elif is_overdue(self):
 					self.status = "Overdue"
-				elif 0 < outstanding_amount < total:
+				elif 0 < outstanding_amount < flt(self.grand_total, self.precision("grand_total")):
 					self.status = "Partly Paid"
 				elif outstanding_amount > 0 and getdate(self.due_date) >= getdate():
 					self.status = "Unpaid"
@@ -1187,6 +1221,36 @@ class PurchaseInvoice(BuyingController):
 
 		if update:
 			self.db_set('status', self.status, update_modified = update_modified)
+
+# to get details of purchase invoice/receipt from which this doc was created for exchange rate difference handling
+def get_purchase_document_details(doc):
+	if doc.doctype == 'Purchase Invoice':
+		doc_reference = 'purchase_receipt'
+		items_reference = 'pr_detail'
+		parent_doctype = 'Purchase Receipt'
+		child_doctype = 'Purchase Receipt Item'
+	else:
+		doc_reference = 'purchase_invoice'
+		items_reference = 'purchase_invoice_item'
+		parent_doctype = 'Purchase Invoice'
+		child_doctype = 'Purchase Invoice Item'
+
+	purchase_receipts_or_invoices = []
+	items = []
+
+	for item in doc.get('items'):
+		if item.get(doc_reference):
+			purchase_receipts_or_invoices.append(item.get(doc_reference))
+		if item.get(items_reference):
+			items.append(item.get(items_reference))
+
+	exchange_rate_map = frappe._dict(frappe.get_all(parent_doctype, filters={'name': ('in',
+		purchase_receipts_or_invoices)}, fields=['name', 'conversion_rate'], as_list=1))
+
+	net_rate_map = frappe._dict(frappe.get_all(child_doctype, filters={'name': ('in',
+		items)}, fields=['name', 'net_rate'], as_list=1))
+
+	return exchange_rate_map, net_rate_map
 
 def get_list_context(context=None):
 	from erpnext.controllers.website_list_for_contact import get_list_context

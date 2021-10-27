@@ -172,6 +172,13 @@ class Gstr1Report(object):
 		self.invoices = frappe._dict()
 		conditions = self.get_conditions()
 
+		company_gstins = get_company_gstin_number(self.filters.get('company'), all_gstins=True)
+
+		if company_gstins:
+			self.filters.update({
+				'company_gstins': company_gstins
+			})
+
 		invoice_data = frappe.db.sql("""
 			select
 				{select_columns}

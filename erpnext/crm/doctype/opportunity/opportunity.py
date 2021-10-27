@@ -234,13 +234,6 @@ def make_quotation(source_name, target_doc=None):
 
 		company_currency = frappe.get_cached_value('Company',  quotation.company,  "default_currency")
 
-		if quotation.quotation_to == 'Customer' and quotation.party_name:
-			party_account_currency = get_party_account_currency("Customer", quotation.party_name, quotation.company)
-		else:
-			party_account_currency = company_currency
-
-		quotation.currency = party_account_currency or company_currency
-
 		if company_currency == quotation.currency:
 			exchange_rate = 1
 		else:
@@ -264,7 +257,7 @@ def make_quotation(source_name, target_doc=None):
 			"doctype": "Quotation",
 			"field_map": {
 				"opportunity_from": "quotation_to",
-				"name": "enq_no",
+				"name": "enq_no"
 			}
 		},
 		"Opportunity Item": {

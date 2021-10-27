@@ -235,6 +235,29 @@ class TestPurchaseInvoice(unittest.TestCase):
 			self.assertEqual(expected_values[gle.account][1], gle.debit)
 			self.assertEqual(expected_values[gle.account][2], gle.credit)
 
+	def test_purchase_invoice_with_exchange_rate_difference(self):
+		from erpnext.stock.doctype.purchase_receipt.purchase_receipt import (
+			make_purchase_invoice as create_purchase_invoice,
+		)
+
+		pr = make_purchase_receipt(company="_Test Company with perpetual inventory", warehouse='Stores - TCP1',
+			currency = "USD", conversion_rate = 70)
+
+		pi = create_purchase_invoice(pr.name)
+		pi.conversion_rate = 80
+
+		pi.insert()
+		pi.submit()
+
+		# Get exchnage gain and loss account
+		exchange_gain_loss_account = frappe.db.get_value('Company', pi.company, 'exchange_gain_loss_account')
+
+		# fetching the latest GL Entry with exchange gain and loss account account
+		amount = frappe.db.get_value('GL Entry', {'account': exchange_gain_loss_account, 'voucher_no': pi.name}, 'debit')
+		discrepancy_caused_by_exchange_rate_diff = abs(pi.items[0].base_net_amount - pr.items[0].base_net_amount)
+
+		self.assertEqual(discrepancy_caused_by_exchange_rate_diff, amount)
+
 	def test_purchase_invoice_with_discount_accounting_enabled(self):
 		enable_discount_accounting()
 
@@ -1207,7 +1230,7 @@ def check_gl_entries(doc, voucher_no, expected_gle, posting_date):
 def update_tax_witholding_category(company, account):
 	from erpnext.accounts.utils import get_fiscal_year
 
-	fiscal_year = get_fiscal_year(fiscal_year='_Test Fiscal Year 2021')
+	fiscal_year = get_fiscal_year(fiscal_year='2021')
 
 	if not frappe.db.get_value('Tax Withholding Rate',
 		{'parent': 'TDS - 194 - Dividends - Individual', 'from_date': ('>=', fiscal_year[1]),

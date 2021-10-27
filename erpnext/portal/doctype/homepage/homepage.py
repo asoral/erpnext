@@ -24,6 +24,4 @@ class Homepage(Document):
 				# set missing route
 				doc.save()
 			self.append('products', dict(item_code=d.name,
-				item_name=d.item_name, description=d.description,
-				image=d.image, route=d.route))
-
+				item_name=d.item_name, description=d.description, image=d.image))

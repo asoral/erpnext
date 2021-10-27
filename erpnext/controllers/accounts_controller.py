@@ -168,13 +168,8 @@ class AccountsController(TransactionBase):
 
 		validate_regional(self)
 
-		validate_einvoice_fields(self)
-
 		if self.doctype != 'Material Request':
 			apply_pricing_rule_on_transaction(self)
-
-	def before_cancel(self):
-		validate_einvoice_fields(self)
 
 	def on_trash(self):
 		# delete sl and gl entries on deletion of transaction
@@ -1043,9 +1038,9 @@ class AccountsController(TransactionBase):
 		frappe.throw(_("Cannot overbill for Item {0} in row {1} more than {2}. To allow over-billing, please set allowance in Accounts Settings")
 			.format(item.item_code, item.idx, max_allowed_amt))
 
-	def get_company_default(self, fieldname):
+	def get_company_default(self, fieldname, ignore_validation=False):
 		from erpnext.accounts.utils import get_company_default
-		return get_company_default(self.company, fieldname)
+		return get_company_default(self.company, fieldname, ignore_validation=ignore_validation)
 
 	def get_stock_items(self):
 		stock_items = []

@@ -15,7 +15,7 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 	},
 	onload: function () {
 		var me = this;
-		this._super();
+		super.onload();
 
 		this.frm.ignore_doctypes_on_cancel_all = ['POS Invoice', 'Timesheet', 'POS Invoice Merge Log', 'POS Closing Entry'];
 		if (!this.frm.doc.__islocal && !this.frm.doc.customer && this.frm.doc.debit_to) {
@@ -139,7 +139,8 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 			}
 		}
 	},
-	make_maintenance_schedule: function () {
+
+	make_maintenance_schedule() {
 		frappe.model.open_mapped_doc({
 			method: "erpnext.accounts.doctype.sales_invoice.sales_invoice.make_maintenance_schedule",
 			frm: cur_frm
@@ -153,11 +154,12 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 			return
 		}
 
-		$.each(doc["items"], function (i, row) {
-			if (row.delivery_note) frappe.model.clear_doc("Delivery Note", row.delivery_note)
-		})
+		doc.items.forEach((row) => {
+			if(row.delivery_note) frappe.model.clear_doc("Delivery Note", row.delivery_note)
+		});
 	},
-	set_default_print_format: function() {
+
+	set_default_print_format() {
 		// set default print format to POS type or Credit Note
 		if (cur_frm.doc.is_pos) {
 			if (cur_frm.pos_print_format) {

@@ -38,8 +38,6 @@ def make(domain='Manufacturing', days=100):
 		retail.setup_data()
 	elif domain== 'Education':
 		education.setup_data()
-	elif domain== 'Healthcare':
-		healthcare.setup_data()
 
 	site = frappe.local.site
 	frappe.destroy()

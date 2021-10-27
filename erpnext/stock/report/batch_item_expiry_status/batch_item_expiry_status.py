@@ -35,6 +35,10 @@ def execute(filters=None):
 										 frappe.db.get_value('Batch', batch, 'expiry_date'), qty_dict.expiry_status
 										 ])
 
+				data.append([item, item_map[item]["item_name"], item_map[item]["description"], wh, batch,
+					frappe.db.get_value('Batch', batch, 'expiry_date'), qty_dict.expiry_status
+				])
+
 
 	return columns, data
 

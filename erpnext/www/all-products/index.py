@@ -3,6 +3,10 @@ from frappe.utils import cint
 
 from erpnext.e_commerce.product_data_engine.filters import ProductFiltersBuilder
 
+from erpnext.portal.product_configurator.utils import get_product_settings
+from erpnext.shopping_cart.filters import ProductFiltersBuilder
+from erpnext.shopping_cart.product_query import ProductQuery
+
 sitemap = 1
 
 def get_context(context):

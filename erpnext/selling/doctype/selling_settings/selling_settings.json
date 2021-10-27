@@ -120,7 +120,7 @@
    "default": "0",
    "fieldname": "allow_multiple_items",
    "fieldtype": "Check",
-   "label": "Allow Item to Be Added Multiple Times in a Transaction"
+   "label": "Allow Item to be Added Multiple Times in a Transaction"
   },
   {
    "default": "0",
@@ -155,16 +155,6 @@
    "fieldtype": "Link",
    "label": "Role Allowed to Override Stop Action",
    "options": "Role"
-  },
-  {
-   "fieldname": "column_break_15",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "editable_bundle_item_rates",
-   "fieldtype": "Check",
-   "label": "Calculate Product Bundle Price based on Child Items' Rates"
   },
   {
    "fieldname": "customer_defaults_section",
@@ -206,7 +196,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-09-14 22:05:06.139820",
+ "modified": "2021-09-08 19:38:10.175989",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling Settings",
