@@ -25,9 +25,7 @@ from frappe.utils import (
 )
 from frappe.utils.user import is_website_user
 
-from erpnext.support.doctype.service_level_agreement.service_level_agreement import (
-	get_active_service_level_agreement_for,
-)
+# from erpnext.support.doctype.service_level_agreement.service_level_agreement import get_active_service_level_agreement_for
 
 from frappe.utils import date_diff, get_datetime, now_datetime, time_diff_in_seconds
 from frappe.utils.user import is_website_user
