@@ -36,7 +36,7 @@ class MaterialProduce(Document):
             # if l_doc.qty_produced:
             #     if total_qty > l_doc.qty_produced:
             #         pass
-                    #frappe.throw(_("Can not allow total produced qty greater then {0}").format(l_doc.qty_produced))
+            #frappe.throw(_("Can not allow total produced qty greater then {0}").format(l_doc.qty_produced))
             lst = []
             for res in self.material_produce_details:
                 if res.qty_produced:
@@ -148,7 +148,7 @@ class MaterialProduce(Document):
             self.cost_of_scrap = flt(scrap_cost, self.precision('cost_of_scrap'))
 
             self.amount = flt((self.wo_actual_rm_cost + self.wo_actual_operating_cost) - (self.total_cost_of_rm_consumed_for_partial_close + self.total_cost_of_operation_consumed_for_partial_close + self.cost_of_scrap), self.precision('amount'))
-            
+
     def make_stock_entry(self):
         return self.make_se()
 
@@ -271,7 +271,7 @@ class MaterialProduce(Document):
                         se_item.is_scrap_item = 1 if res.type == 'Scrap' else 0
                         # in stock uom
                         se_item.conversion_factor = 1.00
-            
+
         stock_entry.from_bom = 1
         stock_entry.fg_completed_qty = flt(total_transfer_qty, stock_entry.precision('fg_completed_qty'))
         add_additional_cost(stock_entry, wo)

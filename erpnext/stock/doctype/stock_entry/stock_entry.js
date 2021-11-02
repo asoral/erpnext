@@ -408,8 +408,13 @@ frappe.ui.form.on('Stock Entry', {
 		attach_bom_items(frm.doc.bom_no)
 	},
 
+	before_save: function(frm) {
+		frm.doc.items.forEach((item) => {
+			item.uom = item.uom || item.stock_uom;
+		})
+	},
 
-	stock_entry_type: function (frm) {
+	stock_entry_type: function(frm){
 		frm.remove_custom_button('Bill of Materials', "Get Items From");
 		frm.events.show_bom_custom_button(frm);
 		frm.trigger('add_to_transit');
@@ -877,11 +882,6 @@ frappe.ui.form.on('Landed Cost Taxes and Charges', {
 	amount: function (frm, cdt, cdn) {
 		frm.events.set_base_amount(frm, cdt, cdn);
 
-		// Adding this check because same table in used in LCV
-		// This causes an error if you try to post an LCV immediately after a Stock Entry
-		if (frm.doc.doctype == 'Stock Entry') {
-			frm.events.calculate_amount(frm);
-		}
 	},
 
 	expense_account: function (frm, cdt, cdn) {
@@ -951,12 +951,12 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		this.frm.get_field("items").grid.set_multiple_add("item_code", "qty");
 	},
 
-	refresh: function (frm) {
-		console.log('obj: ', frm)
-		if (frm.work_order) {
+	refresh: function(frm) {
+		console.log('obj: ',frm)
+		if(frm.work_order){
 			console.log("frm.doc.work_order: ")
 			console.log(frm.work_order)
-			if (frm.doc.stock_entry_type === "Material Consumption for Manufacture") {
+			if(frm.doc.stock_entry_type === "Material Consumption for Manufacture") {
 				set_qty(frm)
 			}
 		}
@@ -1218,15 +1218,18 @@ function check_should_not_attach_bom_items(bom_no) {
 	);
 }
 
-$.extend(cur_frm.cscript, new erpnext.stock.StockEntry({ frm: cur_frm }));
+$.extend(cur_frm.cscript, new erpnext.stock.StockEntry({frm: cur_frm}));
 
-function set_qty(frm) {
+ 
+$.extend(cur_frm.cscript, new erpnext.stock.StockEntry({frm: cur_frm}));
+
+function set_qty(frm){
 	frappe.call({
-		method: 'get_se_data',
+		method:'get_se_data',
 		doc: frm,
-		callback(resp) {
+		callback(resp){
 			console.log("weight: ", resp.message)
-			if (resp.message) {
+			if(resp.message){
 				frm.fg_completed_qty = resp.message
 				refresh_field('fg_completed_qty')
 			}

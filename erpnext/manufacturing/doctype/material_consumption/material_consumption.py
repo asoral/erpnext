@@ -31,7 +31,7 @@ class MaterialConsumption(Document):
                         "life_left_batch": res.life_left_batch,
                         "qty_to_consume": flt(res.qty_to_consume, res.precision('qty_to_consume')),
                         "consume_item": res.consume_item
-                        })
+                    })
                     total_qty += flt(res.qty_to_consume, res.precision('qty_to_consume'))
             if line_id:
                 l_doc = frappe.get_doc("Materials to Consume Items",line_id)
@@ -99,7 +99,7 @@ class MaterialConsumption(Document):
 
         wo.consumed_total_weight = flt(total_value, wo.precision('consumed_total_weight'))
         wo.reload()
-        
+
     def make_stock_entry(self):
         precision1 = get_field_precision(frappe.get_meta("Pick List Item").get_field("picked_qty"))
         precision2 = get_field_precision(frappe.get_meta("Work Order").get_field("bom_yeild"))
@@ -125,10 +125,10 @@ class MaterialConsumption(Document):
                     if res.data:
                         for line in json.loads(res.data):
                             expense_account, cost_center = frappe.db.get_values("Company", self.company, ["default_expense_account", "cost_center"])[0]
-                            
+
                             get_wo_doc = frappe.get_doc("Work Order",self.work_order)
-                            
-                            
+
+
                             item_expense_account, item_cost_center = frappe.db.get_value("Item Default",
                                                                             {'parent': line.get('item_code'), 'company': self.company},
                                                                                          ["expense_account", "buying_cost_center"])
@@ -149,7 +149,7 @@ class MaterialConsumption(Document):
                             se_item.expense_account = item_expense_account or expense_account
                             #se_item.cost_center = item_cost_center or cost_center
                             se_item.cost_center = get_wo_doc.rm_cost_center
-            
+
                             # in stock uom
                             se_item.conversion_factor = 1.00
 
@@ -166,7 +166,7 @@ class MaterialConsumption(Document):
                                 frappe.throw(_(m))
                 # calculate material as per yeild
                 bom_yeild = frappe.db.get_value("Work Order", {"name":self.work_order},['bom_yeild'])
-                
+
                 if(bom_yeild > 0):
                     calculated_qty = (total_transfer_qty) * (flt(bom_yeild, precision2)/100)
                 else:
@@ -191,7 +191,7 @@ class MaterialConsumption(Document):
             total_transfer_qty = 0
             for res in self.pick_list_item:
                 expense_account, cost_center = \
-                frappe.db.get_values("Company", self.company, ["default_expense_account", "cost_center"])[0]
+                    frappe.db.get_values("Company", self.company, ["default_expense_account", "cost_center"])[0]
                 item_expense_account, item_cost_center = frappe.db.get_value("Item Default",
                                                                              {'parent': res.item_code,
                                                                               'company': self.company},
@@ -205,9 +205,9 @@ class MaterialConsumption(Document):
                 itm_doc = frappe.get_doc("Item", res.item_code)
                 se_item = stock_entry.append("items")
                 se_item.item_code = res.item_code
-                se_item.qty = flt(res.picked_qty, res.precision('qty'))
+                se_item.qty = res.picked_qty
                 se_item.s_warehouse = res.warehouse
-                #se_item.s_warehouse = self.s_warehouse
+                se_item.s_warehouse = self.s_warehouse
                 se_item.item_name = itm_doc.item_name
                 se_item.description = itm_doc.description
                 se_item.uom = res.uom
@@ -218,15 +218,14 @@ class MaterialConsumption(Document):
                 se_item.cost_center = get_wo_doc.rm_cost_center
                 # in stock uom
                 se_item.conversion_factor = res.conversion_factor
-            
+
                 # if self.type == "Pick List":
                 item_master_wigth_per_unit = frappe.db.get_value("Item", {"item_code":res.get('item_code')}, 'weight_per_unit')
                 if item_master_wigth_per_unit:
-                    qty = flt(flt(res.get('picked_qty')) * flt(item_master_wigth_per_unit), precision1)
+                    qty = res.get('picked_qty') * item_master_wigth_per_unit
                     total_transfer_qty += qty
                 if not item_master_wigth_per_unit:
-                    # m = "Please Enter weight per unit for item {0}".format(line.get('item_code'))
-                    m = "Please Enter weight per unit for item {0}".format(res.get('item_code'))
+                    m = "Please Enter weight per unit for item {0}".format(line.get('item_code'))
                     frappe.throw(_(m))
             bom_yeild = frappe.db.get_value("Work Order", {"name":self.work_order},['bom_yeild'])
             if bom_yeild:
@@ -246,7 +245,7 @@ class MaterialConsumption(Document):
         set_material_cost(self,stock_entry)
 
 
-def set_material_cost(self, stock_entry): 
+def set_material_cost(self, stock_entry):
     if stock_entry.material_consumption:
         m_doc = frappe.get_doc("Material Consumption", stock_entry.material_consumption)
         m_doc.cost_of_consumption = stock_entry.total_outgoing_value
@@ -306,7 +305,11 @@ def get_available_qty_data(line_id, company, item_code, warehouse, has_batch_no=
                 warehouse_lst.append(w.get('name'))
             query = """select sle.item_code, warehouse, sle.company, sle.stock_uom, batch_no, sum(sle.actual_qty) as balance_qty 
                     from `tabStock Ledger Entry` sle force index (posting_sort_index) 
+<<<<<<< HEAD
                     where sle.docstatus < 2 and is_cancelled = 0 and sle.batch_no is not null
+=======
+                    where sle.docstatus < 2 and is_cancelled = 0 and sle.batch_no is not null 
+>>>>>>> c9b61db484
                     and company = '{0}' and sle.item_code = '{1}'""".format(company, item_code)
             if len(warehouse_lst) > 1:
                 query += " and warehouse in {0}".format(tuple(warehouse_lst))
@@ -353,7 +356,7 @@ def add_pick_list_item(doc_name,pick_list):
     except:
         frappe.throw(_("Please save this document before adding any item"))
     #if is_existing_doc:
-    
+
     for res in pick_list.locations:
         doc.append('pick_list_item',{
             'item_code': res.item_code,
@@ -375,7 +378,7 @@ def add_pick_list_item(doc_name,pick_list):
         })
         doc.type = 'Pick List'
         doc.save(ignore_permissions=True)
-   
+
 @frappe.whitelist()
 def consumption_list(wo):
     query = """SELECT * FROM `tabWork Order Item` where parent = '{0}';""".format(wo)
@@ -396,7 +399,7 @@ def consumption_list(wo):
     if(len(data_list) == 0):
         frappe.msgprint("No item Found")
     return data_list
-    
+
 @frappe.whitelist()
 def set_item_locations(self, save=False):
     print("****@"*200)

@@ -172,6 +172,33 @@ class PickList(Document):
 		if self.purpose == "Material Transfer for Manufacture" \
 				and (self.for_qty is None or self.for_qty == 0):
 			frappe.throw(_("Qty of Finished Goods Item should be greater than 0."))
+	@frappe.whitelist()
+	def consumption_list(self):
+		query = """SELECT * FROM `tabWork Order Item` where parent = '{0}';""".format(self.consume_work_order)
+		all_items = frappe.db.sql(query, as_dict = True)
+		data_list = []
+		for item in all_items:
+			qty = item.get('transferred_qty') - item.get('consumed_qty')
+			data = {
+				"item_code":item.get("item_code"),
+				"transferred_qty": item.get('transferred_qty'),
+				"consumed_qty": item.get('consumed_qty'),
+				"qty": qty,
+				"stock_qty": qty
+			}
+			if qty > 0:
+				data_list.append(data)
+		if(len(data_list) == 0):
+			frappe.msgprint("No item Found")
+		for data in data_list:
+			self.append("locations", {
+				"item_code":data.get("item_code"),
+				"transferred_qty": data.get('transferred_qty'),
+				"consumed_qty": data.get('consumed_qty'),
+				"qty": data.get('qty'),
+				"stock_qty": data.get('stock_qty')
+			})
+		return True
 
 
 def validate_item_locations(pick_list):
@@ -229,7 +256,7 @@ def get_available_item_locations(self,item_code, from_warehouses, required_qty, 
 	locations = []
 	has_serial_no  = frappe.get_cached_value('Item', item_code, 'has_serial_no')
 	has_batch_no = frappe.get_cached_value('Item', item_code, 'has_batch_no')
-
+	
 	if has_batch_no and has_serial_no:
 		locations = get_available_item_locations_for_serial_and_batched_item(item_code, from_warehouses, required_qty, company)
 	elif has_serial_no:
