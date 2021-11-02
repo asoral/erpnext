@@ -59,7 +59,6 @@ frappe.ui.form.on('Pick List', {
 		frm.events.set_item_locations(frm, false);
 	},
 	refresh: (frm,cdt,cdn) => {
-
 		frm.trigger('add_get_items_button');
 		if (frm.doc.docstatus === 1) {
 			frappe.xcall('erpnext.stock.doctype.pick_list.pick_list.target_document_exists', {
@@ -102,6 +101,15 @@ frappe.ui.form.on('Pick List', {
 			if(frm.doc.consume_work_order && frm.doc.material_consumption) {
 				frm.doc.is_material_consumption = 1
 			}
+			frm.refresh_field('is_material_consumption')
+		}
+		if(frm.doc.is_material_consumption ===1){
+			get_material_consumption_data(frm)
+		}
+	},
+	onload_post_render: (frm) => {
+		if(frm.doc.purpose === "Material Transfer"){
+			frm.doc.is_material_consumption = 1
 			frm.refresh_field('is_material_consumption')
 		}
 		if(frm.doc.is_material_consumption ===1){

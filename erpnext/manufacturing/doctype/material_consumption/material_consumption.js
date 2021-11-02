@@ -10,8 +10,6 @@ frappe.ui.form.on('Material Consumption', {
             method: "set_consume_material",
             callback: function(r) {
                 frm.clear_table('material_consumption_detail');
-                // frm.refresh_field("weight_consumed");
-                // frm.refresh_field("consumption_deviation_percentage");
                 frm.reload_doc();
             }
         });
@@ -41,7 +39,7 @@ function get_available_qty_data(frm,line_obj){
             line_id: line_obj.name,
             company: frm.doc.company,
             item_code: line_obj.item,
-            warehouse: frm.doc.s_warehouse,
+            warehouse: line_obj.s_warehouse,
             has_batch_no:line_obj.has_batch_no,
             data:line_obj.data
         },
