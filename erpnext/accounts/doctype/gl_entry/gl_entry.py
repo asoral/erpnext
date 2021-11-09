@@ -109,11 +109,7 @@ class GLEntry(Document):
 					self.voucher_type)
 
 				frappe.throw(msg, title=_("Missing Cost Center"))
-	def set_nepali_date(self):
-		from erpnext.nepali_date import get_converted_date
-		if self.posting_date:
-			nepali_date = get_converted_date(self.posting_date)
-			self.posting_datenepali = nepali_date
+	
 	def validate_dimensions_for_pl_and_bs(self):
 		account_type = frappe.db.get_value("Account", self.account, "report_type")
 
