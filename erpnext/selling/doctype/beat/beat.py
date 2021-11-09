@@ -62,6 +62,17 @@ class Beat(Document):
 				else:
 					print("NoMatch",h_str,lrange_str)
 		self.working_day = self.working_day - count
+
+	def on_submit(self):
+		for i in self.beatct:
+			beat_p = frappe.new_doc('Beat Plan')
+			beat_p.beat_id = self.name
+			beat_p.beat_start_date = self.week_start_date
+			beat_p.beat_end_date = self.week_end_date
+			beat_p.sales_person = i.sales_person
+			beat_p.run_method('fill_child_t')
+			beat_p.save()
+			beat_p.submit()
 		
 
 		

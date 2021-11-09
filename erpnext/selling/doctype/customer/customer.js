@@ -1,6 +1,6 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
-
+// dexciss
 frappe.ui.form.on("Customer", {
 	setup: function(frm) {
 
@@ -64,13 +64,7 @@ frappe.ui.form.on("Customer", {
 			}
 		})
 
-		frm.set_query('primary_cust',function(){
-			return{
-				filters:{
-					'is_a_secondary_cust':0
-				}
-			}
-		})
+		
 	},
 	customer_primary_address: function(frm){
 		if(frm.doc.customer_primary_address){

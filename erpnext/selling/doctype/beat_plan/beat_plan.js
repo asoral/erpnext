@@ -21,10 +21,10 @@ frappe.ui.form.on('Beat Plan', {
 		})
 	},
 	refresh : function(frm){
+		if(frm.doc.status != 'Completed'){
 		frm.add_custom_button('Complete', () => {
 			frm.set_value('status','Completed');
-		
-	})
+	})}
 	},
 	sales_person: function(frm){
 		frappe.call({

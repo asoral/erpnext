@@ -6,39 +6,33 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "visit_information_section",
   "company",
-  "column_break_2",
-  "beat",
-  "column_break_4",
-  "beat_plan",
-  "section_break_6",
   "sales_manager",
-  "column_break_8",
-  "sales_person",
-  "column_break_10",
-  "parent_territory",
-  "section_break_13",
   "date",
   "visit_territory",
-  "column_break_15",
-  "customer",
-  "primary_customer",
-  "column_break_172",
+  "column_break_6",
+  "beat",
+  "sales_person",
   "price_list",
-  "column_break_19",
+  "customer",
+  "column_break_11",
+  "beat_plan",
+  "parent_territory",
   "item_group",
+  "primary_customer",
   "section_break_19",
-  "last_order_date",
+  "last_order_date_",
   "column_break_24",
-  "last_visit_date",
+  "last_visit_date_",
   "column_break_26",
   "last_item_ordered",
   "customer_statistics_section",
-  "target_quantity",
-  "target_ach",
+  "target_quantity_",
+  "target_ach_",
   "column_break_32",
-  "target_amount",
-  "target_amt_ach",
+  "target_amount_",
+  "target_amt_ach_",
   "cb",
   "monthly_potential",
   "mon_po_ach",
@@ -142,34 +136,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "column_break_2",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_6",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_8",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_10",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_13",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_15",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "section_break_19",
    "fieldtype": "Section Break",
    "label": "Customer History",
@@ -178,22 +144,19 @@
   {
    "fieldname": "visit_gift",
    "fieldtype": "Table",
-   "label": "Visit Gift",
+   "label": "Gift Items",
    "options": "Visit Gift"
   },
   {
    "fieldname": "section_break_21",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Visit Gift"
   },
   {
    "fieldname": "visit_order",
    "fieldtype": "Table",
-   "label": "Visit Order",
+   "label": "Order Items",
    "options": "Visit Order"
-  },
-  {
-   "fieldname": "column_break_19",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "price_list",
@@ -203,27 +166,9 @@
    "reqd": 1
   },
   {
-   "fieldname": "last_order_date",
-   "fieldtype": "Date",
-   "label": "Last Order Date",
-   "read_only": 1
-  },
-  {
-   "fieldname": "last_visit_date",
-   "fieldtype": "Date",
-   "label": "Last Visit Date",
-   "read_only": 1
-  },
-  {
    "fieldname": "monthly_potential",
    "fieldtype": "Data",
    "label": "Monthly Potential",
-   "read_only": 1
-  },
-  {
-   "fieldname": "target_quantity",
-   "fieldtype": "Data",
-   "label": "Target Quantity",
    "read_only": 1
   },
   {
@@ -233,8 +178,10 @@
    "read_only": 1
   },
   {
+   "collapsible": 1,
    "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Payment Details"
   },
   {
    "fieldname": "pymt",
@@ -248,12 +195,14 @@
   {
    "fieldname": "payment_mode",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Payment Mode",
    "options": "Mode of Payment"
   },
   {
    "fieldname": "section_break_37",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Visit Order"
   },
   {
    "fetch_from": "customer.primary_cust",
@@ -262,10 +211,6 @@
    "label": "Primary Customer",
    "options": "Customer",
    "read_only": 1
-  },
-  {
-   "fieldname": "column_break_172",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "ref_no",
@@ -290,29 +235,11 @@
   {
    "fieldname": "customer_statistics_section",
    "fieldtype": "Section Break",
-   "label": "Sales Person Statistics"
-  },
-  {
-   "fieldname": "target_ach",
-   "fieldtype": "Data",
-   "label": "Target Qty. Achieved",
-   "read_only": 1
+   "label": "Sales Person Monthly Statistics"
   },
   {
    "fieldname": "column_break_32",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "target_amount",
-   "fieldtype": "Data",
-   "label": "Target Amount",
-   "read_only": 1
-  },
-  {
-   "fieldname": "target_amt_ach",
-   "fieldtype": "Data",
-   "label": "Target Amount Achieved",
-   "read_only": 1
   },
   {
    "fieldname": "cb",
@@ -323,12 +250,61 @@
    "fieldtype": "Data",
    "label": "Monthly Potential Achieved",
    "read_only": 1
+  },
+  {
+   "fieldname": "visit_information_section",
+   "fieldtype": "Section Break",
+   "label": "Visit Information"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_order_date_",
+   "fieldtype": "Data",
+   "label": "Last Order Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_visit_date_",
+   "fieldtype": "Data",
+   "label": "Last Visit Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "target_quantity_",
+   "fieldtype": "Float",
+   "label": "Monthly Target Quantity",
+   "read_only": 1
+  },
+  {
+   "fieldname": "target_ach_",
+   "fieldtype": "Float",
+   "label": "Monthly Target Qty. Achieved",
+   "read_only": 1
+  },
+  {
+   "fieldname": "target_amount_",
+   "fieldtype": "Currency",
+   "label": "Monthly Target Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "target_amt_ach_",
+   "fieldtype": "Currency",
+   "label": "Monthly Target Amount Achieved",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-12 12:06:05.740108",
+ "modified": "2021-10-14 15:04:14.851422",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Beat Visit",

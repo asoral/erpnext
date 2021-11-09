@@ -61,8 +61,12 @@ frappe.ui.form.on('Beat Visit', {
             method: "cust_stats", //dotted path to server method
 			doc:frm.doc,
 			callback: function(r) {
-               frm.refresh_field("last_visit_date")
-			   frm.refresh_field("last_order_date")
+               frm.refresh_field("last_visit_date_")
+			   frm.refresh_field("last_order_date_")
+			   frm.refresh_field('last_item_ordered')
+			   frm.refresh_field('target_quantity_')
+			   frm.refresh_field('target_amount_')
+			   frm.refresh_field('monthly_potential')
             }
 			
         });
@@ -93,7 +97,7 @@ frappe.ui.form.on('Beat Visit', {
 		})
 		}
 	},
-	price_list: function(frm){
+	before_save: function(frm){
 		if(frm.doc.price_list){
 		frappe.call({
 			method: "fill_vg",
@@ -102,15 +106,28 @@ frappe.ui.form.on('Beat Visit', {
 				frm.refresh_field("visit_gift")
 			}
 		})
+	
 	}
 	},
 	payment_mode : function(frm){
 		if(frm.doc.payment_mode){
 			frm.toggle_display(['ref_no', 'ref_date'], frm.doc.payment_mode === 'Cheque');
 			frm.toggle_reqd('ref_no', frm.doc.payment_mode === 'Cheque');
+			frm.toggle_reqd('ref_no', frm.doc.payment_mode === 'Bank Draft');
 			frm.toggle_reqd('ref_date', frm.doc.payment_mode === 'Cheque');
+			frm.toggle_reqd('ref_date', frm.doc.payment_mode === 'Bank Draft');
 
 		}
+	},
+	pymt: function(frm){
+		frm.refresh_field('pymt')
+		if(frm.doc.pymt){
+			frm.toggle_display(['payment_mode'],frm.doc.pymt>0);
+			// frm.toggle_reqd('payment_mode',frm.doc.pymt>0);
+			frm.set_df_property('payment_mode', 'reqd', 1)
+		}
+		else{frm.set_df_property('payment_mode', 'hidden', 1)
+			frm.set_df_property('payment_mode', 'reqd', 0)}
 	}
 	
 });

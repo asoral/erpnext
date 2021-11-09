@@ -62,6 +62,7 @@
   },
   {
    "columns": 2,
+   "default": "Today",
    "fieldname": "expected_delivery",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -72,7 +73,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-09-30 14:49:03.272554",
+ "modified": "2021-10-13 14:42:38.999570",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Visit Order",

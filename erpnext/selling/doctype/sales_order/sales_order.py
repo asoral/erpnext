@@ -179,6 +179,90 @@ class SalesOrder(SellingController):
 			from erpnext.accounts.doctype.pricing_rule.utils import update_coupon_code_count
 			update_coupon_code_count(self.coupon_code,'used')
 
+		#------Customization For Field Sales App-------
+
+		for i in self.items:
+			ss = frappe.new_doc('Secondary Stock')
+			ss.sec_cust = self.sec_customer
+			ss.territory = self.territory
+			p_tty = frappe.db.get_value('Customer',{'name':self.sec_customer,'is_a_secondary_customer':1},['territory'])
+			if p_tty:
+				ss.parent_territory = p_tty
+			ss.date = frappe.utils.data.now_datetime()
+			ss.item = i.item_code
+			ss.company = self.company
+			ss.item_name = i.item_name
+			ss.uom = i.stock_uom
+			ss.ref_link = 'Sales Order'
+			ss.stock = i.stock_qty
+			ss.type = 'Incoming'
+			# values = {'sec_cust':self.sec_customer,'item':i.item_code,'type':ss.type}
+			# bal_qty = frappe.db.sql("""
+			# 								select
+
+			# 								case
+			# 								when type = 'Incoming' 
+			# 								then
+			# 								(stock + (select balance_qty from `tabSecondary Stock` 
+			# 								where sec_cust = %(sec_cust)s and item = %(item)s
+			# 								order by date desc limit 1))
+			# 								when type = 'Outgoing' 
+			# 								then
+			# 								abs(stock - (select balance_qty from `tabSecondary Stock` 
+			# 								where sec_cust = %(sec_cust)s and item = %(item)s
+			# 								order by date desc limit 1))
+			# 								end as balance_qty,stock
+
+			# 								from `tabSecondary Stock` 
+
+			# 								where sec_cust = %(sec_cust)s and item = %(item)s and type = %(type)s
+
+			# 								order by date desc limit 1;""",values = values,as_dict=1)
+			# print("query in so",bal_qty)
+			# if bal_qty:
+			# 	for j in bal_qty:
+			# 		if j.balance_qty == 0:
+			# 			ss.balance_qty = ss.stock+j.stock
+			# 		else:
+			# 			ss.balance_qty = ss.stock+j.balance_qty
+			
+			# else:
+			# 	ss.balance_qty = ss.stock
+			values = {'sec_cust':ss.sec_cust,'item':ss.item}
+			bal_qty = frappe.db.sql("""select balance_qty,stock from `tabSecondary Stock` 
+											where sec_cust = %(sec_cust)s and item = %(item)s
+											order by modified desc limit 1
+
+															""",values=values,as_dict=1)
+			
+			print("new query",bal_qty)
+			for j in bal_qty:
+				if not j.balance_qty:
+					ss.balance_qty = ss.stock
+					ss.opening_qty = ss.balance_qty - ss.stock
+					print("if condition=salesorder")
+				elif j.balance_qty > 0:
+					ss.balance_qty = j.balance_qty + ss.stock
+					ss.opening_qty = ss.balance_qty - ss.stock
+					print("else condition=salesorder")
+				else:
+					ss.balance_qty = ss.stock
+
+
+			ss.ref_id = self.name
+			ss.save()
+			last_bq = frappe.get_last_doc('Secondary Stock', order_by="creation asc")
+			if last_bq:
+				if last_bq.balance_qty == 0.0:
+					frappe.db.set_value('Secondary Stock',last_bq.name,'balance_qty',last_bq.stock)
+				if last_bq.type == "Incoming":
+					open_q = last_bq.stock - last_bq.stock
+					frappe.db.set_value('Secondary Stock',last_bq.name,'opening_qty',open_q)
+			
+
+#------Customization For Field Sales App End -------
+
+
 	def on_cancel(self):
 		self.ignore_linked_doctypes = ('GL Entry', 'Stock Ledger Entry')
 		super(SalesOrder, self).on_cancel()
@@ -200,6 +284,46 @@ class SalesOrder(SellingController):
 		if self.coupon_code:
 			from erpnext.accounts.doctype.pricing_rule.utils import update_coupon_code_count
 			update_coupon_code_count(self.coupon_code,'cancelled')
+
+			#------Customization For Field Sales App-------
+
+		sec_stock = frappe.db.get_all('Secondary Stock',{'ref_id':self.name},['name'])
+		for k in sec_stock:
+			ss_doc = frappe.get_doc('Secondary Stock',k.name)
+			print("doctype",ss_doc)
+			ss_new = frappe.new_doc('Secondary Stock')
+			ss_new.sec_cust = ss_doc.sec_cust
+			ss_new.territory = ss_doc.territory
+			ss_new.parent_territory = ss_doc.parent_territory
+			ss_new.date = ss_doc.date
+			ss_new.item = ss_doc.item
+			ss_new.item_name = ss_doc.item_name
+			ss_new.ref_link = ss_doc.ref_link
+			if ss_doc.type == "Incoming":
+				ss_new.type = "Outgoing"
+			elif ss_doc.type == "Outgoing":
+				ss_new.type = "Incoming"
+			else:
+				pass
+			values = {'sec_cust':ss_doc.sec_cust,'item':ss_doc.item}
+			bal_qty = frappe.db.sql("""select balance_qty from `tabSecondary Stock` 
+											where sec_cust = %(sec_cust)s and item = %(item)s
+											order by modified desc limit 1
+
+															""",values=values,as_dict=1)
+			ss_new.stock = ss_doc.stock
+			if bal_qty[0].balance_qty > 0:
+				ss_new.balance_qty = bal_qty[0].balance_qty - ss_doc.stock
+				ss_new.opening_qty = ss_new.balance_qty + ss_doc.stock
+			else:
+				ss_new.balance_qty = 0
+				ss_new.opening_qty = ss_new.balance_qty + ss_doc.stock
+			ss_new.uom = ss_doc.uom
+			ss_new.ref_id = ss_doc.ref_id
+			ss_new.save()
+			print("ss_new",ss_new.name)
+
+			#------Customization For Field Sales App End -------
 
 	def update_project(self):
 		if frappe.db.get_single_value('Selling Settings', 'sales_update_frequency') != "Each Transaction":
