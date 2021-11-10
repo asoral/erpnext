@@ -34,7 +34,7 @@ frappe.ui.form.on("Bank Transaction", {
 		});
 	},
 
-	before_submit:function(frm){
+	before_submitt:function(frm){
 		var document_types = ['payment_entry','journal_entry']
 		frm.clear_table("payment_entries");
 		frappe.call({
@@ -45,6 +45,7 @@ frappe.ui.form.on("Bank Transaction", {
 					document_types: document_types,
 				},
 				callback: function (result) {
+					console.log("------result",result.message)
 					var data = result.message;
 					var data_len = 0;
 					for(var row in data){

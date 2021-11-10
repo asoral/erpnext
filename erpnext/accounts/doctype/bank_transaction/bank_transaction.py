@@ -13,16 +13,46 @@ class BankTransaction(StatusUpdater):
 	def after_insert(self):
 		self.unallocated_amount = abs(flt(self.withdrawal) - flt(self.deposit))
 
+	def before_submitt(self):
+		# get all matching payments for a bank transaction
+
+		document_types = ['payment_entry', 'journal_entry']
+		xyz = get_linked_payments(self.name,document_types)
+		print("---------xyz",xyz)
+		transaction = frappe.get_doc("Bank Transaction", self.name)
+		bank_account = frappe.db.get_values(
+			"Bank Account",
+			transaction.bank_account,
+			["account", "company"],
+			as_dict=True)[0]
+		(account, company) = (bank_account.account, bank_account.company)
+		matching = check_matching(account, company, transaction, document_types)
+		print("ref args-----matching",account,company,transaction,document_types)
+		print("matching -pyyyy--",matching)
+		if matching:
+			self.payment_entries = []
+			for row in matching:
+				transaction.append('payment_entries',{
+					"payment_document": row[1],
+					"payment_entry": row[2],
+					"allocated_amount": row[3]
+				})
+			transaction.save(ignore_permissions = True)
+
+
 	def on_submit(self):
 		# self.match_entries()
-		self.update_allocations()
+		self.before_submitt()
+		# self.update_allocations()
 		self.clear_linked_payment_entries()
 		self.set_status(update=True)
+
 
 	def on_update_after_submit(self):
 		self.update_allocations()
 		self.clear_linked_payment_entries()
 		self.set_status(update=True)
+
 
 	def update_allocations(self):
 		if self.payment_entries:
@@ -126,7 +156,10 @@ def get_linked_payments(bank_transaction_name, document_types ):
 
 def check_matching(bank_account, company, transaction, document_types):
 	# combine all types of vocuhers
-	subquery = get_queries(bank_account, company, transaction, document_types)
+	print("check matching -------------------------------------------------",transaction.reference_number)
+	company = company
+	subquery = get_queries(transaction, document_types)
+	print("------------  subquery",subquery)
 	filters = {
 			"amount": transaction.unallocated_amount,
 			"payment_type" : "Receive" if transaction.deposit > 0 else "Pay",
@@ -135,16 +168,19 @@ def check_matching(bank_account, company, transaction, document_types):
 			"party": transaction.party,
 			"bank_account":  bank_account
 		}
-
+	print("filters--------------",filters)
 	matching_vouchers = []
 	for query in subquery:
+		print("------------  query", query)
+		abc = frappe.db.sql(query, filters)
+		print("abc----------------------",abc)
 		matching_vouchers.extend(
-			frappe.db.sql(query, filters,)
+			frappe.db.sql(query, filters)
 		)
-
+	print("------------  matching_vouchers", matching_vouchers)
 	return sorted(matching_vouchers, key = lambda x: x[0], reverse=True) if matching_vouchers else []
 
-def get_queries(bank_account, company, transaction, document_types):
+def get_queries(transaction, document_types):
 	# get queries to get matching vouchers
 	amount_condition = "="
 	account_from_to = "paid_to" if transaction.deposit > 0 else "paid_from"

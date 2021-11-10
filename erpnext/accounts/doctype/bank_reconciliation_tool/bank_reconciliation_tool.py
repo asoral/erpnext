@@ -249,6 +249,7 @@ def reconcile_vouchers(bank_transaction_name, vouchers):
 @frappe.whitelist()
 def get_linked_payments(bank_transaction_name, document_types = None):
 	# get all matching payments for a bank transaction
+	print("-------------------matching", bank_transaction_name,document_types)
 	transaction = frappe.get_doc("Bank Transaction", bank_transaction_name)
 	bank_account = frappe.db.get_values(
 		"Bank Account",
@@ -257,6 +258,7 @@ def get_linked_payments(bank_transaction_name, document_types = None):
 		as_dict=True)[0]
 	(account, company) = (bank_account.account, bank_account.company)
 	matching = check_matching(account, company, transaction, document_types)
+
 	return matching
 
 def check_matching(bank_account, company, transaction, document_types):
