@@ -7,8 +7,10 @@ import pyconvertdigits
 @frappe.whitelist()
 def get_converted_date(date):
     convertDigits = pyconvertdigits.conDigits()
-    if len(date) <= 10:
-        date = date[0:10]
+    
+    if len(str(date)) <= 10:
+        n = str(date)
+        date = n[0:10]
         date = date.split("-")
         date_to_convert = datetime.date(int(date[0]), int(date[1]),int(date[2]))
         return nepali_datetime.date.from_datetime_date(date_to_convert).strftime("%D-%n-%K")
