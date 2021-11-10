@@ -78,7 +78,7 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 			},
 			callback: function(resp){
 				if(resp.message){
-					cur_frm.set_value("due_datenepali",resp.message)
+					cur_frm.set_value("due_date_nepal",resp.message)
 				}
 			}	
 		})
