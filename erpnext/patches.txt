@@ -206,10 +206,7 @@ erpnext.patches.v13_0.delete_old_sales_reports
 execute:frappe.delete_doc_if_exists("DocType", "Bank Reconciliation")
 erpnext.patches.v13_0.move_doctype_reports_and_notification_from_hr_to_payroll #22-06-2020
 erpnext.patches.v13_0.move_payroll_setting_separately_from_hr_settings #22-06-2020
-<<<<<<< HEAD
 execute:frappe.reload_doc("regional", "doctype", "e_invoice_settings")
-=======
->>>>>>> e1cd9ae4f3eb1f0b5c56da065f42cd20a6b0b1b0
 erpnext.patches.v12_0.create_itc_reversal_custom_fields
 erpnext.patches.v13_0.check_is_income_tax_component #22-06-2020
 erpnext.patches.v13_0.loyalty_points_entry_for_pos_invoice #22-07-2020
@@ -290,7 +287,6 @@ erpnext.patches.v13_0.update_tds_check_field #3
 erpnext.patches.v13_0.add_custom_field_for_south_africa #2
 erpnext.patches.v13_0.update_recipient_email_digest
 erpnext.patches.v13_0.shopify_deprecation_warning
-<<<<<<< HEAD
 erpnext.patches.v13_0.add_custom_field_for_south_africa #2
 erpnext.patches.v13_0.rename_discharge_ordered_date_in_ip_record
 erpnext.patches.v13_0.migrate_stripe_api
@@ -316,7 +312,6 @@ erpnext.patches.v13_0.trim_sales_invoice_custom_field_length
 erpnext.patches.v13_0.enable_scheduler_job_for_item_reposting
 erpnext.patches.v13_0.requeue_failed_reposts
 erpnext.patches.v13_0.fetch_thumbnail_in_website_items
-=======
 erpnext.patches.v13_0.migrate_stripe_api
 erpnext.patches.v13_0.reset_clearance_date_for_intracompany_payment_entries
 erpnext.patches.v13_0.einvoicing_deprecation_warning
@@ -341,4 +336,4 @@ erpnext.patches.v13_0.set_status_in_maintenance_schedule_table
 erpnext.patches.v13_0.add_default_interview_notification_templates
 erpnext.patches.v13_0.requeue_failed_reposts
 erpnext.patches.v14_0.update_batch_valuation_flag
->>>>>>> e1cd9ae4f3eb1f0b5c56da065f42cd20a6b0b1b0
+
