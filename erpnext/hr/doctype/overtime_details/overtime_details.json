@@ -1,0 +1,67 @@
+{
+ "actions": [],
+ "creation": "2021-09-23 13:29:25.429153",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "login",
+  "loginnepal",
+  "logout",
+  "logoutnepal",
+  "total_overtime",
+  "reason_for_overtime"
+ ],
+ "fields": [
+  {
+   "fieldname": "login",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Login ",
+   "reqd": 1
+  },
+  {
+   "fieldname": "loginnepal",
+   "fieldtype": "Read Only",
+   "label": "Login(Nepal)"
+  },
+  {
+   "fieldname": "logout",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Logout",
+   "reqd": 1
+  },
+  {
+   "fieldname": "logoutnepal",
+   "fieldtype": "Read Only",
+   "label": "Logout(Nepal)"
+  },
+  {
+   "fieldname": "total_overtime",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total Overtime ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reason_for_overtime",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Reason For Overtime",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2021-11-17 23:02:42.284756",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Overtime Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
