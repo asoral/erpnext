@@ -197,6 +197,11 @@ class SalarySlip(TransactionBase):
 			self.end_date = date_details.end_date
 
 	@frappe.whitelist()
+	def get_overtime(self):
+		self.total_overtime = 20
+		return 301
+
+	@frappe.whitelist()
 	def get_emp_and_working_day_details(self):
 		'''First time, load all the components from salary structure'''
 		if self.employee:
@@ -311,6 +316,7 @@ class SalarySlip(TransactionBase):
 
 		self.leave_without_pay = lwp
 		self.total_working_days = working_days
+		self.total_overtime = self.calculate_overtime()
 
 		payment_days = self.get_payment_days(joining_date,
 			relieving_date, include_holidays_in_total_working_days)
@@ -333,6 +339,27 @@ class SalarySlip(TransactionBase):
 							self.payment_days += 1
 		else:
 			self.payment_days = 0
+
+
+
+	def calculate_overtime(self):
+		request_days = date_diff(self.end_date, self.start_date) + 1
+		#for number in range(request_days):
+			#attendance_date = add_days(self.start_date, number)
+		all_ot_data = frappe.db.get_all("Overtime Details",{"login":["between",(self.start_date,self.end_date)],"docstatus":1},["name","parent"])
+		ot_doc_name_list = []
+		for i in all_ot_data:
+			ot_doc_name_list.append(i.get("parent"))
+		distinct_parent = list(set(ot_doc_name_list))
+
+		ot_count = 0
+		for i in distinct_parent:
+			doc = frappe.get_doc("Overtime",i)
+			if doc.get("employee") == self.employee:
+				for t in doc.get("overtime_details"):
+					if t.get("total_overtime") > 0:
+						ot_count += t.get("total_overtime")
+		return ot_count
 
 	def get_unmarked_days(self):
 		marked_days = frappe.get_all("Attendance", filters = {
