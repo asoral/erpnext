@@ -718,9 +718,21 @@
    "read_only": 1
   },
   {
+   "fieldname": "specific_gravity",
+   "fieldtype": "Float",
+   "label": "Specific Gravity",
+   "read_only": 1
+  },
+  {
    "fieldname": "wo_specific_gravity",
    "fieldtype": "Data",
    "label": "Wo Specific Gravity"
+  },
+  {
+   "fieldname": "rm_weight",
+   "fieldtype": "Float",
+   "label": "RM Weight",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-cogs",
