@@ -7,7 +7,7 @@ def get_data():
 	return {
 		'fieldname': 'purchase_invoice',
 		'non_standard_fieldnames': {
-			'Journal Entry': 'reference_name',
+			'Journal Entry': 'purchase_invoice_no',
 			'Payment Entry': 'reference_name',
 			'Payment Request': 'reference_name',
 			'Landed Cost Voucher': 'receipt_document',
