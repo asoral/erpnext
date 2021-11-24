@@ -51,7 +51,7 @@ def get_columns(filters):
 			# 	"width": 50
 			# },
 			{
-				"label": _("Invoices No"),
+				"label": _("Naming series"),
 				"fieldname": 'invoice_no',
 				"fieldtype": "Link",
 				"options": "Purchase Invoice",
@@ -133,7 +133,7 @@ def get_columns(filters):
 				"width": 100
 			},
 			{
-				"label": _("Import Tax"),
+				"label": _("Vat On Import"),
 				"fieldname": 'import_tax',
 				"fieldtype": "float",
 				"width": 100
@@ -193,7 +193,22 @@ def get_data(filters):
 		END as gsi_or_purchase,
 
 		pi.total_qty,
-		pi.total,
+		
+		CASE
+		WHEN pi.country != "Nepal" 
+		THEN 
+		(select je.custom_valuation_amount from `tabJournal Entry` as je
+		Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
+		where pd.docstatus = 1
+        and voucher_type = "Import Purchase"
+		and pd.name = pi.name
+		LIMIT 1)
+
+		WHEN pi.country = "Nepal"
+		THEN pi.total
+
+		ELSE 0 
+		END as total,
 		IF(pi.exempted_from_tax > 1 and pi.country = "Nepal", pi.total, 0) as exempted_purchase,
 
 		IF(pi.exempted_from_tax > 1 and pi.country != "Nepal", pi.total, 0) as exempted_import,
@@ -259,7 +274,7 @@ def get_data(filters):
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 1
 		THEN	
-		(Select ptc.total from `tabPurchase Taxes and Charges` as ptc
+		(Select ptc.tax_amount from `tabPurchase Taxes and Charges` as ptc
 		Inner Join  `tabPurchase Invoice` as pd on pd.name = ptc.parent 
 		where pd.docstatus =1
 		and pd.name = pi.name		
