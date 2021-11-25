@@ -313,6 +313,14 @@ frappe.ui.form.on('Cost Calculator', {
 	
 });
 frappe.ui.form.on('Bom Raw Material Item', {
+	item_code:function(frm,cdt,cdn){
+		const row = locals[cdt][cdn];
+		frappe.db.get_doc("Item",row.item_code).then(e  => {
+			row.formula=e.cost_calculator_formula
+			refresh_field("items")
+		})
+
+	},
 	qty:function(frm,cdt,cdn){
 		const row = locals[cdt][cdn];
 		row.amount=row.qty*row.rate
