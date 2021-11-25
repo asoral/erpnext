@@ -534,6 +534,7 @@ class CostCalculator(Document):
 								j.rate=doc1.price_list_rate
 		print("&&&&&&&&&&&&&&&&&&&&&&&&")
 		for j in self.raw_material_items:
+			print("$$$$$$$$$$$$$$$$$$$$$",j.idx,"****************************")
 			weight=[]
 			amount=[]
 			try:
