@@ -10,6 +10,7 @@ from frappe.model.document import Document
 class CostCalculator(Document):
 	def validate(self):
 		self.set_price_list_currency()
+		self.size_formula()
 		
 	@frappe.whitelist()
 	def get_bom(self):
@@ -552,6 +553,41 @@ class CostCalculator(Document):
 				print("")
 		return True
 
+	@frappe.whitelist()
+	def size_formula(self):
+		for j in self.raw_material_items:
+			print("$$$$$$$$$$$$$$$$$$$$$",j.idx,"****************************")
+			try:
+				if j.fab_size_formula:
+					formula= j.fab_size_formula
+					d="{"+str(j.item_attributes)+"}"
+					c=eval(d)
+					print("$$$$$$$$$$$",c)
+					for i in c:
+						formula=formula.replace(i,str(c[i]))
+					print("^^^^^^^^^^^^^^^^^",formula)
+					formu=eval(formula)
+					print("*********************",formu)
+					j.fab_size=formu
+			except:
+				print("")
+
+
+			try:
+				if j.cut_size_formula:
+					formula= j.cut_size_formula
+					d="{"+str(j.item_attributes)+"}"
+					c=eval(d)
+					print("$$$$$$$$$$$",c)
+					for i in c:
+						formula=formula.replace(i,str(c[i]))
+					print("^^^^^^^^^^^^^^^^^",formula)
+					formu=eval(formula)
+					print("*********************",formu)
+					j.cut_size=formu
+			except:
+				print("")
+		
 
 	@frappe.whitelist()
 	def calculate_formula_scrap_item(self):
