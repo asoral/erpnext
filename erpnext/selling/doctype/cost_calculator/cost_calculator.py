@@ -532,7 +532,7 @@ class CostCalculator(Document):
 								docname.save()
 								doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 								j.rate=doc1.price_list_rate
-
+		print("&&&&&&&&&&&&&&&&&&&&&&&&")
 		for j in self.raw_material_items:
 			weight=[]
 			amount=[]
@@ -541,9 +541,13 @@ class CostCalculator(Document):
 					formula= j.formula
 					d="{"+str(j.item_attributes)+"}"
 					c=eval(d)
+					print("$$$$$$$$$$$",c)
 					for i in c:
+						print("###############",i)
 						formula=formula.replace(i,str(c[i]))
+					print("^^^^^^^^^^^^^^^^^",formula)
 					formu=eval(formula)
+					print("*********************",formu)
 					j.wp_unit=formu
 			except:
 				print("")
