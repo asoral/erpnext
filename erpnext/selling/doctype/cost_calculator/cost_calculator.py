@@ -556,18 +556,14 @@ class CostCalculator(Document):
 	@frappe.whitelist()
 	def size_formula(self):
 		for j in self.raw_material_items:
-			print("$$$$$$$$$$$$$$$$$$$$$",j.idx,"****************************")
 			try:
 				if j.fab_size_formula:
 					formula= j.fab_size_formula
 					d="{"+str(j.item_attributes)+"}"
 					c=eval(d)
-					print("$$$$$$$$$$$",c)
 					for i in c:
 						formula=formula.replace(i,str(c[i]))
-					print("^^^^^^^^^^^^^^^^^",formula)
 					formu=eval(formula)
-					print("*********************",formu)
 					j.fab_size=formu
 			except:
 				print("")
@@ -578,12 +574,9 @@ class CostCalculator(Document):
 					formula= j.cut_size_formula
 					d="{"+str(j.item_attributes)+"}"
 					c=eval(d)
-					print("$$$$$$$$$$$",c)
 					for i in c:
 						formula=formula.replace(i,str(c[i]))
-					print("^^^^^^^^^^^^^^^^^",formula)
 					formu=eval(formula)
-					print("*********************",formu)
 					j.cut_size=formu
 			except:
 				print("")
