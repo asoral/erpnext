@@ -543,7 +543,6 @@ class CostCalculator(Document):
 					c=eval(d)
 					print("$$$$$$$$$$$",c)
 					for i in c:
-						print("###############",i)
 						formula=formula.replace(i,str(c[i]))
 					print("^^^^^^^^^^^^^^^^^",formula)
 					formu=eval(formula)
