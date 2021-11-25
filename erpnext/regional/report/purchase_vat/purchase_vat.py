@@ -312,7 +312,7 @@ def get_data(filters):
 		ELSE 0
 		END as capital_tax,
 
-		bill_no as pp_no,
+		pp_no as pp_no,
 		bill_date as pp_date
 
 		from `tabPurchase Invoice` as pi
