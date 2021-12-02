@@ -249,7 +249,14 @@ frappe.ui.form.on('Cost Calculator', {
 				}
 			});
 			
-			
+			frm.call({
+				method:"get_qty",
+				doc:frm.doc,
+				callback: function(r) {
+					
+				}
+				
+			});
 			
 			d.hide();
 		});
