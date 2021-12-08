@@ -26,6 +26,7 @@ class CostCalculator(Document):
 		if lst:
 			doc=frappe.get_doc("BOM",self.template_bom)
 			for i in doc.items:
+				itm=frappe.get_doc("Item",i.item_code)
 				self.append("raw_material_items",{
 					"item_code":i.item_code,
 					"item_name":i.item_name,
@@ -35,6 +36,7 @@ class CostCalculator(Document):
 					"stock_uom":i.stock_uom,
 					"weight_uom":i.weight_uom,
 					"rate":i.rate,
+					"formula":itm.cost_calculator_formula,
 					"include_item_in_manufacturing":i.include_item_in_manufacturing,
 					"allow_alternative_item":i.allow_alternative_item,
 					"allow_to_change_qty_in_wo_":i.allowed_to_change_qty_in_wo,
@@ -43,11 +45,13 @@ class CostCalculator(Document):
 					"amount":i.amount,
 					"scrap":i.scrap
 				})
-			for i in doc.scrap_items:					
+			for i in doc.scrap_items:
+				itm=frappe.get_doc("Item",i.item_code)					
 				self.append("scrap_items",{
 					"item_code":i.item_code,
 					"item_name":i.item_name,
 					"qty":i.stock_qty,
+					"formula":itm.cost_calculator_formula,
 					"stock_uom":i.stock_uom,
 					"rate":i.rate,
 					"amount":i.amount,
