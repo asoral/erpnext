@@ -209,8 +209,8 @@ frappe.ui.form.on('Cost Calculator', {
 				doc:frm.doc,
 				callback: function(r) {
 					if (r.message) {
-						frm.refresh_field("raw_material_items");
-						frm.refresh_field("scrap_items");
+						// frm.refresh_field("raw_material_items");
+						// frm.refresh_field("scrap_items");
 						frappe.call({
 							method: "calculate_formula",
 							doc:frm.doc,
@@ -220,7 +220,14 @@ frappe.ui.form.on('Cost Calculator', {
 										method:"calculate_value_raw",
 										doc:frm.doc,
 										callback: function(r) {
-											
+											if(frm.doc.check){
+												frm.set_value("check",0)
+												frm.refresh_field("check");
+											}else{
+												frm.set_value("check",1)
+												frm.refresh_field("check");
+											}
+								
 										}
 										
 									});
@@ -240,7 +247,13 @@ frappe.ui.form.on('Cost Calculator', {
 						method:"calculate_value_scrap",
 						doc:frm.doc,
 						callback: function(r) {
-							
+							if(frm.doc.check){
+								frm.set_value("check",0)
+								frm.refresh_field("check");
+							}else{
+								frm.set_value("check",1)
+								frm.refresh_field("check");
+							}	
 						}
 						
 					});
@@ -253,11 +266,18 @@ frappe.ui.form.on('Cost Calculator', {
 				method:"get_qty",
 				doc:frm.doc,
 				callback: function(r) {
-					
+					if(frm.doc.check){
+						frm.set_value("check",0)
+						frm.refresh_field("check");
+					}else{
+						frm.set_value("check",1)
+						frm.refresh_field("check");
+					}
 				}
 				
 			});
 			
+		
 			d.hide();
 		});
 
@@ -422,7 +442,13 @@ frappe.ui.form.on('Bom Raw Material Item', {
 							method:"calculate_value_raw",
 							doc:frm.doc,
 							callback: function(r) {
-								
+								if(frm.doc.check){
+									frm.set_value("check",0)
+									frm.refresh_field("check");
+								}else{
+									frm.set_value("check",1)
+									frm.refresh_field("check");
+								}	
 							}
 							
 						});
@@ -430,6 +456,15 @@ frappe.ui.form.on('Bom Raw Material Item', {
 					}
 				}
 			});
+			// if(frm.doc.check){
+			// 	frm.set_value("check",0)
+			// 	frm.refresh_field("check");
+			// 	frm.save()
+			// }else{
+			// 	frm.set_value("check",1)
+			// 	frm.refresh_field("check");
+			// 	frm.save()
+			// }
 			
 			d.hide();
 		});
@@ -569,7 +604,13 @@ frappe.ui.form.on('Scrap Material Item', {
 						method:"calculate_value_scrap",
 						doc:frm.doc,
 						callback: function(r) {
-							
+							if(frm.doc.check){
+								frm.set_value("check",0)
+								frm.refresh_field("check");
+							}else{
+								frm.set_value("check",1)
+								frm.refresh_field("check");
+							}	
 						}
 						
 					});
@@ -578,6 +619,15 @@ frappe.ui.form.on('Scrap Material Item', {
 				}
 			});
 			}
+			// if(frm.doc.check){
+			// 	frm.set_value("check",0)
+			// 	frm.refresh_field("check");
+			// 	frm.save()
+			// }else{
+			// 	frm.set_value("check",1)
+			// 	frm.refresh_field("check");
+			// 	frm.save()
+			// }
 			d.hide();
 		});
 

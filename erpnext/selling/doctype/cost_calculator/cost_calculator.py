@@ -176,7 +176,7 @@ class CostCalculator(Document):
 		if self.qty > 0:
 			self.rate_per_unit=total_amount/self.qty
 			self.weight_per_unit=total_weight/self.qty
-		
+		return True
 
 			
 	@frappe.whitelist()
@@ -249,7 +249,7 @@ class CostCalculator(Document):
 				self.rate_per_unit=total_amount/self.qty
 			if total_weight > 0:
 				self.weight_per_unit=total_weight/self.qty
-
+		return True
 	@frappe.whitelist()
 	def make_bom(self):
 		for i in self.raw_material_items:
@@ -430,7 +430,7 @@ class CostCalculator(Document):
 				self.rate_per_unit=total_amount/self.qty
 			if total_weight:
 				self.weight_per_unit=total_weight/self.qty
-
+		return True
 
 	@frappe.whitelist()
 	def calculate_value_addons(self):

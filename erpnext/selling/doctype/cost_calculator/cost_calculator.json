@@ -60,6 +60,7 @@
   "routing",
   "section_break_52",
   "operations",
+  "check",
   "opportunity",
   "amended_from"
  ],
@@ -402,12 +403,20 @@
    "fieldname": "bom_item_attribute_set_to_raw_material_scrap",
    "fieldtype": "Check",
    "label": "Bom Item Attribute Set To Raw Material & Scrap Items"
+  },
+  {
+   "default": "0",
+   "fieldname": "check",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Check",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 11:48:07.811691",
+ "modified": "2021-12-08 12:26:53.470459",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Cost Calculator",
