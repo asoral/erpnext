@@ -264,12 +264,14 @@ def get_data(filters):
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0 
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 0
 		THEN	
-		(select  ROUND((je.custom_valuation_amount)*13/100) from `tabJournal Entry` as je
-		Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
-		where pd.docstatus = 1
+		(Select Round(jea.debit) from `tabJournal Entry Account`  jea
+		Join `tabJournal Entry` je on je.name = jea.parent
+		where je.docstatus = 1
+       
         and je.voucher_type = "Import Purchase"
-		and pd.name = pi.name
-		LIMIT 1)
+		and je.purchase_invoice_no = pi.name
+		and jea.account = "Vat on Import - CTSPL" OR jea.account = "Vat on Import - SLPL"
+		)
 
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 1
