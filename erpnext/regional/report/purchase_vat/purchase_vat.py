@@ -164,13 +164,14 @@ def get_condition(filters):
 		conditions += " AND pi.company='%s'" % filters.get('company')
 
 	if filters.get("from_date") and filters.get("to_date"):
-		conditions += " AND pi.posting_date between %(from_date)s and %(to_date)s"
+		conditions += " AND pi.posting_date between '{0}' and '{1}' ".format(filters.get("from_date"), filters.get("to_date"))
 
 	return conditions
 
 def get_data(filters):
 	conditions = get_condition(filters)	
 	head = "Vat claim due"
+	vat = "Vat on Import"
 	doc = frappe.db.sql("""
 		Select 
 		pi.company,
@@ -195,7 +196,7 @@ def get_data(filters):
 		pi.total_qty,
 		
 		CASE
-		WHEN pi.country != "Nepal" 
+		WHEN pi.country != "Nepal" and pi.is_import_services = 0
 		THEN 
 		(select je.custom_valuation_amount from `tabJournal Entry` as je
 		Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
@@ -204,9 +205,9 @@ def get_data(filters):
 		and pd.name = pi.name
 		LIMIT 1)
 
-		WHEN pi.country = "Nepal"
+		WHEN pi.country = "Nepal" or pi.is_import_services = 1
 		THEN pi.total
-
+		
 		ELSE 0 
 		END as total,
 		IF(pi.exempted_from_tax > 1 and pi.country = "Nepal", pi.total, 0) as exempted_purchase,
@@ -270,17 +271,17 @@ def get_data(filters):
        
         and je.voucher_type = "Import Purchase"
 		and je.purchase_invoice_no = pi.name
-		and jea.account = "Vat on Import - CTSPL" OR jea.account = "Vat on Import - SLPL"
+		and jea.account Like '{0}%' 
 		)
 
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 1
 		THEN	
 		(Select ptc.tax_amount from `tabPurchase Taxes and Charges` as ptc
-		Inner Join  `tabPurchase Invoice` as pd on pd.name = ptc.parent 
+		Join  `tabPurchase Invoice` as pd on pd.name = ptc.parent 
 		where pd.docstatus =1
 		and pd.name = pi.name		
-		and ptc.account_head = "Vat claim due - CTHPL" OR ptc.account_head = "Vat claim due - SLPL"
+		and ptc.account_head Like '{1}%' 
  	  	Order by pd.docstatus desc
 		limit 1)
 
@@ -323,7 +324,7 @@ def get_data(filters):
 		left join `tabPurchase Invoice Item` as pii
 		on pii.parent = pi.name		
 
-		where pi.docstatus=1 {conditions}
+		where pi.docstatus=1 {2}
 
 		group by 
 		pi.posting_date asc,
@@ -344,13 +345,13 @@ def get_data(filters):
 		capital_tax,
 		gsi_or_purchase
 
-		""".format(conditions=conditions),filters, as_dict=1)
+		""".format(vat, head, conditions), as_dict=1)
 
 	# print(doc)
 	return doc
 
 # Old column K Taxable Import
-	CASE  
+	# CASE  
 		# WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0 and pii.is_fixed_asset = 0 THEN	
 		# (select sum(pii.amount) from `tabPurchase Invoice Item` as pii  
 		# inner join `tabPurchase Invoice` as pd on pd.name  = pii.parent 
