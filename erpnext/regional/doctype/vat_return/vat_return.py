@@ -85,7 +85,8 @@ class VATRETURN(Document):
 		c_tax=high
 		a=self.report_dict["particular"]["total"][0]["tc"]
 		total=self.report_dict["particular"]["sales"][0]["tv"]
-
+		head = "Vat claim due"
+		vat = "Vat on Import"
 		doc1 = frappe.db.sql("""
 		
 		select
@@ -153,7 +154,7 @@ class VATRETURN(Document):
 		(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
 		Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
 		where xsi.name = si.name	
-		and ptc.account_head = "Vat claim due - CTHPL" OR ptc.account_head = "Vat claim due - SLPL"
+		and ptc.account_head like '{1}%'
  	  	and xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
 		and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 
         group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
@@ -173,12 +174,18 @@ class VATRETURN(Document):
         
         CASE
 		when si.currency != "NPR" and si.is_import_services = 0 then
-        (select (sum(je.custom_valuation_amount))*13/100 from `tabJournal Entry` as je
+        (Select sum(jea.debit) from `tabJournal Entry Account`  jea 
+		join `tabJournal Entry` as je on je.name = jea.parent
 		Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-		where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
+		where 
+		je.docstatus = 1
+        and je.voucher_type = "Import Purchase"
+		and jea.account Like '{0}%' 
+		and xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
 		and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1
         group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
-		 ELSE 0
+
+		ELSE 0
         End as taxable_import_1_tax,
 
 
@@ -218,7 +225,7 @@ class VATRETURN(Document):
 		monthname(si.posting_date) asc,
 		company
 
-		""",as_dict=1)
+		""".format(vat, head),as_dict=1)
 		# print(doc1)
 		top=0
 		for i in doc1:
