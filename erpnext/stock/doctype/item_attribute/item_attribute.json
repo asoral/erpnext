@@ -10,11 +10,13 @@
  "field_order": [
   "attribute_name",
   "numeric_values",
+  "calculated",
   "section_break_4",
   "from_range",
   "increment",
   "column_break_8",
   "to_range",
+  "attribute_formula",
   "section_break_5",
   "item_attribute_values"
  ],
@@ -70,12 +72,23 @@
    "fieldtype": "Table",
    "label": "Item Attribute Values",
    "options": "Item Attribute Value"
+  },
+  {
+   "default": "0",
+   "fieldname": "calculated",
+   "fieldtype": "Check",
+   "label": "Calculated"
+  },
+  {
+   "fieldname": "attribute_formula",
+   "fieldtype": "Code",
+   "label": "Attribute Formula"
   }
  ],
  "icon": "fa fa-edit",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2020-10-02 12:03:02.359202",
+ "modified": "2021-12-23 16:14:48.275836",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item Attribute",

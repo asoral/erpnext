@@ -125,6 +125,18 @@ frappe.ui.form.on('Cost Calculator', {
 			});
 		}
 	},
+	before_save:function(frm){
+		frm.call({
+			method:"calculate_attribute",
+			doc:frm.doc,
+			callback: function(r) {
+				refresh_field("item_attribute")
+				frm.refresh_field("raw_material_items");
+				frm.refresh_field("scrap_items");
+			}
+			
+		});
+	},
 	price_list:function(frm){
 		
 		frm.doc.conversion_rate=0
@@ -169,7 +181,10 @@ frappe.ui.form.on('Cost Calculator', {
 		if(e.has_variants==1){
 		for(var i=0;i< e.attributes.length;i++){
 			var fieldtype, desc;
+			// $.each(e.attributes, function(i, v) {
 			var row = e.attributes[i];
+			// frappe.db.get_doc("Item Attribute",row.attribute).then(f  => {
+			if(row.calculated==0){
 			if (row.numeric_values){
 				fieldtype = "Float";
 				desc = "Min Value: "+ row.from_range +" , Max Value: "+ row.to_range +", in Increments of: "+ row.increment
@@ -185,7 +200,9 @@ frappe.ui.form.on('Cost Calculator', {
 				"reqd": 0,
 				"description": desc
 			})
-			
+		}
+	// })
+	// })	
 		}
 		
 		var d = new frappe.ui.Dialog({
@@ -333,8 +350,10 @@ frappe.ui.form.on('Cost Calculator', {
 					}
 				});
 		});
+		
 	}
 	})
+	
 	},
 	
 	

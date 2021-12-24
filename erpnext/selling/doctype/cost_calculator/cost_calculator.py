@@ -10,7 +10,7 @@ from frappe.model.document import Document
 class CostCalculator(Document):
 	def validate(self):
 		self.set_price_list_currency()
-		self.size_formula()
+		# self.size_formula()
 		
 	@frappe.whitelist()
 	def get_bom(self):
@@ -538,7 +538,6 @@ class CostCalculator(Document):
 								doc1=frappe.get_doc("Item Price",{"item_code":j.item_code,"price_list":self.price_list,"valid_from":["<=",self.posting_date],"valid_upto":[">=",self.posting_date]})
 								j.rate=doc1.price_list_rate
 		for j in self.raw_material_items:
-			print("$$$$$$$$$$$$$$$$$$$$$",j.idx,"****************************")
 			weight=[]
 			amount=[]
 			try:
@@ -546,44 +545,41 @@ class CostCalculator(Document):
 					formula= j.formula
 					d="{"+str(j.item_attributes)+"}"
 					c=eval(d)
-					print("$$$$$$$$$$$",c)
 					for i in c:
 						formula=formula.replace(i,str(c[i]))
-					print("^^^^^^^^^^^^^^^^^",formula)
 					formu=eval(formula)
-					print("*********************",formu)
 					j.wp_unit=formu
 			except:
 				print("")
 		return True
 
-	@frappe.whitelist()
-	def size_formula(self):
-		for j in self.raw_material_items:
-			try:
-				if j.fab_size_formula:
-					formula= j.fab_size_formula
-					d="{"+str(j.item_attributes)+"}"
-					c=eval(d)
-					for i in c:
-						formula=formula.replace(i,str(c[i]))
-					formu=eval(formula)
-					j.fab_size=formu
-			except:
-				print("")
+	# @frappe.whitelist()
+	# def size_formula(self):
+	# 	for j in self.raw_material_items:
+	# 		try:
+	# 			if j.fab_size_formula:
+	# 				formula= j.fab_size_formula
+	# 				d="{"+str(j.item_attributes)+"}"
+	# 				c=eval(d)
+	# 				for i in c:
+	# 					formula=formula.replace(i,str(c[i]))
+	# 				formu=eval(formula)
+	# 				j.fab_size=formu
+	# 		except:
+	# 			print("")
 
 
-			try:
-				if j.cut_size_formula:
-					formula= j.cut_size_formula
-					d="{"+str(j.item_attributes)+"}"
-					c=eval(d)
-					for i in c:
-						formula=formula.replace(i,str(c[i]))
-					formu=eval(formula)
-					j.cut_size=formu
-			except:
-				print("")
+	# 		try:
+	# 			if j.cut_size_formula:
+	# 				formula= j.cut_size_formula
+	# 				d="{"+str(j.item_attributes)+"}"
+	# 				c=eval(d)
+	# 				for i in c:
+	# 					formula=formula.replace(i,str(c[i]))
+	# 				formu=eval(formula)
+	# 				j.cut_size=formu
+	# 		except:
+	# 			print("")
 		
 
 	@frappe.whitelist()
@@ -712,3 +708,76 @@ class CostCalculator(Document):
 		
 		return True
 			
+	@frappe.whitelist()
+	def calculate_attribute(self):
+		d="{"+str(self.item_attribute)+"}"
+		c=eval(d)
+		doc=frappe.get_doc("Item",self.item_code)
+		list=[]
+		for i in c:
+			list.append(i)
+		a=""
+		for k in doc.attributes:
+			if k.calculated==1:
+				if k.attribute not in list:
+					attdoc=frappe.get_doc("Item Attribute",k.attribute)
+					try:
+						if attdoc.attribute_formula:
+							formula= attdoc.attribute_formula
+							d="{"+str(self.item_attribute)+"}"
+							c=eval(d)
+							for i in c:
+								formula=formula.replace(i,str(c[i]))
+							formu=eval(formula)
+							print(formu)
+							a+="'"+str(k.attribute)+"'"+":"+"'"+str(formu)+"'"+","+"\n"
+					except:
+						print("")
+		g=str(self.item_attribute)+a
+		self.item_attribute=g
+		d="{"+str(g)+"}"
+		c=eval(d)
+		if self.bom_item_attribute_set_to_raw_material_scrap:
+			for i in self.raw_material_items:
+				doc=frappe.get_doc("Item",i.item_code)
+				a=""
+				for k in doc.attributes:
+					for j in c:
+						if k.attribute==j:
+							a+="'"+j+"'"+":"+"'"+c[j]+"'"+","+"\n"
+				i.item_attributes=a
+
+			for i in self.scrap_items:
+				doc=frappe.get_doc("Item",i.item_code)
+				a=""
+				for k in doc.attributes:
+					for j in c:
+						if k.attribute==j:
+							a+="'"+j+"'"+":"+"'"+c[j]+"'"+","+"\n"
+				i.item_attributes=a
+			for j in self.scrap_items:
+				try:
+					if j.formula:
+						formula= j.formula
+						d="{"+str(j.item_attributes)+"}"
+						c=eval(d)
+						for i in c:
+							formula=formula.replace(i,str(c[i]))
+						formu=eval(formula)
+						j.weight_per_unit=formu
+				except:
+					print("")
+			for j in self.raw_material_items:
+				try:
+					if j.formula:
+						formula= j.formula
+						d="{"+str(j.item_attributes)+"}"
+						c=eval(d)
+						for i in c:
+							formula=formula.replace(i,str(c[i]))
+						formu=eval(formula)
+						j.wp_unit=formu
+				except:
+					print("")
+			self.get_qty()
+		return True
