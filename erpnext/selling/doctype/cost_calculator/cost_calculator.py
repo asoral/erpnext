@@ -730,7 +730,7 @@ class CostCalculator(Document):
 								formula=formula.replace(i,str(c[i]))
 							print("##############3",formula)
 							formu=eval(formula)
-							print("&&&&&&&&&&&&&&&",k.attribute,formu)
+							print("&&&&&&&&&&&&&&&",k.attribute,":",formu)
 							a+="'"+str(k.attribute)+"'"+":"+"'"+str(formu)+"'"+","+"\n"
 					except:
 						print("")
@@ -777,9 +777,9 @@ class CostCalculator(Document):
 						for i in c:
 							formula=formula.replace(i,str(c[i]))
 						formu=eval(formula)
-						print("##############3",formula)
+						# print("##############3",formula)
 						j.wp_unit=formu
-						print("&&&&&&&&&&&&&&&",i.idx,formu)
+						# print("&&&&&&&&&&&&&&&",i.idx,formu)
 				except:
 					print("")
 			self.get_qty()
