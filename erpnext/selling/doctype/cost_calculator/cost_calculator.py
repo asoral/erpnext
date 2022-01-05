@@ -778,8 +778,8 @@ class CostCalculator(Document):
 							formula=formula.replace(i,str(c[i]))
 						formu=eval(formula)
 						print("##############3",formula)
+						print("&&&&&&&&&&&&&&&",formu)
 						j.wp_unit=formu
-						print("&&&&&&&&&&&&&&&",i.idx,formu)
 				except:
 					print("")
 			self.get_qty()
