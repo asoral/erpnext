@@ -772,9 +772,9 @@ class CostCalculator(Document):
 				try:
 					if j.formula:
 						formula= j.formula
-						print("333333333333333333333",j.formula)
 						d="{"+str(j.item_attributes)+"}"
 						c=eval(d)
+						print("333333333333333333333",c)
 						for i in c:
 							formula=formula.replace(i,str(c[i]))
 						formu=eval(formula)
