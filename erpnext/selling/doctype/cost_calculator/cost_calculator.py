@@ -774,11 +774,11 @@ class CostCalculator(Document):
 						formula= j.formula
 						d="{"+str(j.item_attributes)+"}"
 						c=eval(d)
-						print("333333333333333333333",c)
 						for i in c:
 							formula=formula.replace(i,str(c[i]))
+						print("333333333333333333333",formula)
 						formu=eval(formula)
-						print(j.idx,"##############3",formula,"&&&&&&&&&&&&&&&&&&&&&",formu)
+						print("&&&&&&&&&&&&&&&&&&&&&",formu)
 						j.wp_unit=formu
 				except:
 					print("")
