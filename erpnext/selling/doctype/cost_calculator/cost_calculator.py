@@ -777,8 +777,7 @@ class CostCalculator(Document):
 						for i in c:
 							formula=formula.replace(i,str(c[i]))
 						formu=eval(formula)
-						print("##############3",formula)
-						print("&&&&&&&&&&&&&&&",formu)
+						print("##############3",formula,"&&&&&&&&&&&&&&&&&&&&&",formu)
 						j.wp_unit=formu
 				except:
 					print("")
