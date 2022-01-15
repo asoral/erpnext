@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 
-import datetime
+from datetime import datetime
 import math
 import calendar
 import frappe
