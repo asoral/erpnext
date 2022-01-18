@@ -47,12 +47,28 @@
   "column_break_15",
   "scrap_total_amount_",
   "total_scrap_weight",
+  "bom_cost_summary_section",
+  "bom_cost_summary",
+  "section_break_44",
+  "total_pp_cost",
+  "column_break_45",
+  "total_pe_cost",
+  "per_unit_section",
+  "raw_material_cost_per_kg",
+  "weight_kg",
+  "cost_per_piece",
   "add_ons_section",
   "add_ons",
-  "section_break_24",
   "base_add_ons_amount",
   "column_break_42",
   "add_ons_amount",
+  "section_break_24",
+  "material_wise_summary",
+  "section_break_56",
+  "total_weight",
+  "column_break_59",
+  "total_rate",
+  "section_break_63",
   "operation_section_section",
   "with_operations",
   "column_break_49",
@@ -62,7 +78,9 @@
   "operations",
   "check",
   "opportunity",
-  "amended_from"
+  "amended_from",
+  "data_65",
+  "data_69"
  ],
  "fields": [
   {
@@ -208,7 +226,8 @@
   },
   {
    "fieldname": "section_break_24",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Material wise Summary"
   },
   {
    "fieldname": "add_ons_amount",
@@ -327,7 +346,7 @@
   },
   {
    "fieldname": "column_break_42",
-   "fieldtype": "Column Break"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "quotation_to",
@@ -411,12 +430,102 @@
    "hidden": 1,
    "label": "Check",
    "read_only": 1
+  },
+  {
+   "fieldname": "bom_cost_summary_section",
+   "fieldtype": "Section Break",
+   "label": "BOM Cost Summary"
+  },
+  {
+   "fieldname": "bom_cost_summary",
+   "fieldtype": "Table",
+   "label": "BOM Cost Summary",
+   "options": "BOM Cost Summary"
+  },
+  {
+   "fieldname": "per_unit_section",
+   "fieldtype": "Section Break",
+   "label": "Per Unit"
+  },
+  {
+   "fieldname": "raw_material_cost_per_kg",
+   "fieldtype": "Currency",
+   "label": "Raw Material Cost Per kg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "weight_kg",
+   "fieldtype": "Float",
+   "label": "Weight kg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_per_piece",
+   "fieldtype": "Currency",
+   "label": "Cost Per Piece",
+   "read_only": 1
+  },
+  {
+   "fieldname": "data_65",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "column_break_45",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_pe_cost",
+   "fieldtype": "Currency",
+   "label": "Total PE Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_pp_cost",
+   "fieldtype": "Currency",
+   "label": "Total PP Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_44",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "data_69",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "material_wise_summary",
+   "fieldtype": "Table",
+   "label": "Material Wise Summary",
+   "options": "Material Wise Summary"
+  },
+  {
+   "fieldname": "section_break_56",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_59",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_rate",
+   "fieldtype": "Currency",
+   "label": "Total Rate"
+  },
+  {
+   "fieldname": "total_weight",
+   "fieldtype": "Float",
+   "label": "Total Weight"
+  },
+  {
+   "fieldname": "section_break_63",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 12:26:53.470459",
+ "modified": "2022-01-15 18:16:28.499986",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Cost Calculator",

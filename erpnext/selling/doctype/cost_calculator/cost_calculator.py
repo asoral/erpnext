@@ -63,7 +63,15 @@ class CostCalculator(Document):
 					"qty":i.qty,
 					"stock_uom":i.unit_of_measure,
 					"factor":i.qty_conversion_factor
-					})	
+					})
+
+			for i in doc.bom_cost_summary:
+				self.append("bom_cost_summary",{
+					"name1": i.name1,
+					"pp_cost": i.pp_cost,
+					"pe_cost": i.pe_cost
+					})
+
 			self.with_operations=doc.with_operations
 			self.transfer_material_against=doc.transfer_material_against
 			self.routing=doc.routing
@@ -784,3 +792,68 @@ class CostCalculator(Document):
 					print("")
 			self.get_qty()
 		return True
+ 
+	def before_save(self):
+		pp = []
+		pe = []
+
+		for t in self.bom_cost_summary:
+			pp.append(t.pp_cost)
+			pe.append(t.pe_cost)
+			
+		self.total_pp_cost = sum(pp)
+		self.total_pe_cost = sum(pe)
+
+		self.cost_per_piece = self.raw_material_cost_per_kg * self.weight_kg + self.add_ons_amount
+
+		wt = []
+		rt = []
+
+		for q in self.material_wise_summary:
+			wt.append(q.weight)
+			rt.append(q.rate)
+
+			self.total_weight = sum(wt)
+			self.total_rate = sum(rt)
+
+	@frappe.whitelist()
+	def calculate_material(self):
+		for j in self.material_wise_summary:
+			for i in self.raw_material_items:
+				try:
+					if j.wt_formula:
+						formula= j.wt_formula
+						d="{"+str(self.item_attribute)+"}"
+						c=eval(d)
+						for z in c:
+							formula=formula.replace(z,str(c[z]))
+						# print("333333333333333333333",formula)
+						str_f = formula.split(" ")
+						row_c = str_f[1]
+						str2 = int(row_c.split("==")[1])
+						if i.idx == str2:
+							formu=eval(str_f[2])
+							# print("&&&&&&&&&&&&&&&&&&&&&",formu)
+							j.weight=formu	
+				except:
+					print("")
+
+		for i in self.material_wise_summary:
+			try:
+	
+				if i.rate_formula:
+					formula= i.rate_formula
+					d="{"+str(self.item_attribute)+"}"
+					c=eval(d)
+					for z in c:
+						formula=formula.replace(z,str(c[z]))
+					# print("333333333333333333333",formula)
+					str_f = formula.split(" ")
+					row_c = str_f[1]
+					str2 = int(row_c.split("==")[1])
+					if i.idx == str2:
+						formu=eval(str_f[2])
+						# print("&&&&&&&&&&&&&&&&&&&&&",formu)
+						i.rate = formu	
+			except:
+				print("")

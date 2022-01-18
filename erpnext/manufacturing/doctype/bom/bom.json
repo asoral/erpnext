@@ -42,6 +42,8 @@
   "section_break_33",
   "items",
   "scrap_section",
+  "section_break_37",
+  "bom_cost_summary",
   "scrap_items",
   "costing",
   "operating_cost",
@@ -592,6 +594,16 @@
    "label": "Cost Calcualtor",
    "options": "Cost Calculator",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_37",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "bom_cost_summary",
+   "fieldtype": "Table",
+   "label": "BOM Cost Summary",
+   "options": "BOM Cost Summary"
   }
  ],
  "icon": "fa fa-sitemap",
@@ -599,7 +611,7 @@
  "image_field": "image",
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-06 17:54:43.417749",
+ "modified": "2022-01-15 14:53:10.570765",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "BOM",

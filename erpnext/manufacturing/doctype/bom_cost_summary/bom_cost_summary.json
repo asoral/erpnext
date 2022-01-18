@@ -1,0 +1,45 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-01-15 12:42:48.521493",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "name1",
+  "pp_cost",
+  "pe_cost"
+ ],
+ "fields": [
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pp_cost",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "PP Cost"
+  },
+  {
+   "fieldname": "pe_cost",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "PE Cost"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-01-15 12:43:13.029368",
+ "modified_by": "Administrator",
+ "module": "Manufacturing",
+ "name": "BOM Cost Summary",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
