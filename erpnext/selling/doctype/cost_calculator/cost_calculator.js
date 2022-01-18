@@ -375,7 +375,7 @@ frappe.ui.form.on('Cost Calculator', {
 		
 	}
 	})
-	
+	frm.save()
 	},
 	
 	
