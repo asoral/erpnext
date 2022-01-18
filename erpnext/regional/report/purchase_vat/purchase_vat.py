@@ -210,9 +210,9 @@ def get_data(filters):
 		
 		ELSE 0 
 		END as total,
-		IF(pi.exempted_from_tax > 1 and pi.country = "Nepal", pi.total, 0) as exempted_purchase,
+		IF(pi.exempted_from_tax > 0 and pi.country = "Nepal", pi.total, 0) as exempted_purchase,
 
-		IF(pi.exempted_from_tax > 1 and pi.country != "Nepal", pi.total, 0) as exempted_import,
+		IF(pi.exempted_from_tax > 0 and pi.country != "Nepal", pi.total, 0) as exempted_import,
 
 		pi.country,
 		
