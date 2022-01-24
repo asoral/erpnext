@@ -804,6 +804,10 @@ class CostCalculator(Document):
 		self.total_pp_cost = sum(pp)
 		self.total_pe_cost = sum(pe)
 
+	
+		self.raw_material_cost_per_kg = self.total_raw_material_weight/1000
+		self.weight_kg = self.total_pp_cost/1000
+		
 		self.cost_per_piece = self.raw_material_cost_per_kg * self.weight_kg + self.add_ons_amount
 
 		wt = []
@@ -847,13 +851,13 @@ class CostCalculator(Document):
 					c=eval(d)
 					for z in c:
 						formula=formula.replace(z,str(c[z]))
-					# print("333333333333333333333",formula)
+					# print("3333333333333rate33333333",formula)
 					str_f = formula.split(" ")
 					row_c = str_f[1]
 					str2 = int(row_c.split("==")[1])
 					if i.idx == str2:
 						formu=eval(str_f[2])
-						# print("&&&&&&&&&&&&&&&&&&&&&",formu)
+						# print("&&&&&&&&&rate&&&&&&&&&&&&",formu)
 						i.rate = formu	
 			except:
 				print("")

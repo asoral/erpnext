@@ -147,17 +147,7 @@ frappe.ui.form.on('Cost Calculator', {
 			
 		});
 
-		var cal=frm.doc.total_raw_material_weight
-			var weight_kg = cal/1000
-			frm.set_value ("raw_material_cost_per_kg",flt(weight_kg)),
-			frm.refresh_field("raw_material_cost_per_kg")
-			var cal1=frm.doc.total_pp_cost
-			var a1 = cal1/1000
-			frm.set_value("weight_kg",flt(a1)),
-			frm.refresh_field("weight_kg")
-			// var cal2 = frm.doc.raw_material_cost_per_kg*frm.doc.weight_kg
-			// frm.set_value("cost_per_piece",cal2),
-			// frm.refresh_field("cost_per_piece")
+	
 	},
 	price_list:function(frm){
 		
