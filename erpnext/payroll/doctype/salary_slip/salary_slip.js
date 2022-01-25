@@ -50,6 +50,18 @@ frappe.ui.form.on("Salary Slip", {
 		if (frm.doc.start_date) {
 			frm.trigger("set_end_date");
 		}
+		if(frm.doc.start_date){
+			frappe.call({
+				method: 'get_payroll',
+				doc:frm.doc,
+				callback: function(r) {
+					if(r.message) {
+					frm.set_value('months_of_service_in_payment_period', r.message);
+					frm.refresh_field("months_of_service_in_payment_period");
+					}
+				}
+		});
+}
 		
 	},
 
@@ -228,6 +240,18 @@ frappe.ui.form.on("Salary Slip", {
 	employee:function(frm) {
 		frm.events.get_emp_and_working_day_details(frm);
 		calculate_over_time(frm,cdt,cdn)
+		if(frm.doc.start_date){
+			frappe.call({
+				method: 'get_payroll',
+				doc:frm.doc,
+				callback: function(r) {
+					if(r.message) {
+					frm.set_value('months_of_service_in_payment_period', r.message);
+					frm.refresh_field("months_of_service_in_payment_period");
+					}
+				}
+			});
+}
 	},
 
 	leave_without_pay: function(frm) {
