@@ -186,8 +186,17 @@ frappe.ui.form.on("Salary Slip", {
 		frm.fields_dict['earnings'].grid.set_column_disp(salary_detail_fields, false);
 		frm.fields_dict['deductions'].grid.set_column_disp(salary_detail_fields, false);
 		frm.trigger("set_dynamic_labels");
-
 		if(frm.doc.start_date){
+			frappe.call({
+				method: 'get_payroll',
+				doc:frm.doc,
+				callback: function(r) {
+					if(r.message) {
+					frm.set_value('months_of_service_in_payment_period', r.message);
+					frm.refresh_field("months_of_service_in_payment_period");
+					}
+				}
+			});
 			frappe.call({
 				method: 'get_total_leave_in_current_month',
 				doc:frm.doc,
