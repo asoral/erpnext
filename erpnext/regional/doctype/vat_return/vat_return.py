@@ -34,16 +34,19 @@ class VATRETURN(Document):
 			and xsi.total_taxes_and_charges=0 and si.company=xsi.company and year(xsi.posting_date)=year(si.posting_date) group by month(xsi.posting_date) desc, year(xsi.posting_date)
 			)) as total,
 		(select sum(grand_total) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and xsi.total_taxes_and_charges=0 and si.company=xsi.company and year(xsi.posting_date)=year(si.posting_date) group by month(xsi.posting_date) desc, year(xsi.posting_date)
+			and xsi.total_taxes_and_charges=0 and si.company=xsi.company and xsi.docstatus = 1 and 
+			year(xsi.posting_date)=year(si.posting_date) group by month(xsi.posting_date) desc, year(xsi.posting_date)
 			)
 				as exempted_sales,
 
 		(select count(name) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.is_return=1 and xsi.company=si.company  
+			and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.is_return=1 
+			and   xsi.docstatus = 1 and xsi.company=si.company  
 			 group by month(xsi.posting_date) desc, year(xsi.posting_date)  ) as no_credit_note,
 
 		(select count(name) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.is_debit_note=1 and xsi.company=si.company  
+			and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and
+			 xsi.docstatus = 1 and xsi.is_debit_note=1 and xsi.company=si.company  
 			 group by month(xsi.posting_date) desc, year(xsi.posting_date)  ) as no_debit_note,
 
 		case when si.currency != "NPR" then
@@ -67,21 +70,24 @@ class VATRETURN(Document):
 		for i in doc:
 			if i.month==self.month and i.company==self.company and i.year==int(self.year):
 				self.report_dict["particular"]["sales"][0]["tv"]=flt(i.taxable_sales)+flt(i.exempted_sales)+flt(i.export)
-				self.report_dict["particular"]["sales"][0]["tc"]=i.tax
+				# self.report_dict["particular"]["sales"][0]["tv"]=""
+				self.report_dict["particular"]["sales"][0]["tc"]=(flt(i.taxable_sales)*13)/100
+				# self.report_dict["particular"]["sales"][0]["tc"]=""
 				self.report_dict["particular"]["export"][0]["tv"]=i.export
 				self.report_dict["particular"]["taxable_sales"][0]["tv"]=i.taxable_sales
-				self.report_dict["particular"]["taxable_sales"][0]["tc"]=i.tax
+				# self.report_dict["particular"]["taxable_sales"][0]["tc"]=i.tax
+				self.report_dict["particular"]["taxable_sales"][0]["tc"]= (flt(i.taxable_sales)*13)/100
 				self.report_dict["particular"]["exempted_sales"][0]["tv"]=i.exempted_sales
-				self.report_dict["particular"]["total"][0]["tc"]=flt(i.tax) +flt(self.adjusted_tax_paid_on_sales)
+				self.report_dict["particular"]["total"][0]["tc"]=(flt(i.taxable_sales)*13)/100+flt(self.adjusted_tax_paid_on_sales)
 				self.report_dict["particular"]["other_adj"][0]["tc"]=self.adjusted_tax_paid_on_sales
 				self.report_dict["particular"]["no_of_sales_invoice"][0]["tc"]=i.no_of_invoice
 				self.report_dict["particular"]["no_of_credit_note"][0]["tc"]=i.no_credit_note
 				self.report_dict["particular"]["no_of_debit_note"][0]["tc"]=i.no_debit_note
 			if i.month==last and i.company==self.company and i.year==int(self.year) and i.month!="January":
-				high=flt(i.tax) + flt(self.adjusted_tax_paid_on_sales)
+				high=(flt(i.taxable_sales)*13)/100 + flt(self.adjusted_tax_paid_on_sales)
 				print(high)
 			if i.month=="January" and i.company==self.company and i.year==int(self.year)-1:
-				high=flt(i.tax) + flt(self.adjusted_tax_paid_on_sales)
+				high=(flt(i.taxable_sales)*13)/100 + flt(self.adjusted_tax_paid_on_sales)
 		c_tax=high
 		a=self.report_dict["particular"]["total"][0]["tc"]
 		total=self.report_dict["particular"]["sales"][0]["tv"]
@@ -231,6 +237,7 @@ class VATRETURN(Document):
 		for i in doc1:
 			if i.month==self.month and i.company==self.company and i.year==int(self.year):
 				self.report_dict["particular"]["purchase"][0]["tv"]=flt(i.taxable_purchase)+ flt(i.taxable_import) + flt(i.exempted_purchase)+flt(i.exempted_import)+ flt(i.capital_purchase)
+				# self.report_dict["particular"]["purchase"][0]["tv"]=""
 				self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) + flt(i.capital_purchase)
 				self.report_dict["particular"]["taxcable_purchase"][0]["tp"]=flt(i.local_tax) + flt(i.capital_tax)
 				self.report_dict["particular"]["taxcable_import"][0]["tv"]= flt(i.taxable_import_1) + flt(i.taxable_import_2)
