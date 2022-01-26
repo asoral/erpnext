@@ -85,18 +85,6 @@ frappe.ui.form.on("Salary Slip", {
 	},
 
 	set_dynamic_labels: function(frm) {
-		if(frm.doc.employee){
-			frappe.call({
-				method: 'get_payroll',
-				doc:frm.doc,
-				callback: function(r) {
-					if(r.message) {
-					frm.set_value('months_of_service_in_payment_period', r.message);
-					frm.refresh_field("months_of_service_in_payment_period");
-					}
-				}
-			});
-		}
 		var company_currency = frm.doc.company? erpnext.get_currency(frm.doc.company): frappe.defaults.get_default("currency");
 		if (frm.doc.employee && frm.doc.currency) {
 			frappe.run_serially([
@@ -176,7 +164,7 @@ frappe.ui.form.on("Salary Slip", {
 		frm.fields_dict['earnings'].grid.set_column_disp(salary_detail_fields, false);
 		frm.fields_dict['deductions'].grid.set_column_disp(salary_detail_fields, false);
 		frm.trigger("set_dynamic_labels");
-		
+
 		if(frm.doc.start_date){
 			frappe.call({
 				method: 'get_total_leave_in_current_month',
@@ -240,7 +228,7 @@ frappe.ui.form.on("Salary Slip", {
 			});
 		}
 		frm.events.get_emp_and_working_day_details(frm);
-		calculate_over_time(frm,cdt,cdn)
+		calculate_over_time(frm)
 	},
 
 	leave_without_pay: function(frm) {
