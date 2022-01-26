@@ -240,7 +240,7 @@ frappe.ui.form.on("Salary Slip", {
 			});
 		}
 		frm.events.get_emp_and_working_day_details(frm);
-		calculate_over_time(frm)
+		// calculate_over_time(frm)
 	},
 
 	leave_without_pay: function(frm) {
