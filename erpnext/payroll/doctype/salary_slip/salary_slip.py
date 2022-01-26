@@ -203,6 +203,19 @@ class SalarySlip(TransactionBase):
 
 	@frappe.whitelist()
 	def get_emp_and_working_day_details(self):
+		from datetime import date
+		a = date(date.today().year, 1, 1)
+		b = date(date.today().year, 12, 31)
+		lst=frappe.get_doc("Employee",{"employee":self.employee})
+		if a <lst.date_of_joining<=b:
+			end_date = getdate(b)
+			start_date = getdate(lst.date_of_joining)
+			num_months = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
+			frappe.db.set_value("Salary Slip", self.name, "months_of_service_in_payment_period", num_months)		
+		else:
+			num_months=12
+			frappe.db.set_value("Salary Slip", self.name, "months_of_service_in_payment_period", num_months)		
+
 		'''First time, load all the components from salary structure'''
 		if self.employee:
 			self.set("earnings", [])
