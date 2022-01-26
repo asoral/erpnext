@@ -169,12 +169,6 @@ frappe.ui.form.on("Salary Slip", {
 	},
 
 	refresh: function(frm) {
-		frm.trigger("toggle_fields");
-
-		var salary_detail_fields = ["formula", "abbr", "statistical_component", "variable_based_on_taxable_salary"];
-		frm.fields_dict['earnings'].grid.set_column_disp(salary_detail_fields, false);
-		frm.fields_dict['deductions'].grid.set_column_disp(salary_detail_fields, false);
-		frm.trigger("set_dynamic_labels");
 		if(frm.doc.employee){
 			frappe.call({
 				method: 'get_payroll',
@@ -187,6 +181,12 @@ frappe.ui.form.on("Salary Slip", {
 				}
 			});
 		}
+		frm.trigger("toggle_fields");
+
+		var salary_detail_fields = ["formula", "abbr", "statistical_component", "variable_based_on_taxable_salary"];
+		frm.fields_dict['earnings'].grid.set_column_disp(salary_detail_fields, false);
+		frm.fields_dict['deductions'].grid.set_column_disp(salary_detail_fields, false);
+		frm.trigger("set_dynamic_labels");
 		if(frm.doc.start_date){
 			frappe.call({
 				method: 'get_total_leave_in_current_month',
