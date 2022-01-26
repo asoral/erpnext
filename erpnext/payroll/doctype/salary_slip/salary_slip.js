@@ -157,18 +157,6 @@ frappe.ui.form.on("Salary Slip", {
 	},
 
 	refresh: function(frm) {
-		if(frm.doc.__islocal){
-			frappe.call({
-				method: 'get_payroll',
-				doc:frm.doc,
-				callback: function(r) {
-					if(r.message) {
-					frm.set_value('months_of_service_in_payment_period', r.message);
-					frm.refresh_field("months_of_service_in_payment_period");
-					}
-				}
-			});
-		}
 		frm.trigger("toggle_fields");
 		
 		
@@ -232,6 +220,17 @@ frappe.ui.form.on("Salary Slip", {
 	},
 
 	leave_without_pay: function(frm) {
+		frappe.call({
+			method: 'get_payroll',
+			doc:frm.doc,
+			callback: function(r) {
+				if(r.message) {
+				frm.set_value('months_of_service_in_payment_period', r.message);
+				frm.refresh_field("months_of_service_in_payment_period");
+				}
+			}
+		});
+		
 		if (frm.doc.employee && frm.doc.start_date && frm.doc.end_date) {
 			return frappe.call({
 				method: 'process_salary_based_on_working_days',
