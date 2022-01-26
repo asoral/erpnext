@@ -157,16 +157,18 @@ frappe.ui.form.on("Salary Slip", {
 	},
 
 	refresh: function(frm) {
-		frappe.call({
-			method: 'get_payroll',
-			doc:frm.doc,
-			callback: function(r) {
-				if(r.message) {
-				frm.set_value('months_of_service_in_payment_period', r.message);
-				frm.refresh_field("months_of_service_in_payment_period");
+		if(frm.doc.__islocal){
+			frappe.call({
+				method: 'get_payroll',
+				doc:frm.doc,
+				callback: function(r) {
+					if(r.message) {
+					frm.set_value('months_of_service_in_payment_period', r.message);
+					frm.refresh_field("months_of_service_in_payment_period");
+					}
 				}
-			}
-		});
+			});
+		}
 		frm.trigger("toggle_fields");
 		
 		
