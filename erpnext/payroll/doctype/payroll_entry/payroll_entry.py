@@ -609,7 +609,7 @@ def create_salary_slips_for_employees(employees, args, publish_progress=True):
 				args.update({
 				"doctype": "Salary Slip",
 				"employee": emp,
-				"months_of_service_in_payment_period":num_months
+				"months_of_service_in_payment_period":12
 				})
 			ss = frappe.get_doc(args)
 			ss.insert()
