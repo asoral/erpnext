@@ -50,18 +50,6 @@ frappe.ui.form.on("Salary Slip", {
 		if (frm.doc.start_date) {
 			frm.trigger("set_end_date");
 		}
-		if(frm.doc.start_date){
-			frappe.call({
-				method: 'get_payroll',
-				doc:frm.doc,
-				callback: function(r) {
-					if(r.message) {
-					frm.set_value('months_of_service_in_payment_period', r.message);
-					frm.refresh_field("months_of_service_in_payment_period");
-					}
-				}
-		});
-}
 		
 	},
 
@@ -255,18 +243,6 @@ frappe.ui.form.on("Salary Slip", {
 	},
 
 	toggle_fields: function(frm) {
-		if(frm.doc.employee){
-			frappe.call({
-				method: 'get_payroll',
-				doc:frm.doc,
-				callback: function(r) {
-					if(r.message) {
-					frm.set_value('months_of_service_in_payment_period', r.message);
-					frm.refresh_field("months_of_service_in_payment_period");
-					}
-				}
-			});
-		}
 		frm.toggle_display(['hourly_wages', 'timesheets'], cint(frm.doc.salary_slip_based_on_timesheet)===1);
 
 		frm.toggle_display(['payment_days', 'total_working_days', 'leave_without_pay'],
@@ -336,6 +312,18 @@ frappe.ui.form.on('Salary Detail', {
 				},
 				callback: function(data) {
 					if (data.message) {
+						if(frm.doc.employee){
+							frappe.call({
+								method: 'get_payroll',
+								doc:frm.doc,
+								callback: function(r) {
+									if(r.message) {
+									frm.set_value('months_of_service_in_payment_period', r.message);
+									frm.refresh_field("months_of_service_in_payment_period");
+									}
+								}
+							});
+						}
 						var result = data.message;
 						frappe.model.set_value(cdt, cdn, 'condition', result.condition);
 						frappe.model.set_value(cdt, cdn, 'amount_based_on_formula', result.amount_based_on_formula);
