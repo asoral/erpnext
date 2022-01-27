@@ -784,9 +784,9 @@ class CostCalculator(Document):
 						c=eval(d)
 						for i in c:
 							formula=formula.replace(i,str(c[i]))
-						print("333333333333333333333",formula)
+						# print("333333333333333333333",formula)
 						formu=eval(formula)
-						print("&&&&&&&&&&&&&&&&&&&&&",formu)
+						# print("&&&&&&&&&&&&&&&&&&&&&",formu)
 						j.wp_unit=formu
 				except:
 					print("")
@@ -822,25 +822,82 @@ class CostCalculator(Document):
 
 	@frappe.whitelist()
 	def calculate_material(self):
+		try:
+			row=[]
+			for j in self.material_wise_summary:
+				formula= j.wt_formula
+				d="{"+str(self.item_attribute)+"}"
+				c=eval(d)
+				for z in c:
+					formula=formula.replace(z,str(c[z]))
+				str_f = formula.split(" ")
+				row_c = str_f[1]
+				str2=0
+				if str(row_c).count("==") == 0:
+					str2 = int(row_c.split("!=")[1])
+				p=str2
+				if j.idx != str2:
+					row.append(j.weight)
+			weight=sum(row)
+			formu=eval(str_f[2])
+			j.weight=formu
+		except:
+			print("")
+
+		# try:
+		row1=[]
+		str2=[]
 		for j in self.material_wise_summary:
+			print("$$$$$$$$$$$$$$$$$$$$",j.weight)
+
+			formula= j.wt_formula
+			d="{"+str(self.item_attribute)+"}"
+			c=eval(d)
+			for z in c:
+				formula=formula.replace(z,str(c[z]))
+			str_f = formula.split(" ")
+			print("$$$$$$$$$$))))))))))))))))))))))", str_f)
+			row_c = str_f[1]
+			
+			if str(row_c).count("==") == 0:
+					str2 = row_c.split("in")[1]
+
+		for j in self.material_wise_summary:
+			print(str2)
+			for i in list(str2):
+				if str(j.idx) == i:
+					print("**********************")
+					row1.append(j.weight)
+		weight=sum(row1)
+		formu=eval(str_f[2])
+		j.weight=formu
+		print("SFDFXGSFGDGHH", formu)
+
+			# except:
+				# print("")
+		for j in self.material_wise_summary:
+
 			for i in self.raw_material_items:
-				try:
-					if j.wt_formula:
-						formula= j.wt_formula
-						d="{"+str(self.item_attribute)+"}"
-						c=eval(d)
-						for z in c:
-							formula=formula.replace(z,str(c[z]))
-						# print("333333333333333333333",formula)
-						str_f = formula.split(" ")
-						row_c = str_f[1]
-						str2 = int(row_c.split("==")[1])
-						if i.idx == str2:
-							formu=eval(str_f[2])
-							# print("&&&&&&&&&&&&&&&&&&&&&",formu)
-							j.weight=formu	
-				except:
-					print("")
+				# try:
+				if j.wt_formula:
+					formula= j.wt_formula
+					d="{"+str(self.item_attribute)+"}"
+					c=eval(d)
+					for z in c:
+						formula=formula.replace(z,str(c[z]))
+					# print("333333333333333333333",formula)
+					str_f = formula.split(" ")
+					row_c = str_f[1]
+					str2 =row_c.split("==")
+					if str2 :
+						try:
+							if i.idx == int(str2[1]):
+								formu=eval(str_f[2])
+								# print("&&&&&&&&&&&&&&&&&&&&&",formu)
+								j.weight=formu
+						except:
+							print("")
+
 
 		for i in self.material_wise_summary:
 			try:
