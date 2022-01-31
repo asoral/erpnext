@@ -591,10 +591,26 @@ def create_salary_slips_for_employees(employees, args, publish_progress=True):
 	salary_slips_not_created = []
 	for emp in employees:
 		if emp not in salary_slips_exists_for:
-			args.update({
+			from datetime import date
+			a = date(date.today().year, 1, 1)
+			b = date(date.today().year, 12, 31)
+	
+			lst=frappe.get_doc("Employee",{"employee":emp})
+			if a <lst.date_of_joining<=b:
+				end_date = getdate(b)
+				start_date = getdate(lst.date_of_joining)
+				num_months = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
+				args.update({
 				"doctype": "Salary Slip",
-				"employee": emp
-			})
+				"employee": emp,
+				"months_of_service_in_payment_period":num_months
+				})
+			else:
+				args.update({
+				"doctype": "Salary Slip",
+				"employee": emp,
+				"months_of_service_in_payment_period":12
+				})
 			ss = frappe.get_doc(args)
 			ss.insert()
 			count+=1
