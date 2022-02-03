@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "format:VAT-{month}-{year}-{company_address}",
+ "autoname": "format:VAT-{nepal_month}-{company}",
  "creation": "2021-08-09 16:36:35.277739",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -10,6 +10,10 @@
   "company_address",
   "year",
   "month",
+  "nepal_from_date",
+  "from_date",
+  "nepal_to_date",
+  "to_date",
   "column_break_5",
   "adjusted_tax_paid_on_purchase",
   "adjusted_tax_paid_on_sales",
@@ -18,14 +22,17 @@
   "voucher_no",
   "section_break_9",
   "json_output",
-  "missing_field_invoices"
+  "missing_field_invoices",
+  "nepal_month"
  ],
  "fields": [
   {
    "fieldname": "company",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Company",
-   "options": "Company"
+   "options": "Company",
+   "reqd": 1
   },
   {
    "fieldname": "company_address",
@@ -36,11 +43,13 @@
   {
    "fieldname": "year",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Year"
   },
   {
    "fieldname": "month",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Month",
    "options": "January\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
   },
@@ -87,10 +96,44 @@
    "fieldname": "no_credit_advice",
    "fieldtype": "Float",
    "label": "No. Credit Advice"
+  },
+  {
+   "description": "The date should be in this format only DD-MM-YYYY",
+   "fieldname": "nepal_from_date",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nepal From Date",
+   "reqd": 1
+  },
+  {
+   "description": "The date should be in this format only DD-MM-YYYY",
+   "fieldname": "nepal_to_date",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nepal To Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "nepal_month",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Nepal Month"
   }
  ],
  "links": [],
- "modified": "2021-08-20 18:07:16.935762",
+ "modified": "2022-02-03 12:34:09.760923",
  "modified_by": "Administrator",
  "module": "Regional",
  "name": "VAT RETURN",

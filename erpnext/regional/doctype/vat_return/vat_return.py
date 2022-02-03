@@ -4,71 +4,143 @@
 from __future__ import unicode_literals
 import os
 import json
+from erpnext.regional.germany.utils.datev.datev_csv import get_datev_csv
 import frappe
+from frappe.utils.data import getdate
 from six import iteritems
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, cstr
 from erpnext.regional.india import state_numbers
+import nepali_datetime
+import datetime
+
 
 class VATRETURN(Document):
+	m_year = ""
+	@frappe.whitelist()
+	def on_nepal_from_date(self, n_date):
+		
+		f_date = nepali_datetime.date(int(n_date[6:10]), int(n_date[3:5]), int(n_date[:2]))
+		print(f_date.to_datetime_date(), type(f_date.to_datetime_date()))
+		print(" dt.strftime(%A, %d. %B %Y %I:%M%p)", f_date.strftime("%B %Y"))
+		# self.m_year = f_date.strftime("%B %Y")
+		return f_date.to_datetime_date()	
+
+	@frappe.whitelist()
+	def on_nepal_month_year(self):
+		print(" this is month year")
+		return nepali_datetime.date(int(self.nepal_from_date[6:10]), int(self.nepal_from_date[3:5]), int(self.nepal_from_date[:2])).strftime("%B %Y")
+
 	def validate(self):
+		if not self.from_date :
+			print(" this is error")
+			frappe.throw(" Invalid Nepal From Date")
+		if not self.to_date:	
+			print(" this is error")
+			frappe.throw(" Invalid Nepal To Date")
+		print(" this is magh", self.m_year)	
+		self.nepal_month = nepali_datetime.date(int(self.nepal_from_date[6:10]), int(self.nepal_from_date[3:5]), int(self.nepal_from_date[:2])).strftime("%B-%Y")
 		self.get_data()
 
 	def get_data(self):
+		print(" this is magh", self.m_year)
 		self.report_dict = json.loads(get_json('vat_return_template'))
 		self.report_dict["company_name"]=self.company
 		self.report_dict["pan_no"]=1234
-		self.report_dict["ret_period"] = get_period(self.month, self.year)
+		self.report_dict["ret_period"] = nepali_datetime.date(int(self.nepal_from_date[6:10]), int(self.nepal_from_date[3:5]), int(self.nepal_from_date[:2])).strftime("%B %Y")
+		# self.report_dict["ret_period"] = get_period(self.month, self.year)
 		self.month_no = get_period(self.month)
 		self.get_sales()
 		self.json_output = frappe.as_json(self.report_dict)
 
 	def get_sales(self):
+		# doc=frappe.db.sql("""select
+		# si.company,
+		# monthname(si.posting_date) as month,
+		# year(si.posting_date) as year,
+		# count(si.name) as no_of_invoice,
+		# (sum(total) + (select sum(grand_total) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# 	and xsi.total_taxes_and_charges=0 and si.company=xsi.company and year(xsi.posting_date)=year(si.posting_date) group by month(xsi.posting_date) desc, year(xsi.posting_date)
+		# 	)) as total,
+		# (select sum(grand_total) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# 	and xsi.total_taxes_and_charges=0 and si.company=xsi.company and xsi.docstatus = 1 and 
+		# 	year(xsi.posting_date)=year(si.posting_date) group by month(xsi.posting_date) desc, year(xsi.posting_date)
+		# 	)
+		# 		as exempted_sales,
+
+		# (select count(name) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# 	and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.is_return=1 
+		# 	and   xsi.docstatus = 1 and xsi.company=si.company  
+		# 	 group by month(xsi.posting_date) desc, year(xsi.posting_date)  ) as no_credit_note,
+
+		# (select count(name) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# 	and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and
+		# 	 xsi.docstatus = 1 and xsi.is_debit_note=1 and xsi.company=si.company  
+		# 	 group by month(xsi.posting_date) desc, year(xsi.posting_date)  ) as no_debit_note,
+
+		# CASE WHEN si.currency != "NPR" THEN
+		# (select sum(xsi.total) from `tabSales Invoice` as xsi where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
+		# and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date) )
+		# END as export,
+
+		# sum(total) as taxable_sales,
+		# sum(total_taxes_and_charges) as tax
+		# from `tabSales Invoice` as si
+		# where si.docstatus=1 
+		# group by year(si.posting_date) desc,
+		# monthname(si.posting_date) asc,
+		# company 
+		# 	""",as_dict=1)
+		# print(doc)
+
 		doc=frappe.db.sql("""select
 		si.company,
-		monthname(si.posting_date) as month,
-		year(si.posting_date) as year,
+		
 		count(si.name) as no_of_invoice,
-		(sum(total) + (select sum(grand_total) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and xsi.total_taxes_and_charges=0 and si.company=xsi.company and year(xsi.posting_date)=year(si.posting_date) group by month(xsi.posting_date) desc, year(xsi.posting_date)
-			)) as total,
-		(select sum(grand_total) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and xsi.total_taxes_and_charges=0 and si.company=xsi.company and xsi.docstatus = 1 and 
-			year(xsi.posting_date)=year(si.posting_date) group by month(xsi.posting_date) desc, year(xsi.posting_date)
-			)
-				as exempted_sales,
 
-		(select count(name) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.is_return=1 
-			and   xsi.docstatus = 1 and xsi.company=si.company  
-			 group by month(xsi.posting_date) desc, year(xsi.posting_date)  ) as no_credit_note,
+		(select sum(grand_total) from `tabSales Invoice` as xsi 
+		where xsi.total_taxes_and_charges=0 and xsi.company = "CAS Trading House Pvt Ltd" 
+		and xsi.posting_date Between '{0}' AND '{1}') as total,
 
-		(select count(name) from `tabSales Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and
-			 xsi.docstatus = 1 and xsi.is_debit_note=1 and xsi.company=si.company  
-			 group by month(xsi.posting_date) desc, year(xsi.posting_date)  ) as no_debit_note,
+		(select sum(grand_total) from `tabSales Invoice` as xsi 
+		where xsi.total_taxes_and_charges=0 and xsi.company = si.company and xsi.docstatus = 1
+		and xsi.posting_date Between '{0}' AND '{1}') as exempted_sales,
 
-		case when si.currency != "NPR" then
-		(select sum(xsi.total) from `tabSales Invoice` as xsi where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
-		and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date) )
-		End as export,
+		(select count(name) from `tabSales Invoice` as xsi where 
+			 xsi.is_return=1 
+			and xsi.docstatus = 1 and xsi.company = "CAS Trading House Pvt Ltd"
+			and xsi.posting_date Between '{0}' AND '{1}' ) as no_credit_note,
+
+		(select count(name) from `tabSales Invoice` as xsi
+			where xsi.docstatus = 1 and xsi.is_debit_note = 1 and xsi.company = si.company  
+			and xsi.posting_date Between '{0}' AND '{1}' ) as no_debit_note,
+
+		CASE WHEN si.currency != "NPR" THEN
+		(select sum(xsi.total) from `tabSales Invoice` as xsi where xsi.currency != "NPR"  
+		and xsi.company = si.company and xsi.docstatus=1
+        and xsi.posting_date Between '{0}' AND '{1}'  )
+		END as export,
 
 		sum(total) as taxable_sales,
 		sum(total_taxes_and_charges) as tax
 		from `tabSales Invoice` as si
 		where si.docstatus=1 
-		group by year(si.posting_date) desc,
-		monthname(si.posting_date) asc,
-		company 
-			""",as_dict=1)
-		# print(doc)
+		and company = '{2}'
+		and si.posting_date Between '{0}' AND '{1}'
+		
+			""".format(self.from_date, self.to_date, self.company),as_dict=1)
+
+		print(" this is dioc", doc)
 		last_month=["January" ,"February","March","April","May","June","July","August","September","October","November","December"]
-		index =last_month.index(self.month)
+		new_a_date = datetime.datetime.strftime(getdate(self.from_date), "%B")
+		new_a_year = datetime.datetime.strftime(getdate(self.from_date), "%Y")
+		index =last_month.index(new_a_date)
 		last=last_month[index-1]
 		high=0
 		for i in doc:
-			if i.month==self.month and i.company==self.company and i.year==int(self.year):
+			# if i.month==self.month and i.company==self.company and i.year==int(self.year):
+			if i.company==self.company :
 				self.report_dict["particular"]["sales"][0]["tv"]=flt(i.taxable_sales)+flt(i.exempted_sales)+flt(i.export)
 				# self.report_dict["particular"]["sales"][0]["tv"]=""
 				self.report_dict["particular"]["sales"][0]["tc"]=(flt(i.taxable_sales)*13)/100
@@ -83,159 +155,307 @@ class VATRETURN(Document):
 				self.report_dict["particular"]["no_of_sales_invoice"][0]["tc"]=i.no_of_invoice
 				self.report_dict["particular"]["no_of_credit_note"][0]["tc"]=i.no_credit_note
 				self.report_dict["particular"]["no_of_debit_note"][0]["tc"]=i.no_debit_note
-			if i.month==last and i.company==self.company and i.year==int(self.year) and i.month!="January":
-				high=(flt(i.taxable_sales)*13)/100 + flt(self.adjusted_tax_paid_on_sales)
+			# if i.month==last and i.company==self.company and i.year==int(self.year) and i.month!="January":
+			if self.from_date and i.company==self.company and new_a_year and last!="January":
+				high = (flt(i.taxable_sales)*13)/100 + flt(self.adjusted_tax_paid_on_sales)
 				print(high)
-			if i.month=="January" and i.company==self.company and i.year==int(self.year)-1:
+			# if i.month=="January" and i.company==self.company and i.year==int(self.year)-1:
+			if last == "January" and i.company == self.company and new_a_year == int(new_a_year)-1:
 				high=(flt(i.taxable_sales)*13)/100 + flt(self.adjusted_tax_paid_on_sales)
 		c_tax=high
 		a=self.report_dict["particular"]["total"][0]["tc"]
 		total=self.report_dict["particular"]["sales"][0]["tv"]
 		head = "Vat claim due"
 		vat = "Vat on Import"
+		# doc1 = frappe.db.sql("""
+		
+		# select
+		# company,
+		# monthname(posting_date) as month,
+		# year(posting_date) as year,
+		# count(si.name) as no_of_invoices,
+		# CASE  WHEN si.currency = "NPR" THEN
+		# (ifnull((select sum(grand_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# and xsi.total_taxes_and_charges=0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)
+		# ), 0) + ifnull((select sum(total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# and xsi.total_taxes_and_charges != 0 and xsi.docstatus=1 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company group by month(xsi.posting_date) desc, year(xsi.posting_date)
+		# ), 0) + ifnull( (select sum(xsi.total) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
+		# and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)),0)
+		# +ifnull((select sum(pii.amount) from `tabPurchase Invoice` as pd 
+		# inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
+		# where  month(pd.posting_date)= month(si.posting_date) and year(pd.posting_date)=year(si.posting_date) and pd.docstatus=1
+		# and pii.is_fixed_asset=1 and si.company=pd.company  group by month(pd.posting_date) desc, year(pd.posting_date)),0)) 
+		
+		# WHEN si.currency != "NPR" THEN
+		# (ifnull((select sum(base_grand_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# and xsi.total_taxes_and_charges=0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)
+		# ), 0) + ifnull((select sum(base_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# and xsi.base_total_taxes_and_charges != 0 and year(xsi.posting_date)=year(si.posting_date) and xsi.docstatus=1 and si.company=xsi.company group by month(xsi.posting_date) desc, year(xsi.posting_date)
+		# ), 0) + ifnull( (select sum(xsi.total) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
+		# and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)),0)
+		# +ifnull((select sum(pii.base_amount) from `tabPurchase Invoice` as pd 
+		# inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
+		# where  month(pd.posting_date)= month(si.posting_date) and year(pd.posting_date)=year(si.posting_date) 
+		# and pii.is_fixed_asset=1 and si.company=pd.company and pd.docstatus=1 group by month(pd.posting_date) desc, year(pd.posting_date)),0)) 
+		# END as total,
+
+		# CASE  WHEN si.currency != "NPR" and si.exempted_from_tax = 1 THEN
+		# (select sum(xsi.grand_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# 	and xsi.total_taxes_and_charges=0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)
+		# 	)
+        #   END as   exempted_import,
+		
+        # CASE
+		# WHEN si.currency = "NPR" and si.exempted_from_tax = 1  THEN
+		# (select sum(xsi.base_grand_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# 	and xsi.base_total_taxes_and_charges=0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1  group by month(xsi.posting_date) desc, year(xsi.posting_date))
+		# END as exempted_purchase,
+
+		# CASE  
+		# WHEN si.currency = "NPR" THEN
+		# (select sum(xsi.total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# 	and xsi.total_taxes_and_charges != 0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
+		# END as taxable_purchase,
+
+		# CASE  WHEN si.currency = "NPR" and si.exempted_from_tax = 0 THEN
+		# (select abs(sum(xsi.total_taxes_and_charges)) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
+		# 	and xsi.total_taxes_and_charges != 0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1  group by month(xsi.posting_date) desc, year(xsi.posting_date)
+		# 	) 
+		# END as local_tax,
+
+		# CASE  WHEN si.currency != "NPR" and si.is_import_services = 1 THEN
+        # (select abs(sum(xsi.total)) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
+		# and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
+		
+        # ELSE 0
+        # END as taxable_import_2,
+
+		# CASE  WHEN si.currency != "NPR" and si.is_import_services = 1 THEN
+		# (Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
+		# Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
+		# where xsi.name = si.name	
+		# and ptc.account_head like '{1}%'
+ 	  	# and xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
+		# and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 
+        # group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
+		
+        # ELSE 0
+        # END as taxable_import_2_tax,
+        
+		# CASE
+		# WHEN si.currency != "NPR" and si.is_import_services = 0 THEN
+        # (select sum(je.custom_valuation_amount) from `tabJournal Entry` as je
+		# Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
+		# where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
+		# and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 
+        # group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
+		#  ELSE 0
+        # END as taxable_import_1,
+        
+        # CASE
+		# WHEN si.currency != "NPR" and si.is_import_services = 0 THEN
+        # (Select sum(jea.debit) from `tabJournal Entry Account`  jea 
+		# join `tabJournal Entry` as je on je.name = jea.parent
+		# Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
+		# where 
+		# je.docstatus = 1
+        # and je.voucher_type = "Import Purchase"
+		# and jea.account Like '{0}%' 
+		# and xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
+		# and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1
+        # group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
+
+		# ELSE 0
+        # END as taxable_import_1_tax,
+
+
+		# CASE  WHEN si.currency != "NPR" THEN
+		# (select sum(pii.base_amount) from `tabPurchase Invoice` as pd 
+		# inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
+		# where  month(pd.posting_date)= month(si.posting_date) and year(pd.posting_date)=year(si.posting_date) 
+		# and pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company group by month(pd.posting_date) desc, year(pd.posting_date))
+
+		# WHEN si.currency = "NPR" THEN
+		# (select sum(pii.amount) from `tabPurchase Invoice` as pd 
+		# inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
+		# where  month(pd.posting_date)= month(si.posting_date) and year(pd.posting_date)=year(si.posting_date) 
+		# and pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company  group by month(pd.posting_date) desc, year(pd.posting_date))
+		
+        # ELSE 0
+        # END as capital_purchase,
+
+		# CASE  WHEN si.currency = "NPR" THEN
+		# (select sum(pii.amount)*13/100 from `tabPurchase Invoice Item` as pii  
+		# inner join `tabPurchase Invoice` as pd on pd.name=pii.parent 
+		# where month(pd.posting_date)=month(si.posting_date) and year(pd.posting_date)=year(si.posting_date)
+		# and pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company group by month(pd.posting_date) desc, year(pd.posting_date)) 
+
+		# WHEN si.currency != "NPR" THEN
+		# (select sum(pii.base_amount)*13/100 from `tabPurchase Invoice Item` as pii  
+		# inner join `tabPurchase Invoice` as pd on pd.name=pii.parent 
+		# where month(pd.posting_date)=month(si.posting_date) and year(pd.posting_date)=year(si.posting_date)
+		# and pii.is_fixed_asset=1 and pd.docstatus=1   and si.company=pd.company group by month(pd.posting_date) desc, year(pd.posting_date)) 
+		
+		# ELSE 0
+        # END as capital_tax
+		# from
+		# `tabPurchase Invoice` as si
+		# where si.docstatus=1
+		# group by year(si.posting_date) desc,
+		# monthname(si.posting_date) asc,
+		# company
+
+		# """.format(vat, head),as_dict=1)
+		# print(doc1)
+
 		doc1 = frappe.db.sql("""
 		
 		select
 		company,
-		monthname(posting_date) as month,
-		year(posting_date) as year,
+		
 		count(si.name) as no_of_invoices,
-		case  when si.currency = "NPR" then
-		(ifnull((select sum(grand_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-		and xsi.total_taxes_and_charges=0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)
-		), 0) + ifnull((select sum(total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-		and xsi.total_taxes_and_charges != 0 and xsi.docstatus=1 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company group by month(xsi.posting_date) desc, year(xsi.posting_date)
-		), 0) + ifnull( (select sum(xsi.total) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
-		and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)),0)
+
+		CASE  WHEN si.currency = "NPR" THEN
+		(ifnull((select sum(grand_total) from `tabPurchase Invoice` as xsi 
+		where xsi.total_taxes_and_charges=0 and  si.company=xsi.company and xsi.docstatus=1 
+		and xsi.posting_date Between '{3}' AND '{4}'), 0)
+		 + ifnull((select sum(total) from `tabPurchase Invoice` as xsi 
+		where  xsi.total_taxes_and_charges != 0 and xsi.docstatus=1 and si.company=xsi.company 
+		and xsi.posting_date Between '{3}' AND '{4}' ), 0) 
+		 + ifnull( (select sum(xsi.total) from`tabPurchase Invoice` as xsi 
+		where xsi.currency != "NPR" and si.company=xsi.company  and xsi.docstatus=1 
+		and xsi.posting_date Between '{3}' AND '{4}'),0)
 		+ifnull((select sum(pii.amount) from `tabPurchase Invoice` as pd 
 		inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
-		where  month(pd.posting_date)= month(si.posting_date) and year(pd.posting_date)=year(si.posting_date) and pd.docstatus=1
-		and pii.is_fixed_asset=1 and si.company=pd.company  group by month(pd.posting_date) desc, year(pd.posting_date)),0)) 
+		where  pd.docstatus=1 and pii.is_fixed_asset=1 and si.company=pd.company 
+		and pd.posting_date Between '{3}' AND '{4}'),0)) 
 		
-		when si.currency != "NPR" then
-		(ifnull((select sum(base_grand_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-		and xsi.total_taxes_and_charges=0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)
-		), 0) + ifnull((select sum(base_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-		and xsi.base_total_taxes_and_charges != 0 and year(xsi.posting_date)=year(si.posting_date) and xsi.docstatus=1 and si.company=xsi.company group by month(xsi.posting_date) desc, year(xsi.posting_date)
-		), 0) + ifnull( (select sum(xsi.total) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
-		and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)),0)
+		WHEN si.currency != "NPR" THEN
+		(ifnull((select sum(base_grand_total) from `tabPurchase Invoice` as xsi 
+		where 
+		xsi.total_taxes_and_charges=0 and si.company=xsi.company and xsi.docstatus=1 
+		and xsi.posting_date Between '{3}' AND '{4}'), 0) 
+		 + ifnull((select sum(base_total) from `tabPurchase Invoice` as xsi 
+		where xsi.base_total_taxes_and_charges != 0 and xsi.docstatus=1 and si.company=xsi.company 
+		and xsi.posting_date Between '{3}' AND '{4}'), 0)
+		 + ifnull( (select sum(xsi.total) from`tabPurchase Invoice` as xsi 
+		where xsi.currency != "NPR"	and si.company=xsi.company and xsi.docstatus=1 
+		and xsi.posting_date Between '{3}' AND '{4}'),0)
 		+ifnull((select sum(pii.base_amount) from `tabPurchase Invoice` as pd 
 		inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
-		where  month(pd.posting_date)= month(si.posting_date) and year(pd.posting_date)=year(si.posting_date) 
-		and pii.is_fixed_asset=1 and si.company=pd.company and pd.docstatus=1 group by month(pd.posting_date) desc, year(pd.posting_date)),0)) 
-		end as total,
+		where  pii.is_fixed_asset=1 and si.company=pd.company and pd.docstatus=1 
+		and pd.posting_date Between '{3}' AND '{4}'),0)) 
+		END as total,
 
-		case  when si.currency != "NPR" and si.exempted_from_tax = 1 then
-		(select sum(xsi.grand_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and xsi.total_taxes_and_charges=0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)
-			)
-          END as   exempted_import,
+		CASE  WHEN si.currency != "NPR" and si.exempted_from_tax = 1 THEN
+		(select sum(xsi.grand_total) from `tabPurchase Invoice` as xsi 
+		where xsi.total_taxes_and_charges=0  and si.company=xsi.company and xsi.docstatus=1 
+		and xsi.posting_date Between '{3}' AND '{4}')
+        END as   exempted_import,
 		
         CASE
-		when si.currency = "NPR" and si.exempted_from_tax = 1  then
-		(select sum(xsi.base_grand_total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and xsi.base_total_taxes_and_charges=0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1  group by month(xsi.posting_date) desc, year(xsi.posting_date))
-		End as exempted_purchase,
+		WHEN si.currency = "NPR" and si.exempted_from_tax = 1  THEN
+		(select sum(xsi.base_grand_total) from `tabPurchase Invoice` as xsi 
+		where xsi.base_total_taxes_and_charges=0  and si.company=xsi.company and xsi.docstatus=1 
+		and xsi.posting_date Between '{3}' AND '{4}')
+		END as exempted_purchase,
 
-		case  
-		when si.currency = "NPR" then
-		(select sum(xsi.total) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and xsi.total_taxes_and_charges != 0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
-		End as taxable_purchase,
+		CASE  
+		WHEN si.currency = "NPR" THEN
+		(select sum(xsi.total) from `tabPurchase Invoice` as xsi 
+		where xsi.total_taxes_and_charges != 0  and si.company=xsi.company and xsi.docstatus=1 
+		and xsi.posting_date Between '{3}' AND '{4}') 
+		END as taxable_purchase,
 
-		case  when si.currency = "NPR" and si.exempted_from_tax = 0 then
-		(select abs(sum(xsi.total_taxes_and_charges)) from `tabPurchase Invoice` as xsi where month(xsi.posting_date)=month(si.posting_date)
-			and xsi.total_taxes_and_charges != 0 and year(xsi.posting_date)=year(si.posting_date) and si.company=xsi.company and xsi.docstatus=1  group by month(xsi.posting_date) desc, year(xsi.posting_date)
-			) 
-		End as local_tax,
+		CASE  WHEN si.currency = "NPR" and si.exempted_from_tax = 0 THEN
+		(select abs(sum(xsi.total_taxes_and_charges)) from `tabPurchase Invoice` as xsi 
+		where xsi.total_taxes_and_charges != 0  and si.company=xsi.company and xsi.docstatus=1  
+		and xsi.posting_date Between '{3}' AND '{4}') 
+		END as local_tax,
 
-		case  when si.currency != "NPR" and si.is_import_services = 1 then
-        (select abs(sum(xsi.total)) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
-		and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
+		CASE  WHEN si.currency != "NPR" and si.is_import_services = 1 THEN
+        (select abs(sum(xsi.total)) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR"  
+		and si.company=xsi.company  and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') 
 		
         ELSE 0
-        End as taxable_import_2,
+        END as taxable_import_2,
 
-		case  when si.currency != "NPR" and si.is_import_services = 1 then
+		CASE  WHEN si.currency != "NPR" and si.is_import_services = 1 THEN
 		(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
 		Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
 		where xsi.name = si.name	
 		and ptc.account_head like '{1}%'
- 	  	and xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
-		and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 
-        group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
+ 	  	and xsi.currency != "NPR"  
+		and si.company=xsi.company  and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}' ) 
 		
         ELSE 0
-        End as taxable_import_2_tax,
+        END as taxable_import_2_tax,
         
 		CASE
-		when si.currency != "NPR" and si.is_import_services = 0 then
+		WHEN si.currency != "NPR" and si.is_import_services = 0 THEN
         (select sum(je.custom_valuation_amount) from `tabJournal Entry` as je
 		Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-		where xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
-		and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1 
-        group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
-		 ELSE 0
-        End as taxable_import_1,
+		where xsi.currency != "NPR" and si.company=xsi.company and xsi.docstatus=1 
+		and xsi.posting_date Between '{3}' AND '{4}') 
+		ELSE 0
+        END as taxable_import_1,
         
         CASE
-		when si.currency != "NPR" and si.is_import_services = 0 then
+		WHEN si.currency != "NPR" and si.is_import_services = 0 THEN
         (Select sum(jea.debit) from `tabJournal Entry Account`  jea 
 		join `tabJournal Entry` as je on je.name = jea.parent
 		Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-		where 
-		je.docstatus = 1
-        and je.voucher_type = "Import Purchase"
-		and jea.account Like '{0}%' 
-		and xsi.currency != "NPR" and year(xsi.posting_date)=year(si.posting_date) 
-		and si.company=xsi.company and month(xsi.posting_date)=month(si.posting_date) and xsi.docstatus=1
-        group by month(xsi.posting_date) desc, year(xsi.posting_date)) 
+		where je.docstatus = 1 and je.voucher_type = "Import Purchase"
+		and jea.account Like '{0}%' and xsi.currency != "NPR" and si.company=xsi.company 
+		and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') 
 
 		ELSE 0
-        End as taxable_import_1_tax,
+        END as taxable_import_1_tax,
 
 
-		case  when si.currency != "NPR" then
+		CASE  WHEN si.currency != "NPR" THEN
 		(select sum(pii.base_amount) from `tabPurchase Invoice` as pd 
 		inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
-		where  month(pd.posting_date)= month(si.posting_date) and year(pd.posting_date)=year(si.posting_date) 
-		and pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company group by month(pd.posting_date) desc, year(pd.posting_date))
+		where   
+		pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company 
+		and pd.posting_date Between '{3}' AND '{4}')
 
-		when si.currency = "NPR" then
+		WHEN si.currency = "NPR" THEN
 		(select sum(pii.amount) from `tabPurchase Invoice` as pd 
 		inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
-		where  month(pd.posting_date)= month(si.posting_date) and year(pd.posting_date)=year(si.posting_date) 
-		and pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company  group by month(pd.posting_date) desc, year(pd.posting_date))
+		where  pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company  
+		and pd.posting_date Between '{3}' AND '{4}')
 		
         ELSE 0
-        End as capital_purchase,
+        END as capital_purchase,
 
-		case  when si.currency = "NPR" then
+		CASE  WHEN si.currency = "NPR" THEN
 		(select sum(pii.amount)*13/100 from `tabPurchase Invoice Item` as pii  
 		inner join `tabPurchase Invoice` as pd on pd.name=pii.parent 
-		where month(pd.posting_date)=month(si.posting_date) and year(pd.posting_date)=year(si.posting_date)
-		and pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company group by month(pd.posting_date) desc, year(pd.posting_date)) 
+		where pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company 
+		and pd.posting_date Between '{3}' AND '{4}')
 
-		when si.currency != "NPR" then
+		WHEN si.currency != "NPR" THEN
 		(select sum(pii.base_amount)*13/100 from `tabPurchase Invoice Item` as pii  
 		inner join `tabPurchase Invoice` as pd on pd.name=pii.parent 
-		where month(pd.posting_date)=month(si.posting_date) and year(pd.posting_date)=year(si.posting_date)
-		and pii.is_fixed_asset=1 and pd.docstatus=1   and si.company=pd.company group by month(pd.posting_date) desc, year(pd.posting_date)) 
+		where 
+		pii.is_fixed_asset=1 and pd.docstatus=1   and si.company=pd.company 
+		and pd.posting_date Between '{3}' AND '{4}')
 		
 		ELSE 0
-        End as capital_tax
-		from
-		`tabPurchase Invoice` as si
-		where si.docstatus=1
-		group by year(si.posting_date) desc,
-		monthname(si.posting_date) asc,
-		company
+        END as capital_tax
 
-		""".format(vat, head),as_dict=1)
-		# print(doc1)
+		from `tabPurchase Invoice` as si
+		where si.docstatus=1
+		and si.company = '{2}'
+		and si.posting_date Between '{3}' AND '{4}'
+		
+
+		""".format(vat, head, self.company, self.from_date, self.to_date),as_dict=1)
+
 		top=0
 		for i in doc1:
-			if i.month==self.month and i.company==self.company and i.year==int(self.year):
+			if i.company==self.company :
 				self.report_dict["particular"]["purchase"][0]["tv"]=flt(i.taxable_purchase)+ flt(i.taxable_import) + flt(i.exempted_purchase)+flt(i.exempted_import)+ flt(i.capital_purchase)
 				# self.report_dict["particular"]["purchase"][0]["tv"]=""
 				self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) + flt(i.capital_purchase)
@@ -250,9 +470,11 @@ class VATRETURN(Document):
 				self.report_dict["particular"]["no_of_purchase_invoice"][0]["tc"]=i.no_of_invoices
 				self.report_dict["particular"]["no_of_debit_advice"][0]["tc"]=flt(self.no_debit_advice)
 				self.report_dict["particular"]["no_of_credit_advice"][0]["tc"]=flt(self.no_credit_advice)
-			if i.month==last and i.company==self.company and i.year==int(self.year) and i.month != "January":
+			if self.from_date and i.company==self.company and new_a_year and last!="January":	
+			# if i.month==last and i.company==self.company and i.year==int(self.year) and i.month != "January":
 				top=flt(i.local_tax) + flt(i.import_tax)+flt(self.adjusted_tax_paid_on_purchase)
-			if i.month=="January" and i.company==self.company and i.year==int(self.year)-1:
+			if last == "January" and i.company == self.company and new_a_year == int(new_a_year)-1:	
+			# if i.month=="January" and i.company==self.company and i.year==int(self.year)-1:
 				top=flt(i.local_tax) + flt(i.import_tax)+flt(self.adjusted_tax_paid_on_purchase)
 		t_tax=top
 		tot=self.report_dict["particular"]["purchase"][0]["tv"]

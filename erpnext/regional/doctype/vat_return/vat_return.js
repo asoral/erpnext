@@ -61,4 +61,44 @@ frappe.ui.form.on('VAT RETURN', {
 			};
 		});
 	},
+
+	nepal_from_date: function(frm){
+		var a = frm.doc.nepal_from_date.length
+		console.log("this is len",a)
+		if (a == 10){
+			frappe.call({
+				method: 'on_nepal_from_date',
+				doc: frm.doc,
+				args:{
+					n_date : frm.doc.nepal_from_date
+				},
+				callback: function(r) {
+					if (r.message ){
+						frm.set_value("from_date", r.message)
+						frm.refresh_field("from_date")
+					}
+				}
+			})
+		}
+	},
+
+	nepal_to_date: function(frm){
+		
+		if (frm.doc.nepal_to_date.length == 10){
+			frappe.call({
+				method: 'on_nepal_from_date',
+				doc: frm.doc,
+				args:{
+					n_date : frm.doc.nepal_to_date
+				},
+				callback: function(r) {
+					if (r.message ){
+						frm.set_value("to_date", r.message)
+						frm.refresh_field("to_date")
+					}
+				}
+			})
+		}
+	},
+
 });
