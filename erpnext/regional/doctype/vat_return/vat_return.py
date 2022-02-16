@@ -397,7 +397,7 @@ class VATRETURN(Document):
 		Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
 		where xsi.currency != "NPR" and si.company=xsi.company and xsi.docstatus=1 
 		and xsi.posting_date Between '{3}' AND '{4}') 
-
+		CASE
 		WHEN si.country != "Nepal" and si.exempted_from_tax = 0
 		pi.is_import_services = 1
 		THEN	
