@@ -397,6 +397,13 @@ class VATRETURN(Document):
 		Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
 		where xsi.currency != "NPR" and si.company=xsi.company and xsi.docstatus=1 
 		and xsi.posting_date Between '{3}' AND '{4}') 
+
+		WHEN si.country != "Nepal" and si.exempted_from_tax = 0
+		pi.is_import_services = 1
+		THEN	
+		(Select pd.total from `tabPurchase Invoice` pd 
+		where pd.name = si.name)
+
 		ELSE 0
         END as taxable_import_1,
         
@@ -459,7 +466,9 @@ class VATRETURN(Document):
 				self.report_dict["particular"]["purchase"][0]["tv"]=flt(i.taxable_purchase)+ flt(i.taxable_import) + flt(i.exempted_purchase)+flt(i.exempted_import)+ flt(i.capital_purchase)
 				# self.report_dict["particular"]["purchase"][0]["tv"]=""
 				self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) + flt(i.capital_purchase)
-				self.report_dict["particular"]["taxcable_purchase"][0]["tp"]=flt(i.local_tax) + flt(i.capital_tax)
+
+				# self.report_dict["particular"]["taxcable_purchase"][0]["tp"]=flt(i.local_tax) + flt(i.capital_tax)
+				self.report_dict["particular"]["taxcable_purchase"][0]["tp"]= ((flt(i.taxable_purchase) + flt(i.capital_purchase)) * 13)/100 
 				self.report_dict["particular"]["taxcable_import"][0]["tv"]= flt(i.taxable_import_1) + flt(i.taxable_import_2)
 				self.report_dict["particular"]["taxcable_import"][0]["tp"]=flt(i.taxable_import_1_tax) + flt(i.taxable_import_2_tax)
 				self.report_dict["particular"]["exempted_purchase"][0]["tv"]=i.exempted_purchase
