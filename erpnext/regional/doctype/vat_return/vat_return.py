@@ -29,22 +29,22 @@ class VATRETURN(Document):
 
 	@frappe.whitelist()
 	def on_nepal_month_year(self):
-		print(" this is month year")
+		# print(" this is month year")
 		return nepali_datetime.date(int(self.nepal_from_date[6:10]), int(self.nepal_from_date[3:5]), int(self.nepal_from_date[:2])).strftime("%B %Y")
 
 	def validate(self):
 		if not self.from_date :
-			print(" this is error")
+			# print(" this is error")
 			frappe.throw(" Invalid Nepal From Date")
 		if not self.to_date:	
-			print(" this is error")
+			# print(" this is error")
 			frappe.throw(" Invalid Nepal To Date")
-		print(" this is magh", self.m_year)	
+		# print(" this is magh", self.m_year)	
 		self.nepal_month = nepali_datetime.date(int(self.nepal_from_date[6:10]), int(self.nepal_from_date[3:5]), int(self.nepal_from_date[:2])).strftime("%B-%Y")
 		self.get_data()
 
 	def get_data(self):
-		print(" this is magh", self.m_year)
+		# print(" this is magh", self.m_year)
 		self.report_dict = json.loads(get_json('vat_return_template'))
 		self.report_dict["company_name"]=self.company
 		self.report_dict["pan_no"]=1234
@@ -373,84 +373,86 @@ class VATRETURN(Document):
 		and xsi.posting_date Between '{3}' AND '{4}') 
 		END as local_tax,
 
-		CASE  WHEN si.currency != "NPR" and si.is_import_services = 1 THEN
+		if((select abs(sum(xsi.total)) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR"  
+		and xsi.company = si.company and xsi.docstatus=1 
+        and xsi.is_import_services = 1 and xsi.currency != "NPR"
+		and xsi.posting_date Between '{3}' AND '{4}') ,
         (select abs(sum(xsi.total)) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR"  
-		and si.company=xsi.company  and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') 
-		
-        ELSE 0
-        END as taxable_import_2,
+		and xsi.company = 'CAS Trading House Pvt Ltd' and xsi.docstatus=1 and
+		xsi.is_import_services = 1
+		and xsi.currency != "NPR"
+		and xsi.posting_date Between '{3}' AND '{4}') ,0)
+		as taxable_import_2,
 
-		CASE  WHEN si.currency != "NPR" and si.is_import_services = 1 THEN
-		(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
-		Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
-		where xsi.name = si.name	
-		and ptc.account_head like '{1}%'
- 	  	and xsi.currency != "NPR"  
-		and si.company=xsi.company  and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}' ) 
-		
-        ELSE 0
-        END as taxable_import_2_tax,
+		if((select sum(je.custom_valuation_amount) from `tabJournal Entry` as je
+			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
+			where xsi.currency != "NPR" and xsi.company = si.company and xsi.docstatus=1 
+			and xsi.is_import_services = 0
+			and xsi.posting_date Between '{3}' AND '{4}'),
+			(select sum(je.custom_valuation_amount) from `tabJournal Entry` as je
+			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
+			where xsi.currency != "NPR" and xsi.company = 'CAS Trading House Pvt Ltd' and xsi.docstatus=1 
+			and xsi.is_import_services = 0
+			and xsi.posting_date Between '{3}' AND '{4}') , 0)
+
+		as taxable_import_1,
         
-		CASE
-		WHEN si.currency != "NPR" and si.is_import_services = 0 THEN
-        (select sum(je.custom_valuation_amount) from `tabJournal Entry` as je
-		Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-		where xsi.currency != "NPR" and si.company=xsi.company and xsi.docstatus=1 
-		and xsi.posting_date Between '{3}' AND '{4}') 
+       if ((Select sum(jea.debit) from `tabJournal Entry Account`  jea 
+			join `tabJournal Entry` as je on je.name = jea.parent
+			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
+			and xsi.is_import_services = 0
+			where je.docstatus = 1 and je.voucher_type = "Import Purchase"
+			and jea.account Like 'Vat on Import%' and xsi.currency != "NPR" and xsi.company = si.company
+			and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') ,
+			(Select sum(jea.debit) from `tabJournal Entry Account`  jea 
+			join `tabJournal Entry` as je on je.name = jea.parent
+			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
+			and xsi.is_import_services = 0
+			where je.docstatus = 1 and je.voucher_type = "Import Purchase"
+			and jea.account Like 'Vat on Import%' and xsi.currency != "NPR" and xsi.company = si.company
+			and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') , 0)
+        +
+        if (
+			(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
+			Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
+			where  ptc.account_head like 'Vat claim due%'
+			and xsi.currency != "NPR"  
+			and xsi.is_import_services = 1   
+			and xsi.company= si.company and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}'),
+			(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
+			Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
+			where  ptc.account_head like 'Vat claim due%'
+			and xsi.currency != "NPR"  
+			and xsi.is_import_services = 1   
+			and xsi.company=  si.company and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}')
+			,0)
+        as taxable_import_1_tax,
 
-		WHEN si.country != "Nepal" and si.exempted_from_tax = 0
-		pi.is_import_services = 1
-		THEN	
-		(Select pd.total from `tabPurchase Invoice` pd 
-		where pd.name = si.name)
 
-		ELSE 0
-        END as taxable_import_1,
-        
-        CASE
-		WHEN si.currency != "NPR" and si.is_import_services = 0 THEN
-        (Select sum(jea.debit) from `tabJournal Entry Account`  jea 
-		join `tabJournal Entry` as je on je.name = jea.parent
-		Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-		where je.docstatus = 1 and je.voucher_type = "Import Purchase"
-		and jea.account Like '{0}%' and xsi.currency != "NPR" and si.company=xsi.company 
-		and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') 
-
-		ELSE 0
-        END as taxable_import_1_tax,
-
-
-		CASE  WHEN si.currency != "NPR" THEN
 		(select sum(pii.base_amount) from `tabPurchase Invoice` as pd 
 		inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
 		where   
 		pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company 
 		and pd.posting_date Between '{3}' AND '{4}')
-
-		WHEN si.currency = "NPR" THEN
+		+
 		(select sum(pii.amount) from `tabPurchase Invoice` as pd 
 		inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
 		where  pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company  
 		and pd.posting_date Between '{3}' AND '{4}')
-		
-        ELSE 0
-        END as capital_purchase,
+		as capital_purchase,
 
-		CASE  WHEN si.currency = "NPR" THEN
+
 		(select sum(pii.amount)*13/100 from `tabPurchase Invoice Item` as pii  
 		inner join `tabPurchase Invoice` as pd on pd.name=pii.parent 
 		where pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company 
 		and pd.posting_date Between '{3}' AND '{4}')
-
-		WHEN si.currency != "NPR" THEN
+		+
 		(select sum(pii.base_amount)*13/100 from `tabPurchase Invoice Item` as pii  
 		inner join `tabPurchase Invoice` as pd on pd.name=pii.parent 
 		where 
 		pii.is_fixed_asset=1 and pd.docstatus=1   and si.company=pd.company 
 		and pd.posting_date Between '{3}' AND '{4}')
-		
-		ELSE 0
-        END as capital_tax
+		as capital_tax
 
 		from `tabPurchase Invoice` as si
 		where si.docstatus=1
@@ -459,7 +461,7 @@ class VATRETURN(Document):
 		
 
 		""".format(vat, head, self.company, self.from_date, self.to_date),as_dict=1)
-
+		print(doc1)
 		top=0
 		for i in doc1:
 			if i.company==self.company :
@@ -470,12 +472,12 @@ class VATRETURN(Document):
 				# self.report_dict["particular"]["taxcable_purchase"][0]["tp"]=flt(i.local_tax) + flt(i.capital_tax)
 				self.report_dict["particular"]["taxcable_purchase"][0]["tp"]= ((flt(i.taxable_purchase) + flt(i.capital_purchase)) * 13)/100 
 				self.report_dict["particular"]["taxcable_import"][0]["tv"]= flt(i.taxable_import_1) + flt(i.taxable_import_2)
-				self.report_dict["particular"]["taxcable_import"][0]["tp"]=flt(i.taxable_import_1_tax) + flt(i.taxable_import_2_tax)
+				self.report_dict["particular"]["taxcable_import"][0]["tp"]=flt(i.taxable_import_1_tax) 
 				self.report_dict["particular"]["exempted_purchase"][0]["tv"]=i.exempted_purchase
 				self.report_dict["particular"]["exempted_import"][0]["tv"]=i.exempted_import
 				
 				self.report_dict["particular"]["other_adj"][0]["tp"]=self.adjusted_tax_paid_on_purchase
-				self.report_dict["particular"]["total"][0]["tp"]=flt(i.local_tax) + flt(i.import_tax)+flt(self.adjusted_tax_paid_on_purchase) + flt(i.capital_tax)+ flt(i.taxable_import_1_tax) + flt(i.taxable_import_2_tax)
+				self.report_dict["particular"]["total"][0]["tp"]= flt(self.adjusted_tax_paid_on_purchase) + flt(i.taxable_import_1_tax)+(((flt(i.taxable_purchase) + flt(i.capital_purchase)) * 13)/100 )
 				self.report_dict["particular"]["no_of_purchase_invoice"][0]["tc"]=i.no_of_invoices
 				self.report_dict["particular"]["no_of_debit_advice"][0]["tc"]=flt(self.no_debit_advice)
 				self.report_dict["particular"]["no_of_credit_advice"][0]["tc"]=flt(self.no_credit_advice)
