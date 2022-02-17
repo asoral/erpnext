@@ -180,8 +180,11 @@ frappe.ui.form.on("Work Order", {
 		erpnext.work_order.set_custom_buttons(frm);
 		frm.set_intro("");
 
-		if (frm.doc.docstatus === 0 && !frm.doc.__islocal) {
+		if (frm.doc.docstatus === 0 && !frm.is_new()) {
 			frm.set_intro(__("Submit this Work Order for further processing."));
+		} else {
+			frm.trigger("show_progress_for_items");
+			frm.trigger("show_progress_for_operations");
 		}
 		
 		if(frm.doc.status === "Completed" || frm.doc.status === "Closed"){
@@ -208,11 +211,6 @@ frappe.ui.form.on("Work Order", {
 			&& frm.doc.operations && frm.doc.operations.length) {
 
 		if (frm.doc.status != "Closed") {
-			if (frm.doc.docstatus===1) {
-				frm.trigger('show_progress_for_items');
-				frm.trigger('show_progress_for_operations');
-			}
-
 			if (frm.doc.docstatus === 1
 				&& frm.doc.operations && frm.doc.operations.length) {
 
@@ -545,29 +543,6 @@ frappe.ui.form.on("Work Order", {
 		erpnext.work_order.calculate_cost(frm.doc);
 		erpnext.work_order.calculate_total_cost(frm);
 	},
-
-	// actual_fg_weight: function(frm) {
-	// 	frappe.call({
-	// 		method: "yeild_calc",
-	// 		callback: function(r) {
-	// 			if(r.message) {
-	// 				console.log(r.message);
-	// 			}
-	// 		}
-	// 	});
-	// },
-
-	// actual_rm_weight: function(frm) {
-	// 	frappe.call({
-	// 		method: "consumption_dev",
-	// 		callback: function(r) {
-	// 			if(r.message) {
-	// 				frm.reload_doc();
-	// 			}
-	// 		}
-	// 	});
-	// }
-	
 });
 
 frappe.ui.form.on("Work Order Item", {
