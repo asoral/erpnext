@@ -22,8 +22,8 @@ class VATRETURN(Document):
 	def on_nepal_from_date(self, n_date):
 		
 		f_date = nepali_datetime.date(int(n_date[6:10]), int(n_date[3:5]), int(n_date[:2]))
-		print(f_date.to_datetime_date(), type(f_date.to_datetime_date()))
-		print(" dt.strftime(%A, %d. %B %Y %I:%M%p)", f_date.strftime("%B %Y"))
+		# print(f_date.to_datetime_date(), type(f_date.to_datetime_date()))
+		# print(" dt.strftime(%A, %d. %B %Y %I:%M%p)", f_date.strftime("%B %Y"))
 		# self.m_year = f_date.strftime("%B %Y")
 		return f_date.to_datetime_date()	
 
@@ -131,7 +131,7 @@ class VATRETURN(Document):
 		
 			""".format(self.from_date, self.to_date, self.company),as_dict=1)
 
-		print(" this is dioc", doc)
+		# print(" this is dioc", doc)
 		last_month=["January" ,"February","March","April","May","June","July","August","September","October","November","December"]
 		new_a_date = datetime.datetime.strftime(getdate(self.from_date), "%B")
 		new_a_year = datetime.datetime.strftime(getdate(self.from_date), "%Y")
@@ -158,7 +158,7 @@ class VATRETURN(Document):
 			# if i.month==last and i.company==self.company and i.year==int(self.year) and i.month!="January":
 			if self.from_date and i.company==self.company and new_a_year and last!="January":
 				high = (flt(i.taxable_sales)*13)/100 + flt(self.adjusted_tax_paid_on_sales)
-				print(high)
+				# print(high)
 			# if i.month=="January" and i.company==self.company and i.year==int(self.year)-1:
 			if last == "January" and i.company == self.company and new_a_year == int(new_a_year)-1:
 				high=(flt(i.taxable_sales)*13)/100 + flt(self.adjusted_tax_paid_on_sales)
@@ -373,59 +373,36 @@ class VATRETURN(Document):
 		and xsi.posting_date Between '{3}' AND '{4}') 
 		END as local_tax,
 
-		if((select abs(sum(xsi.total)) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR"  
-		and xsi.company = si.company and xsi.docstatus=1 
-        and xsi.is_import_services = 1 and xsi.currency != "NPR"
-		and xsi.posting_date Between '{3}' AND '{4}') ,
-        (select abs(sum(xsi.total)) from`tabPurchase Invoice` as xsi where xsi.currency != "NPR"  
-		and xsi.company = 'CAS Trading House Pvt Ltd' and xsi.docstatus=1 and
-		xsi.is_import_services = 1
-		and xsi.currency != "NPR"
+		if( si.is_import_services = 0,
+        (select abs(sum(xsi.total)) from`tabPurchase Invoice` as xsi
+        where xsi.company = si.company and xsi.docstatus=1 
+        and	xsi.is_import_services = 1	
 		and xsi.posting_date Between '{3}' AND '{4}') ,0)
 		as taxable_import_2,
 
-		if((select sum(je.custom_valuation_amount) from `tabJournal Entry` as je
-			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-			where xsi.currency != "NPR" and xsi.company = si.company and xsi.docstatus=1 
-			and xsi.is_import_services = 0
-			and xsi.posting_date Between '{3}' AND '{4}'),
+		if(si.is_import_services = 0,
 			(select sum(je.custom_valuation_amount) from `tabJournal Entry` as je
 			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-			where xsi.currency != "NPR" and xsi.company = 'CAS Trading House Pvt Ltd' and xsi.docstatus=1 
-			and xsi.is_import_services = 0
+			where xsi.company = si.company and xsi.docstatus=1 
+			and xsi.is_import_services = 0 and je.voucher_type = "Import Purchase"
 			and xsi.posting_date Between '{3}' AND '{4}') , 0)
 
 		as taxable_import_1,
         
-       if ((Select sum(jea.debit) from `tabJournal Entry Account`  jea 
-			join `tabJournal Entry` as je on je.name = jea.parent
-			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-			and xsi.is_import_services = 0
-			where je.docstatus = 1 and je.voucher_type = "Import Purchase"
-			and jea.account Like 'Vat on Import%' and xsi.currency != "NPR" and xsi.company = si.company
-			and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') ,
 			(Select sum(jea.debit) from `tabJournal Entry Account`  jea 
 			join `tabJournal Entry` as je on je.name = jea.parent
 			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
 			and xsi.is_import_services = 0
 			where je.docstatus = 1 and je.voucher_type = "Import Purchase"
-			and jea.account Like 'Vat on Import%' and xsi.currency != "NPR" and xsi.company = si.company
-			and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') , 0)
+			and jea.account Like 'Vat on Import%' and xsi.company = si.company
+			and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') 
         +
-        if (
 			(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
 			Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
 			where  ptc.account_head like 'Vat claim due%'
-			and xsi.currency != "NPR"  
-			and xsi.is_import_services = 1   
-			and xsi.company= si.company and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}'),
-			(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
-			Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
-			where  ptc.account_head like 'Vat claim due%'
-			and xsi.currency != "NPR"  
 			and xsi.is_import_services = 1   
 			and xsi.company=  si.company and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}')
-			,0)
+			
         as taxable_import_1_tax,
 
 
@@ -434,11 +411,7 @@ class VATRETURN(Document):
 		where   
 		pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company 
 		and pd.posting_date Between '{3}' AND '{4}')
-		+
-		(select sum(pii.amount) from `tabPurchase Invoice` as pd 
-		inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
-		where  pii.is_fixed_asset=1 and pd.docstatus=1 and si.company=pd.company  
-		and pd.posting_date Between '{3}' AND '{4}')
+		
 		as capital_purchase,
 
 
@@ -461,7 +434,7 @@ class VATRETURN(Document):
 		
 
 		""".format(vat, head, self.company, self.from_date, self.to_date),as_dict=1)
-		print(doc1)
+		# print(doc1)
 		top=0
 		for i in doc1:
 			if i.company==self.company :
