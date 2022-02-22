@@ -362,8 +362,13 @@ class VATRETURN(Document):
 
 		CASE  
 		WHEN si.currency = "NPR" THEN
-		(select sum(xsi.total) from `tabPurchase Invoice` as xsi 
-		where xsi.total_taxes_and_charges != 0  and si.company=xsi.company and xsi.docstatus=1 
+
+		(select sum(pii.amount) from `tabPurchase Invoice Item` as pii
+        left join `tabPurchase Invoice` as xsi on pii.parent = xsi.name
+		where xsi.total_taxes_and_charges != 0 
+        and pii.is_fixed_asset = 0
+        and xsi.company = si.company and xsi.docstatus=1 
+        and xsi.country = "Nepal"
 		and xsi.posting_date Between '{3}' AND '{4}') 
 		END as taxable_purchase,
 
