@@ -1080,9 +1080,44 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "VAT Reports",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "VAT Return",
+   "link_to": "VAT RETURN",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Purchase VAT",
+   "link_to": "Purchase VAT",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Sales VAt",
+   "link_to": "Sales VAT",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2021-08-23 16:06:34.167267",
+ "modified": "2022-02-22 17:28:44.554818",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",
