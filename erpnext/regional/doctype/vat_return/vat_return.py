@@ -378,19 +378,19 @@ class VATRETURN(Document):
 		and xsi.posting_date Between '{3}' AND '{4}') 
 		END as local_tax,
 
-		if( si.is_import_services = 0,
+		
         (select abs(sum(xsi.total)) from`tabPurchase Invoice` as xsi
         where xsi.company = si.company and xsi.docstatus=1 
         and	xsi.is_import_services = 1	
-		and xsi.posting_date Between '{3}' AND '{4}') ,0)
+		and xsi.posting_date Between '{3}' AND '{4}') 
 		as taxable_import_2,
 
-		if(si.is_import_services = 0,
-			(select sum(je.custom_valuation_amount) from `tabJournal Entry` as je
-			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-			where xsi.company = si.company and xsi.docstatus=1 
-			and xsi.is_import_services = 0 and je.voucher_type = "Import Purchase"
-			and xsi.posting_date Between '{3}' AND '{4}') , 0)
+		(select sum(je.custom_valuation_amount) from `tabJournal Entry` as je
+		Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
+		where xsi.company = si.company and xsi.docstatus=1 
+        and xsi.country != "Nepal"
+		and xsi.is_import_services = 0 and je.voucher_type = "Import Purchase"
+			and xsi.posting_date Between '{3}' AND '{4}') 
 
 		as taxable_import_1,
         
@@ -445,17 +445,18 @@ class VATRETURN(Document):
 			if i.company==self.company :
 				self.report_dict["particular"]["purchase"][0]["tv"]=flt(i.taxable_purchase)+ flt(i.taxable_import) + flt(i.exempted_purchase)+flt(i.exempted_import)+ flt(i.capital_purchase)
 				# self.report_dict["particular"]["purchase"][0]["tv"]=""
-				self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) + flt(i.capital_purchase)
+				# self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) + flt(i.capital_purchase)
+				self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) 
 
 				# self.report_dict["particular"]["taxcable_purchase"][0]["tp"]=flt(i.local_tax) + flt(i.capital_tax)
-				self.report_dict["particular"]["taxcable_purchase"][0]["tp"]= ((flt(i.taxable_purchase) + flt(i.capital_purchase)) * 13)/100 
+				self.report_dict["particular"]["taxcable_purchase"][0]["tp"]= (flt(i.taxable_purchase) * 13)/100 
 				self.report_dict["particular"]["taxcable_import"][0]["tv"]= flt(i.taxable_import_1) + flt(i.taxable_import_2)
 				self.report_dict["particular"]["taxcable_import"][0]["tp"]=flt(i.taxable_import_1_tax) 
 				self.report_dict["particular"]["exempted_purchase"][0]["tv"]=i.exempted_purchase
 				self.report_dict["particular"]["exempted_import"][0]["tv"]=i.exempted_import
 				
 				self.report_dict["particular"]["other_adj"][0]["tp"]=self.adjusted_tax_paid_on_purchase
-				self.report_dict["particular"]["total"][0]["tp"]= flt(self.adjusted_tax_paid_on_purchase) + flt(i.taxable_import_1_tax)+(((flt(i.taxable_purchase) + flt(i.capital_purchase)) * 13)/100 )
+				self.report_dict["particular"]["total"][0]["tp"]= flt(self.adjusted_tax_paid_on_purchase) + flt(i.taxable_import_1_tax)+((flt(i.taxable_purchase)  * 13)/100 )
 				self.report_dict["particular"]["no_of_purchase_invoice"][0]["tc"]=i.no_of_invoices
 				self.report_dict["particular"]["no_of_debit_advice"][0]["tc"]=flt(self.no_debit_advice)
 				self.report_dict["particular"]["no_of_credit_advice"][0]["tc"]=flt(self.no_credit_advice)
