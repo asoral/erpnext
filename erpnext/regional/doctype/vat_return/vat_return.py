@@ -445,11 +445,11 @@ class VATRETURN(Document):
 			if i.company==self.company :
 				self.report_dict["particular"]["purchase"][0]["tv"]=flt(i.taxable_purchase)+ flt(i.taxable_import) + flt(i.exempted_purchase)+flt(i.exempted_import)+ flt(i.capital_purchase)
 				# self.report_dict["particular"]["purchase"][0]["tv"]=""
-				# self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) + flt(i.capital_purchase)
-				self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) 
+				self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) + flt(i.capital_purchase)
+				# self.report_dict["particular"]["taxcable_purchase"][0]["tv"]=flt(i.taxable_purchase) 
 
 				# self.report_dict["particular"]["taxcable_purchase"][0]["tp"]=flt(i.local_tax) + flt(i.capital_tax)
-				self.report_dict["particular"]["taxcable_purchase"][0]["tp"]= (flt(i.taxable_purchase) * 13)/100 
+				self.report_dict["particular"]["taxcable_purchase"][0]["tp"]= ((flt(i.taxable_purchase) + flt(i.capital_purchase)) * 13)/100 
 				self.report_dict["particular"]["taxcable_import"][0]["tv"]= flt(i.taxable_import_1) + flt(i.taxable_import_2)
 				self.report_dict["particular"]["taxcable_import"][0]["tp"]=flt(i.taxable_import_1_tax) 
 				self.report_dict["particular"]["exempted_purchase"][0]["tv"]=i.exempted_purchase
