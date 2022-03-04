@@ -489,7 +489,7 @@ class VATRETURN(Document):
 							Limit 1
 						""".format(self.company, new_to_date, self.from_date), as_dict=1)
 		# print(" thi si wen etad  ", new_from_date.self.from_date)
-		print(" = = = =  = = = = = = = =", top[0].get("taxable_sales"))
+		# print(" = = = =  = = = = = = = =", top[0].get("taxable_sales"))
 		if top[0].get("taxable_sales"):
 			sale_tax = flt(top[0].get("taxable_sales"))
 
@@ -522,17 +522,15 @@ class VATRETURN(Document):
 								and si.posting_date Between '{1}' and '{2}'
 								Limit 1
 						""".format(self.company, new_from_date, self.from_date), as_dict= 1)
-
-
-		print(" = = = =  = = = = = = = =", bott)
+		# print(" = = = =  = = = = = = = =", bott)
 		if bott:
 			tp = cp = 0
-			print(" >>>>>>>>>>>>>", bott[0].get("taxable_purchase"), bott[0].get("capital_purchase"))
+			# print(" >>>>>>>>>>>>>", bott[0].get("taxable_purchase"), bott[0].get("capital_purchase"))
 			if bott[0].get("taxable_purchase"): tp = bott[0].get("taxable_purchase")
 			if bott[0].get("capital_purchase") : cp = bott[0].get("capital_purchase")
 
 			purchase_tax = (flt(tp)+flt(cp))*13/100
-		print(" subraction", sale_tax - purchase_tax , sale_tax - purchase_tax)
+		# print(" subraction", sale_tax - purchase_tax , sale_tax - purchase_tax)
 
 		if (a-b)< 0:
 			# self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]=c_tax-t_tax
