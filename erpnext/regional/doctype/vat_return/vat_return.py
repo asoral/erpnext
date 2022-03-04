@@ -14,7 +14,7 @@ from frappe.utils import flt, cstr
 from erpnext.regional.india import state_numbers
 import nepali_datetime
 import datetime
-
+from datetime import  timedelta
 
 class VATRETURN(Document):
 	m_year = ""
@@ -473,11 +473,74 @@ class VATRETURN(Document):
 		self.report_dict["particular"]["total"][0]["tv"]=total+tot
 		# print(c_tax)
 		# print(t_tax)
+
+		new_from_date = getdate(self.from_date) - timedelta(days=30)
+		new_to_date = getdate(self.to_date) - timedelta(days=30)
+
+		sale_tax = 0
+		purchase_tax = 0
+		top = frappe.db.sql("""
+							Select 
+							if ((sum(total)*13/100), (sum(total)*13/100), 0)as taxable_sales 
+							from `tabSales Invoice` si
+							where si.docstatus=1 
+							and company = '{0}'
+							and si.posting_date Between '{1}' and '{2}'
+							Limit 1
+						""".format(self.company, new_to_date, self.from_date), as_dict=1)
+		# print(" thi si wen etad  ", new_from_date.self.from_date)
+		print(" = = = =  = = = = = = = =", top[0].get("taxable_sales"))
+		if top[0].get("taxable_sales"):
+			sale_tax = flt(top[0].get("taxable_sales"))
+
+		bott = frappe.db.sql("""
+							 Select 
+								CASE  
+								WHEN si.currency = "NPR" 
+								THEN
+								(select sum(pii.amount) from `tabPurchase Invoice Item` as pii
+								left join `tabPurchase Invoice` as xsi on pii.parent = xsi.name
+								where xsi.total_taxes_and_charges != 0 
+								and pii.is_fixed_asset = 0
+								and xsi.company = si.company and xsi.docstatus=1 
+								and xsi.country = "Nepal"
+								and xsi.posting_date Between '{1}' AND '{2}')
+								
+								END as taxable_purchase,
+								
+								(select sum(pii.base_amount) from `tabPurchase Invoice` as pd 
+								inner join `tabPurchase Invoice Item` as pii on pd.name=pii.parent 
+								where   
+								pii.is_fixed_asset=1 and pd.docstatus=1 and pd.company = si.company 
+								and si.posting_date Between '{1}' AND '{2}')
+								as capital_purchase
+								
+								from `tabPurchase Invoice` as si
+								where si.docstatus=1
+								
+								and company = '{0}'
+								and si.posting_date Between '{1}' and '{2}'
+								Limit 1
+						""".format(self.company, new_from_date, self.from_date), as_dict= 1)
+
+
+		print(" = = = =  = = = = = = = =", bott)
+		if bott:
+			tp = cp = 0
+			print(" >>>>>>>>>>>>>", bott[0].get("taxable_purchase"), bott[0].get("capital_purchase"))
+			if bott[0].get("taxable_purchase"): tp = bott[0].get("taxable_purchase")
+			if bott[0].get("capital_purchase") : cp = bott[0].get("capital_purchase")
+
+			purchase_tax = (flt(tp)+flt(cp))*13/100
+		print(" subraction", sale_tax - purchase_tax , sale_tax - purchase_tax)
+
 		if (a-b)< 0:
-			self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]=c_tax-t_tax
+			# self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]=c_tax-t_tax
+			self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]= sale_tax - purchase_tax
 			self.report_dict["particular"]["net_tax"][0]["tc"]=flt(self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"])+flt(self.report_dict["particular"]["debit_credit"][0]["tc"])
 		if (a-b) > 0:
 			self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]=0
+			# self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"] = sale_tax - purchase_tax
 			self.report_dict["particular"]["net_tax"][0]["tc"]=flt(self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"])+flt(self.report_dict["particular"]["debit_credit"][0]["tc"])
 		self.report_dict["particular"]["total_payment"][0]["tv"]=self.report_dict["particular"]["net_tax"][0]["tc"]
 		self.report_dict["particular"]["total_payment"][0]["tp"]="Voucher No:"
