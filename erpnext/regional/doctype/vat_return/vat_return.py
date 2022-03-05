@@ -513,7 +513,23 @@ class VATRETURN(Document):
 								where   
 								pii.is_fixed_asset=1 and pd.docstatus=1 and pd.company = si.company 
 								and si.posting_date Between '{1}' AND '{2}')
-								as capital_purchase
+								as capital_purchase,
+
+								(Select sum(jea.debit) from `tabJournal Entry Account`  jea 
+								join `tabJournal Entry` as je on je.name = jea.parent
+								Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
+								and xsi.is_import_services = 0
+								where je.docstatus = 1 and je.voucher_type = "Import Purchase"
+								and jea.account Like 'Vat on Import%' and xsi.company = si.company
+								and xsi.docstatus=1 and xsi.posting_date Between '{1}' AND '{2}') 
+								+
+								(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
+								Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
+								where  ptc.account_head like 'Vat claim due%'
+								and xsi.is_import_services = 1 and xsi.company=  si.company 
+								and xsi.docstatus=1 and xsi.posting_date Between '{1}' AND '{2}')
+
+								as import_tax
 								
 								from `tabPurchase Invoice` as si
 								where si.docstatus=1
@@ -522,14 +538,17 @@ class VATRETURN(Document):
 								and si.posting_date Between '{1}' and '{2}'
 								Limit 1
 						""".format(self.company, new_from_date, self.from_date), as_dict= 1)
-		# print(" = = = =  = = = = = = = =", bott)
+		print(" = = = =  = = = = = = = =", bott)
 		if bott:
-			tp = cp = 0
+			tp = cp = tx = 0
 			# print(" >>>>>>>>>>>>>", bott[0].get("taxable_purchase"), bott[0].get("capital_purchase"))
 			if bott[0].get("taxable_purchase"): tp = bott[0].get("taxable_purchase")
 			if bott[0].get("capital_purchase") : cp = bott[0].get("capital_purchase")
+			if bott[0].get("import_tax") : tx = bott[0].get("import_tax")
 
-			purchase_tax = (flt(tp)+flt(cp))*13/100
+			c =  (flt(tp)+flt(cp))*13/100
+			purchase_tax = c + tx
+			print(" purchse ", purchase_tax)
 		# print(" subraction", sale_tax - purchase_tax , sale_tax - purchase_tax)
 
 		if (a-b)< 0:
@@ -537,7 +556,7 @@ class VATRETURN(Document):
 			self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]= sale_tax - purchase_tax
 			self.report_dict["particular"]["net_tax"][0]["tc"]=flt(self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"])+flt(self.report_dict["particular"]["debit_credit"][0]["tc"])
 		if (a-b) > 0:
-			self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]=0
+			self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]= 0
 			# self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"] = sale_tax - purchase_tax
 			self.report_dict["particular"]["net_tax"][0]["tc"]=flt(self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"])+flt(self.report_dict["particular"]["debit_credit"][0]["tc"])
 		self.report_dict["particular"]["total_payment"][0]["tv"]=self.report_dict["particular"]["net_tax"][0]["tc"]
