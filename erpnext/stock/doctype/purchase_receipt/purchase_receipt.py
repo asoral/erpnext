@@ -24,74 +24,103 @@ form_grid_templates = {
 class PurchaseReceipt(BuyingController):
 
 	# New Code for Kroslink TASK TASK-2022-00015, Field challan_number_issues_by_job_worker
-
 	@frappe.whitelist()
 	def on_get_items_button(self, po):
 
 
 		
 		# s_company = frappe.db.get_value("Supplier", self.supplier, )
-		print(" this is on get items click", frappe.get_doc("Purchase Receipt", "MAT-PRE-2022-00022-1").get_signature())
+		# print(" this is on get items click", frappe.get_doc("Purchase Receipt", "MAT-PRE-2022-00022-1").get_signature())
 		count = 0
 		# 1st get item_code , challan_number_issues_by_job_worker (name of soi) 
 		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'purchase_order'])
-		print(" got item at 1", pr_items)
+		# print("1 LIST OF PR ITEMS", pr_items)
 
 		for i in pr_items:
+			main_item = i.get("item_code")
+			# print(" main ITEMS", i.get("item_code") )
 			sub_com = frappe.get_doc("Stock Entry",{ "purchase_order" : i.purchase_order, "stock_entry_type" : "Send to Subcontractor"})
-			print(" sub com", sub_com.name)
-			# 2nd Getting Batch no from SOIorder
+			# print(" sub com", sub_com.name)
+			# Getting Batch no from SOIorder
 			if i.challan_number_issues_by_job_worker:
 				soi_item = frappe.db.get_value("Sales Invoice Item", i.challan_number_issues_by_job_worker, ['item_code', 'batch_no', 'sales_order'], as_dict= 1)
 				# 3rd From Sales invoice to Sales Order and Sales Order to Work Order
 				# Send Type 
-				print("soi  details 2", soi_item)
+				# print("2 Sales Invoice Item", soi_item)
 				if soi_item:
 					soi_so = frappe.db.get_value("Work Order", { "sales_order": soi_item.get('sales_order'),
 					"production_item": soi_item.get("item_code"), "company": self.represents_company },["name"])
 
-					print("soi so 3", soi_so)
+					# print("3 Work Order", soi_so)
 					# 4 WOrkorder to Stock Entrt of Above Work Order and Get its name 
 					if soi_so: 
 						se_wo_man = frappe.get_all("Stock Entry", {"work_order" :soi_so, "stock_entry_type": "Manufacture"}, ["name"])
+
+						mcfm = frappe.get_all("Stock Entry", {"work_order" :soi_so, "stock_entry_type": "Material Consumption for Manufacture"}, ["name"])
 						
 						# from Stock Entry Get Stock Items with above item and batch no matching above and get its parent
-						print(" this se_wo_name 4", se_wo_man)
+						# print("4 SE ", se_wo_man)
+						# print("4 Material Consumption for Manufacture", mcfm)
 						if se_wo_man:
-							for won in se_wo_man:
-								print("5 in for ", won)
+							for won in mcfm:
+								# print("5 in for ", won)
 							
-								# se_man = frappe.get_all("Stock Entry Detail", {"parent" :won }, ["item_code", "batch_no", "parent"])
+								se_man = frappe.get_all("Stock Entry Detail", {"parent" :won.get("name") }, ["*"])
 
-								se_man = frappe.get_doc("Stock Entry", won)
-								for i in  se_man.items:
-
-									print(" 6 SE MAN", i)
-									if i.item_code == soi_item.get("item_code") and i.batch_no == soi_item.get("batch_no"):
-
-										se_mat_con = frappe.get_doc("Stock Entry", {'work_order': soi_so, 'stock_entry_type': 'Material Consumption for Manufacture'})
-										print(" 7 this is new se of com for man", se_mat_con.name)
-										if se_mat_con:
-											print("8 se mat com", se_mat_con)
-											se_mat_con_entry = frappe.db.get_all("Stock Entry Detail", {"parent" : se_mat_con.name}, 
-											["item_code", "item_name", "description", "qty", "stock_uom", "conversion_factor", "basic_rate", "amount"])
-											# print("9 se mat com", se_mat_con_entry)
-											if se_mat_con_entry:
-												for sei in se_mat_con_entry:
-													print(' 10 sei', sei)	
-													self.append("supplied_items",{
-													"main_item_code" : sei.item_code,	
-													"rm_item_code" : sei.item_code,
-													"stock_uom" : sei.stock_uom,
-													"required_qty" : sei.qty,
-													"qty_to_be_consumed" : sei.qty,
-													"rate" : sei.basic_rate,
-													"amount" : sei.amount,
-													"item_name" : sei.item_name,
-													"description" : sei.description,
-													 "reference_challan" : sub_com.name
+								# se_man = frappe.get_doc("Stock Entry", won)
+								for i in  se_man:
+									var  = i.get("batch_no")
+									new_se = var.rsplit("*")
+									# print(" this is batch SE", var, new_se[0])
+									ref_cn = frappe.get_value("Stock Entry", new_se[0], ["reference_challan"])
+									# batch = frappe.get_doc("Stock Entry", )
+									# print(" 6 SE MAN", i ,"thi is refc", ref_cn)
+									self.append("supplied_items",{
+													"main_item_code" : main_item,	
+													"rm_item_code" : frappe.db.get_value("Item", 
+													i.item_code, ["intercompany_item"]) if frappe.db.get_value("Item", i.item_code, 
+													["intercompany_item"]) else i.item_code,
+													"stock_uom" : i.stock_uom,
+													"required_qty" : i.qty,
+													"qty_to_be_consumed" : i.qty,
+													"rate" : i.basic_rate,
+													"amount" : i.amount,
+													"item_name" :  frappe.db.get_value("Item", 
+													i.item_code, ["intercompany_item_name"]) if frappe.db.get_value("Item", i.item_code, 
+													["intercompany_item_name"]) else i.item_name,
+													"description" : i.description,
+													 "reference_challan" : ref_cn,
+													 "batch_no" : i.batch_no,
+													 "consumed_qty" : i.qty
 													})
-													count = count + 1
+									count = count + 1
+
+
+									# if i.item_code == soi_item.get("item_code") and i.batch_no == soi_item.get("batch_no"):
+
+									# 	se_mat_con = frappe.get_doc("Stock Entry", {'work_order': soi_so, 'stock_entry_type': 'Material Consumption for Manufacture'})
+									# 	print(" 7 this is new se of com for man", se_mat_con.name)
+									# 	if se_mat_con:
+									# 		print("8 se mat com", se_mat_con)
+									# 		se_mat_con_entry = frappe.db.get_all("Stock Entry Detail", {"parent" : se_mat_con.name}, 
+									# 		["item_code", "item_name", "description", "qty", "stock_uom", "conversion_factor", "basic_rate", "amount"])
+									# 		# print("9 se mat com", se_mat_con_entry)
+									# 		if se_mat_con_entry:
+									# 			for sei in se_mat_con_entry:
+									# 				print(' 10 sei', sei)	
+									# 				self.append("supplied_items",{
+									# 				"main_item_code" : sei.item_code,	
+									# 				"rm_item_code" : sei.item_code,
+									# 				"stock_uom" : sei.stock_uom,
+									# 				"required_qty" : sei.qty,
+									# 				"qty_to_be_consumed" : sei.qty,
+									# 				"rate" : sei.basic_rate,
+									# 				"amount" : sei.amount,
+									# 				"item_name" : sei.item_name,
+									# 				"description" : sei.description,
+									# 				 "reference_challan" : sub_com.name
+									# 				})
+													# count = count + 1
 
 		if count > 1:
 			return True	
@@ -137,6 +166,11 @@ class PurchaseReceipt(BuyingController):
 
 		
 		return soi
+
+	# new code to make user click Get Subcontracted Item
+	def before_submit(self):
+		if self.is_subcontracted_clicked != 1:
+			frappe.throw(" Please click Get Subcontracted Items button in Raw Materials Consumed section ") 	
 
 	def __init__(self, *args, **kwargs):
 		super(PurchaseReceipt, self).__init__(*args, **kwargs)

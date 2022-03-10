@@ -55,6 +55,7 @@ frappe.ui.form.on("Purchase Receipt", {
 	get_items: function(frm) {
 		console.log(" Button Working")
 		if (frm.doc.docstatus != 1){
+			frm.clear_table("supplied_items")
 			frappe.call({
 				method : 'on_get_items_button',
 				doc:frm.doc,
@@ -64,6 +65,10 @@ frappe.ui.form.on("Purchase Receipt", {
 					if (r.message){
 					console.log("this is buttom", r.message)
 					frm.refresh_field("supplied_items")
+
+					frm.set_value("is_subcontracted_clicked", 1)
+					frm.refresh_field("is_subcontracted_clicked")
+
 					}
 					else console.log("Nothis ins ")
 				}

@@ -745,17 +745,19 @@ frappe.ui.form.on('Stock Entry', {
 
 	create_batch: function (frm) {
 		console.log(" this is create nbutton")
-		frm.save()
-		frappe.call({
-			method: "create_new_batch_no",
-			doc : frm.doc,
-			callback: function (r) {
-				if (r.message) {
-					console.log(" Success")
-					// frappe.model.set_value(cdt, cdn, r.message);
+		if (frm.doc.docstatus == 0){
+			frm.save()
+			frappe.call({
+				method: "create_new_batch_no",
+				doc : frm.doc,
+				callback: function (r) {
+					if (r.message) {
+						console.log(" Success")
+						// frappe.model.set_value(cdt, cdn, r.message);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 });

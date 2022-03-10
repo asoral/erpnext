@@ -68,6 +68,7 @@
   "get_current_stock",
   "get_items",
   "supplied_items",
+  "is_subcontracted_clicked",
   "taxes_charges_section",
   "tax_category",
   "shipping_col",
@@ -1152,13 +1153,20 @@
    "fieldname": "get_items",
    "fieldtype": "Button",
    "label": "Get Subcontracted Items"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_subcontracted_clicked",
+   "fieldtype": "Check",
+   "label": "Is Subcontracted Clicked"
   }
  ],
  "icon": "fa fa-truck",
  "idx": 261,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-03-02 15:50:21.389814",
+ "migration_hash": "ae68938e8f3739b6d0c42b1ce17de284",
+ "modified": "2022-03-09 16:57:50.810911",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Purchase Receipt",
