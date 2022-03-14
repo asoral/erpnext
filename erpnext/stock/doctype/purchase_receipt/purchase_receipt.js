@@ -53,8 +53,8 @@ frappe.ui.form.on("Purchase Receipt", {
 
 	// new code for TASK - TASK-2022-00015
 	get_items: function(frm) {
-		console.log(" Button Working")
-		if (frm.doc.docstatus != 1){
+		// console.log(" Button Working")
+		if (frm.doc.docstatus != 1 && frm.doc.is_subcontracted == 'Yes'){
 			frm.clear_table("supplied_items")
 			frappe.call({
 				method : 'on_get_items_button',
@@ -63,14 +63,14 @@ frappe.ui.form.on("Purchase Receipt", {
 				{
 					// frm.refresh_field("get_items")
 					if (r.message){
-					console.log("this is buttom", r.message)
+					// console.log("this is buttom", r.message)
 					frm.refresh_field("supplied_items")
 
 					frm.set_value("is_subcontracted_clicked", 1)
 					frm.refresh_field("is_subcontracted_clicked")
 
 					}
-					else console.log("Nothis ins ")
+					// else console.log("Nothis ins ")
 				}
 			});
 		}

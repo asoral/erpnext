@@ -1902,7 +1902,7 @@ class StockEntry(StockController):
 	# Code for new Button above Items
 	@frappe.whitelist()
 	def create_new_batch_no(self):
-		# print(" We are in stock Entry ", self.items)
+		print(" We are in stock Entry ", self.items)
 		item = self.items
 		if len(item) > 0 and self.docstatus == 0:
 			for i in item:

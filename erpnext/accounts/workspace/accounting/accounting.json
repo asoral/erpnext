@@ -848,6 +848,15 @@
   },
   {
    "hidden": 0,
+   "is_query_report": 1,
+   "label": "ITC",
+   "link_to": "ITC-04",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
    "is_query_report": 0,
    "label": "Share Management",
    "onboard": 0,
@@ -1130,7 +1139,7 @@
    "type": "Link"
   }
  ],
- "modified": "2022-02-21 12:55:17.768043",
+ "modified": "2022-03-14 14:57:19.121219",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",

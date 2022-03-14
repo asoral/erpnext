@@ -134,7 +134,7 @@ class PurchaseReceipt(BuyingController):
 
 	@frappe.whitelist()
 	def on_challan_date(self, item):
-		print("THi i new deu daye")
+		# print("THi i new deu daye")
 		due_date = frappe.db.sql("""
 								Select si.due_date, soi.new_name from `tabSales Invoice Item` soi , `tabSales Invoice` si
 								Where soi.parent = si.name and soi.name = '{0}'	""".format(item), as_dict = 1)
@@ -144,12 +144,12 @@ class PurchaseReceipt(BuyingController):
 	# New Code for Kroslink TASK TASK-2022-00015, Field challan_number_issues_by_job_worker
 	@frappe.whitelist()
 	def on_challan_number(self, item_code):
-		print("this is Inside on_challan_number")
+		# print("this is Inside on_challan_number")
 		new_company = frappe.get_value("Supplier", self.supplier, 'represents_company')
 
 		new_code = (frappe.get_value("Item", item_code, "intercompany_item") or item_code)
 
-		print(" new cm , new code", new_company, new_code)
+		# print(" new cm , new code", new_company, new_code)
 		soi = frappe.db.sql("""
 			select soi.name, si.name as si_name from `tabSales Invoice Item` soi , `tabSales Invoice` si
 				Where soi.parent = si.name
@@ -161,15 +161,15 @@ class PurchaseReceipt(BuyingController):
 		new_soi = []
 		for s in soi:
 			new_soi.append(s["name"])
-			print(s)
-		print("soi", soi, new_soi)
+			# print(s)
+		# print("soi", soi, new_soi)
 
 		
 		return soi
 
 	# new code to make user click Get Subcontracted Item
 	def before_submit(self):
-		if self.is_subcontracted_clicked != 1:
+		if self.is_subcontracted_clicked == 0 and self.is_subcontracted == "Yes":
 			frappe.throw(" Please click Get Subcontracted Items button in Raw Materials Consumed section ") 	
 
 	def __init__(self, *args, **kwargs):
@@ -293,7 +293,7 @@ class PurchaseReceipt(BuyingController):
 
 	def validate_challan_number_issue_by_job_worker(self):
 		for row in self.items:
-			print("row.nature_of_job_work_done -------------",row.nature_of_job_work_done )
+			# print("row.nature_of_job_work_done -------------",row.nature_of_job_work_done )
 			str_nature = row.nature_of_job_work_done
 			if row.is_subcontracted == "Yes" and not row.challan_number_issues_by_job_worker and not row.challan_date_issues_by_job_worker and not str_nature:
 					frappe.throw("Challan Number Issues by Job Worker, Challan Date Issues by Job Worker"

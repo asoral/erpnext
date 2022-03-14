@@ -1158,6 +1158,7 @@
    "default": "0",
    "fieldname": "is_subcontracted_clicked",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Is Subcontracted Clicked"
   }
  ],
@@ -1166,7 +1167,7 @@
  "is_submittable": 1,
  "links": [],
  "migration_hash": "ae68938e8f3739b6d0c42b1ce17de284",
- "modified": "2022-03-09 16:57:50.810911",
+ "modified": "2022-03-14 14:42:57.226634",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Purchase Receipt",

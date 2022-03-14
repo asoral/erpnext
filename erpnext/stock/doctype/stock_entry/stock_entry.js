@@ -758,6 +758,13 @@ frappe.ui.form.on('Stock Entry', {
 				}
 			});
 		}
+	},
+
+	after_save: function (frm) {
+		if (frm.doc.reference_challan){
+				frm.set_df_property("create_batch", "hidden", 0)
+				frm.refresh_field("create_batch")
+		}
 	}
 
 });

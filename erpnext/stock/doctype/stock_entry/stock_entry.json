@@ -674,6 +674,7 @@
   {
    "fieldname": "create_batch",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Create Batch"
   }
  ],
@@ -682,8 +683,8 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "migration_hash": "58b3f7058b28fcdabe8c60f1794ed329",
- "modified": "2022-03-08 17:47:44.802761",
+ "migration_hash": "f95c1adcd55ad4c1a8e4cbf0261bf3de",
+ "modified": "2022-03-14 13:03:17.824443",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Entry",
