@@ -94,34 +94,6 @@ class PurchaseReceipt(BuyingController):
 													 "consumed_qty" : i.qty
 													})
 									count = count + 1
-
-
-									# if i.item_code == soi_item.get("item_code") and i.batch_no == soi_item.get("batch_no"):
-
-									# 	se_mat_con = frappe.get_doc("Stock Entry", {'work_order': soi_so, 'stock_entry_type': 'Material Consumption for Manufacture'})
-									# 	print(" 7 this is new se of com for man", se_mat_con.name)
-									# 	if se_mat_con:
-									# 		print("8 se mat com", se_mat_con)
-									# 		se_mat_con_entry = frappe.db.get_all("Stock Entry Detail", {"parent" : se_mat_con.name}, 
-									# 		["item_code", "item_name", "description", "qty", "stock_uom", "conversion_factor", "basic_rate", "amount"])
-									# 		# print("9 se mat com", se_mat_con_entry)
-									# 		if se_mat_con_entry:
-									# 			for sei in se_mat_con_entry:
-									# 				print(' 10 sei', sei)	
-									# 				self.append("supplied_items",{
-									# 				"main_item_code" : sei.item_code,	
-									# 				"rm_item_code" : sei.item_code,
-									# 				"stock_uom" : sei.stock_uom,
-									# 				"required_qty" : sei.qty,
-									# 				"qty_to_be_consumed" : sei.qty,
-									# 				"rate" : sei.basic_rate,
-									# 				"amount" : sei.amount,
-									# 				"item_name" : sei.item_name,
-									# 				"description" : sei.description,
-									# 				 "reference_challan" : sub_com.name
-									# 				})
-													# count = count + 1
-
 		if count > 1:
 			return True	
 					
