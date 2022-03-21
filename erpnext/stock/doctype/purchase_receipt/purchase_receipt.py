@@ -32,7 +32,7 @@ class PurchaseReceipt(BuyingController):
 	def on_get_items_button(self, po):
 
 
-		
+		print("Button Clicked .................------------=========")
 		# s_company = frappe.db.get_value("Supplier", self.supplier, )
 		# print(" this is on get items click", frappe.get_doc("Purchase Receipt", "MAT-PRE-2022-00022-1").get_signature())
 		count = 0
