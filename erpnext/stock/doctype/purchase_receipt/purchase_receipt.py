@@ -81,6 +81,7 @@ class PurchaseReceipt(BuyingController):
 										"consumed_qty" : i.qty
 										})
 						count = count + 1
+				batch_details.clear()
 						
 					# "reference_challan" : ref_cn,
 
