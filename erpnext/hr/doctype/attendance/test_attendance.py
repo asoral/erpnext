@@ -1,9 +1,10 @@
 # Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors and Contributors
 # See license.txt
-from __future__ import unicode_literals
+
+import unittest
+from frappe.utils import nowdate
 
 import frappe
-import unittest
 from frappe.utils import nowdate
 
 test_records = frappe.get_test_records('Attendance')

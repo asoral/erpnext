@@ -9,4 +9,3 @@ def get_data():
 				'items': ['Pricing Rule']
 			}
 		]
-	}

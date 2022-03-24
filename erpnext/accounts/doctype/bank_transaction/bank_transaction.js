@@ -33,39 +33,6 @@ frappe.ui.form.on("Bank Transaction", {
 			};
 		});
 	},
-
-	before_submitt:function(frm){
-		var document_types = ['payment_entry','journal_entry']
-		frm.clear_table("payment_entries");
-		frappe.call({
-				method:
-					"erpnext.accounts.doctype.bank_transaction.bank_transaction.get_linked_payments",
-				args: {
-					bank_transaction_name: frm.doc.name,
-					document_types: document_types,
-				},
-				callback: function (result) {
-					console.log("------result",result.message)
-					var data = result.message;
-					var data_len = 0;
-					for(var row in data){
-						data_len += 1;
-						var child = frm.add_child('payment_entries');
-						child.payment_document = data[row][1];
-						child.payment_entry = data[row][2];
-						child.allocated_amount = data[row][3];
-					}
-
-					frm.refresh_field("payment_entries");
-					if(data_len > 1){
-						frm.clear_table("payment_entries");
-						frm.refresh_field("payment_entries")
-
-					}
-
-				},
-			});
-	}
 });
 
 frappe.ui.form.on("Bank Transaction Payments", {
