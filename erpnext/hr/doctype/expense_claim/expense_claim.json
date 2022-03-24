@@ -209,6 +209,7 @@
    "fieldname": "remark",
    "fieldtype": "Small Text",
    "label": "Remark",
+   "no_copy": 1,
    "oldfieldname": "remark",
    "oldfieldtype": "Small Text"
   },
@@ -378,11 +379,12 @@
  "idx": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-07-11 13:58:19.391280",
+ "modified": "2021-11-22 16:26:57.787838",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Expense Claim",
  "name_case": "Title Case",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {

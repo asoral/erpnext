@@ -1,16 +1,18 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2019, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
-from __future__ import unicode_literals
-import os
+
 import json
+import os
+
 import frappe
-from six import iteritems
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, cstr
+from frappe.utils import cstr, flt
+from six import iteritems
+
 from erpnext.regional.india import state_numbers
+
 
 class GSTR3BReport(Document):
 	def validate(self):
@@ -214,9 +216,8 @@ class GSTR3BReport(Document):
 
 			for d in item_details:
 				if d.item_code not in self.invoice_items.get(d.parent, {}):
-					self.invoice_items.setdefault(d.parent, {}).setdefault(d.item_code,
-						sum((i.get('taxable_value', 0) or i.get('base_net_amount', 0)) for i in item_details
-							if i.item_code == d.item_code and i.parent == d.parent))
+					self.invoice_items.setdefault(d.parent, {}).setdefault(d.item_code, 0.0)
+					self.invoice_items[d.parent][d.item_code] += d.get('taxable_value', 0) or d.get('base_net_amount', 0)
 
 				if d.is_nil_exempt and d.item_code not in self.is_nil_exempt:
 					self.is_nil_exempt.append(d.item_code)
@@ -281,14 +282,24 @@ class GSTR3BReport(Document):
 		if self.get('invoice_items'):
 			# Build itemised tax for export invoices, nil and exempted where tax table is blank
 			for invoice, items in iteritems(self.invoice_items):
-				if invoice not in self.items_based_on_tax_rate and (self.invoice_detail_map.get(invoice, {}).get('export_type')
-					== "Without Payment of Tax"):
+				if invoice not in self.items_based_on_tax_rate and self.invoice_detail_map.get(invoice, {}).get('export_type') \
+					== "Without Payment of Tax" and self.invoice_detail_map.get(invoice, {}).get('gst_category') == "Overseas":
 					self.items_based_on_tax_rate.setdefault(invoice, {}).setdefault(0, items.keys())
+				else:
+					for item in items.keys():
+						if item in self.is_nil_exempt + self.is_non_gst and \
+							item not in self.items_based_on_tax_rate.get(invoice, {}).get(0, []):
+								self.items_based_on_tax_rate.setdefault(invoice, {}).setdefault(0, [])
+								self.items_based_on_tax_rate[invoice][0].append(item)
 
 	def set_outward_taxable_supplies(self):
 		inter_state_supply_details = {}
 
 		for inv, items_based_on_rate in self.items_based_on_tax_rate.items():
+			gst_category = self.invoice_detail_map.get(inv, {}).get('gst_category')
+			place_of_supply = self.invoice_detail_map.get(inv, {}).get('place_of_supply') or '00-Other Territory'
+			export_type = self.invoice_detail_map.get(inv, {}).get('export_type')
+
 			for rate, items in items_based_on_rate.items():
 				for item_code, taxable_value in self.invoice_items.get(inv).items():
 					if item_code in items:
@@ -296,9 +307,8 @@ class GSTR3BReport(Document):
 							self.report_dict['sup_details']['osup_nil_exmp']['txval'] += taxable_value
 						elif item_code in self.is_non_gst:
 							self.report_dict['sup_details']['osup_nongst']['txval'] += taxable_value
-						elif rate == 0:
+						elif rate == 0 or (gst_category == 'Overseas' and export_type == 'Without Payment of Tax'):
 							self.report_dict['sup_details']['osup_zero']['txval'] += taxable_value
-							#self.report_dict['sup_details']['osup_zero'][key] += tax_amount
 						else:
 							if inv in self.cgst_sgst_invoices:
 								tax_rate = rate/2
@@ -309,9 +319,6 @@ class GSTR3BReport(Document):
 								self.report_dict['sup_details']['osup_det']['iamt'] += (taxable_value * rate /100)
 								self.report_dict['sup_details']['osup_det']['txval'] += taxable_value
 
-								gst_category = self.invoice_detail_map.get(inv, {}).get('gst_category')
-								place_of_supply = self.invoice_detail_map.get(inv, {}).get('place_of_supply') or '00-Other Territory'
-
 								if gst_category in ['Unregistered', 'Registered Composition', 'UIN Holders'] and \
 								self.gst_details.get("gst_state") != place_of_supply.split("-")[1]:
 									inter_state_supply_details.setdefault((gst_category, place_of_supply), {
@@ -321,6 +328,9 @@ class GSTR3BReport(Document):
 									})
 									inter_state_supply_details[(gst_category, place_of_supply)]['txval'] += taxable_value
 									inter_state_supply_details[(gst_category, place_of_supply)]['iamt'] += (taxable_value * rate /100)
+
+			if self.invoice_cess.get(inv):
+				self.report_dict['sup_details']['osup_det']['csamt'] += flt(self.invoice_cess.get(inv), 2)
 
 		self.set_inter_state_supply(inter_state_supply_details)
 

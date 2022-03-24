@@ -1,7 +1,7 @@
 # Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
-from __future__ import unicode_literals
+
 import frappe
 from frappe import _
 from frappe.utils import flt
@@ -69,7 +69,7 @@ def get_consumed_details(filters):
 		i.stock_uom, sle.actual_qty, sle.stock_value_difference,
 		sle.voucher_no, sle.voucher_type
 		from `tabStock Ledger Entry` sle, `tabItem` i
-		where sle.item_code=i.name and sle.actual_qty < 0 %s""" % conditions, values, as_dict=1):
+		where sle.is_cancelled = 0 and sle.item_code=i.name and sle.actual_qty < 0 %s""" % conditions, values, as_dict=1):
 			consumed_details.setdefault(d.item_code, []).append(d)
 
 	return consumed_details

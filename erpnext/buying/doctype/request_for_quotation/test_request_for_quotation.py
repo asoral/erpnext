@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 # See license.txt
-from __future__ import unicode_literals
 
-import unittest
 
 import frappe
+from frappe.tests.utils import FrappeTestCase
 from frappe.utils import nowdate
 from erpnext.stock.doctype.item.test_item import make_item
 from erpnext.templates.pages.rfq import check_supplier_has_docname_access
@@ -14,7 +12,17 @@ from erpnext.buying.doctype.request_for_quotation.request_for_quotation import c
 from erpnext.crm.doctype.opportunity.test_opportunity import make_opportunity
 from erpnext.crm.doctype.opportunity.opportunity import make_request_for_quotation as make_rfq
 
-class TestRequestforQuotation(unittest.TestCase):
+from erpnext.buying.doctype.request_for_quotation.request_for_quotation import (
+	create_supplier_quotation,
+	make_supplier_quotation_from_rfq,
+)
+from erpnext.crm.doctype.opportunity.opportunity import make_request_for_quotation as make_rfq
+from erpnext.crm.doctype.opportunity.test_opportunity import make_opportunity
+from erpnext.stock.doctype.item.test_item import make_item
+from erpnext.templates.pages.rfq import check_supplier_has_docname_access
+
+
+class TestRequestforQuotation(FrappeTestCase):
 	def test_quote_status(self):
 		rfq = make_request_for_quotation()
 

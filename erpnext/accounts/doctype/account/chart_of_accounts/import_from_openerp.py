@@ -4,13 +4,15 @@
 """
 Import chart of accounts from OpenERP sources
 """
-from __future__ import print_function, unicode_literals
 
-import os, json
 import ast
+import json
+import os
 from xml.etree import ElementTree as ET
-from frappe.utils.csvutils import read_csv_content
+
 import frappe
+from frappe.utils.csvutils import read_csv_content
+from six import iteritems
 
 from six import iteritems
 
