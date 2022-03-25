@@ -7,28 +7,27 @@ import frappe
 batch_details = []
 def execute(filters=None):
 	data = []
+	data1 = []
 	columns = get_columns(filters)
 	conditions = get_conditions(filters)
-	
-	level_up_se(filters.get("batch"))
-	for d in batch_details:
+	if filters.get('company') and filters.get('batch'):
+		level_up_se(filters.get("batch"), data1)
+	for d in data1:
 		# data.append('')
-		print("sata", d)
-		data.append({
-			'level': filters.get('level'),
-			'item' : d.get('item_code'),
-			'item_name' : d.get('item_name'),
-			'type': frappe.get_value('Item', {'name': d.get('item_code')}, ["bom_item_type"]),
-			'voucher_type' : frappe.get_value('Stock Entry', { 'name': d.get('parent') }, ['stock_entry_type']),
-			'voucher' : d.get('parent'),
-			'qty': d.get('qty'),
-			'batch': d.get('batch_no')
-		})
-	# data = get_data(conditions, filters)
-	l= 0
-	for i in range ( 1, filters.get('level')):
-		print('Level', filters.get('level'))
-
+		
+		print("sata", d.get('batch_no'))
+		if d.get('indent')+ 1 <= filters.get('level'):
+				data.append({
+					'level': d.get('indent') + 1,
+					'item' : d.get('item_code'),
+					'item_name' : d.get('item_name'),
+					'type': frappe.get_value('Item', {'name': d.get('item_code')}, ["bom_item_type"]),
+					'voucher_type' : frappe.get_value('Stock Entry', { 'name': d.get('parent') }, ['stock_entry_type']),
+					'voucher' : d.get('parent'),
+					'qty': d.get('qty'),
+					'batch': d.get('batch_no')
+				})
+	# print(" this i sbatch details", batch_details)			
 	batch_details.clear()
 	return columns,data
 	
@@ -47,14 +46,14 @@ def get_columns(filters):
 			{
 				"fieldname": "item",
 				"label": "Item",
-				"width": 100,
+				"width": 150,
 				"fieldtype": "Link",
 				"options": "Item"
 			},			
 			{
 				"fieldname": "item_name",
 				"label": "Item Name",
-				"width": 100,
+				"width": 200,
 				"fieldtype": "Data",
 			},
 			{
@@ -66,13 +65,13 @@ def get_columns(filters):
 			{
 				"fieldname": "voucher_type",
 				"label": "Voucher Type",
-				"width": 100,
+				"width": 200,
 				"fieldtype": "Data"
 			},
 			{
 				"fieldname": "voucher",
 				"label": "Voucher",
-				"width": 100,
+				"width": 200,
 				"fieldtype": "Link",
 				"options": "Stock Entry"
 			},
@@ -86,7 +85,7 @@ def get_columns(filters):
 			{
 				"fieldname": "batch",
 				"label": "Batch",
-				"width": 100,
+				"width": 200,
 				"fieldtype": "Link",
 				"options": "Batch"
 			}
@@ -143,7 +142,7 @@ def get_batch_tracking(company, level, batch, wo= None):
 										and sed.docstatus = 1
 										
 										and se.work_order = "{1}"
-									""".format(''compan)
+									""".format('company'))
 
 		for s in se_consumed:
 			if s.get('is_finised_item') != 1:
@@ -151,37 +150,70 @@ def get_batch_tracking(company, level, batch, wo= None):
 
 	return new_entries			
 
-def level_up_se(se_m):
-	
-		soi_so = frappe.get_value("Stock Entry Detail", {"batch_no" : se_m}, ['parent'])
-		if soi_so:
-			print("This is soi_so ", soi_so, se_m)
-			soi_se = frappe.get_value("Stock Entry", {"name": soi_so, "stock_entry_type": 'Manufacture'}, ["work_order"])
-			se_01 = frappe.get_value("Stock Entry", { "work_order": soi_se, "stock_entry_type" : "Material Transfer for Manufacture" }, ["name"])
+def level_up_se(se_m, data):
+		get_manufacture(se_m, data)
 
-			if se_01:
-				print(" se 01 ", se_01)
-				se_02 = frappe.db.get_all("Stock Entry Detail", {"parent" : se_01}, ['*'])
 				
-				if se_02:
-					print(" se 01 ", se_02)
-					for s in se_02:
-						
-						print('s', s)
-						if s.get('is_finished_item'):
-							print("inside is finised")
-							level_up_se(s.get('batch_no'))	
-						else:
+
+def get_manufacture(batch, data, indent=0):
+			print(" this is Level_up ")
+		
+			soi_se = frappe.db.sql("""
+									Select se.work_order from `tabStock Entry Detail` sed
+									Join `tabStock Entry` se ON se.name = sed.parent
+									where sed.batch_no = "{0}"
+									and se.stock_entry_type = "Manufacture"
+										""".format(batch), as_dict=1)	
+			if soi_se:
+				print(" workorder ", soi_se[0].get('work_order'))
+				se_01 = frappe.get_value("Stock Entry", { "work_order": soi_se[0].get('work_order'), "stock_entry_type" : "Material Transfer for Manufacture" }, ["name"])
+
+				if se_01:
+					print(" se 01 ", se_01)
+					se_02 = frappe.db.get_all("Stock Entry Detail", {"parent" : se_01}, ['*'])
+					
+					if se_02:
+						# print(" se 012222222222 ")
+						for s in se_02:
+							s["indent"] = indent
+							batch_new = s.get('batch_no')
+
+							data.append({
+								'item_code': s.item_code,
+								'item_name': s.item_name,
+								'parent' : s.parent,
+								'indent': indent,
+								'bom_level': indent,
+								"stock_uom" : s.stock_uom,
+								"required_qty" : s.qty,
+								"qty_to_be_consumed" : s.qty,
+								"rate" : s.basic_rate,
+								"amount" : s.amount,
+								"batch_no" : s.batch_no,
+								"consumed_qty" : s.qty,
+								'qty': s.qty ,
+								'uom': s.uom,
+								'description': s.description,
+								})
+
+							new_entry = frappe.db.sql("""
+														Select se.name from `tabStock Entry Detail` sed
+														Join `tabStock Entry` se ON se.name = sed.parent
+														where sed.batch_no = "{0}"
+														and se.stock_entry_type = "Manufacture"
+													""".format(batch_new), as_dict=1)
+							# if new_entry:
+							print(" new_ entry", new_entry)	
+							if new_entry:
+								get_manufacture(batch_new, data, indent= indent + 1)
 							batch_details.append(s)	
-							print("neew",s)	
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
 def get_com_batch(doctype, txt, searchfield, start, page_len, filters):
 	company = filters.get('company')
 	batch = frappe.db.sql("""
-							Select b.name from `tabBatch` b
-							Join `tabStock Entry Detail` sed ON sed.batch_no = b.name
+							Select sed.batch_no from `tabStock Entry Detail` sed 
 							Join `tabStock Entry` se ON se.name = sed.parent
 							Where 
 							se.docstatus = 1

@@ -11,26 +11,6 @@ frappe.query_reports["Batch Tracking"] = {
 			options: "Company",
 			// default: frappe.defaults.get_user_default("Company"),
 			reqd: 1,
-			// on_change: function () {
-			// 	var company = frappe.query_report.get_filter_value('company');
-			// 	if(company){
-			// 		frappe.call({
-			// 			'method': 'erpnext.stock.report.batch_tracking.batch_tracking.get_com_batch',
-			// 			'async': false,
-			// 			'args': {
-			// 				'company' : company
-			// 			},
-			// 			'callback': function(res){
-			// 				console.log(' this is res', res.message)
-			// 				frappe.query_report.set_filter_value('batch',res.message)
-			// 				// frappe.query_reports.refresh()
-			// 			}
-			// 		});
-			// 		// frappe.query_report.set_filter_value('address_group',"");
-			// 		// frappe.query_report.refresh()
-			// 	}
-			// 	frappe.query_report.refresh()
-			// }
 		},
 		{
 			fieldname: "batch",
@@ -38,21 +18,6 @@ frappe.query_reports["Batch Tracking"] = {
 			fieldtype: "Link",
 			options: "Batch",
 			reqd: 1,
-			// "get_query": function () {
-			// 	var company = frappe.query_report.get_filter_value('company');
-			// 	console.log(" this is com", company)
-			// 	frappe.call({
-			// 		'method': 'erpnext.stock.report.batch_tracking.batch_tracking.get_com_batch',
-			// 		'async': false,
-			// 		'args': {
-			// 			'company' : company
-			// 		},
-			// 		'callback': function(res){
-			// 			console.log(' this is res', res.message)
-			// 			return res.message
-			// 		}
-			// 	});
-			// },
 			get_query: function (){
 				return {
 					"query": 'erpnext.stock.report.batch_tracking.batch_tracking.get_com_batch',
