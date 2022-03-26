@@ -22,7 +22,8 @@
   "subcontract",
   "backflush_raw_materials_of_subcontract_based_on",
   "column_break_11",
-  "over_transfer_allowance"
+  "over_transfer_allowance",
+  "is_internal_subcontract"
  ],
  "fields": [
   {
@@ -129,6 +130,12 @@
    "fieldtype": "Link",
    "label": "PO Expired Approver",
    "options": "Role"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_internal_subcontract",
+   "fieldtype": "Check",
+   "label": "Is Internal Subcontract"
   }
  ],
  "icon": "fa fa-cog",
@@ -136,7 +143,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-02-22 18:05:31.329597",
+ "modified": "2022-03-26 12:01:05.791445",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Buying Settings",

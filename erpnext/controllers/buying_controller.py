@@ -314,12 +314,15 @@ class BuyingController(StockController, Subcontracting):
 					item.bom = None
 
 	def create_raw_materials_supplied(self, raw_material_table):
+		con = frappe.get_single("Buying Settings")
 		if self.is_subcontracted=="Yes":
-			self.set_materials_for_subcontracted_items(raw_material_table)
+			if con.is_internal_subcontract == 0:
+				self.set_materials_for_subcontracted_items(raw_material_table)
 
 		elif self.doctype in ["Purchase Receipt", "Purchase Invoice"]:
-			for item in self.get("items"):
-				item.rm_supp_cost = 0.0
+			if con.is_internal_subcontract == 0:
+				for item in self.get("items"):
+					item.rm_supp_cost = 0.0
 
 		if self.is_subcontracted == "No" and self.get("supplied_items"):
 			self.set('supplied_items', [])
