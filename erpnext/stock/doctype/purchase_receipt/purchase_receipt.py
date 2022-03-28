@@ -52,8 +52,7 @@ class PurchaseReceipt(BuyingController):
 				level_up_se(soi_item.get("batch_no"), self.data2)
 				# level_up_se('WOKPPL2203-0106-01', self.data2)
 				
-				print("level_ip called", self.data2)
-				# for i in  batch_details:
+				print("level_ip called")
 				for i in self.data2:
 						
 						print(" inside for of batch deatilas", i.get('item_code'))
@@ -1105,7 +1104,20 @@ def get_manufacture(batch, data, indent=0):
 							s["indent"] = indent
 							batch_new = s.get('batch_no')
 
-							data.append({
+							
+							new_entry = frappe.db.sql("""
+														Select se.name from `tabStock Entry Detail` sed
+														Join `tabStock Entry` se ON se.name = sed.parent
+														where sed.batch_no = "{0}"
+														and se.stock_entry_type = "Manufacture"
+													""".format(batch_new), as_dict=1)
+							# if new_entry:
+							print(" new_ entry", new_entry)	
+							if new_entry:
+								get_manufacture(batch_new, data, indent= indent + 1)
+
+							else:
+								data.append({
 								'item_code': s.item_code,
 								'item_name': s.item_name,
 								'parent' : s.parent,
@@ -1120,17 +1132,8 @@ def get_manufacture(batch, data, indent=0):
 								"consumed_qty" : s.qty,
 								'qty': s.qty ,
 								'uom': s.uom,
-								'description': s.description,
+								'description': s.description
 								})
+	
 
-							new_entry = frappe.db.sql("""
-														Select se.name from `tabStock Entry Detail` sed
-														Join `tabStock Entry` se ON se.name = sed.parent
-														where sed.batch_no = "{0}"
-														and se.stock_entry_type = "Manufacture"
-													""".format(batch_new), as_dict=1)
-							# if new_entry:
-							print(" new_ entry", new_entry)	
-							if new_entry:
-								get_manufacture(batch_new, data, indent= indent + 1)
-							batch_details.append(s)		
+								
