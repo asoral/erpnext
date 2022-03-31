@@ -69,7 +69,7 @@ class PurchaseReceipt(BuyingController):
 										["intercompany_item_name"]) else i.get('item_name'),
 										"description" : i.get('description'),
 										
-										"batch_no" : i.get('batch_no'),
+										"batch_no" : frappe.get_value("Batch", i.get('batch_no'), 'original_batch_no'),
 										"consumed_qty" : i.get('qty')
 										})
 						count = count + 1
