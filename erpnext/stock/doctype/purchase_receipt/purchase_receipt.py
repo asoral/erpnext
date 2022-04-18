@@ -37,7 +37,7 @@ class PurchaseReceipt(BuyingController):
 		# print(" this is on get items click", frappe.get_doc("Purchase Receipt", "MAT-PRE-2022-00022-1").get_signature())
 		count = 0
 		# 1st get item_code , challan_number_issues_by_job_worker (name of soi) 
-		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'purchase_order','idx'])
+		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'purchase_order','idx', 'received_qty'])
 		# print("1 LIST OF PR ITEMS", pr_items)
 
 		for i in pr_items:
@@ -48,32 +48,76 @@ class PurchaseReceipt(BuyingController):
 			if i.challan_number_issues_by_job_worker:
 				soi_item = frappe.db.get_value("Sales Invoice Item", i.challan_number_issues_by_job_worker, ['item_code', 'batch_no', 'sales_order'], as_dict= 1)
 				# 3rd From Sales invoice to Sales Order and Sales Order to Work Order
-							
-				level_up_se(soi_item.get("batch_no"), self.data2)
-				# level_up_se('WOKPPL2203-0106-01', self.data2)
+				print("soi_item.get(batch_no) ",soi_item.get("batch_no"))
 				
-				print("level_ip called")
-				for i in self.data2:
-						
-						print(" inside for of batch deatilas", i.get('item_code'))
+				st_entry = frappe.db.sql("""
+											Select se.name from `tabStock Entry Detail` sed
+											Join `tabStock Entry` se ON se.name = sed.parent
+											where sed.batch_no = "{0}"
+											and se.stock_entry_type = "Manufacture"
+										""".format(soi_item.get("batch_no")), as_dict=1)
+
+
+				print("st entry", st_entry)
+				if st_entry:
+					se_bom = frappe.get_doc("Stock Entry", st_entry[0].get("name"))
+
+					print(" thid id filters : - ", se_bom.get("to_warehouse"), se_bom.get("bom_no"), se_bom.get("work_order"))
+					se_01 = frappe.get_value("Stock Entry", { "work_order": se_bom.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" }, ["to_warehouse"])
+
+					stock_filter = { 'bom':se_bom.get("bom_no"), 
+								'qty_to_produce': i.get("received_qty"),
+								'show_exploded_view' :1,
+								'warehouse': se_01 }
+				# level_up_se('WOKPPL2203-0106-01', self.data2)
+					print(" stick filter", stock_filter)
+					bom_stock = get_bom_stock(stock_filter)
+
+					print(" this is bom", bom_stock)	
+
+					level_up_se(soi_item.get("batch_no"), self.data2)			
+					print("level_ip called", self.data2)
+
+					new_list = []
+					for s in self.data2:
+						for j in bom_stock:
+							# print(" s j", s , j)
+							if s.get('item_code') == j.get('item_code'):
+								new_list.append({"main_item_code" : main_item,	
+												"rm_item_code" : frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) if frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) else s.get('item_code'),
+												"stock_uom" : s.get('stock_uom'),
+												"required_qty" : j.get('req_qty'),
+												"qty_to_be_consumed" : j.get('req_qty'),
+												"rate" : s.get('basic_rate'),
+												"amount" : s.get('amount'),
+												"item_name" :  frappe.db.get_value("Item", 
+												s.get('item_code'), ["intercompany_item_name"]) if frappe.db.get_value("Item", s.get('item_code'), 
+												["intercompany_item_name"]) else s.get('item_name'),
+												"description" : s.get('description'),
+												"batch_no" : frappe.get_value("Batch", s.get('batch_no'), 'original_batch_no'),
+												"consumed_qty" : j.get('req_qty'),
+								})
+					print(" new list", new_list)
+
+					res_list = [i for n, i in enumerate(new_list) if i not in new_list[n + 1:]]
+					print(" mnew set , ", res_list)
+
+					for r in res_list:
+						print(" inside for of batch deatilas", s.get('item_code'), s.get('batch_no'), s.get('req_qty'))
 						self.append("supplied_items",{
-										"main_item_code" : main_item,	
-										"rm_item_code" : frappe.db.get_value("Item", i.get("item_code"), ["intercompany_item"]) if frappe.db.get_value("Item", i.get("item_code"), ["intercompany_item"]) else i.get('item_code'),
-										"stock_uom" : i.get('stock_uom'),
-										"required_qty" : i.get('qty'),
-										"qty_to_be_consumed" : i.get('qty'),
-										"rate" : i.get('basic_rate'),
-										"amount" : i.get('amount'),
-										"item_name" :  frappe.db.get_value("Item", 
-										i.get('item_code'), ["intercompany_item_name"]) if frappe.db.get_value("Item", i.get('item_code'), 
-										["intercompany_item_name"]) else i.get('item_name'),
-										"description" : i.get('description'),
-										
-										"batch_no" : frappe.get_value("Batch", i.get('batch_no'), 'original_batch_no'),
-										"consumed_qty" : i.get('qty')
+										"main_item_code" : r.get('main_item_code'),
+										"rm_item_code" : r.get('rm_item_code'),
+										"stock_uom" : r.get('stock_uom'),
+										"required_qty" : r.get('required_qty'),
+										"qty_to_be_consumed" : r.get('qty_to_be_consumed'),
+										"rate" : r.get('rate'),
+										"amount" : r.get('amount'),
+										"item_name" : r.get('item_name'),
+										"batch_no" : r.get('batch_no'),
+										"consumed_qty" : r.get('consumed_qty'),
 										})
 						count = count + 1
-				self.data2.clear()
+						self.data2.clear()
 						
 			else:
 				frappe.msgprint("Challan number issues by job worker at line {0} no found".format(i.get('idx')))
@@ -1048,36 +1092,6 @@ def get_item_account_wise_additional_cost(purchase_document):
 
 	return item_account_wise_cost
 
-def get_data(bom, data1):
-		# print("1233",data)
-		get_exploded_items(bom, data1)
-
-def get_exploded_items(bom, data1, indent = 0, qty=1):
-
-	print("data11", data1,"bom", bom, "indent", type(indent), indent)
-	exploded_items = frappe.get_all("BOM Item",
-		filters={"parent": bom},
-		fields= ['qty','bom_no','qty','scrap','item_code','item_name','description','uom'])
-
-	for item in exploded_items:
-		# print(item.bom_no, indent)
-		item["indent"] = indent
-		data1.append({
-			'item_code': item.item_code,
-			'item_name': item.item_name,
-			'indent': indent,
-			'bom_level': indent,
-			'bom': item.bom_no,
-			'qty': item.qty * qty,
-			'uom': item.uom,
-			'description': item.description,
-			'scrap': item.scrap
-		})
-		if item.bom_no:
-			get_exploded_items(item.bom_no, data1, indent=indent+1, qty=item.qty)	
-
-			
-
 def level_up_se(se_m, data):
 		get_manufacture(se_m, data)
 
@@ -1135,5 +1149,55 @@ def get_manufacture(batch, data, indent=0):
 								'description': s.description
 								})
 	
+def get_bom_stock(filters):
+	conditions = ""
+	bom = filters.get("bom")
 
+	table = "`tabBOM Item`"
+	qty_field = "stock_qty"
+
+	qty_to_produce = filters.get("qty_to_produce", 1)
+	if  int(qty_to_produce) <= 0:
+		frappe.throw(_("Quantity to Produce can not be less than Zero"))
+
+	if filters.get("show_exploded_view"):
+		table = "`tabBOM Explosion Item`"
+
+	if filters.get("warehouse"):
+		warehouse_details = frappe.db.get_value("Warehouse", filters.get("warehouse"), ["lft", "rgt"], as_dict=1)
+		if warehouse_details:
+			conditions += " and exists (select name from `tabWarehouse` wh \
+				where wh.lft >= %s and wh.rgt <= %s and ledger.warehouse = wh.name)" % (warehouse_details.lft,
+				warehouse_details.rgt)
+		else:
+			conditions += " and ledger.warehouse = %s" % frappe.db.escape(filters.get("warehouse"))
+
+	else:
+		conditions += ""
+
+	return frappe.db.sql("""
+			SELECT
+				bom_item.item_code,
+				bom_item.description ,
+				bom_item.{qty_field},
+				bom_item.stock_uom,
+				bom_item.{qty_field} * {qty_to_produce} / bom.quantity as req_qty,
+				sum(ledger.actual_qty) as actual_qty,
+				sum(FLOOR(ledger.actual_qty / (bom_item.{qty_field} * {qty_to_produce} / bom.quantity))) req_qty_2
+			FROM
+				`tabBOM` AS bom INNER JOIN {table} AS bom_item
+					ON bom.name = bom_item.parent
+				LEFT JOIN `tabBin` AS ledger
+					ON bom_item.item_code = ledger.item_code
+				{conditions}
+			WHERE
+				bom_item.parent = {bom} and bom_item.parenttype='BOM'
+
+			GROUP BY bom_item.item_code""".format(
+				qty_field=qty_field,
+				table=table,
+				conditions=conditions,
+				bom=frappe.db.escape(bom),
+				qty_to_produce=qty_to_produce or 1), as_dict=1
+			)
 								
