@@ -2,7 +2,7 @@
  "actions": [],
  "allow_import": 1,
  "autoname": "naming_series:",
- "creation": "2013-05-24 19:29:05",
+ "creation": "2022-01-25 10:29:57.771398",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -124,6 +124,13 @@
   "total_advance",
   "outstanding_amount",
   "disable_rounded_total",
+  "column_break4",
+  "write_off_amount",
+  "base_write_off_amount",
+  "write_off_outstanding_amount_automatically",
+  "column_break_74",
+  "write_off_account",
+  "write_off_cost_center",
   "advances_section",
   "allocate_advances_automatically",
   "get_advances",
@@ -144,13 +151,6 @@
   "column_break_90",
   "change_amount",
   "account_for_change_amount",
-  "column_break4",
-  "write_off_amount",
-  "base_write_off_amount",
-  "write_off_outstanding_amount_automatically",
-  "column_break_74",
-  "write_off_account",
-  "write_off_cost_center",
   "terms_section_break",
   "tc_name",
   "terms",
@@ -161,14 +161,14 @@
   "column_break_84",
   "language",
   "more_information",
+  "status",
   "inter_company_invoice_reference",
-  "is_internal_customer",
   "represents_company",
   "customer_group",
   "campaign",
-  "is_discounted",
   "col_break23",
-  "status",
+  "is_internal_customer",
+  "is_discounted",
   "source",
   "more_info",
   "debit_to",
@@ -182,6 +182,7 @@
   "sales_team_section_break",
   "sales_partner",
   "column_break10",
+  "amount_eligible_for_commission",
   "commission_rate",
   "total_commission",
   "section_break2",
@@ -650,7 +651,6 @@
    "hide_seconds": 1,
    "label": "Ignore Pricing Rule",
    "no_copy": 1,
-   "permlevel": 1,
    "print_hide": 1
   },
   {
@@ -1652,7 +1652,7 @@
    "label": "Status",
    "length": 30,
    "no_copy": 1,
-   "options": "\nDraft\nReturn\nCredit Note Issued\nSubmitted\nPaid\nUnpaid\nUnpaid and Discounted\nOverdue and Discounted\nOverdue\nCancelled\nInternal Transfer",
+   "options": "\nDraft\nReturn\nCredit Note Issued\nSubmitted\nPaid\nPartly Paid\nUnpaid\nUnpaid and Discounted\nPartly Paid and Discounted\nOverdue and Discounted\nOverdue\nCancelled\nInternal Transfer",
    "print_hide": 1,
    "read_only": 1
   },
@@ -1954,6 +1954,7 @@
    "fetch_from": "customer.represents_company",
    "fieldname": "represents_company",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Represents Company",
    "options": "Company",
    "read_only": 1
@@ -1972,9 +1973,10 @@
   },
   {
    "default": "0",
+   "description": "Issue a debit note with 0 qty against an existing Sales Invoice",
    "fieldname": "is_debit_note",
    "fieldtype": "Check",
-   "label": "Is Debit Note"
+   "label": "Is Rate Adjustment Entry (Debit Note)"
   },
   {
    "default": "0",
@@ -1988,16 +1990,6 @@
    "fieldtype": "Link",
    "label": "Additional Discount Account",
    "options": "Account"
-  },
-  {
-   "default": "0",
-   "fieldname": "ignore_default_payment_terms_template",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Ignore Default Payment Terms Template",
-   "read_only": 1,
-   "show_days": 1,
-   "show_seconds": 1
   },
   {
    "allow_on_submit": 1,
@@ -2015,10 +2007,24 @@
    "read_only": 1
   },
   {
+   "default": "0",
+   "fieldname": "ignore_default_payment_terms_template",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Ignore Default Payment Terms Template",
+   "read_only": 1
+  },
+  {
    "fieldname": "total_billing_hours",
    "fieldtype": "Float",
    "label": "Total Billing Hours",
    "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount_eligible_for_commission",
+   "fieldtype": "Currency",
+   "label": "Amount Eligible for Commission",
    "read_only": 1
   }
  ],
@@ -2032,11 +2038,12 @@
    "link_fieldname": "consolidated_invoice"
   }
  ],
- "modified": "2021-09-08 15:24:25.486499",
+ "modified": "2022-03-08 16:08:53.517903",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Sales Invoice",
  "name_case": "Title Case",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -2082,6 +2089,7 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "timeline_field": "customer",
  "title_field": "title",
  "track_changes": 1,
