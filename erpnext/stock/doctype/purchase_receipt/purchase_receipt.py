@@ -2,8 +2,9 @@
 # License: GNU General Public License v3. See license.txt
 
 
+from dataclasses import fields
 import frappe
-from frappe import _, throw
+from frappe import _, get_value, throw
 from frappe.desk.notifications import clear_doctype_notifications
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import cint, flt, getdate, nowdate
@@ -37,12 +38,15 @@ class PurchaseReceipt(BuyingController):
 		# print(" this is on get items click", frappe.get_doc("Purchase Receipt", "MAT-PRE-2022-00022-1").get_signature())
 		count = 0
 		# 1st get item_code , challan_number_issues_by_job_worker (name of soi) 
-		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'purchase_order','idx', 'received_qty'])
+		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'challan_date_issues_by_job_worker', 'nature_of_job_work_done', 'purchase_order','idx', 'received_qty'])
 		# print("1 LIST OF PR ITEMS", pr_items)
 
 		for i in pr_items:
 			main_item = i.get("item_code")
-			print(" main ITEMS", i.get("item_code") )
+			main_item_challan = i.get("challan_number_issues_by_job_worker")
+			main_item_cdate = i.get("challan_date_issues_by_job_worker"),
+			main_item_nature = i.get("nature_of_job_work_done")
+			print(" main ITEMS", i.get("item_code"), main_item_challan, main_item_cdate, main_item_nature)
 			
 			# Getting Batch no from SOIorder
 			if i.challan_number_issues_by_job_worker:
@@ -96,6 +100,7 @@ class PurchaseReceipt(BuyingController):
 												"description" : s.get('description'),
 												"batch_no" : frappe.get_value("Batch", s.get('batch_no'), 'original_batch_no'),
 												"consumed_qty" : j.get('req_qty'),
+												
 								})
 					print(" new list", new_list)
 
@@ -103,7 +108,28 @@ class PurchaseReceipt(BuyingController):
 					print(" mnew set , ", res_list)
 
 					for r in res_list:
-						print(" inside for of batch deatilas", s.get('item_code'), s.get('batch_no'), s.get('req_qty'))
+						# r_batch = frappe.get_value("Batch", { 'original_batch_no': r.get('batch_no') }, ['name'])
+						r_batch = frappe.get_value("Batch", { 'original_batch_no': 'TANKER/P1735/21-22'}, ['name'])
+						
+						# print(" r_batch no", r_batch)
+						ref_challan = ""
+						ref_date = ""
+						# print(" ref dare", ref_date, ref_challan)
+						if r_batch :
+							stock_e = frappe.db.sql("""
+													Select se.reference_challan, se.posting_date from `tabStock Entry` se 
+													join `tabStock Entry Detail` sed on sed.parent = se.name 
+													where se.stock_entry_type = "Material Receipt"
+													and sed.batch_no = '{0}'
+													""".format(r_batch), as_dict=1)
+							# print("stock EEE", stock_e[0].get('reference_challan'), stock_e[0].get('posting_date'))	
+
+							if stock_e:	
+								ref_challan = str(stock_e[0].get('reference_challan'))
+								ref_date = getdate(stock_e[0].get('posting_date'))
+								# print(" new  refffffffffffff", ref_date, ref_challan)
+
+						# print(" inside for of batch deatilas", s.get('item_code'), s.get('batch_no'))
 						self.append("supplied_items",{
 										"main_item_code" : r.get('main_item_code'),
 										"rm_item_code" : r.get('rm_item_code'),
@@ -115,6 +141,11 @@ class PurchaseReceipt(BuyingController):
 										"item_name" : r.get('item_name'),
 										"batch_no" : r.get('batch_no'),
 										"consumed_qty" : r.get('consumed_qty'),
+										"challan_issued": main_item_challan,
+										"challan_issued_date": main_item_cdate,
+										"nature" : main_item_nature,
+										"reference_challan": ref_challan if ref_challan else "",
+										"reference_challan_date": ref_date
 										})
 						count = count + 1
 						self.data2.clear()
@@ -1146,7 +1177,9 @@ def get_manufacture(batch, data, indent=0):
 								"consumed_qty" : s.qty,
 								'qty': s.qty ,
 								'uom': s.uom,
-								'description': s.description
+								'description': s.description,
+								'reference_challan':"",
+								'reference_challan': "",
 								})
 	
 def get_bom_stock(filters):

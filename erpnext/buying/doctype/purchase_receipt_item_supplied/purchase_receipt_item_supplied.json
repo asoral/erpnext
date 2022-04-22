@@ -30,7 +30,10 @@
   "col_break4",
   "serial_no",
   "purchase_order",
-  "reference_challan"
+  "reference_challan",
+  "reference_challan_date",
+  "challan_issued",
+  "nature"
  ],
  "fields": [
   {
@@ -227,12 +230,27 @@
    "fieldtype": "Link",
    "label": "Reference Challan",
    "options": "Stock Entry"
+  },
+  {
+   "fieldname": "reference_challan_date",
+   "fieldtype": "Date",
+   "label": "Reference Challan Date"
+  },
+  {
+   "fieldname": "challan_issued",
+   "fieldtype": "Data",
+   "label": "Challan Issued By Job Worker"
+  },
+  {
+   "fieldname": "nature",
+   "fieldtype": "Data",
+   "label": "Nature of Job work"
   }
  ],
  "idx": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-03-26 12:19:54.276950",
+ "modified": "2022-04-22 12:40:17.513667",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Receipt Item Supplied",
