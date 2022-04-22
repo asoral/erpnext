@@ -54,7 +54,7 @@ frappe.ui.form.on("Purchase Receipt", {
 	// new code for TASK - TASK-2022-00015
 	get_items: function(frm) {
 		// console.log(" Button Working")
-		if ( frm.doc.is_subcontracted == 'Yes' && frm.doc.status == 1){
+		if ( frm.doc.is_subcontracted == 'Yes' && frm.doc.status != 1){
 			frm.clear_table("supplied_items")
 			frappe.call({
 				method : 'on_get_items_button',
