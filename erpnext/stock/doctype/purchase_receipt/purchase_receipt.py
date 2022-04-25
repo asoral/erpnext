@@ -108,8 +108,8 @@ class PurchaseReceipt(BuyingController):
 					print(" mnew set , ", res_list)
 
 					for r in res_list:
-						# r_batch = frappe.get_value("Batch", { 'original_batch_no': r.get('batch_no') }, ['name'])
-						r_batch = frappe.get_value("Batch", { 'original_batch_no': 'TANKER/P1735/21-22'}, ['name'])
+						r_batch = frappe.get_value("Batch", { 'original_batch_no': r.get('batch_no') }, ['name'])
+						# r_batch = frappe.get_value("Batch", { 'original_batch_no': 'TANKER/P1735/21-22'}, ['name'])
 						
 						# print(" r_batch no", r_batch)
 						ref_challan = ""
