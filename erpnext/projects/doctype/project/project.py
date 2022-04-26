@@ -168,7 +168,6 @@ class Project(Document):
 			date = add_days(date, 1)
 		return date
 
-<<<<<<< HEAD
 	def dependency_mapping(self, template_tasks, project_tasks,required):
 		if self.scope_of_supply:
 			for template_task in template_tasks:
@@ -225,37 +224,7 @@ class Project(Document):
 				if len(corresponding_project_task):
 					project_task.parent_task = corresponding_project_task[0].name
 					project_task.save()
-				
-=======
-	def dependency_mapping(self, template_tasks, project_tasks):
-		for template_task in template_tasks:
-			project_task = list(filter(lambda x: x.subject == template_task.subject, project_tasks))[0]
-			project_task = frappe.get_doc("Task", project_task.name)
-			self.check_depends_on_value(template_task, project_task, project_tasks)
-			self.check_for_parent_tasks(template_task, project_task, project_tasks)
-
-	def check_depends_on_value(self, template_task, project_task, project_tasks):
-		if template_task.get("depends_on") and not project_task.get("depends_on"):
-			for child_task in template_task.get("depends_on"):
-				child_task_subject = frappe.db.get_value("Task", child_task.task, "subject")
-				corresponding_project_task = list(
-					filter(lambda x: x.subject == child_task_subject, project_tasks)
-				)
-				if len(corresponding_project_task):
-					project_task.append("depends_on", {"task": corresponding_project_task[0].name})
-					project_task.save()
-
-	def check_for_parent_tasks(self, template_task, project_task, project_tasks):
-		if template_task.get("parent_task") and not project_task.get("parent_task"):
-			parent_task_subject = frappe.db.get_value("Task", template_task.get("parent_task"), "subject")
-			corresponding_project_task = list(
-				filter(lambda x: x.subject == parent_task_subject, project_tasks)
-			)
-			if len(corresponding_project_task):
-				project_task.parent_task = corresponding_project_task[0].name
-				project_task.save()
-
->>>>>>> 4389100fa1ec134eb121de275d88d0f1c9d1ec59
+	
 	def is_row_updated(self, row, existing_task_data, fields):
 		if self.get("__islocal") or not existing_task_data:
 			return True
