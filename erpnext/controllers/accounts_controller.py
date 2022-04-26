@@ -2554,7 +2554,6 @@ def update_child_qty_rate(parent_doctype, trans_items, parent_doctype_name, chil
 				flt(d.get("conversion_factor"), conv_fac_precision) or conversion_factor
 			)
 
-<<<<<<< HEAD
 		if d.get("delivery_date") and parent_doctype == 'Sales Order':
 			child_item.delivery_date = d.get('delivery_date')
 			
@@ -2569,10 +2568,6 @@ def update_child_qty_rate(parent_doctype, trans_items, parent_doctype_name, chil
 
 		if d.get("delivered_by_supplier") and parent_doctype == 'Sales Order':
 			child_item.delivered_by_supplier=d.get("delivered_by_supplier")
-=======
-		if d.get("delivery_date") and parent_doctype == "Sales Order":
-			child_item.delivery_date = d.get("delivery_date")
->>>>>>> 4389100fa1ec134eb121de275d88d0f1c9d1ec59
 
 		if d.get("schedule_date") and parent_doctype == "Purchase Order":
 			child_item.schedule_date = d.get("schedule_date")
