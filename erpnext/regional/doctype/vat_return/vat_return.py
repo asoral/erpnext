@@ -552,8 +552,9 @@ class VATRETURN(Document):
 		# print(" subraction", sale_tax - purchase_tax , sale_tax - purchase_tax)
 
 		if (a-b)< 0:
-			# self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]=c_tax-t_tax
-			self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]= sale_tax - purchase_tax
+			# self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]=c_tax-t_tax vat_to_be_adjusted_from_last_month
+			# self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]= sale_tax - purchase_tax
+			self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]= self.vat_to_be_adjusted_from_last_month if self.vat_to_be_adjusted_from_last_month else 0
 			self.report_dict["particular"]["net_tax"][0]["tc"]=flt(self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"])+flt(self.report_dict["particular"]["debit_credit"][0]["tc"])
 		if (a-b) > 0:
 			self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]= 0

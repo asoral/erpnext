@@ -15,6 +15,7 @@
   "nepal_to_date",
   "to_date",
   "column_break_5",
+  "vat_to_be_adjusted_from_last_month",
   "adjusted_tax_paid_on_purchase",
   "adjusted_tax_paid_on_sales",
   "no_debit_advice",
@@ -130,10 +131,16 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Nepal Month"
+  },
+  {
+   "description": "Please enter  Negative Amount only",
+   "fieldname": "vat_to_be_adjusted_from_last_month",
+   "fieldtype": "Currency",
+   "label": "VAT to be adjusted from last month"
   }
  ],
  "links": [],
- "modified": "2022-02-03 12:34:09.760923",
+ "modified": "2022-04-30 12:56:11.073150",
  "modified_by": "Administrator",
  "module": "Regional",
  "name": "VAT RETURN",

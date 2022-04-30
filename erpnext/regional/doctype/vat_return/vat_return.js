@@ -3,6 +3,12 @@
 
 frappe.ui.form.on('VAT RETURN', {
 	refresh : function(frm) {
+
+		if (frm.doc.vat_to_be_adjusted_from_last_month > 0){
+			frappe.throw(" Please enter Negative value only")
+		}
+
+
 		frm.doc.__unsaved = 1;
 		if(!frm.is_new()) {
 			frm.set_intro(__("Please save the report again to rebuild or update"));
