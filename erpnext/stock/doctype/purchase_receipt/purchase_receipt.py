@@ -200,9 +200,11 @@ class PurchaseReceipt(BuyingController):
 		return soi
 
 	# new code to make user click Get Subcontracted Item
-	def before_submit(self):
-		if self.is_subcontracted_clicked == 0 and self.is_subcontracted == "Yes":
-			frappe.throw(" Please click Get Subcontracted Items button in Raw Materials Consumed section ") 	
+	def before_save_error(self):
+		a = self.is_subcontracted_clicked or len(self.supplied_items)
+		# print(" TJID IS TESTING B$ DALEVE", len(self.supplied_items), self.is_subcontracted_clicked, self.is_subcontracted == "Yes")
+		if self.is_subcontracted == "Yes" and  int(a) <1:
+			frappe.throw(" Consumed Item Table is Empty Please Click Get Subcontracted Item or Add row ") 	
 
 	def __init__(self, *args, **kwargs):
 		super(PurchaseReceipt, self).__init__(*args, **kwargs)
@@ -285,6 +287,7 @@ class PurchaseReceipt(BuyingController):
 
 
 	def validate(self):
+		self.before_save_error()
 		self.validate_posting_time()
 		super(PurchaseReceipt, self).validate()
 
@@ -296,7 +299,7 @@ class PurchaseReceipt(BuyingController):
 		if self._action == "save":
 			for row in self.supplied_items:
 				if row.qty_to_be_consumed:
-					if row.consumed_qty > 0 and row.qty_to_be_consumed <= 0 and self.is_new():
+					if flt(row.consumed_qty) > 0 and row.qty_to_be_consumed <= 0 and self.is_new():
 						row.qty_to_be_consumed = row.consumed_qty
 				elif not row.qty_to_be_consumed and self.is_new():
 					if row.consumed_qty > 0:
