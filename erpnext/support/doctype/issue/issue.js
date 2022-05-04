@@ -49,7 +49,7 @@ frappe.ui.form.on("Issue", {
 	},
 
 	refresh: function (frm) {
-
+		if(frm.doc.opening_date){
 		frappe.call({
 			method: "erpnext.nepali_date.get_converted_date",
 			args: {
@@ -61,6 +61,7 @@ frappe.ui.form.on("Issue", {
 				}
 			}
 		})
+		}
 
 		// alert messages
 		if (frm.doc.status !== "Closed" && frm.doc.service_level_agreement
