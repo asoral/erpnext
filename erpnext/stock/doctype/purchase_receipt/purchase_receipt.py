@@ -39,7 +39,7 @@ class PurchaseReceipt(BuyingController):
 		count = 0
 		# 1st get item_code , challan_number_issues_by_job_worker (name of soi) 
 		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'challan_date_issues_by_job_worker', 'nature_of_job_work_done', 'purchase_order','idx', 'received_qty'])
-		# print("1 LIST OF PR ITEMS", pr_items)
+		print("1 LIST OF PR ITEMS", pr_items)
 
 		for i in pr_items:
 			main_item = i.get("item_code")
