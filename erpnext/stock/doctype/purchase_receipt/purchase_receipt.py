@@ -70,7 +70,7 @@ class PurchaseReceipt(BuyingController):
 					se_01 = frappe.get_value("Stock Entry", { "work_order": se_bom.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" }, ["to_warehouse"])
 
 					stock_filter = { 'bom':se_bom.get("bom_no"), 
-								'qty_to_produce': i.get("received_qty"),
+								'qty_to_produce': i.get("qty"),
 								'show_exploded_view' :1,
 								'warehouse': se_01 }
 				# level_up_se('WOKPPL2203-0106-01', self.data2)
