@@ -13,6 +13,7 @@
   "column_break1",
   "transaction_date",
   "datenepali",
+  "schedule_date",
   "status",
   "amended_from",
   "suppliers_section",
@@ -253,16 +254,22 @@
    "fieldtype": "Data",
    "label": "Date(Nepali)",
    "read_only": 1
+  },
+  {
+   "fieldname": "schedule_date",
+   "fieldtype": "Date",
+   "label": "Required Date"
   }
  ],
  "icon": "fa fa-shopping-cart",
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-07-15 17:27:28.119391",
+ "modified": "2021-11-24 17:47:49.909000",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Request for Quotation",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {

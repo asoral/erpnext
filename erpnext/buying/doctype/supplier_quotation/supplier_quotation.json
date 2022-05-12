@@ -19,6 +19,7 @@
   "datenepali",
   "valid_till",
   "valid_tillnepali",
+  "quotation_number",
   "amended_from",
   "address_section",
   "supplier_address",
@@ -73,8 +74,8 @@
   "section_break_46",
   "base_grand_total",
   "base_rounding_adjustment",
-  "base_in_words",
   "base_rounded_total",
+  "base_in_words",
   "column_break4",
   "grand_total",
   "rounding_adjustment",
@@ -636,6 +637,7 @@
    "fieldname": "rounded_total",
    "fieldtype": "Currency",
    "label": "Rounded Total",
+   "options": "currency",
    "read_only": 1
   },
   {
@@ -810,6 +812,11 @@
    "fieldname": "valid_tillnepali",
    "fieldtype": "Data",
    "label": "Valid Till(Nepali)"
+  },
+  {
+   "fieldname": "quotation_number",
+   "fieldtype": "Data",
+   "label": "Quotation Number"
   }
  ],
  "icon": "fa fa-shopping-cart",
@@ -817,10 +824,11 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-07-15 17:45:45.078835",
+ "modified": "2022-03-14 16:13:20.284572",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Supplier Quotation",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -881,6 +889,7 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "timeline_field": "supplier",
  "title_field": "title"
 }
