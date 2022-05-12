@@ -41,7 +41,7 @@ class PurchaseReceipt(BuyingController):
 		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'challan_date_issues_by_job_worker', 'nature_of_job_work_done', 'purchase_order','idx', 'received_qty'])
 		print("1 LIST OF PR ITEMS", pr_items)
 
-		for i in pr_items:
+		for i in self.items:
 			main_item = i.get("item_code")
 			main_item_challan = i.get("challan_number_issues_by_job_worker")
 			main_item_cdate = i.get("challan_date_issues_by_job_worker"),
