@@ -99,8 +99,7 @@ class PurchaseReceipt(BuyingController):
 												["intercompany_item_name"]) else s.get('item_name'),
 												"description" : s.get('description'),
 												"batch_no" : frappe.get_value("Batch", s.get('batch_no'), 'original_batch_no'),
-												"consumed_qty" : j.get('req_qty'),
-												
+												"consumed_qty" : j.get('req_qty')			
 								})
 					print(" new list", new_list)
 
