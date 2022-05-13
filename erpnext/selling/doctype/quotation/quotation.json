@@ -1182,7 +1182,9 @@
    "fieldtype": "Section Break",
    "label": "Bundle Items",
    "options": "fa fa-suitcase",
-   "print_hide": 1
+   "print_hide": 1,
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "fieldname": "valid_till_nepal",
@@ -1194,11 +1196,7 @@
    "fieldtype": "Read Only",
    "label": "Date (Nepal)"
   },
-  {
-   "print_hide": 1,
-   "show_days": 1,
-   "show_seconds": 1
-  },
+
   {
    "fieldname": "company_address",
    "fieldtype": "Link",
