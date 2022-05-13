@@ -286,7 +286,7 @@ class PurchaseReceipt(BuyingController):
 
 
 	def validate(self):
-		self.before_save_error()
+		# self.before_save_error()
 		self.validate_posting_time()
 		super(PurchaseReceipt, self).validate()
 
