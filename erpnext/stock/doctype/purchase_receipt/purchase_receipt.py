@@ -199,11 +199,11 @@ class PurchaseReceipt(BuyingController):
 		return soi
 
 	# new code to make user click Get Subcontracted Item
-	def before_save_error(self):
-		a = self.is_subcontracted_clicked or len(self.supplied_items)
-		# print(" TJID IS TESTING B$ DALEVE", len(self.supplied_items), self.is_subcontracted_clicked, self.is_subcontracted == "Yes")
-		if self.is_subcontracted == "Yes" and  int(a) <1:
-			frappe.throw(" Consumed Item Table is Empty Please Click Get Subcontracted Item or Add row ") 	
+	# def before_save_error(self):
+	# 	a = self.is_subcontracted_clicked or len(self.supplied_items)
+	# 	# print(" TJID IS TESTING B$ DALEVE", len(self.supplied_items), self.is_subcontracted_clicked, self.is_subcontracted == "Yes")
+	# 	if self.is_subcontracted == "Yes" and  int(a) <1:
+	# 		frappe.throw(" Consumed Item Table is Empty Please Click Get Subcontracted Item or Add row ") 	
 
 	def __init__(self, *args, **kwargs):
 		super(PurchaseReceipt, self).__init__(*args, **kwargs)
