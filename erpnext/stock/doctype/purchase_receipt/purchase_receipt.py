@@ -70,7 +70,7 @@ class PurchaseReceipt(BuyingController):
 					se_01 = frappe.get_value("Stock Entry", { "work_order": se_bom.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" }, ["to_warehouse"])
 
 					stock_filter = { 'bom':se_bom.get("bom_no"), 
-								'qty_to_produce': i.get("received_qty"),
+								'qty_to_produce': i.get("qty"),
 								'show_exploded_view' :1,
 								'warehouse': se_01 }
 				# level_up_se('WOKPPL2203-0106-01', self.data2)
@@ -86,7 +86,7 @@ class PurchaseReceipt(BuyingController):
 					for s in self.data2:
 						for j in bom_stock:
 							# print(" s j", s , j)
-							if s.get('item_code') == j.get('item_code'):
+							if frappe.db.get_value("Item", s.get('item_code'), ["intercompany_item"])  == j.get('item_code'):
 								new_list.append({"main_item_code" : main_item,	
 												"rm_item_code" : frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) if frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) else s.get('item_code'),
 												"stock_uom" : s.get('stock_uom'),
