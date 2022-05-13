@@ -86,7 +86,7 @@ class PurchaseReceipt(BuyingController):
 					for s in self.data2:
 						for j in bom_stock:
 							# print(" s j", s , j)
-							if frappe.db.get_value("Item", s.get('item_code'), ["intercompany_item"])  == j.get('item_code'):
+							if frappe.db.get_value("Item", s.get('item_code'), ["intercompany_item"])  == j.get('item_code') or s.get('item_code') == j.get('item_code'):
 								new_list.append({"main_item_code" : main_item,	
 												"rm_item_code" : frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) if frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) else s.get('item_code'),
 												"stock_uom" : s.get('stock_uom'),
