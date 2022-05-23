@@ -141,7 +141,7 @@ class SellingController(StockController):
 		if not self.meta.get_field("commission_rate"):
 			return
 
-		#self.round_floats_in(self, ("amount_eligible_for_commission", "commission_rate"))
+		self.round_floats_in(self, ("amount_eligible_for_commission", "commission_rate"))
 
 		if not (0 <= self.commission_rate <= 100.0):
 			throw(
