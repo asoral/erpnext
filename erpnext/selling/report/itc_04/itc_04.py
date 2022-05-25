@@ -74,6 +74,7 @@ def get_columns(filters):
 				"label": _("Batch"),
 				"fieldtype": "Link",
 				"fieldname": "batch",
+				"options": "Batch",
 				"width": 100
 			},
 			{
