@@ -1209,7 +1209,7 @@ def get_bom_stock(filters):
 
 	else:
 		conditions += ""
-
+	print("This is conditions", qty_field, table, conditions, frappe.db.escape(bom), qty_to_produce)
 	return frappe.db.sql("""
 			SELECT
 				bom_item.item_code,
