@@ -71,6 +71,12 @@ def get_columns(filters):
 				"width": 140
 			},
 			{
+				"label": _("Batch"),
+				"fieldtype": "Link",
+				"fieldname": "batch",
+				"width": 100
+			},
+			{
 				"label": _("Unique Quantity Code"),
 				"fieldtype": "Data",
 				"fieldname": "unique_quantity_code",
@@ -173,7 +179,7 @@ def get_columns(filters):
 				"width": 140
 			},
 			{
-				"label": _("Quantity"),
+				"label": _("Original Quantity"),
 				"fieldtype": "Float",
 				"fieldname": "quantity",
 				"width": 140
@@ -322,6 +328,7 @@ def get_data(filters,conditions):
 				data2['central_tax_rate'] = cgst if cgst else 0
 				data2['state_ut_tax_rate'] = sgst if sgst else 0
 				data2['cess'] = cess if cess else 0
+				data2['batch'] = frappe.db.get_value("Stock Entry Detail", {"parent": se_doc.name, 'item_code': row.item_code}, "batch_no")
 				data.append(data2)
 		return data
 
