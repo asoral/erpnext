@@ -346,10 +346,13 @@ def get_data(filters,conditions):
 		print(" PR ", pr)
 		for p in pr:
 			data2 = {}
+			sales_invoice = ""
+			if p.challan_issued:
+				sales_invoice = frappe.db.get_value("Sales Invoice Item", p.challan_issued, "parent")
 			print( " pidd ", p)
 			challan_date = frappe.db.get_value("Purchase Receipt Item", {'parent': p.parent, 'challan_number_issues_by_job_worker': p.challan_issued}, ['challan_date_issues_by_job_worker'])
 			print(" hdafterer", challan_date)
-			data2['challan_number_issued_by_job_worker'] = p.challan_issued if p.challan_issued else ""
+			data2['challan_number_issued_by_job_worker'] = sales_invoice
 			data2['challan_date_issued_by_job_worker'] = challan_date if challan_date else ""
 			supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
 											adds.state as state, supp.gst_category as job_workers_type
