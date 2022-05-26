@@ -150,9 +150,9 @@ def get_columns(filters):
 			},
 			{
 				"label": _("Challan Number Issued by Job Worker"),
-				"fieldtype": "Data",
+				"fieldtype": "Link",
 				"fieldname": "challan_number_issued_by_job_worker",
-				"default": "Inputs",
+				"options": "Sales Invoice",
 				"width": 140
 			},
 			{
@@ -180,7 +180,7 @@ def get_columns(filters):
 				"width": 140
 			},
 			{
-				"label": _("Original Quantity"),
+				"label": _("Quantity"),
 				"fieldtype": "Float",
 				"fieldname": "quantity",
 				"width": 140
