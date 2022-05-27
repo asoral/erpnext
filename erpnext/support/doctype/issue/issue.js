@@ -142,7 +142,7 @@ frappe.ui.form.on("Issue", {
 					}
 				}
 			})
-	}
+	},
 	reset_service_level_agreement: function (frm) {
 		let reset_sla = new frappe.ui.Dialog({
 			title: __("Reset Service Level Agreement"),
