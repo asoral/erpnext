@@ -19,7 +19,7 @@ def get_converted_date(date):
         date = seperated_time_date[0].split("-")
         time = seperated_time_date[1].split(":")
         gorgian_time = datetime.datetime(int(date[0]), int(date[1]), int(date[2]),int(time[0]),int(time[1]))
-        nepali_time = gorgian_time+timedelta(hours=.25)
+        nepali_time = gorgian_time+timedelta(hours=0)
         split_t_n_d = str(nepali_time).split(' ')
         nepali_time = split_t_n_d[1].split(':')
         date = date[0:10]
