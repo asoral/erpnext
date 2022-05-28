@@ -16,6 +16,7 @@ class PeriodClosingVoucher(AccountsController):
 		self.validate_posting_date()
 
 	def on_submit(self):
+		print("inside on_submit controller")
 		self.make_gl_entries()
 
 	def on_cancel(self):
@@ -50,6 +51,7 @@ class PeriodClosingVoucher(AccountsController):
 				.format(pce[0][0], self.posting_date))
 
 	def make_gl_entries(self):
+		print("######"*100)
 		gl_entries = []
 		net_pl_balance = 0 
 
@@ -68,7 +70,9 @@ class PeriodClosingVoucher(AccountsController):
 				}, item=acc))
 
 				net_pl_balance += flt(acc.bal_in_company_currency)
-
+		#print("pl balancw ia")
+		for gl in gl_entries:
+			print(">>>>>>>>>>>>>>>>>>>>> gl is: ",gl)
 		if net_pl_balance:
 			if self.cost_center_wise_pnl:
 				costcenter_wise_gl_entries = self.get_costcenter_wise_pnl_gl_entries(pl_accounts)
@@ -145,5 +149,6 @@ class PeriodClosingVoucher(AccountsController):
 			where t1.account = t2.name and t2.report_type = 'Profit and Loss'
 			and t2.docstatus < 2 and t2.company = %s
 			and t1.posting_date between %s and %s
+			and t1.is_cancelled = 0
 			group by t1.account, {dimension_fields}
 		""".format(dimension_fields = ', '.join(dimension_fields)), (self.company, self.get("year_start_date"), self.posting_date), as_dict=1)

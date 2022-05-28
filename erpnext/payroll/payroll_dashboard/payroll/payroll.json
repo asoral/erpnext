@@ -25,6 +25,10 @@
   {
    "chart": "Department Wise Salary(Last Month)",
    "width": "Half"
+  },
+  {
+   "chart": "Bank Book Balance",
+   "width": "Half"
   }
  ],
  "creation": "2020-07-22 11:56:34.727185",
@@ -34,8 +38,8 @@
  "idx": 0,
  "is_default": 1,
  "is_standard": 1,
- "modified": "2020-07-22 13:20:18.608969",
- "modified_by": "Administrator",
+ "modified": "2022-03-17 17:00:06.159471",
+ "modified_by": "noushad@grandhyper.com",
  "module": "Payroll",
  "name": "Payroll",
  "owner": "Administrator"

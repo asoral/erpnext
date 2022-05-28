@@ -2,6 +2,9 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Process Deferred Accounting', {
+	refresh: function(frm){
+		console.log("refresh: ",frm.doc.start_date)
+	},
 	setup: function(frm) {
 		frm.set_query("document_type", function() {
 			return {
@@ -43,11 +46,10 @@ frappe.ui.form.on('Process Deferred Accounting', {
 			frappe.throw(__("End date cannot be before start date"));
 		}
 	},
-
-	onload: function(frm) {
-		if (frm.doc.posting_date && frm.doc.docstatus === 0) {
-			frm.set_value('start_date', frappe.datetime.add_months(frm.doc.posting_date, -1));
-			frm.set_value('end_date', frm.doc.posting_date);
-		}
-	}
+	// onload: function(frm) {
+	// 	if (frm.doc.posting_date && frm.doc.docstatus === 0) {
+	// 		frm.set_value('start_date', frappe.datetime.add_months(frm.doc.posting_date, -1));
+	// 		frm.set_value('end_date', frm.doc.posting_date);
+	// 	}
+	// }
 });

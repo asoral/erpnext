@@ -189,7 +189,8 @@ def get_queries(transaction, document_types):
 	if "payment_entry" in document_types:
 		pe_amount_matching = get_pe_matching_query(amount_condition, account_from_to, transaction)
 		queries.extend([pe_amount_matching])
-
+		print("Query Testing",pe_amount_matching)
+		print("9242**************88",queries)
 	if "journal_entry" in document_types:
 #		print("*********************Amt******",je_amount_matching)
 		je_amount_matching = get_je_matching_query(amount_condition, transaction)
@@ -217,6 +218,7 @@ def get_pe_matching_query(amount_condition, account_from_to, transaction):
 		currency_field = "paid_to_account_currency as currency"
 	else:
 		currency_field = "paid_from_account_currency as currency"
+
 	return  f"""
 	SELECT
 		(CASE WHEN reference_no=%(reference_no)s THEN 1 ELSE 0 END
@@ -238,7 +240,8 @@ def get_pe_matching_query(amount_condition, account_from_to, transaction):
 		AND docstatus = 1
 		AND payment_type IN (%(payment_type)s, 'Internal Transfer')
 		AND ifnull(clearance_date, '') = ""
-		AND {account_from_to} = %(bank_account)s and reference_no = %(reference_no)s
+		AND {account_from_to} = %(bank_account)s
+		 AND reference_no = %(reference_no)s
 	"""
 
 

@@ -42,6 +42,8 @@ def get_columns(filters):
 
 def get_conditions(filters):
 	conditions = {}
+	print("##### filters "*20)
+	print(filters)
 
 	if filters.account_type:
 		conditions["account_type"] = filters.account_type

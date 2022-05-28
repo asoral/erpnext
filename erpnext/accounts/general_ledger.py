@@ -213,9 +213,10 @@ def make_round_off_gle(gl_map, debit_credit_diff, precision):
 		"against_voucher_type": None,
 		"against_voucher": None
 	})
-
+	print("####################### round off"*10)
 	if not round_off_account_exists:
 		gl_map.append(round_off_gle)
+		print("round off done")
 
 def get_round_off_account_and_cost_center(company):
 	round_off_account, round_off_cost_center = frappe.get_cached_value('Company',  company,
@@ -230,6 +231,8 @@ def get_round_off_account_and_cost_center(company):
 
 def make_reverse_gl_entries(gl_entries=None, voucher_type=None, voucher_no=None,
 	adv_adj=False, update_outstanding="Yes"):
+	print("++++++++++++++++++++++++++ Making Reverse GL Entry ++++++++++++++++++++++++++++")
+	print("gl_entries is: ",gl_entries)
 	"""
 		Get original gl entries of the voucher
 		and make reverse gl entries by swapping debit and credit

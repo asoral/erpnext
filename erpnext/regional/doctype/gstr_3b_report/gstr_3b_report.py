@@ -30,7 +30,6 @@ class GSTR3BReport(Document):
 
 		self.get_outward_supply_details("Purchase Invoice", reverse_charge=True)
 		self.set_supplies_liable_to_reverse_charge()
-
 		itc_details = self.get_itc_details()
 		self.set_itc_details(itc_details)
 		self.get_itc_reversal_entries()
@@ -121,7 +120,6 @@ class GSTR3BReport(Document):
 				'samt': d.itc_state_tax,
 				'csamt': d.itc_cess_amount
 			})
-
 		return itc_details
 
 	def get_inward_nil_exempt(self, state):

@@ -366,16 +366,19 @@ class JournalEntry(AccountsController):
 	def validate_invoices(self):
 		"""Validate totals and docstatus for invoices"""
 		for reference_name, total in iteritems(self.reference_totals):
+			print("****************************** total: {0} and ref name : {1}".format(total,reference_name))
 			reference_type = self.reference_types[reference_name]
 
 			if (reference_type in ("Sales Invoice", "Purchase Invoice") and
 				self.voucher_type not in ['Debit Note', 'Credit Note']):
 				invoice = frappe.db.get_value(reference_type, reference_name,
 					["docstatus", "outstanding_amount"], as_dict=1)
+				print("#################################### reference_type: {0} & reference_name: {1}".format(reference_type,reference_name))
+				#doc = frappe.get
 
 				if invoice.docstatus != 1:
 					frappe.throw(_("{0} {1} is not submitted").format(reference_type, reference_name))
-
+				print("############## invoice.outstanding_amount is: ",invoice.outstanding_amount)
 				if total and flt(invoice.outstanding_amount) < total:
 					frappe.throw(_("Payment against {0} {1} cannot be greater than Outstanding Amount {2}")
 						.format(reference_type, reference_name, invoice.outstanding_amount))
@@ -409,7 +412,6 @@ class JournalEntry(AccountsController):
 
 			self.total_debit = flt(self.total_debit) + flt(d.debit, d.precision("debit"))
 			self.total_credit = flt(self.total_credit) + flt(d.credit, d.precision("credit"))
-
 		self.difference = flt(self.total_debit, self.precision("total_debit")) - \
 			flt(self.total_credit, self.precision("total_credit"))
 
@@ -426,7 +428,6 @@ class JournalEntry(AccountsController):
 
 			if d.account_currency != self.company_currency and d.account_currency not in alternate_currency:
 				alternate_currency.append(d.account_currency)
-
 		if alternate_currency:
 			if not self.multi_currency:
 				frappe.throw(_("Please check Multi Currency option to allow accounts with other currency"))
@@ -533,6 +534,8 @@ class JournalEntry(AccountsController):
 
 		gl_map = []
 		for d in self.get("accounts"):
+			print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++ acounts table")
+			print("d is: ",d)
 			if d.debit or d.credit:
 				r = [d.user_remark, self.remark]
 				r = [x for x in r if x]

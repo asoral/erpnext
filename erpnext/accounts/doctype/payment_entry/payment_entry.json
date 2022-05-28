@@ -503,12 +503,14 @@
    "print_hide": 1
   },
   {
+   "allow_on_submit": 1,
    "fetch_from": "bank_account.bank",
    "fieldname": "bank",
    "fieldtype": "Read Only",
    "label": "Bank"
   },
   {
+   "allow_on_submit": 1,
    "fetch_from": "bank_account.bank_account_no",
    "fieldname": "bank_account_no",
    "fieldtype": "Read Only",
@@ -556,6 +558,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "party",
    "fieldname": "bank_account",
    "fieldtype": "Link",
@@ -712,7 +715,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-07-09 08:58:15.008761",
+ "modified": "2022-03-08 18:09:11.909186",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

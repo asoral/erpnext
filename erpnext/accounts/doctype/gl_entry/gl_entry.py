@@ -148,7 +148,6 @@ class GLEntry(Document):
 
 		is_group, company = frappe.get_cached_value('Cost Center',
 			self.cost_center, ['is_group', 'company'])
-
 		if company != self.company:
 			frappe.throw(_("{0} {1}: Cost Center {2} does not belong to Company {3}")
 				.format(self.voucher_type, self.voucher_no, self.cost_center, self.company))
@@ -191,6 +190,7 @@ def validate_balance_type(account, adv_adj=False):
 				frappe.throw(_("Balance for Account {0} must always be {1}").format(account, _(balance_must_be)))
 
 def update_outstanding_amt(account, party_type, party, against_voucher_type, against_voucher, on_cancel=False):
+	print("against_voucher_type: ",against_voucher_type)
 	if party_type and party:
 		party_condition = " and party_type={0} and party={1}"\
 			.format(frappe.db.escape(party_type), frappe.db.escape(party))
@@ -208,12 +208,18 @@ def update_outstanding_amt(account, party_type, party, against_voucher_type, aga
 		select sum(debit_in_account_currency) - sum(credit_in_account_currency)
 		from `tabGL Entry`
 		where against_voucher_type=%s and against_voucher=%s
-		and voucher_type != 'Invoice Discounting'
+		and voucher_type != 'Invoice Discounting' and is_cancelled = 0
 		{0} {1}""".format(party_condition, account_condition),
 		(against_voucher_type, against_voucher))[0][0] or 0.0)
+	print("------------------- bal1: ",bal)
+
+	
 
 	if against_voucher_type == 'Purchase Invoice':
 		bal = -bal
+		print("------------------- bal2: ",bal)
+		
+		
 	elif against_voucher_type == "Journal Entry":
 		against_voucher_amount = flt(frappe.db.sql("""
 			select sum(debit_in_account_currency) - sum(credit_in_account_currency)
@@ -225,9 +231,11 @@ def update_outstanding_amt(account, party_type, party, against_voucher_type, aga
 			frappe.throw(_("Against Journal Entry {0} is already adjusted against some other voucher")
 				.format(against_voucher))
 
+		print("*****************against_voucher_amount********** ",against_voucher_amount)
 		bal = against_voucher_amount + bal
 		if against_voucher_amount < 0:
 			bal = -bal
+			print("------------------- bal3: ",bal)
 
 		# Validation : Outstanding can not be negative for JV
 		if bal < 0 and not on_cancel:
@@ -235,11 +243,9 @@ def update_outstanding_amt(account, party_type, party, against_voucher_type, aga
 
 	if against_voucher_type in ["Sales Invoice", "Purchase Invoice", "Fees"]:
 		ref_doc = frappe.get_doc(against_voucher_type, against_voucher)
-
-		# Didn't use db_set for optimisation purpose
+		print("now setting outstanding amt >>>>>>>>>>>>>> ",bal)
 		ref_doc.outstanding_amount = bal
 		frappe.db.set_value(against_voucher_type, against_voucher, 'outstanding_amount', bal)
-
 		ref_doc.set_status(update=True)
 
 

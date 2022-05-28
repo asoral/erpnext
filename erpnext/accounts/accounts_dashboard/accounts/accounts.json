@@ -11,6 +11,9 @@
   },
   {
    "card": "Total Outgoing Payment"
+  },
+  {
+   "card": "Accounts Payable"
   }
  ],
  "charts": [
@@ -41,6 +44,18 @@
   {
    "chart": "Bank Balance",
    "width": "Full"
+  },
+  {
+   "chart": "Bank Balance-22",
+   "width": "Half"
+  },
+  {
+   "chart": "Bank Balance-",
+   "width": "Half"
+  },
+  {
+   "chart": "Bank Balance-22",
+   "width": "Half"
   }
  ],
  "creation": "2020-07-17 11:25:34.796608",
@@ -50,8 +65,8 @@
  "idx": 0,
  "is_default": 0,
  "is_standard": 1,
- "modified": "2020-07-22 13:07:34.540574",
- "modified_by": "Administrator",
+ "modified": "2022-05-09 11:31:15.606198",
+ "modified_by": "rafigrandhyper@gmail.com",
  "module": "Accounts",
  "name": "Accounts",
  "owner": "Administrator"

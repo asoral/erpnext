@@ -3,7 +3,7 @@
  "allow_events_in_timeline": 1,
  "allow_import": 1,
  "allow_rename": 1,
- "autoname": "naming_series:",
+ "autoname": "format:{supplier_id}.###",
  "creation": "2013-01-10 16:34:11",
  "description": "Supplier of Goods or Services.",
  "doctype": "DocType",
@@ -390,7 +390,7 @@
    "link_fieldname": "supplier"
   }
  ],
- "modified": "2021-05-18 15:10:11.087191",
+ "modified": "2022-04-19 12:40:13.411674",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Supplier",

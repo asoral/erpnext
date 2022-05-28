@@ -122,12 +122,12 @@ class PaymentEntry(AccountsController):
 		for d in self.get("references"):
 			if (flt(d.allocated_amount))> 0:
 				if flt(d.allocated_amount) > flt(d.outstanding_amount):
-					frappe.throw(_("Row #{0}: Allocated Amount {1} cannot be greater than outstanding amount {2}.").format(d.idx,d.allocated_amount,d.outstanding_amount))
+					frappe.throw(_("Row #{0}: Allocated Amount {1} cannot be greater than outstanding amount {2} for reference {3}.").format(d.idx,d.allocated_amount,d.outstanding_amount,d.get("purchase_invoice")))
 
 			# Check for negative outstanding invoices as well
 			if flt(d.allocated_amount) < 0:
 				if flt(d.allocated_amount) < flt(d.outstanding_amount):
-					frappe.throw(_("Row #{0}: Allocated Amount {1} cannot be greater than outstanding amount {2}.").format(d.idx,d.allocated_amount,d.outstanding_amount))
+					frappe.throw(_("Row #{0}: Allocated Amount {1} cannot be greater than outstanding amount {2} for reference {3}.").format(d.idx,d.allocated_amount,d.outstanding_amount,d.get("purchase_invoice")))
 
 	def delink_advance_entry_references(self):
 		for reference in self.references:
@@ -331,6 +331,7 @@ class PaymentEntry(AccountsController):
 					for jvd in je_accounts:
 						if flt(jvd[dr_or_cr]) > 0:
 							valid = True
+					# need to check -- ujjwal
 					#if not valid:
 					#	pass
 					#	frappe.throw(_("Against Journal Entry {0} does not have any unmatched {1} entry")
@@ -651,6 +652,7 @@ class PaymentEntry(AccountsController):
 		make_gl_entries(gl_entries, cancel=cancel, adv_adj=adv_adj)
 
 	def add_party_gl_entries(self, gl_entries):
+		print("making party gl entry::::>>>>>    ")
 		if self.party_account:
 			if self.payment_type=="Receive":
 				against_account = self.paid_to
@@ -700,7 +702,7 @@ class PaymentEntry(AccountsController):
 
 	def add_bank_gl_entries(self, gl_entries):
 		if self.payment_type in ("Pay", "Internal Transfer"):
-			print("*********************before append********",gl_entries)
+			#print("*********************before append********",gl_entries)
 			gl_entries.append(
 				self.get_gl_dict({
 					"account": self.paid_from,
@@ -711,7 +713,6 @@ class PaymentEntry(AccountsController):
 					"cost_center": self.cost_center
 				}, item=self)
 			)
-			print("*********************after append********",gl_entries)
 		if self.payment_type in ("Receive", "Internal Transfer"):
 			gl_entries.append(
 				self.get_gl_dict({
@@ -1285,7 +1286,6 @@ def get_reference_details(reference_doctype, reference_name, party_account_curre
 	total_amount = outstanding_amount = exchange_rate = bill_no = None
 	ref_doc = frappe.get_doc(reference_doctype, reference_name)
 	company_currency = ref_doc.get("company_currency") or erpnext.get_company_currency(ref_doc.company)
-
 	if reference_doctype == "Fees":
 		total_amount = ref_doc.get("grand_total")
 		exchange_rate = 1
@@ -1329,6 +1329,7 @@ def get_reference_details(reference_doctype, reference_name, party_account_curre
 		if reference_doctype in ("Sales Invoice", "Purchase Invoice"):
 			outstanding_amount = ref_doc.get("outstanding_amount")
 			bill_no = ref_doc.get("bill_no")
+			print("inside PI bloc: ",outstanding_amount)
 		elif reference_doctype == "Expense Claim":
 			outstanding_amount = flt(ref_doc.get("total_sanctioned_amount")) + flt(ref_doc.get("total_taxes_and_charges"))\
 				- flt(ref_doc.get("total_amount_reimbursed")) - flt(ref_doc.get("total_advance_amount"))

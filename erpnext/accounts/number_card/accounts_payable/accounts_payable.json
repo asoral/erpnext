@@ -1,0 +1,22 @@
+{
+ "creation": "2022-05-09 11:31:15.518982",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{\"company\":\"GRAND HYPERMARKET - SAHAM\",\"fiscal_year\":\"2021\",\"from_date\":\"2021-01-01\",\"to_date\":\"2021-12-31\",\"party_type\":\"Supplier\",\"party\":\"BUT001\"}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "Accounts Payable",
+ "modified": "2022-05-09 11:31:15.594675",
+ "modified_by": "rafigrandhyper@gmail.com",
+ "module": "Accounts",
+ "name": "Accounts Payable",
+ "owner": "rafigrandhyper@gmail.com",
+ "report_field": "credit",
+ "report_function": "Sum",
+ "report_name": "Trial Balance for Party",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "type": "Report"
+}

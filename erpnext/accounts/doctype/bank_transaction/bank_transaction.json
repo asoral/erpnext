@@ -56,6 +56,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "default": "Pending",
    "fieldname": "status",
    "fieldtype": "Select",
@@ -192,7 +193,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-04-14 17:31:58.963529",
+ "modified": "2022-03-01 10:16:17.318799",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Bank Transaction",
