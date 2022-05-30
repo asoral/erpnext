@@ -51,26 +51,47 @@ frappe.ui.form.on("Purchase Receipt", {
 
 	},
 
-	// new code for TASK - TASK-2022-00015
-	get_items: function(frm) {
-		console.log(" Button Working")
-		if (frm.doc.docstatus != 1){
-			frappe.call({
-				method : 'on_get_items_button',
-				doc:frm.doc,
-				callback: function(r)
-				{
-					// frm.refresh_field("get_items")
-					if (r.message){
-					console.log("this is buttom", r.message)
-					frm.refresh_field("supplied_items")
-					}
-					else console.log("Nothis ins ")
+	// New Code for ITC04 new
+	after_save: function(frm) {
+		console.log("We are inside of after save")	
+		if (frm.doc.is_subcontracted == "Yes" ){
+					frappe.call({
+						method : 'on_get_items_button',
+						doc:frm.doc,
+						callback: function(r)
+						{
+							// frm.refresh_field("get_items")
+							if (r.message){
+							console.log("this is return", r.message)
+							frm.refresh()
+							frm.refresh_field("supplied_items")
+							}
+						}
+					});
 				}
-			});
-		}
-		else console.log("Cannot Get ITEMS as document already is submitted")
+
 	},
+
+	// new code for TASK - TASK-2022-00015
+	// get_items: function(frm) {
+	// 	console.log(" Button Working")
+	// 	if (frm.doc.docstatus != 1){
+	// 		frappe.call({
+	// 			method : 'on_get_items_button',
+	// 			doc:frm.doc,
+	// 			callback: function(r)
+	// 			{
+	// 				// frm.refresh_field("get_items")
+	// 				if (r.message){
+	// 				console.log("this is buttom", r.message)
+	// 				frm.refresh_field("supplied_items")
+	// 				}
+	// 				else console.log("Nothis ins ")
+	// 			}
+	// 		});
+	// 	}
+	// 	else console.log("Cannot Get ITEMS as document already is submitted")
+	// },
 
 
 
@@ -89,7 +110,7 @@ frappe.ui.form.on("Purchase Receipt", {
 				callback: function(r)
 				{
 					// frm.refresh_field("get_items")
-					console.log("this is buttom")
+					console.log("this is refresh method")
 					if (r.message){
 						for_challan_number_date = 1
 						frm.set_df_property("get_items", "hidden", 0)

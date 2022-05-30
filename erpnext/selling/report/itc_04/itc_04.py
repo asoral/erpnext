@@ -328,79 +328,136 @@ def get_data(filters,conditions):
 		return data
 
 	if filters.report == "ITC-05 A":
+		# data = []
+		# s_d = "'" + conditions['start_date'] + "'"
+		# m_d = "'" + conditions['end_date'] + "'"
+		# query = """ select pr.name as pr_name, po.name as po_name, se.name as se_name
+		# 			from `tabPurchase Receipt` pr
+		# 			Inner Join `tabPurchase Receipt Item` pri on pr.name = pri.parent
+		# 			Inner Join `tabPurchase Order` po on pri.purchase_order = po.name
+		# 			Inner join `tabStock Entry` se on po.name = se.purchase_order
+		# 			where
+		# 			pr.docstatus = 1 and se.stock_entry_type = "Send to Subcontractor" and
+		# 			pr.posting_date between {0} and {1}
+		# 			and pr.company = '{2}' """.format(s_d, m_d, filters.get('company'))
+
+		# if filters.get('company_address'):
+		# 	query+= """ and po.billing_address = '{0}' """.format(filters.get('company_address'))
+
+		# pr = frappe.db.sql(query,as_dict=1)
+		# for name in pr:
+		# 	print("pr----------------------------------------", name)
+		# 	pr_doc = frappe.get_doc("Purchase Receipt", name.pr_name)
+		# 	dist_pr_batch = frappe.db.sql(""" select distinct(batch_no) as batch_no
+		# 									   from `tabPurchase Receipt Item Supplied`
+		# 	 								   where parent = '{0}' and qty_to_be_consumed = 0 """.format(name.pr_name),as_dict=1)
+		# 	print("-------------------dist_pr_batch",dist_pr_batch)
+		# 	se_doc = frappe.get_doc("Stock Entry", name.se_name)
+		# 	se_doc_batch_count = 0
+		# 	for res in dist_pr_batch:
+		# 		if res['batch_no']:
+		# 			se_doc = frappe.get_doc("Stock Entry",name.se_name)
+		# 			se_batch_count = frappe.db.sql(""" select count(*) as total from `tabStock Entry Detail`
+		# 													where parent = '{0}' 
+		# 													and batch_no = '{1}' """.format(name.se_name,res['batch_no']),as_dict=1)
+		# 			se_doc_batch_count += se_batch_count[0]['total']
+		# 			print("--------------------------se_doc_batch_count",se_batch_count)
+		# 	if se_doc_batch_count == 0:
+		# 		for row in pr_doc.items:
+		# 			if row.is_subcontracted == "Yes":
+		# 				global jw_challan_number, jw_challan_date, nature_of_job_work_done
+		# 				jw_challan_number = row.challan_number_issues_by_job_worker
+		# 				jw_challan_date = row.challan_date_issues_by_job_worker
+		# 				nature_of_job_work_done = row.nature_of_job_work_done
+		# 				break
+
+		# 		for row in pr_doc.supplied_items:
+		# 			if row.qty_to_be_consumed > 0:
+		# 				data2 = {}
+		# 				if name.po_name:
+		# 					po_doc = frappe.get_doc("Purchase Order",name.po_name)
+		# 					data2['original_challan_number_issued_by_principal'] = se_doc.name
+		# 					data2['original_challan_date_issued_by_principal'] = se_doc.posting_date
+		# 				data2['challan_number_issued_by_job_worker'] = jw_challan_number if jw_challan_number else ""
+		# 				data2['challan_date_issued_by_job_worker'] = jw_challan_date if jw_challan_date else ""
+		# 				supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
+		# 												adds.state as state, supp.gst_category as job_workers_type
+		# 												from `tabSupplier` supp
+		# 												INNER JOIN `tabDynamic Link` dl
+		# 												on dl.link_name = supp.name
+		# 												INNER JOIN `tabAddress` adds
+		# 												on dl.parent = adds.name
+		# 												where supp.name = %(supp)s """,
+		# 											 {'supp': pr_doc.supplier}, as_dict=1)
+		# 				dic2 = supp_details[0]
+		# 				for key, value in dic2.items():
+		# 					data2[key] = value
+
+		# 				rm_item_obj = frappe.get_doc("Item", row.rm_item_code)
+		# 				data2['description_of_goods'] = rm_item_obj.description
+		# 				data2['unique_quantity_code'] = row.stock_uom
+		# 				data2['quantity'] = row.qty_to_be_consumed
+		# 				data2['losses_uqc'] = row.stock_uom
+		# 				data2['losses_quantity'] = row.loss_qty
+		# 				data2['nature_of_job_work_done'] = nature_of_job_work_done
+		# 				data.append(data2)
+
+		# new_code for ITC 05 A
 		data = []
 		s_d = "'" + conditions['start_date'] + "'"
 		m_d = "'" + conditions['end_date'] + "'"
-		query = """ select pr.name as pr_name, po.name as po_name, se.name as se_name
-					from `tabPurchase Receipt` pr
-					Inner Join `tabPurchase Receipt Item` pri on pr.name = pri.parent
-					Inner Join `tabPurchase Order` po on pri.purchase_order = po.name
-					Inner join `tabStock Entry` se on po.name = se.purchase_order
-					where
-					pr.docstatus = 1 and se.stock_entry_type = "Send to Subcontractor" and
-					pr.posting_date between {0} and {1}
+
+		print(" dates", s_d, m_d, filters.get('company'))
+		query = """
+					Select pris.*, pr.name, pr.supplier   from `tabPurchase Receipt Item Supplied` pris
+					Join `tabPurchase Receipt` pr on pr.name = pris.parent
+					where pr.posting_date between {0} and {1}
+					and pr.is_subcontracted = "Yes" and pr.docstatus = 1
 					and pr.company = '{2}' """.format(s_d, m_d, filters.get('company'))
 
 		if filters.get('company_address'):
-			query+= """ and po.billing_address = '{0}' """.format(filters.get('company_address'))
+			query+= """ and pr.billing_address = '{0}' """.format(filters.get('company_address'))
 
 		pr = frappe.db.sql(query,as_dict=1)
-		for name in pr:
-			print("pr----------------------------------------", name)
-			pr_doc = frappe.get_doc("Purchase Receipt", name.pr_name)
-			dist_pr_batch = frappe.db.sql(""" select distinct(batch_no) as batch_no
-											   from `tabPurchase Receipt Item Supplied`
-			 								   where parent = '{0}' and qty_to_be_consumed = 0 """.format(name.pr_name),as_dict=1)
-			print("-------------------dist_pr_batch",dist_pr_batch)
-			se_doc = frappe.get_doc("Stock Entry", name.se_name)
-			se_doc_batch_count = 0
-			for res in dist_pr_batch:
-				if res['batch_no']:
-					se_doc = frappe.get_doc("Stock Entry",name.se_name)
-					se_batch_count = frappe.db.sql(""" select count(*) as total from `tabStock Entry Detail`
-															where parent = '{0}' 
-															and batch_no = '{1}' """.format(name.se_name,res['batch_no']),as_dict=1)
-					se_doc_batch_count += se_batch_count[0]['total']
-					print("--------------------------se_doc_batch_count",se_batch_count)
-			if se_doc_batch_count == 0:
-				for row in pr_doc.items:
-					if row.is_subcontracted == "Yes":
-						global jw_challan_number, jw_challan_date, nature_of_job_work_done
-						jw_challan_number = row.challan_number_issues_by_job_worker
-						jw_challan_date = row.challan_date_issues_by_job_worker
-						nature_of_job_work_done = row.nature_of_job_work_done
-						break
 
-				for row in pr_doc.supplied_items:
-					if row.qty_to_be_consumed > 0:
-						data2 = {}
-						if name.po_name:
-							po_doc = frappe.get_doc("Purchase Order",name.po_name)
-							data2['original_challan_number_issued_by_principal'] = se_doc.name
-							data2['original_challan_date_issued_by_principal'] = se_doc.posting_date
-						data2['challan_number_issued_by_job_worker'] = jw_challan_number if jw_challan_number else ""
-						data2['challan_date_issued_by_job_worker'] = jw_challan_date if jw_challan_date else ""
-						supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
-														adds.state as state, supp.gst_category as job_workers_type
-														from `tabSupplier` supp
-														INNER JOIN `tabDynamic Link` dl
-														on dl.link_name = supp.name
-														INNER JOIN `tabAddress` adds
-														on dl.parent = adds.name
-														where supp.name = %(supp)s """,
-													 {'supp': pr_doc.supplier}, as_dict=1)
-						dic2 = supp_details[0]
-						for key, value in dic2.items():
-							data2[key] = value
+		print(" PR ", pr)
+		for p in pr:
+			data2 = {}
+			sales_invoice = ""
+			si_date = ""
+			if p.reference_name:
+				pr_item = frappe.get_doc("Purchase Receipt Item", p.reference_name)
+				print(" tjhis is PURCHASE RECEIPT ITEM", pr_item.item_code, pr_item.challan_number_issues_by_job_worker)
+				sales_invoice, si_date = frappe.db.get_value("Sales Invoice Item", pr_item.challan_number_issues_by_job_worker, ["parent", "modified"])
+			print( " pidd ", p)
+			challan_date = frappe.db.get_value("Purchase Receipt Item", {'parent': p.parent, 'challan_number_issues_by_job_worker': p.challan_issued}, ['challan_date_issues_by_job_worker'])
+			print(" hdafterer", challan_date)
+			data2['challan_number_issued_by_job_worker'] = sales_invoice
+			data2['challan_date_issued_by_job_worker'] = getdate(si_date)
+			supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
+											adds.state as state, supp.gst_category as job_workers_type
+											from `tabSupplier` supp
+											INNER JOIN `tabDynamic Link` dl
+											on dl.link_name = supp.name
+											INNER JOIN `tabAddress` adds
+											on dl.parent = adds.name
+											where supp.name = %(supp)s """,
+											{'supp': p.get("supplier")}, as_dict=1)
+			dic2 = supp_details[0]
+			for key, value in dic2.items():
+				data2[key] = value
 
-						rm_item_obj = frappe.get_doc("Item", row.rm_item_code)
-						data2['description_of_goods'] = rm_item_obj.description
-						data2['unique_quantity_code'] = row.stock_uom
-						data2['quantity'] = row.qty_to_be_consumed
-						data2['losses_uqc'] = row.stock_uom
-						data2['losses_quantity'] = row.loss_qty
-						data2['nature_of_job_work_done'] = nature_of_job_work_done
-						data.append(data2)
+			rm_item_obj = frappe.get_doc("Item", p.rm_item_code)
+			data2['description_of_goods'] = rm_item_obj.description
+			data2['unique_quantity_code'] = p.stock_uom
+			data2['quantity'] = p.qty_to_be_consumed
+			data2['losses_uqc'] = p.stock_uom
+			data2['losses_quantity'] = p.loss_qty
+			data2['nature_of_job_work_done'] = p.nature
+			data2['original_challan_number_issued_by_principal'] = p.reference_challan
+			data2['original_challan_date_issued_by_principal'] = p.reference_challan_date
+
+			data.append(data2)	
 		return data
 	elif filters.report == "ITC-05 B" or filters.report == "ITC-05 C":	
 		pass
