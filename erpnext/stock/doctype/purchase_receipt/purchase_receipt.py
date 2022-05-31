@@ -175,7 +175,7 @@ class PurchaseReceipt(BuyingController):
 					print(" mnew set , ", res_list)
 
 					for r in res_list:
-						r_batch = frappe.get_value("Batch", { 'batch': r.get('batch_no') }, ['name'])
+						r_batch =  r.get('batch_no') 
 						# r_batch = frappe.get_value("Batch", { 'original_batch_no': 'TANKER/P1735/21-22'}, ['name'])
 						
 						# print(" r_batch no", r_batch)
@@ -196,17 +196,6 @@ class PurchaseReceipt(BuyingController):
 									# frappe.db.set_value("")
 									frappe.db.set_value('Purchase Receipt Item Supplied', item.name, 'reference_challan', stock_e[0].reference_challan, update_modified=False)
 								return stock_e 
-								
-						
-
-
-					
-	@frappe.whitelist()
-	def to_button_hide(self, po):
-		a = frappe.get_value("Puchase Order", po, "is_subcontracted")
-		s = frappe.get_value("Supplier", self.supplier, "is_internal_supplier")
-		if a == "Yes" and s == 1:
-			return True
 
 	@frappe.whitelist()
 	def on_challan_date(self, item):

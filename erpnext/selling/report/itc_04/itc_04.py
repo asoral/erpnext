@@ -49,13 +49,13 @@ def get_columns(filters):
 				"fieldtype": "Link",
 				"options": "Stock Entry",
 				"fieldname": "challan_number",
-				"width": 140
+				"width": 160
 			},
 			{
 				"label": _("Challan Date"),
 				"fieldtype": "Date",
 				"fieldname": "challan_date",
-				"width": 140
+				"width": 100
 			},
 			{
 				"label": _("Types Of Goods"),
@@ -80,7 +80,7 @@ def get_columns(filters):
 				"label": _("Quantity"),
 				"fieldtype": "Float",
 				"fieldname": "quantity",
-				"width": 140
+				"width": 100
 			},
 			{
 				"label": _("Taxable Value"),
@@ -126,20 +126,20 @@ def get_columns(filters):
 				"label": _("State"),
 				"fieldtype": "Data",
 				"fieldname": "state",
-				"width": 140
+				"width": 120
 			},
 			{
 				"label": _("Original Challan Number Issued by Principal"),
 				"fieldtype": "Link",
 				"fieldname": "original_challan_number_issued_by_principal",
-				"width": 140,
+				"width": 160,
 				"options" : "Stock Entry"
 			},
 			{
 				"label": _("Original Challan Date Issued by Principal"),
 				"fieldtype": "Date",
 				"fieldname": "original_challan_date_issued_by_principal",
-				"width": 140
+				"width": 100
 			},
 			{
 				"label": _("Challan Number Issued by Job Worker"),
@@ -152,13 +152,13 @@ def get_columns(filters):
 				"label": _("Challan Date Issued by Job Worker"),
 				"fieldtype": "Date",
 				"fieldname": "challan_date_issued_by_job_worker",
-				"width": 140
+				"width": 100
 			},
 			{
 				"label": _("Nature of Job Work Done"),
 				"fieldtype": "Data",
 				"fieldname": "nature_of_job_work_done",
-				"width": 140
+				"width": 100
 			},
 			{
 				"label": _("Description Of Goods"),
@@ -171,26 +171,26 @@ def get_columns(filters):
 				"label": _("Quantity"),
 				"fieldtype": "Float",
 				"fieldname": "quantity",
-				"width": 140
+				"width": 100
 			},
 			{
 				"label": _("Unique Quantity Code (UQC)"),
 				"fieldtype": "Data",
 				"fieldname": "unique_quantity_code",
-				"width": 140
+				"width": 100
 			},
 			
 			{
 				"label": _("Losses Quantity"),
 				"fieldtype": "Float",
 				"fieldname": "losses_quantity",
-				"width": 140
+				"width": 100
 			},
 			{
 				"label": _("Losses Unique Quantity Code (UQC)"),
 				"fieldtype": "Data",
 				"fieldname": "losses_uqc",
-				"width": 190
+				"width": 100
 			},
 			# {
 			# 	"label": _("To Be Named"),
@@ -420,20 +420,22 @@ def get_data(filters,conditions):
 
 		pr = frappe.db.sql(query,as_dict=1)
 
-		print(" PR ", pr)
+		# print(" PR ", pr)
 		for p in pr:
 			data2 = {}
 			sales_invoice = ""
 			si_date = ""
+			nature = ""
 			if p.reference_name:
 				pr_item = frappe.get_doc("Purchase Receipt Item", p.reference_name)
-				print(" tjhis is PURCHASE RECEIPT ITEM", pr_item.item_code, pr_item.challan_number_issues_by_job_worker)
+				# print(" tjhis is PURCHASE RECEIPT ITEM", type(pr_item), pr_item.challan_number_issues_by_job_worker)
+				nature = pr_item.nature_of_job_work_done
 				sales_invoice, si_date = frappe.db.get_value("Sales Invoice Item", pr_item.challan_number_issues_by_job_worker, ["parent", "modified"])
-			print( " pidd ", p)
-			challan_date = frappe.db.get_value("Purchase Receipt Item", {'parent': p.parent, 'challan_number_issues_by_job_worker': p.challan_issued}, ['challan_date_issues_by_job_worker'])
-			print(" hdafterer", challan_date)
+				# print( " pidd Natuer ", nature)
+
+			
 			data2['challan_number_issued_by_job_worker'] = sales_invoice
-			data2['challan_date_issued_by_job_worker'] = getdate(si_date)
+			data2['challan_date_issued_by_job_worker'] = getdate(si_date) if si_date else ""
 			supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
 											adds.state as state, supp.gst_category as job_workers_type
 											from `tabSupplier` supp
@@ -453,9 +455,9 @@ def get_data(filters,conditions):
 			data2['quantity'] = p.qty_to_be_consumed
 			data2['losses_uqc'] = p.stock_uom
 			data2['losses_quantity'] = p.loss_qty
-			data2['nature_of_job_work_done'] = p.nature
+			data2['nature_of_job_work_done'] = nature
 			data2['original_challan_number_issued_by_principal'] = p.reference_challan
-			data2['original_challan_date_issued_by_principal'] = p.reference_challan_date
+			data2['original_challan_date_issued_by_principal'] = frappe.get_value("Stock Entry", p.reference_challan, 'posting_date')
 
 			data.append(data2)	
 		return data

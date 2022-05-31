@@ -51,77 +51,28 @@ frappe.ui.form.on("Purchase Receipt", {
 
 	},
 
-	// New Code for ITC04 new
+	// New Code for ITC04 new to fetch reference challan after save
 	after_save: function(frm) {
 		console.log("We are inside of after save")	
 		if (frm.doc.is_subcontracted == "Yes" ){
-					frappe.call({
-						method : 'on_get_items_button',
-						doc:frm.doc,
-						callback: function(r)
-						{
-							// frm.refresh_field("get_items")
-							if (r.message){
-							console.log("this is return", r.message)
-							frm.refresh()
-							frm.refresh_field("supplied_items")
-							}
-						}
-					});
-				}
-
-	},
-
-	// new code for TASK - TASK-2022-00015
-	// get_items: function(frm) {
-	// 	console.log(" Button Working")
-	// 	if (frm.doc.docstatus != 1){
-	// 		frappe.call({
-	// 			method : 'on_get_items_button',
-	// 			doc:frm.doc,
-	// 			callback: function(r)
-	// 			{
-	// 				// frm.refresh_field("get_items")
-	// 				if (r.message){
-	// 				console.log("this is buttom", r.message)
-	// 				frm.refresh_field("supplied_items")
-	// 				}
-	// 				else console.log("Nothis ins ")
-	// 			}
-	// 		});
-	// 	}
-	// 	else console.log("Cannot Get ITEMS as document already is submitted")
-	// },
-
-
-
-	refresh: function(frm) {
-		// new code for TASK - TASK-2022-00015
-		//  To unhide new button on Material  
-		var for_challan_number_date = 0
-		var po =  frm.doc.items[0].purchase_order
-		if (po){
 			frappe.call({
-				method : 'to_button_hide',
+				method : 'on_get_items_button',
 				doc:frm.doc,
-				args: {
-					po : po
-				},
 				callback: function(r)
 				{
-					// frm.refresh_field("get_items")
-					console.log("this is refresh method")
 					if (r.message){
-						for_challan_number_date = 1
-						frm.set_df_property("get_items", "hidden", 0)
+					console.log("this is return", r.message)
+					frm.refresh()
+					frm.refresh_field("supplied_items")
 					}
 				}
 			});
-			
 		}
-		// console.log(" thi uis is_supply_rm", is_supply_rm)
-		// 
 
+	},
+
+	refresh: function(frm) {
+		
 		if(frm.doc.company) {
 			frm.trigger("toggle_display_account_head");
 		}
