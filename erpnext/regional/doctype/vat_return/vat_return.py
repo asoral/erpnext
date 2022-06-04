@@ -394,15 +394,16 @@ class VATRETURN(Document):
 
 		as taxable_import_1,
         
-			(Select sum(jea.debit) from `tabJournal Entry Account`  jea 
-			join `tabJournal Entry` as je on je.name = jea.parent
-			Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
-			and xsi.is_import_services = 0
-			where je.docstatus = 1 and je.voucher_type = "Import Purchase"
-			and jea.account Like 'Vat on Import%' and xsi.company = si.company
-			and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') 
-        +
-			(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
+		(Select sum(jea.debit) from `tabJournal Entry Account`  jea 
+		join `tabJournal Entry` as je on je.name = jea.parent
+		Left Join `tabPurchase Invoice` as xsi on xsi.name = je.purchase_invoice_no
+		and xsi.is_import_services = 0
+		where je.docstatus = 1 and je.voucher_type = "Import Purchase"
+		and jea.account Like 'Vat on Import%' and xsi.company = si.company
+		and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') 
+        as taxable_import_2_tax,
+
+		(Select sum(ptc.tax_amount) from `tabPurchase Taxes and Charges` as ptc
 			Join  `tabPurchase Invoice` as xsi on xsi.name = ptc.parent 
 			where  ptc.account_head like 'Vat claim due%'
 			and xsi.is_import_services = 1   
@@ -451,7 +452,7 @@ class VATRETURN(Document):
 				# self.report_dict["particular"]["taxcable_purchase"][0]["tp"]=flt(i.local_tax) + flt(i.capital_tax)
 				self.report_dict["particular"]["taxcable_purchase"][0]["tp"]= ((flt(i.taxable_purchase) + flt(i.capital_purchase)) * 13)/100 
 				self.report_dict["particular"]["taxcable_import"][0]["tv"]= flt(i.taxable_import_1) + flt(i.taxable_import_2)
-				self.report_dict["particular"]["taxcable_import"][0]["tp"]=flt(i.taxable_import_1_tax) 
+				self.report_dict["particular"]["taxcable_import"][0]["tp"]=flt(i.taxable_import_1_tax) + flt(i.taxable_import_2_tax)
 				self.report_dict["particular"]["exempted_purchase"][0]["tv"]=i.exempted_purchase
 				self.report_dict["particular"]["exempted_import"][0]["tv"]=i.exempted_import
 				
