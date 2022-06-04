@@ -472,8 +472,6 @@ class VATRETURN(Document):
 		b=self.report_dict["particular"]["total"][0]["tp"]
 		self.report_dict["particular"]["debit_credit"][0]["tc"]	=a-b
 		self.report_dict["particular"]["total"][0]["tv"]=total+tot
-		# print(c_tax)
-		# print(t_tax)
 
 		new_from_date = getdate(self.from_date) - timedelta(days=30)
 		new_to_date = getdate(self.to_date) - timedelta(days=30)
@@ -489,8 +487,6 @@ class VATRETURN(Document):
 							and si.posting_date Between '{1}' and '{2}'
 							Limit 1
 						""".format(self.company, new_to_date, self.from_date), as_dict=1)
-		# print(" thi si wen etad  ", new_from_date.self.from_date)
-		# print(" = = = =  = = = = = = = =", top[0].get("taxable_sales"))
 		if top[0].get("taxable_sales"):
 			sale_tax = flt(top[0].get("taxable_sales"))
 
@@ -542,15 +538,12 @@ class VATRETURN(Document):
 		print(" = = = =  = = = = = = = =", bott)
 		if bott:
 			tp = cp = tx = 0
-			# print(" >>>>>>>>>>>>>", bott[0].get("taxable_purchase"), bott[0].get("capital_purchase"))
 			if bott[0].get("taxable_purchase"): tp = bott[0].get("taxable_purchase")
 			if bott[0].get("capital_purchase") : cp = bott[0].get("capital_purchase")
 			if bott[0].get("import_tax") : tx = bott[0].get("import_tax")
 
 			c =  (flt(tp)+flt(cp))*13/100
 			purchase_tax = c + tx
-			print(" purchse ", purchase_tax)
-		# print(" subraction", sale_tax - purchase_tax , sale_tax - purchase_tax)
 
 		if (a-b)< 0:
 			# self.report_dict["particular"]["vat_adj_last_mon"][0]["tc"]=c_tax-t_tax vat_to_be_adjusted_from_last_month
