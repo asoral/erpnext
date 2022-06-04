@@ -59,6 +59,24 @@ class JobCard(Document):
 		self.update_sub_operation_status()
 		self.validate_work_order()
 
+		for i in self.time_logs:
+			time=i.completed_qty*60
+			date_and_time = get_datetime(i.from_time)
+
+			i.to_time=date_and_time + datetime.timedelta(hours=i.completed_qty)
+			i.time_in_mins=time
+			print("***********************",i.to_time)
+	def before_submit(self):
+		for i in self.time_logs:
+			time=i.completed_qty*60
+			date_and_time = get_datetime(i.from_time)
+
+			i.to_time=date_and_time + datetime.timedelta(hours=i.completed_qty)
+			i.time_in_mins=time
+			print("***********************",i.to_time)
+
+			
+
 	def set_sub_operations(self):
 		if not self.sub_operations and self.operation:
 			self.sub_operations = []
