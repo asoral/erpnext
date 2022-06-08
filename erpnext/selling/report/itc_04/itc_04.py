@@ -15,8 +15,8 @@ def execute(filters=None):
 	conditions = get_con(filters)
 	data = get_data(filters, conditions)
 
-	validate_filters(filters)
 
+	validate_filters(filters)
 	return columns, data
 
 def validate_filters(filters):
