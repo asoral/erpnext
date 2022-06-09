@@ -407,7 +407,7 @@ def get_data(filters,conditions):
 		s_d = "'" + conditions['start_date'] + "'"
 		m_d = "'" + conditions['end_date'] + "'"
 
-		print(" dates", s_d, m_d, filters.get('company'))
+		# print(" dates", s_d, m_d, filters.get('company'))
 		query = """
 					Select pris.*, pr.name, pr.supplier   from `tabPurchase Receipt Item Supplied` pris
 					Join `tabPurchase Receipt` pr on pr.name = pris.parent
