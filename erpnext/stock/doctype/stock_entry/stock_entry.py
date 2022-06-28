@@ -335,19 +335,17 @@ class StockEntry(StockController):
 				for_update=True,
 			)
 
-			for f in (
-				"uom",
-				"stock_uom",
-				"description",
-				"item_name",
-				"expense_account",
-				"cost_center",
-				"conversion_factor",
-			):
-				if f == "stock_uom" or not item.get(f):
-					item.set(f, item_details.get(f))
-				if f == "conversion_factor" and item.uom == item_details.get("stock_uom"):
-					item.set(f, item_details.get(f))
+			reset_fields = ("stock_uom", "item_name")
+			for field in reset_fields:
+				item.set(field, item_details.get(field))
+
+			update_fields = ("uom", "description", "expense_account", "cost_center", "conversion_factor")
+
+			for field in update_fields:
+				if not item.get(field):
+					item.set(field, item_details.get(field))
+				if field == "conversion_factor" and item.uom == item_details.get("stock_uom"):
+					item.set(field, item_details.get(field))
 
 			if not item.transfer_qty and item.qty:
 				item.transfer_qty = flt(
@@ -597,7 +595,7 @@ class StockEntry(StockController):
 				)
 
 	def set_actual_qty(self):
-		allow_negative_stock = cint(frappe.db.get_value("Stock Settings", None, "allow_negative_stock"))
+		allow_negative_stock = cint(frappe.db.get_single_value("Stock Settings", "allow_negative_stock"))
 
 		for d in self.get("items"):
 			previous_sle = get_previous_sle(
@@ -632,7 +630,7 @@ class StockEntry(StockController):
 					)
 					+ "<br><br>"
 					+ _("Available quantity is {0}, you need {1}").format(
-						frappe.bold(d.actual_qty), frappe.bold(d.transfer_qty)
+						frappe.bold(flt(d.actual_qty, d.precision("actual_qty"))), frappe.bold(d.transfer_qty)
 					),
 					NegativeStockError,
 					title=_("Insufficient Stock"),
@@ -711,7 +709,8 @@ class StockEntry(StockController):
 					raise_error_if_no_rate=raise_error_if_no_rate,
 				)
 
-			d.basic_rate = flt(d.basic_rate, d.precision("basic_rate"))
+			# do not round off basic rate to avoid precision loss
+			d.basic_rate = flt(d.basic_rate)
 			if d.is_process_loss:
 				d.basic_rate = flt(0.0)
 			d.basic_amount = flt(flt(d.transfer_qty) * flt(d.basic_rate), d.precision("basic_amount"))
@@ -758,7 +757,7 @@ class StockEntry(StockController):
 				total_fg_qty = sum([flt(d.transfer_qty) for d in self.items if d.is_finished_item])
 				return flt(outgoing_items_cost / total_fg_qty)
 
-	def get_basic_rate_for_manufactured_item(self, finished_item_qty, outgoing_items_cost=0):
+	def get_basic_rate_for_manufactured_item(self, finished_item_qty, outgoing_items_cost=0) -> float:
 		scrap_items_cost = sum([flt(d.basic_amount) for d in self.get("items") if d.is_scrap_item])
 
 		# Get raw materials cost from BOM if multiple material consumption entries
@@ -805,10 +804,8 @@ class StockEntry(StockController):
 		for d in self.get("items"):
 			if d.transfer_qty:
 				d.amount = flt(flt(d.basic_amount) + flt(d.additional_cost), d.precision("amount"))
-				d.valuation_rate = flt(
-					flt(d.basic_rate) + (flt(d.additional_cost) / flt(d.transfer_qty)),
-					d.precision("valuation_rate"),
-				)
+				# Do not round off valuation rate to avoid precision loss
+				d.valuation_rate = flt(d.basic_rate) + (flt(d.additional_cost) / flt(d.transfer_qty))
 
 	def set_total_incoming_outgoing_value(self):
 		self.total_incoming_value = self.total_outgoing_value = 0.0
@@ -1187,7 +1184,7 @@ class StockEntry(StockController):
 		if self.job_card:
 			job_doc = frappe.get_doc("Job Card", self.job_card)
 			job_doc.set_transferred_qty(update_status=True)
-			job_doc.set_transferred_qty_in_job_card(self)
+			job_doc.set_transferred_qty_in_job_card_item(self)
 
 		if self.work_order:
 			pro_doc = frappe.get_doc("Work Order", self.work_order)
@@ -1849,7 +1846,9 @@ class StockEntry(StockController):
 				or (desire_to_transfer > 0 and backflush_based_on == "Material Transferred for Manufacture")
 				or allow_overproduction
 			):
-				item_dict[item]["qty"] = desire_to_transfer
+				# "No need for transfer but qty still pending to transfer" case can occur
+				# when transferring multiple RM in different Stock Entries
+				item_dict[item]["qty"] = desire_to_transfer if (desire_to_transfer > 0) else pending_to_issue
 			elif pending_to_issue > 0:
 				item_dict[item]["qty"] = pending_to_issue
 			else:
@@ -2027,23 +2026,30 @@ class StockEntry(StockController):
 		):
 
 			# Get PO Supplied Items Details
-			item_wh = frappe._dict(
-				frappe.db.sql(
-					"""
-				select rm_item_code, reserve_warehouse
-				from `tabPurchase Order` po, `tabPurchase Order Item Supplied` poitemsup
-				where po.name = poitemsup.parent
-				and po.name = %s""",
-					self.purchase_order,
-				)
+			po_supplied_items = frappe.db.get_all(
+				"Purchase Order Item Supplied",
+				filters={"parent": self.purchase_order},
+				fields=["name", "rm_item_code", "reserve_warehouse"],
 			)
 
+			# Get Items Supplied in Stock Entries against PO
 			supplied_items = get_supplied_items(self.purchase_order)
-			for name, item in supplied_items.items():
-				frappe.db.set_value("Purchase Order Item Supplied", name, item)
 
-			# Update reserved sub contracted quantity in bin based on Supplied Item Details and
+			for row in po_supplied_items:
+				key, item = row.name, {}
+				if not supplied_items.get(key):
+					# no stock transferred against PO Supplied Items row
+					item = {"supplied_qty": 0, "returned_qty": 0, "total_supplied_qty": 0}
+				else:
+					item = supplied_items.get(key)
+
+				frappe.db.set_value("Purchase Order Item Supplied", row.name, item)
+
+			# RM Item-Reserve Warehouse Dict
+			item_wh = {x.get("rm_item_code"): x.get("reserve_warehouse") for x in po_supplied_items}
+
 			for d in self.get("items"):
+				# Update reserved sub contracted quantity in bin based on Supplied Item Details and
 				item_code = d.get("original_item") or d.get("item_code")
 				reserve_warehouse = item_wh.get(item_code)
 				if not (reserve_warehouse and item_code):
@@ -2241,12 +2247,12 @@ class StockEntry(StockController):
 
 		return sorted(list(set(get_serial_nos(self.pro_doc.serial_no)) - set(used_serial_nos)))
 
-	def set_title(self):
-		if frappe.flags.in_import and self.title:
-			# Allow updating title during data import/update
-			return
+	def set_missing_values(self):
+		"Updates rate and availability of all the items of mapped doc."
+		self.set_transfer_qty()
+		self.set_actual_qty()
+		self.calculate_rate_and_amount()
 
-		self.title = self.purpose
 
 @frappe.whitelist()
 def move_sample_to_retention_warehouse(company, items):
@@ -2296,6 +2302,7 @@ def move_sample_to_retention_warehouse(company, items):
 def make_stock_in_entry(source_name, target_doc=None):
 	def set_missing_values(source, target):
 		target.set_stock_entry_type()
+		target.set_missing_values()
 
 	def update_item(source_doc, target_doc, source_parent):
 		target_doc.t_warehouse = ""

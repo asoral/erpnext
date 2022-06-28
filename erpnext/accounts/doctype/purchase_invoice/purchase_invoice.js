@@ -35,6 +35,9 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 	onload: function() {
 		this._super();
 
+		// Ignore linked advances
+		this.frm.ignore_doctypes_on_cancel_all = ['Journal Entry', 'Payment Entry'];
+
 		if(!this.frm.doc.__islocal) {
 			// show credit_to in print format
 			if(!this.frm.doc.supplier && this.frm.doc.credit_to) {
@@ -47,8 +50,6 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 		if (this.frm.doc.supplier && this.frm.doc.__islocal) {
 			this.frm.trigger('supplier');
 		}
-
-		erpnext.accounts.dimensions.setup_dimension_filters(this.frm, this.frm.doctype);
 	},
 
 	refresh: function(doc) {

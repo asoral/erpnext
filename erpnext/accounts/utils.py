@@ -3,12 +3,23 @@
 
 
 from json import loads
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import frappe
 import frappe.defaults
 from frappe import _, throw
 from frappe.model.meta import get_field_precision
-from frappe.utils import cint, cstr, flt, formatdate, get_number_format_info, getdate, now, nowdate
+from frappe.utils import (
+	cint,
+	create_batch,
+	cstr,
+	flt,
+	formatdate,
+	get_number_format_info,
+	getdate,
+	now,
+	nowdate,
+)
 from six import string_types
 
 import erpnext
@@ -18,9 +29,8 @@ from erpnext.accounts.doctype.account.account import get_account_currency  # noq
 from erpnext.stock import get_warehouse_account_map
 from erpnext.stock.utils import get_stock_value_on
 
-
-class StockValueAndAccountBalanceOutOfSync(frappe.ValidationError):
-	pass
+if TYPE_CHECKING:
+	from erpnext.stock.doctype.repost_item_valuation.repost_item_valuation import RepostItemValuation
 
 
 class FiscalYearError(frappe.ValidationError):
@@ -29,6 +39,9 @@ class FiscalYearError(frappe.ValidationError):
 
 class PaymentEntryUnlinkError(frappe.ValidationError):
 	pass
+
+
+GL_REPOSTING_CHUNK = 100
 
 
 @frappe.whitelist()
@@ -1125,33 +1138,79 @@ def update_gl_entries_after(
 
 
 def repost_gle_for_stock_vouchers(
-	stock_vouchers, posting_date, company=None, warehouse_account=None
+	stock_vouchers: List[Tuple[str, str]],
+	posting_date: str,
+	company: Optional[str] = None,
+	warehouse_account=None,
+	repost_doc: Optional["RepostItemValuation"] = None,
 ):
-	def _delete_gl_entries(voucher_type, voucher_no):
-		frappe.db.sql(
-			"""delete from `tabGL Entry`
-			where voucher_type=%s and voucher_no=%s""",
-			(voucher_type, voucher_no),
-		)
+	if not stock_vouchers:
+		return
 
 	if not warehouse_account:
 		warehouse_account = get_warehouse_account_map(company)
 
 	precision = get_field_precision(frappe.get_meta("GL Entry").get_field("debit")) or 2
 
-	gle = get_voucherwise_gl_entries(stock_vouchers, posting_date)
-	for voucher_type, voucher_no in stock_vouchers:
-		existing_gle = gle.get((voucher_type, voucher_no), [])
-		voucher_obj = frappe.get_cached_doc(voucher_type, voucher_no)
-		expected_gle = voucher_obj.get_gl_entries(warehouse_account)
-		if expected_gle:
-			if not existing_gle or not compare_existing_and_expected_gle(
-				existing_gle, expected_gle, precision
-			):
+	stock_vouchers = sort_stock_vouchers_by_posting_date(stock_vouchers)
+	if repost_doc and repost_doc.gl_reposting_index:
+		# Restore progress
+		stock_vouchers = stock_vouchers[cint(repost_doc.gl_reposting_index) :]
+
+	for stock_vouchers_chunk in create_batch(stock_vouchers, GL_REPOSTING_CHUNK):
+		gle = get_voucherwise_gl_entries(stock_vouchers_chunk, posting_date)
+		for voucher_type, voucher_no in stock_vouchers_chunk:
+			existing_gle = gle.get((voucher_type, voucher_no), [])
+			voucher_obj = frappe.get_doc(voucher_type, voucher_no)
+			expected_gle = voucher_obj.get_gl_entries(warehouse_account)
+			if expected_gle:
+				if not existing_gle or not compare_existing_and_expected_gle(
+					existing_gle, expected_gle, precision
+				):
+					_delete_gl_entries(voucher_type, voucher_no)
+					voucher_obj.make_gl_entries(gl_entries=expected_gle, from_repost=True)
+			else:
 				_delete_gl_entries(voucher_type, voucher_no)
-				voucher_obj.make_gl_entries(gl_entries=expected_gle, from_repost=True)
-		else:
-			_delete_gl_entries(voucher_type, voucher_no)
+
+		if not frappe.flags.in_test:
+			frappe.db.commit()
+
+		if repost_doc:
+			repost_doc.db_set(
+				"gl_reposting_index", cint(repost_doc.gl_reposting_index) + len(stock_vouchers_chunk)
+			)
+
+
+def _delete_gl_entries(voucher_type, voucher_no):
+	frappe.db.sql(
+		"""delete from `tabGL Entry`
+		where voucher_type=%s and voucher_no=%s""",
+		(voucher_type, voucher_no),
+	)
+
+
+def sort_stock_vouchers_by_posting_date(
+	stock_vouchers: List[Tuple[str, str]]
+) -> List[Tuple[str, str]]:
+	sle = frappe.qb.DocType("Stock Ledger Entry")
+	voucher_nos = [v[1] for v in stock_vouchers]
+
+	sles = (
+		frappe.qb.from_(sle)
+		.select(sle.voucher_type, sle.voucher_no, sle.posting_date, sle.posting_time, sle.creation)
+		.where((sle.is_cancelled == 0) & (sle.voucher_no.isin(voucher_nos)))
+		.groupby(sle.voucher_type, sle.voucher_no)
+		.orderby(sle.posting_date)
+		.orderby(sle.posting_time)
+		.orderby(sle.creation)
+	).run(as_dict=True)
+	sorted_vouchers = [(sle.voucher_type, sle.voucher_no) for sle in sles]
+
+	unknown_vouchers = set(stock_vouchers) - set(sorted_vouchers)
+	if unknown_vouchers:
+		sorted_vouchers.extend(unknown_vouchers)
+
+	return sorted_vouchers
 
 
 def get_future_stock_vouchers(
@@ -1245,47 +1304,6 @@ def compare_existing_and_expected_gle(existing_gle, expected_gle, precision):
 			matched = False
 			break
 	return matched
-
-
-def check_if_stock_and_account_balance_synced(
-	posting_date, company, voucher_type=None, voucher_no=None
-):
-	if not cint(erpnext.is_perpetual_inventory_enabled(company)):
-		return
-
-	accounts = get_stock_accounts(company, voucher_type, voucher_no)
-	stock_adjustment_account = frappe.db.get_value("Company", company, "stock_adjustment_account")
-
-	for account in accounts:
-		account_bal, stock_bal, warehouse_list = get_stock_and_account_balance(
-			account, posting_date, company
-		)
-
-		if abs(account_bal - stock_bal) > 0.1:
-			precision = get_field_precision(
-				frappe.get_meta("GL Entry").get_field("debit"),
-				currency=frappe.get_cached_value("Company", company, "default_currency"),
-			)
-
-			diff = flt(stock_bal - account_bal, precision)
-
-			error_reason = _(
-				"Stock Value ({0}) and Account Balance ({1}) are out of sync for account {2} and it's linked warehouses as on {3}."
-			).format(stock_bal, account_bal, frappe.bold(account), posting_date)
-			error_resolution = _("Please create an adjustment Journal Entry for amount {0} on {1}").format(
-				frappe.bold(diff), frappe.bold(posting_date)
-			)
-
-			frappe.msgprint(
-				msg="""{0}<br></br>{1}<br></br>""".format(error_reason, error_resolution),
-				raise_exception=StockValueAndAccountBalanceOutOfSync,
-				title=_("Values Out Of Sync"),
-				primary_action={
-					"label": _("Make Journal Entry"),
-					"client_action": "erpnext.route_to_adjustment_jv",
-					"args": get_journal_entry(account, stock_adjustment_account, diff),
-				},
-			)
 
 
 def get_stock_accounts(company, voucher_type=None, voucher_no=None):

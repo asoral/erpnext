@@ -683,6 +683,13 @@ class TestItem(FrappeTestCase):
 		self.assertEqual(item.sample_quantity, None)
 		item.delete()
 
+	def test_empty_description(self):
+		item = make_item(properties={"description": "<p></p>"})
+		self.assertEqual(item.description, item.item_name)
+		item.description = ""
+		item.save()
+		self.assertEqual(item.description, item.item_name)
+
 
 def set_item_variant_settings(fields):
 	doc = frappe.get_doc("Item Variant Settings")
@@ -705,6 +712,7 @@ def create_item(
 	item_code,
 	is_stock_item=1,
 	valuation_rate=0,
+	stock_uom="Nos",
 	warehouse="_Test Warehouse - _TC",
 	is_customer_provided_item=None,
 	customer=None,
@@ -720,6 +728,7 @@ def create_item(
 		item.item_name = item_code
 		item.description = item_code
 		item.item_group = "All Item Groups"
+		item.stock_uom = stock_uom
 		item.is_stock_item = is_stock_item
 		item.is_fixed_asset = is_fixed_asset
 		item.asset_category = asset_category

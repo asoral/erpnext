@@ -26,6 +26,7 @@ class Quotation(SellingController):
 		self.set_status()
 		self.validate_uom_is_integer("stock_uom", "qty")
 		self.validate_valid_till()
+		self.validate_shopping_cart_items()
 		self.set_customer_name()
 		if self.items:
 			self.with_items = 1
@@ -38,8 +39,52 @@ class Quotation(SellingController):
 		if self.valid_till and getdate(self.valid_till) < getdate(self.transaction_date):
 			frappe.throw(_("Valid till date cannot be before transaction date"))
 
-	def has_sales_order(self):
-		return frappe.db.get_value("Sales Order Item", {"prevdoc_docname": self.name, "docstatus": 1})
+	def validate_shopping_cart_items(self):
+		if self.order_type != "Shopping Cart":
+			return
+
+		for item in self.items:
+			has_web_item = frappe.db.exists("Website Item", {"item_code": item.item_code})
+
+			# If variant is unpublished but template is published: valid
+			template = frappe.get_cached_value("Item", item.item_code, "variant_of")
+			if template and not has_web_item:
+				has_web_item = frappe.db.exists("Website Item", {"item_code": template})
+
+			if not has_web_item:
+				frappe.throw(
+					_("Row #{0}: Item {1} must have a Website Item for Shopping Cart Quotations").format(
+						item.idx, frappe.bold(item.item_code)
+					),
+					title=_("Unpublished Item"),
+				)
+
+	def get_ordered_status(self):
+		ordered_items = frappe._dict(
+			frappe.db.get_all(
+				"Sales Order Item",
+				{"prevdoc_docname": self.name, "docstatus": 1},
+				["item_code", "sum(qty)"],
+				group_by="item_code",
+				as_list=1,
+			)
+		)
+
+		status = "Open"
+		if ordered_items:
+			status = "Ordered"
+
+			for item in self.get("items"):
+				if item.qty > ordered_items.get(item.item_code, 0.0):
+					status = "Partially Ordered"
+
+		return status
+
+	def is_fully_ordered(self):
+		return self.get_ordered_status() == "Ordered"
+
+	def is_partially_ordered(self):
+		return self.get_ordered_status() == "Partially Ordered"
 
 	def update_lead(self):
 		if self.quotation_to == "Lead" and self.party_name:
@@ -71,7 +116,7 @@ class Quotation(SellingController):
 
 	@frappe.whitelist()
 	def declare_enquiry_lost(self, lost_reasons_list, detailed_reason=None):
-		if not self.has_sales_order():
+		if not (self.is_fully_ordered() or self.is_partially_ordered()):
 			get_lost_reasons = frappe.get_list("Quotation Lost Reason", fields=["name"])
 			lost_reasons_lst = [reason.get("name") for reason in get_lost_reasons]
 			frappe.db.set(self, "status", "Lost")
@@ -159,6 +204,15 @@ def make_sales_order(source_name, target_doc=None):
 
 def _make_sales_order(source_name, target_doc=None, ignore_permissions=False):
 	customer = _make_customer(source_name, ignore_permissions)
+	ordered_items = frappe._dict(
+		frappe.db.get_all(
+			"Sales Order Item",
+			{"prevdoc_docname": source_name, "docstatus": 1},
+			["item_code", "sum(qty)"],
+			group_by="item_code",
+			as_list=1,
+		)
+	)
 
 	def set_missing_values(source, target):
 		if customer:
@@ -174,7 +228,9 @@ def _make_sales_order(source_name, target_doc=None, ignore_permissions=False):
 		target.run_method("calculate_taxes_and_totals")
 
 	def update_item(obj, target, source_parent):
-		target.stock_qty = flt(obj.qty) * flt(obj.conversion_factor)
+		balance_qty = obj.qty - ordered_items.get(obj.item_code, 0.0)
+		target.qty = balance_qty if balance_qty > 0 else 0
+		target.stock_qty = flt(target.qty) * flt(obj.conversion_factor)
 
 		if obj.against_blanket_order:
 			target.against_blanket_order = obj.against_blanket_order
@@ -190,6 +246,7 @@ def _make_sales_order(source_name, target_doc=None, ignore_permissions=False):
 				"doctype": "Sales Order Item",
 				"field_map": {"parent": "prevdoc_docname"},
 				"postprocess": update_item,
+				"condition": lambda doc: doc.qty > 0,
 			},
 			"Sales Taxes and Charges": {"doctype": "Sales Taxes and Charges", "add_if_empty": True},
 			"Sales Team": {"doctype": "Sales Team", "add_if_empty": True},
