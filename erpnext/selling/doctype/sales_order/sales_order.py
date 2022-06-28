@@ -27,6 +27,7 @@ from erpnext.manufacturing.doctype.production_plan.production_plan import (
 from erpnext.selling.doctype.customer.customer import check_credit_limit
 from erpnext.setup.doctype.item_group.item_group import get_item_group_defaults
 from erpnext.stock.doctype.item.item import get_item_defaults
+from erpnext.stock.get_item_details import get_default_bom
 from erpnext.stock.stock_balance import get_reserved_qty, update_bin_qty
 
 from erpnext.accounts.report.accounts_receivable.accounts_receivable import ReceivablePayableReport
@@ -591,6 +592,16 @@ class SalesOrder(SellingController):
 		if tot_qty != 0:
 			self.db_set("per_delivered", flt(delivered_qty / tot_qty) * 100, update_modified=False)
 
+	def update_picking_status(self):
+		total_picked_qty = 0.0
+		total_qty = 0.0
+		for so_item in self.items:
+			total_picked_qty += flt(so_item.picked_qty)
+			total_qty += flt(so_item.stock_qty)
+		per_picked = total_picked_qty / total_qty * 100
+
+		self.db_set("per_picked", flt(per_picked), update_modified=False)
+
 	def set_indicator(self):
 		"""Set indicator for portal"""
 		if self.per_billed < 100 and self.per_delivered < 100:
@@ -636,8 +647,9 @@ class SalesOrder(SellingController):
 
 		for table in [self.items, self.packed_items]:
 			for i in table:
-				bom = get_default_bom_item(i.item_code)
+				bom = get_default_bom(i.item_code)
 				stock_qty = i.qty if i.doctype == "Packed Item" else i.stock_qty
+
 				if not for_raw_material_request:
 					total_work_order_qty = flt(
 						frappe.db.sql(
@@ -651,32 +663,19 @@ class SalesOrder(SellingController):
 					pending_qty = stock_qty
 
 				if pending_qty and i.item_code not in product_bundle_parents:
-					if bom:
-						items.append(
-							dict(
-								name=i.name,
-								item_code=i.item_code,
-								description=i.description,
-								bom=bom,
-								warehouse=i.warehouse,
-								pending_qty=pending_qty,
-								required_qty=pending_qty if for_raw_material_request else 0,
-								sales_order_item=i.name,
-							)
+					items.append(
+						dict(
+							name=i.name,
+							item_code=i.item_code,
+							description=i.description,
+							bom=bom or "",
+							warehouse=i.warehouse,
+							pending_qty=pending_qty,
+							required_qty=pending_qty if for_raw_material_request else 0,
+							sales_order_item=i.name,
 						)
-					else:
-						items.append(
-							dict(
-								name=i.name,
-								item_code=i.item_code,
-								description=i.description,
-								bom="",
-								warehouse=i.warehouse,
-								pending_qty=pending_qty,
-								required_qty=pending_qty if for_raw_material_request else 0,
-								sales_order_item=i.name,
-							)
-						)
+					)
+
 		return items
 
 	def on_recurring(self, reference_doc, auto_repeat_doc):
@@ -1380,13 +1379,6 @@ def update_status(status, name):
 	so.update_status(status)
 
 
-def get_default_bom_item(item_code):
-	bom = frappe.get_all("BOM", dict(item=item_code, is_active=True), order_by="is_default desc")
-	bom = bom[0].name if bom else None
-
-	return bom
-
-
 @frappe.whitelist()
 def make_raw_material_request(items, company, sales_order, project=None):
 	if not frappe.has_permission("Sales Order", "write"):
@@ -1455,9 +1447,30 @@ def make_inter_company_purchase_order(source_name, target_doc=None):
 
 @frappe.whitelist()
 def create_pick_list(source_name, target_doc=None):
-	def update_item_quantity(source, target, source_parent):
-		target.qty = flt(source.qty) - flt(source.delivered_qty)
-		target.stock_qty = (flt(source.qty) - flt(source.delivered_qty)) * flt(source.conversion_factor)
+	from erpnext.stock.doctype.packed_item.packed_item import is_product_bundle
+
+	def update_item_quantity(source, target, source_parent) -> None:
+		picked_qty = flt(source.picked_qty) / (flt(source.conversion_factor) or 1)
+		qty_to_be_picked = flt(source.qty) - max(picked_qty, flt(source.delivered_qty))
+
+		target.qty = qty_to_be_picked
+		target.stock_qty = qty_to_be_picked * flt(source.conversion_factor)
+
+	def update_packed_item_qty(source, target, source_parent) -> None:
+		qty = flt(source.qty)
+		for item in source_parent.items:
+			if source.parent_detail_docname == item.name:
+				picked_qty = flt(item.picked_qty) / (flt(item.conversion_factor) or 1)
+				pending_percent = (item.qty - max(picked_qty, item.delivered_qty)) / item.qty
+				target.qty = target.stock_qty = qty * pending_percent
+				return
+
+	def should_pick_order_item(item) -> bool:
+		return (
+			abs(item.delivered_qty) < abs(item.qty)
+			and item.delivered_by_supplier != 1
+			and not is_product_bundle(item.item_code)
+		)
 
 	doc = get_mapped_doc(
 		"Sales Order",
@@ -1468,8 +1481,17 @@ def create_pick_list(source_name, target_doc=None):
 				"doctype": "Pick List Item",
 				"field_map": {"parent": "sales_order", "name": "sales_order_item"},
 				"postprocess": update_item_quantity,
-				"condition": lambda doc: abs(doc.delivered_qty) < abs(doc.qty)
-				and doc.delivered_by_supplier != 1,
+				"condition": should_pick_order_item,
+			},
+			"Packed Item": {
+				"doctype": "Pick List Item",
+				"field_map": {
+					"parent": "sales_order",
+					"name": "sales_order_item",
+					"parent_detail_docname": "product_bundle_item",
+				},
+				"field_no_map": ["picked_qty"],
+				"postprocess": update_packed_item_qty,
 			},
 		},
 		target_doc,

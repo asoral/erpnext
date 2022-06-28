@@ -19,7 +19,6 @@ from erpnext.accounts.doctype.tax_withholding_category.tax_withholding_category 
 )
 from erpnext.accounts.party import get_party_account
 from erpnext.accounts.utils import (
-	check_if_stock_and_account_balance_synced,
 	get_account_currency,
 	get_balance_on,
 	get_stock_accounts,
@@ -88,9 +87,6 @@ class JournalEntry(AccountsController):
 		self.update_expense_claim()
 		self.update_inter_company_jv()
 		self.update_invoice_discounting()
-		check_if_stock_and_account_balance_synced(
-			self.posting_date, self.company, self.doctype, self.name
-		)
 
 	def on_cancel(self):
 		from erpnext.accounts.utils import unlink_ref_doc_from_payment_entries
@@ -1194,24 +1190,6 @@ def get_payment_entry(ref_doc, args):
 	je.set_total_debit_credit()
 
 	return je if args.get("journal_entry") else je.as_dict()
-
-
-@frappe.whitelist()
-def get_opening_accounts(company):
-	"""get all balance sheet accounts for opening entry"""
-	accounts = frappe.db.sql_list(
-		"""select
-			name from tabAccount
-		where
-			is_group=0 and report_type='Balance Sheet' and company={0} and
-			name not in (select distinct account from tabWarehouse where
-			account is not null and account != '')
-		order by name asc""".format(
-			frappe.db.escape(company)
-		)
-	)
-
-	return [{"account": a, "balance": get_balance_on(a)} for a in accounts]
 
 
 @frappe.whitelist()

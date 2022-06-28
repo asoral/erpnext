@@ -18,6 +18,7 @@ from frappe.utils import (
 	comma_and,
 	date_diff,
 	flt,
+	get_link_to_form,
 	getdate,
 )
 
@@ -47,6 +48,7 @@ class PayrollEntry(Document):
 
 	def before_submit(self):
 		self.validate_employee_details()
+		self.validate_payroll_payable_account()
 		if self.validate_attendance:
 			if self.validate_employee_attendance():
 				frappe.throw(_("Cannot Submit, Employees left to mark attendance"))
@@ -67,6 +69,14 @@ class PayrollEntry(Document):
 
 		if len(emp_with_sal_slip):
 			frappe.throw(_("Salary Slip already exists for {0}").format(comma_and(emp_with_sal_slip)))
+
+	def validate_payroll_payable_account(self):
+		if frappe.db.get_value("Account", self.payroll_payable_account, "account_type"):
+			frappe.throw(
+				_(
+					"Account type cannot be set for payroll payable account {0}, please remove and try again"
+				).format(frappe.bold(get_link_to_form("Account", self.payroll_payable_account)))
+			)
 
 	def on_cancel(self):
 		frappe.delete_doc(

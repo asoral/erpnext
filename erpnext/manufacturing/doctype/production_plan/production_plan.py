@@ -25,6 +25,7 @@ from six import iteritems
 from erpnext.manufacturing.doctype.bom.bom import get_children, validate_bom_no
 from erpnext.manufacturing.doctype.work_order.work_order import get_item_details
 from erpnext.setup.doctype.item_group.item_group import get_item_group_defaults
+from erpnext.utilities.transaction_base import validate_uom_is_integer
 
 
 class ProductionPlan(Document):
@@ -33,6 +34,7 @@ class ProductionPlan(Document):
 		self.calculate_total_planned_qty()
 		self.set_status()
 		self._rename_temporary_references()
+		validate_uom_is_integer(self, "stock_uom", "planned_qty")
 
 	def set_pending_qty_in_row_without_reference(self):
 		"Set Pending Qty in independent rows (not from SO or MR)."
@@ -462,6 +464,7 @@ class ProductionPlan(Document):
 			work_order_data = {
 				"wip_warehouse": default_warehouses.get("wip_warehouse"),
 				"fg_warehouse": default_warehouses.get("fg_warehouse"),
+				"company": self.get("company"),
 			}
 
 			self.prepare_data_for_sub_assembly_items(row, work_order_data)
@@ -499,6 +502,7 @@ class ProductionPlan(Document):
 
 		for supplier, po_list in subcontracted_po.items():
 			po = frappe.new_doc("Purchase Order")
+			po.company = self.company
 			po.supplier = supplier
 			po.schedule_date = getdate(po_list[0].schedule_date) if po_list[0].schedule_date else nowdate()
 			po.is_subcontracted = "Yes"
