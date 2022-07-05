@@ -195,21 +195,7 @@ def get_data(filters):
 
 		pi.total_qty,
 		
-		CASE
-		WHEN pi.country != "Nepal" and pi.is_import_services = 0
-		THEN 
-		(select je.custom_valuation_amount from `tabJournal Entry` as je
-		Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
-		where pd.docstatus = 1
-        and voucher_type = "Import Purchase"
-		and pd.name = pi.name
-		LIMIT 1)
-
-		WHEN pi.country = "Nepal" or pi.is_import_services = 1
-		THEN pi.total
-		
-		ELSE 0 
-		END as total,
+		pi.total as total,
 		IF(pi.exempted_from_tax > 0 and pi.country = "Nepal", pi.total, 0) as exempted_purchase,
 
 		IF(pi.exempted_from_tax > 0 and pi.country != "Nepal", pi.total, 0) as exempted_import,
@@ -245,12 +231,18 @@ def get_data(filters):
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0 
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 0
 		THEN	
-		(select je.custom_valuation_amount from `tabJournal Entry` as je
-		Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
-		where pd.docstatus = 1
-        and voucher_type = "Import Purchase"
-		and pd.name = pi.name
-		LIMIT 1)
+		IF((select je.custom_valuation_amount from `tabJournal Entry` as je
+			Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
+			where pd.docstatus = 1
+			and voucher_type = "Import Purchase"
+			and pd.name = pi.name
+			LIMIT 1),
+			(select je.custom_valuation_amount from `tabJournal Entry` as je
+			Left Join `tabPurchase Invoice` as pd on pd.name = je.purchase_invoice_no
+			where pd.docstatus = 1
+			and voucher_type = "Import Purchase"
+			and pd.name = pi.name
+			LIMIT 1), 0)
   
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 1
@@ -265,25 +257,29 @@ def get_data(filters):
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0 
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 0
 		THEN	
-		(Select Round(jea.debit) from `tabJournal Entry Account`  jea
-		Join `tabJournal Entry` je on je.name = jea.parent
-		where je.docstatus = 1
-       
-        and je.voucher_type = "Import Purchase"
-		and je.purchase_invoice_no = pi.name
-		and jea.account Like '{0}%' 
-		)
+			IF
+			((Select Round(jea.debit) from `tabJournal Entry Account`  jea
+			Join `tabJournal Entry` je on je.name = jea.parent
+			where je.docstatus = 1
+		
+			and je.voucher_type = "Import Purchase"
+			and je.purchase_invoice_no = pi.name
+			and jea.account Like '{0}%' 
+			),
+
+			(Select Round(jea.debit) from `tabJournal Entry Account`  jea
+			Join `tabJournal Entry` je on je.name = jea.parent
+			where je.docstatus = 1
+		
+			and je.voucher_type = "Import Purchase"
+			and je.purchase_invoice_no = pi.name
+			and jea.account Like '{0}%' 
+			), 0)
 
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 1
 		THEN	
-		(Select ptc.tax_amount from `tabPurchase Taxes and Charges` as ptc
-		Join  `tabPurchase Invoice` as pd on pd.name = ptc.parent 
-		where pd.docstatus =1
-		and pd.name = pi.name		
-		and ptc.account_head Like '{1}%' 
- 	  	Order by pd.docstatus desc
-		limit 1)
+		pi.vat_amount
 
 		ELSE 0
 		END as import_tax,
