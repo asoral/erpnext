@@ -961,7 +961,7 @@
    "fieldname": "bom_item_type",
    "fieldtype": "Select",
    "label": "BOM Item Type",
-   "options": "RM\nFG"
+   "options": "RM\nFG\nPKG"
   },
   {
    "fieldname": "intercompany_item",
