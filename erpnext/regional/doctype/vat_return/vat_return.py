@@ -403,7 +403,7 @@ class VATRETURN(Document):
 		and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}') 
         as taxable_import_2_tax,
 
-		(Select sum(xsi.vat_amount) from `tabPurchase Invoice` xsi  
+		(Select sum(xsi.vat_amount)*13/100 from `tabPurchase Invoice` xsi  
 			where xsi.is_import_services = 1   
 			and xsi.company=  si.company and xsi.docstatus=1 and xsi.posting_date Between '{3}' AND '{4}')
 			
