@@ -2221,6 +2221,7 @@ def make_inter_company_purchase_invoice(source_name, target_doc=None):
 
 
 def make_inter_company_transaction(doctype, source_name, target_doc=None):
+	target_detail_field=""
 	if doctype in ["Sales Invoice", "Sales Order"]:
 		source_doc = frappe.get_doc(doctype, source_name)
 		target_doctype = "Purchase Invoice" if doctype == "Sales Invoice" else "Purchase Order"
