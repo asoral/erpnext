@@ -29,8 +29,6 @@ class PurchaseReceipt(BuyingController):
 
 		ref_challan = ""
 		ref_date = ""
-		
-		print("Button Clicked .................------------=========")
 		# s_company = frappe.db.get_value("Supplier", self.supplier, )
 		# print(" this is on get items click", frappe.get_doc("Purchase Receipt", "MAT-PRE-2022-00022-1").get_signature())
 		count = 0
@@ -143,6 +141,19 @@ class PurchaseReceipt(BuyingController):
 
 		return due_date
 
+	@frappe.whitelist()
+	def on_challan_number_save(self):
+		for i in self.items:
+			pr_item = frappe.db.sql("""
+									Select name, parent from `tabPurchase Receipt Item` where 
+									challan_number_issues_by_job_worker = "{0}"
+									and docstatus = 1
+								""".format(  i.challan_number_issues_by_job_worker), as_dict =1)
+
+			if pr_item:
+				frappe.throw(" Purchase Receipt {1} already created with Challan Number {0}".format(i.challan_number_issues_by_job_worker, pr_item[0].get("parent")))				
+			
+
 	# New Code for Kroslink TASK TASK-2022-00015, Field challan_number_issues_by_job_worker
 	@frappe.whitelist()
 	def on_challan_number(self, item_code):
@@ -156,18 +167,28 @@ class PurchaseReceipt(BuyingController):
 			select soi.name, si.name as si_name from `tabSales Invoice Item` soi , `tabSales Invoice` si
 				Where soi.parent = si.name
 				AND si.docstatus = 1
-				AND soi.item_code = "{0}"
+				AND soi.item_code = "{0}" OR soi.item_code = "{3}"
 				AND si.company = "{1}"
 				AND si.represents_company = "{2}"
-		""".format(new_code, new_company, self.company), as_dict = 1)
+		""".format(new_code, new_company, self.company, item_code), as_dict = 1)
+		
 		new_soi = []
 		for s in soi:
-			new_soi.append(s["name"])
-			# print(s)
-		# print("soi", soi, new_soi)
+			pr_item = frappe.db.sql("""
+									Select name from `tabPurchase Receipt Item` where 
+									challan_number_issues_by_job_worker = "{0}"
+									and docstatus = 1
+								""".format( s.get("name")))
+			
+			if pr_item:
+				print(" this is pr item", pr_item)	
+			else: 				
+				new_soi.append(s["name"])
 
+		new_list = list(set(new_soi))		
 		
-		return soi
+		
+		return set(new_list)
 
 	def __init__(self, *args, **kwargs):
 		super(PurchaseReceipt, self).__init__(*args, **kwargs)
@@ -254,6 +275,8 @@ class PurchaseReceipt(BuyingController):
 
 
 	def validate(self):
+
+		self.on_challan_number_save()
 		self.validate_posting_time()
 		super(PurchaseReceipt, self).validate()
 

@@ -6,6 +6,7 @@
 frappe.provide("erpnext.stock");
 
 frappe.ui.form.on("Purchase Receipt", {
+
 	setup: (frm) => {
 		frm.make_methods = {
 			'Landed Cost Voucher': () => {
@@ -53,7 +54,7 @@ frappe.ui.form.on("Purchase Receipt", {
 
 	// New Code for ITC04 new to fetch reference challan after save
 	after_save: function(frm) {
-		console.log("We are inside of after save")	
+	
 		if (frm.doc.is_subcontracted == "Yes" ){
 			frappe.call({
 				method : 'on_get_items_button',
@@ -61,7 +62,7 @@ frappe.ui.form.on("Purchase Receipt", {
 				callback: function(r)
 				{
 					if (r.message){
-					console.log("this is return", r.message)
+					
 					frm.refresh()
 					frm.refresh_field("supplied_items")
 					}
@@ -446,7 +447,7 @@ frappe.ui.form.on('Purchase Receipt Item', {
 	form_render:function(frm,cdt,cdn){
 		var child = locals[cdt][cdn];
 		if (child.item_code && frm.doc.is_subcontracted == "Yes" && frm.doc.doc_status != 1) {
-			console.log(" In side child")
+		
 			frappe.call({
 				method: 'on_challan_number',
 				doc : frm.doc,	
@@ -456,27 +457,20 @@ frappe.ui.form.on('Purchase Receipt Item', {
 					callback: (r) => {
 						var i = 0;
 						var b=[];
-						console.log(" THIS IS DATA FROM SOI", r.message)
+											
 						for(i; i < r.message.length; i++) {
-
-							b.push(r.message[i].name);
-							// console.log(" THIS IS DATA FROM SOI", r.message[i], r.message[i].name)
-							// frm.fields_dict.items.grid.update_docfield_property(
-							// 	'challan_number_issues_by_job_worker',
-							// 	'options',
-							// 	[''].concat(b)
-							// ); 
-						}
-						// console.log('thi is select options, ',b)
 						
-						frm.fields_dict['items'].grid.get_field('challan_number_issues_by_job_worker').get_query = function(frm, cdt, cdn) {
-							// console.log(" IN side challan")
+							let pu = r.message[i]
+							b.push(pu);	
+						}
+						cur_frm.fields_dict['items'].grid.get_field('challan_number_issues_by_job_worker').get_query = function(frm, cdt, cdn) {
 							return{
 								filters: [
-									['name', "in", b]
+									['name', "in" , b]
 								]
 							};
 						}
+						
 					}
 
 			});	
@@ -485,7 +479,6 @@ frappe.ui.form.on('Purchase Receipt Item', {
 
 	challan_number_issues_by_job_worker: function(frm, cdt, cdn){
 		var child = locals[cdt][cdn];
-		// console.log(" this is child", child.item_code)
 		if (child.challan_number_issues_by_job_worker){
 			frappe.call({
 				method: 'on_challan_date',
@@ -494,7 +487,6 @@ frappe.ui.form.on('Purchase Receipt Item', {
 					item : child.challan_number_issues_by_job_worker
 				},
 				callback: (r) =>{
-					// console.log("this is r.message", r.message,  r.message[0].due_date)
 					frappe.model.set_value(cdt, cdn, "challan_date_issues_by_job_worker", r.message[0].posting_date)					
 				}
 			})
