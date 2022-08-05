@@ -279,7 +279,7 @@ def get_data(filters):
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 1
 		THEN	
-		pi.vat_amount
+		(pi.vat_amount*13)/100
 
 		ELSE 0
 		END as import_tax,
