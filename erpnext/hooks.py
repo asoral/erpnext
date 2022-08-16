@@ -274,7 +274,8 @@ doc_events = {
 		]
 	},
 	"POS Invoice": {
-		"on_submit": ["erpnext.regional.saudi_arabia.utils.create_qr_code"]
+		"on_submit": ["erpnext.regional.saudi_arabia.utils.create_qr_code"],
+		"before_save":"erpnext.accounts.doctype.pos_invoice.pos_invoice_barcode.before_save"
 	},
 	"Purchase Invoice": {
 		"validate": [

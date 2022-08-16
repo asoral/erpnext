@@ -51,7 +51,8 @@
   "apply_discount_on",
   "accounting_dimensions_section",
   "cost_center",
-  "dimension_col_break"
+  "dimension_col_break",
+  "offers"
  ],
  "fields": [
   {
@@ -351,6 +352,11 @@
   {
    "fieldname": "column_break_25",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "offers",
+   "fieldtype": "Data",
+   "label": "Offers"
   }
  ],
  "icon": "icon-cog",
@@ -378,7 +384,7 @@
    "link_fieldname": "pos_profile"
   }
  ],
- "modified": "2021-10-14 14:17:00.469298",
+ "modified": "2022-08-04 15:43:13.395599",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Profile",

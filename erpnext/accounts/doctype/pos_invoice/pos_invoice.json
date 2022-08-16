@@ -179,7 +179,11 @@
   "column_break_140",
   "auto_repeat",
   "update_auto_repeat_reference",
-  "against_income_account"
+  "against_income_account",
+  "commission_rate",
+  "section_break2",
+  "amount_eligible_for_commission",
+  "barcode"
  ],
  "fields": [
   {
@@ -1565,17 +1569,21 @@
    "fieldtype": "Currency",
    "label": "Amount Eligible for Commission",
    "read_only": 1
+  },
+  {
+   "fieldname": "barcode",
+   "fieldtype": "Barcode",
+   "label": "Barcode"
   }
  ],
  "icon": "fa fa-file-text",
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-05 12:11:53.871828",
+ "modified": "2022-08-04 16:14:59.552900",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Invoice",
  "name_case": "Title Case",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
