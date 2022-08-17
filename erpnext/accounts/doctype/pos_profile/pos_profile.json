@@ -18,6 +18,8 @@
   "applicable_for_users",
   "section_break_11",
   "payments",
+  "supervisor_section",
+  "table_14",
   "section_break_14",
   "hide_images",
   "hide_unavailable_items",
@@ -25,6 +27,7 @@
   "column_break_16",
   "update_stock",
   "ignore_pricing_rule",
+  "allow_qty_change",
   "allow_rate_change",
   "allow_discount_change",
   "section_break_23",
@@ -351,6 +354,23 @@
   {
    "fieldname": "column_break_25",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_qty_change",
+   "fieldtype": "Check",
+   "label": "Allow User to Edit Quantity"
+  },
+  {
+   "fieldname": "supervisor_section",
+   "fieldtype": "Section Break",
+   "label": "Supervisor"
+  },
+  {
+   "fieldname": "table_14",
+   "fieldtype": "Table",
+   "label": "POS Supervisor",
+   "options": "POS Profile Supervisor"
   }
  ],
  "icon": "icon-cog",
@@ -378,7 +398,7 @@
    "link_fieldname": "pos_profile"
   }
  ],
- "modified": "2021-10-14 14:17:00.469298",
+ "modified": "2022-08-02 13:39:37.709601",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Profile",

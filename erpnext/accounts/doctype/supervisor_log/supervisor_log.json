@@ -1,0 +1,96 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "SL.-.YY.-.MM.-.#####",
+ "creation": "2022-07-28 15:12:58.239133",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "action",
+  "date_time",
+  "pos_user",
+  "pos_profile",
+  "deleted_item",
+  "canceled_transaction"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supervisor",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "action",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Action",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Date & Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pos_user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "POS User",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pos_profile",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "POS Profile",
+   "options": "POS Profile",
+   "read_only": 1
+  },
+  {
+   "fieldname": "deleted_item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Deleted Item Name",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "canceled_transaction",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Canceled POS Transaction Name",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-08-02 13:33:59.146016",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Supervisor Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
