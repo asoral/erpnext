@@ -22,8 +22,12 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	create_opening_voucher() {
+		const mcdt = []
+		
+		const mops = []
 		const me = this;
 		const table_fields = [
+			
 			{
 				fieldname: "mode_of_payment", fieldtype: "Link",
 				in_list_view: 1, label: "Mode of Payment",
@@ -36,14 +40,278 @@ erpnext.PointOfSale.Controller = class {
 				change: function () {
 					dialog.fields_dict.balance_details.df.data.some(d => {
 						if (d.idx == this.doc.idx) {
+							this.doc["button"] = d.idx
+							console.log("NNNNNNNNNNNNNNNNNNn",this.doc)
 							d.opening_amount = this.value;
 							dialog.fields_dict.balance_details.grid.refresh();
 							return true;
 						}
 					});
 				}
-			}
+			},
+			// {
+			// 	fieldname: "button", fieldtype: "Button",
+			// 	in_list_view: 1, label: "Denominations",
+			// 	reqd:1,
+			// 	click: () => {
+			// 		const val = {}
+					
+					
+			// 		dialog.fields_dict.balance_details.df.data.some(d => {
+			// 		console.log("NNNNNNNNNNNNNNNNNNn",this.doc)
+			// 		val[d.idx] = d.mode_of_payment
+			// 		console.log(val)
+			// 		dialog.fields_dict.mop.set_value(d.idx);
+			// 		dialog.fields_dict.mop.refresh();
+					
+			// 		if (d.idx == val.idx){
+			// 			console.log(me)
+			// 				var mop = d.idx
+			// 				const deno = {}
+			// 				frappe.db.get_doc("Mode of Payment", d.mode_of_payment).then(({ currency }) => {
+			// 					frappe.db.get_doc("Currency",currency).then(({denominations}) => {
+			// 						denominations.forEach(pay => {
+			// 							deno[pay.name1] = pay.factor
+			// 						});
+									
+			// 						for(var i in deno) {
+			// 							console.log(e)
+			// 							var name1 = i
+			// 							var factor = deno[i]
+
+			// 							e.fields_dict.currency_deno.df.data.push({name1 , factor})
+			// 							e.fields_dict.currency_deno
+			// 							e.fields_dict.currency_deno.grid.refresh();
+			// 							dialog.fields_dict.mop.set_value(mop);
+			// 							dialog.fields_dict.mop.refresh();
+
+					
+			// 						 }
+
+			// 					})
+								
+			// 				});
+			// 		}
+					
+						
+						
+							
+							
+						
+
+			// 			const table_fields3 = [
+							
+			// 				{
+			// 					fieldname: "name1", fieldtype: "Data",
+			// 					in_list_view: 1, label: "Name",
+			// 					 reqd: 1
+			// 				},
+
+			// 				{
+			// 					fieldname: "factor", fieldtype: "Currency",
+			// 					in_list_view: 0, label: "Factor",
+			// 					 reqd: 1
+			// 				},
+			// 				{
+			// 					fieldname:"exchange_rate",fieldtype:"Float",
+			// 					in_list_view: 0, label: "Factor",
+			// 					 reqd: 1
+
+			// 				},
+			// 				{
+			// 					fieldname: "count", fieldtype: "Int",
+			// 					in_list_view: 1, label: "Count",
+			// 					 reqd: 1,
+			// 					 change: function () {
+									
+			// 						e.fields_dict.currency_deno.df.data.forEach(d => {
+			// 							if (d.idx == this.doc.idx) {
+			// 								d.subtotal = d.count*d.factor
+			// 								e.fields_dict.currency_deno.grid.refresh();
+			// 								return true;
+			// 							}
+										
+										
+			// 						});
+			// 						var st = {"total_amt":0.0}
+			// 						let x = 0
+			// 						e.fields_dict.currency_deno.df.data.forEach(e => {
+			// 							st["total_amt"] += e.subtotal
+			// 							console.log("9242",st)
+			// 							e.subtotal ? x+=e.subtotal : 0
+										
+			// 						});
+			// 						console.log("x is: ", x)
+
+			// 						e.fields_dict.total_amount.set_value(x);
+			// 						e.fields_dict.total_amount.refresh();
+
+
+
+									
+
+									
+
+
+			// 					}
+			// 				},
+			// 				{
+			// 					fieldname: "subtotal", fieldtype: "Currency",
+			// 					in_list_view: 1, label: "Subtotal",
+			// 					 reqd: 1,
+			// 					 read_only :1
+			// 				}
+			// 			]
+
+						
+
+
+						
+			// 				const e = new frappe.ui.Dialog({
+			// 					title: 'Enter Denominations',
+								
+								
+
+			// 					fields: [
+									
+
+			// 						{
+			// 							fieldname: "currency_deno",
+			// 							fieldtype: "Table",
+			// 							label: "Currency Denominations",
+			// 							cannot_add_rows: true,
+			// 							in_place_edit: true,
+			// 							reqd: 1,
+			// 							data: [],
+			// 							fields: table_fields3
+			// 						},
+			// 						{
+			// 							label: 'Total Amount',
+			// 							fieldname: 'total_amount',
+			// 							fieldtype: 'Currency',
+			// 							read_only :1
+			// 						},
+									
+			// 					],
+								 
+			// 					primary_action_label: 'Submit',
+			// 					primary_action(values) {
+			// 						dialog.fields_dict.balance_details.df.data.some(d => {
+			// 							if(d.idx == e.idx){
+
+			// 							}
+										
+			// 							d.opening_amount = parseFloat(d.opening_amount) + parseFloat(values.total_amount)
+			// 							dialog.fields_dict.balance_details.grid.refresh();
+
+			// 						})
+			// 						e.hide();
+			// 					}
+			// 				});
+							
+			// 				e.show();
+
+							
+			// 			}
+			// 		)
+			// 	}
+			// }
+
 		];
+		const table_fields2 = [
+			
+			{
+				fieldname: "name", fieldtype: "Data",
+				in_list_view: 1, label: "Name",reqd: 1,
+				
+			},
+			{
+				fieldname: "factor", fieldtype: "Float",
+				in_list_view: 0, label: "Float",reqd: 0,
+				read_only:1,
+			},
+			{
+				fieldname: "mode_of_payment", fieldtype: "Link",
+				in_list_view: 0, label: "Mode Of Payment",reqd: 1,
+				options:"Mode of Payment" , 
+				
+			},
+			{
+				
+				fieldname: "currency", fieldtype: "Link",
+				in_list_view: 1, label: "Currency",reqd: 0,
+				hidden:1
+					
+			},
+			{
+				
+				fieldname: "exchange_rate", fieldtype: "Float",
+				in_list_view: 1, label: "Exchange Rate",reqd: 0,
+				read_only:1,
+				change:function (){
+					dialog.fields_dict.mul_curr_denominations.df.data.some(d => {
+						if (d.idx == this.doc.idx) {
+						d.total_amount = d.factor*d.exchange_rate*d.count
+						dialog.fields_dict.mul_curr_denominations.grid.refresh();
+						return true;
+						}
+						
+					});
+				}
+					
+			},
+			{
+				
+				fieldname: "count", fieldtype: "Int",
+				in_list_view: 1, label: "Count",reqd: 1,
+				change:function (){
+					let x = 0.0
+					dialog.fields_dict.mul_curr_denominations.df.data.some(d => {
+						if (d.idx == this.doc.idx) {
+							
+							d.total_amount = d.factor*d.exchange_rate*d.count
+							
+						dialog.fields_dict.mul_curr_denominations.grid.refresh();
+						
+						return true;
+						}
+						
+						
+
+						
+			
+					});
+					var st = {"total_amt":0.0}
+						
+					dialog.fields_dict.mul_curr_denominations.df.data.forEach(e => {
+						st["total_amt"] += parseFloat(e.total_amount)
+						console.log("9242",st)
+						parseFloat(e.total_amount) ? x+= parseFloat(e.total_amount) : 0.0
+						dialog.fields_dict.t_amount.set_value(x);
+						dialog.fields_dict.t_amount.refresh();
+						
+					});
+					console.log("x is: ", x)
+
+				}
+				
+					
+			},
+			{
+				
+				fieldname: "total_amount", fieldtype: "Currency",
+				in_list_view: 1, label: "Total Amount",reqd: 1
+				
+					
+			},
+			
+
+
+
+
+			
+		];
+		
 		const fetch_pos_payment_methods = () => {
 			const pos_profile = dialog.fields_dict.pos_profile.get_value();
 			if (!pos_profile) return;
@@ -56,10 +324,94 @@ erpnext.PointOfSale.Controller = class {
 				dialog.fields_dict.balance_details.grid.refresh();
 			});
 		}
+		const fetch_pos_payment_method_for_denominations = () => {
+			const mops = []
+			const pos_profile = dialog.fields_dict.pos_profile.get_value();
+			if (!pos_profile) return;
+			frappe.db.get_doc("POS Profile", pos_profile).then(({ payments }) => {
+				dialog.fields_dict.balance_details.df.data = [];
+				payments.forEach(pay => {
+					
+					dialog.fields_dict.mop.df.options.push(pay.mode_of_payment)
+					dialog.fields_dict.mop.refresh();
+				});
+				
+				
+			});
+		}
+		const fetch_curr_and_xchg_rate = () => {
+			dialog.fields_dict.mul_curr_denominations.df.data.length = 0
+			dialog.fields_dict.mul_curr_denominations.grid.refresh()
+
+			const flist = []
+			const fdict = {}
+			const d = {"mode_of_payment" : dialog.fields_dict.mop.get_value() }
+
+				console.log("before getdoc")
+				if(!d.mode_of_payment) return ;
+				frappe.db.get_doc("Mode of Payment", d.mode_of_payment).then(({ currency }) => {
+					
+					const comp = dialog.fields_dict.company.get_value();
+					console.log("after getdoc")
+					frappe.db.get_doc("Company",comp).then(({default_currency}) => {
+						console.log(default_currency)
+						frappe.call({
+							method:"erpnext.setup.utils.get_exchange_rate",
+							args:{
+								"from_currency":currency,
+								"to_currency":default_currency
+
+							},
+							callback:function(r){
+								if(r.message){
+									console.log(r.message,r)
+									frappe.db.get_doc("Currency",currency).then(({denominations})=> {
+										denominations.forEach(g => {
+
+											console.log("*****************",g.name1,g.factor)
+											const name = g.name1
+											const factor  = g.factor
+											const mode_of_payment = d.mode_of_payment
+											const exchange_rate = r.message
+											flist.push({name,factor,mode_of_payment,exchange_rate})
+											
+										})
+										flist.forEach(m => {
+											
+											console.log("%%%%%%%%%%%",m)
+											dialog.fields_dict.mul_curr_denominations.df.data.push(m)
+											dialog.fields_dict.mul_curr_denominations.grid.refresh();
+											})
+									})
+									console.log("flist",flist)
+
+								}
+								else{
+									console.log("hiii")
+									
+									dialog.fields_dict.mul_curr_denominations.grid.refresh();
+								}
+							}
+							
+						})
+
+					});
+					
+					
+
+				});
+				
+			
+
+
+		}
+		
 		const dialog = new frappe.ui.Dialog({
+			
 			title: __('Create POS Opening Entry'),
 			static: true,
 			fields: [
+				
 				{
 					fieldtype: 'Link', label: __('Company'), default: frappe.defaults.get_default('company'),
 					options: 'Company', fieldname: 'company', reqd: 1
@@ -68,7 +420,8 @@ erpnext.PointOfSale.Controller = class {
 					fieldtype: 'Link', label: __('POS Profile'),
 					options: 'POS Profile', fieldname: 'pos_profile', reqd: 1,
 					get_query: () => pos_profile_query,
-					onchange: () => fetch_pos_payment_methods()
+					onchange: () => fetch_pos_payment_methods(),
+					onchange: () => fetch_pos_payment_method_for_denominations()
 				},
 				{
 					fieldname: "balance_details",
@@ -79,28 +432,159 @@ erpnext.PointOfSale.Controller = class {
 					reqd: 1,
 					data: [],
 					fields: table_fields
+
+				},
+				{
+					fieldtype: 'Select', label: __('Mode of Payment'), 
+					options: [], fieldname: 'mop', reqd: 1,
+					onchange: () => fetch_curr_and_xchg_rate()
+				},
+
+				{
+					fieldname: "mul_curr_denominations",
+					fieldtype: "Table",
+					label: "Multiple Currency Denominations",
+					cannot_add_rows: true,
+					in_place_edit: true,
+					reqd: 0,
+					data: [],
+					fields: table_fields2
+				},
+
+				{
+					fieldtype: 'Data', label: "dict",
+					 fieldname: 'mcdt', reqd: 0,
+					hidden : 1,
+					
+				},
+				{
+					fieldtype: 'Currency', label: "Total Amount",
+					 fieldname: 't_amount', reqd: 1,read_only :1
+					
+					
+				},
+
+				
+				{
+					fieldtype: 'Button', label: __('Add Denominations'), 
+					 fieldname: 'button', 
+					 click:()=>{
+						var mul_curr = {}
+						var ftable = {}
+
+						// dialog.fields_dict.mul_curr_denominations.df.data.some(d => {
+						// 	d.added = 0
+						// 	dialog.fields_dict.mul_curr_denominations.grid.refresh();
+
+						// })
+
+						
+						
+
+						const ct = dialog.fields_dict.mul_curr_denominations.df.data
+						const ct2 = dialog.fields_dict.balance_details.df.data
+						const mpmt = dialog.fields_dict.mop.get_value()
+						const tamt = dialog.fields_dict.t_amount.get_value()
+
+						console.log("ct**********",ct)
+						if(!mul_curr[mpmt]){
+							mul_curr[mpmt] = parseFloat(tamt)
+							
+						}
+						else{
+							mul_curr[mpmt] += parseFloat(tamt)
+							
+						}
+
+
+						for(var key in ct) {
+							if(ct[key].total_amount ){
+								mcdt.push({"factor":ct[key].factor,"mode_of_payment":ct[key].mode_of_payment,"exchange_rate":ct[key].exchange_rate,"count":ct[key].count,"total_amount":ct[key].total_amount})
+							}
+							
+								console.log("Yesssssssssssssssssssssss")
+								
+								
+								
+							
+							
+							
+							
+						 }
+						 console.log("1st",mul_curr)
+
+						 for(var key2 in ct2) {
+							if(!mul_curr[ct2[key2].mode_of_payment]){
+								mul_curr[ct2[key2].mode_of_payment] = parseFloat(ct2[key2].opening_amount)
+							}
+							else{
+								mul_curr[ct2[key2].mode_of_payment] += parseFloat(ct2[key2].opening_amount)
+							}
+							
+							
+						 }
+						 console.log("2nd",mul_curr)
+						
+						 console.log("mcdt",mcdt)
+						 dialog.fields_dict.balance_details.df.data.length = 0
+						dialog.fields_dict.balance_details.grid.refresh();
+						dialog.fields_dict.mul_curr_denominations.df.data.length = 0
+						dialog.fields_dict.mul_curr_denominations.grid.refresh();
+		
+		
+						for(var key3 in mul_curr) {
+							console.log("key213",key3)
+							var mode_of_payment = key3;
+							var opening_amount = parseFloat(mul_curr[key3])
+							dialog.fields_dict.balance_details.df.data.push({ mode_of_payment , opening_amount});
+							dialog.fields_dict.balance_details.grid.refresh();
+		
+						 }
+						console.log("key is",mul_curr)
+
+						dialog.fields_dict.mcdt.set_value(mcdt);
+
+						
+				
+						
+					 }
 				}
+				
+				
 			],
-			primary_action: async function({ company, pos_profile, balance_details }) {
+			
+			
+			primary_action: async function({ company, pos_profile, balance_details ,mcdt}) {
+				console.log("mcdt is ::",company)
+				console.log("mcdt is ::",pos_profile)
+				console.log("mcdt is ::",mcdt)
 				if (!balance_details.length) {
 					frappe.show_alert({
 						message: __("Please add Mode of payments and opening balance details."),
 						indicator: 'red'
 					})
+
 					return frappe.utils.play_sound("error");
 				}
+				console.log(balance_details.filter(d => d.mode_of_payment))
 
 				// filter balance details for empty rows
 				balance_details = balance_details.filter(d => d.mode_of_payment);
 
 				const method = "erpnext.selling.page.point_of_sale.point_of_sale.create_opening_voucher";
-				const res = await frappe.call({ method, args: { pos_profile, company, balance_details }, freeze:true });
+				const res = await frappe.call({ method, args: { pos_profile, company, balance_details ,mcdt }, freeze:true });
 				!res.exc && me.prepare_app_defaults(res.message);
 				dialog.hide();
 			},
-			primary_action_label: __('Submit')
+			primary_action_label: __('Submit'),
+			
+			
 		});
+		
+		
+		
 		dialog.show();
+		dialog.$wrapper.find('.modal-dialog').css("width", "100%");
 		const pos_profile_query = {
 			query: 'erpnext.accounts.doctype.pos_profile.pos_profile.pos_profile_query',
 			filters: { company: dialog.fields_dict.company.get_value() }
@@ -109,6 +593,8 @@ erpnext.PointOfSale.Controller = class {
 
 	async prepare_app_defaults(data) {
 		this.pos_opening = data.name;
+		console.log("qazwsxedcrfv",data.name)
+		console.log("qazwsxedcrfv",data)
 		this.company = data.company;
 		this.pos_profile = data.pos_profile;
 		this.pos_opening_time = data.period_start_date;

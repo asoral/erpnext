@@ -235,8 +235,10 @@ def check_opening_entry(user):
 	return open_vouchers
 
 @frappe.whitelist()
-def create_opening_voucher(pos_profile, company, balance_details):
+def create_opening_voucher(pos_profile, company, balance_details , mcdt):
 	balance_details = json.loads(balance_details)
+	mul_curr_denominations = json.loads(mcdt)
+	print("9242",mul_curr_denominations)
 
 	new_pos_opening = frappe.get_doc({
 		'doctype': 'POS Opening Entry',
@@ -247,6 +249,8 @@ def create_opening_voucher(pos_profile, company, balance_details):
 		"company": company,
 	})
 	new_pos_opening.set("balance_details", balance_details)
+	new_pos_opening.set("mul_curr_denominations", mul_curr_denominations)
+
 	new_pos_opening.submit()
 
 	return new_pos_opening.as_dict()
