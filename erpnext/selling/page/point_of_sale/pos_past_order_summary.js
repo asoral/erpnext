@@ -185,6 +185,7 @@ erpnext.PointOfSale.PastOrderSummary = class {
 		});
 
 		this.$summary_container.on('click', '.new-btn', () => {
+			
 			this.events.new_order();
 			this.toggle_component(false);
 			this.$component.find('.no-summary-placeholder').css('display', 'flex');

@@ -605,10 +605,15 @@ erpnext.PointOfSale.Controller = class {
 			this.allow_negative_stock = flt(message.allow_negative_stock) || false;
 		});
 
-		frappe.db.get_doc("POS Profile", this.pos_profile).then((profile) => {
-			Object.assign(this.settings, profile);
-			this.settings.customer_groups = profile.customer_groups.map(group => group.customer_group);
-			this.make_app();
+		frappe.call({
+			method: "erpnext.selling.page.point_of_sale.point_of_sale.get_pos_profile_data",
+			args: { "pos_profile": this.pos_profile },
+			callback: (res) => {
+				const profile = res.message;
+				Object.assign(this.settings, profile);
+				this.settings.customer_groups = profile.customer_groups.map(group => group.name);
+				this.make_app();
+			}
 		});
 	}
 
@@ -742,7 +747,17 @@ erpnext.PointOfSale.Controller = class {
 					this.customer_details = details;
 					// will add/remove LP payment method
 					this.payment.render_loyalty_points_payment_mode();
+				},
+
+				new_order: () => {
+					frappe.run_serially([
+						() => frappe.dom.freeze(),
+						() => this.make_new_invoice(),
+						() => this.item_selector.toggle_component(true),
+						() => frappe.dom.unfreeze(),
+					]);
 				}
+
 			}
 		})
 	}
@@ -824,23 +839,35 @@ erpnext.PointOfSale.Controller = class {
 				toggle_other_sections: (show) => {
 					if (show) {
 						this.item_details.$component.is(':visible') ? this.item_details.$component.css('display', 'none') : '';
-						this.item_selector.$component.css('display', 'none');
+						this.item_selector.toggle_component(false);
 					} else {
-						this.item_selector.$component.css('display', 'flex');
+						this.item_selector.toggle_component(true);
 					}
 				},
 
 				submit_invoice: () => {
 					this.frm.savesubmit()
 						.then((r) => {
+							
 							this.toggle_components(false);
+							// this.init_order_summary.new_order();
 							this.order_summary.toggle_component(true);
 							this.order_summary.load_summary_of(this.frm.doc, true);
 							frappe.show_alert({
 								indicator: 'green',
 								message: __('POS invoice {0} created succesfully', [r.doc.name])
 							});
+							this.new_order();
+
 						});
+				},
+				new_order: () => {
+					frappe.run_serially([
+						() => frappe.dom.freeze(),
+						() => this.make_new_invoice(),
+						() => this.item_selector.toggle_component(true),
+						() => frappe.dom.unfreeze(),
+					]);
 				}
 			}
 		});
@@ -960,16 +987,20 @@ erpnext.PointOfSale.Controller = class {
 		frappe.dom.freeze();
 		this.frm = this.get_new_frm(this.frm);
 		this.frm.doc.items = [];
-		const res = await frappe.call({
+		return frappe.call({
 			method: "erpnext.accounts.doctype.pos_invoice.pos_invoice.make_sales_return",
 			args: {
 				'source_name': doc.name,
 				'target_doc': this.frm.doc
+			},
+			callback: (r) => {
+				frappe.model.sync(r.message);
+				frappe.get_doc(r.message.doctype, r.message.name).__run_link_triggers = false;
+				this.set_pos_profile_data().then(() => {
+					frappe.dom.unfreeze();
+				});
 			}
 		});
-		frappe.model.sync(res.message);
-		await this.set_pos_profile_data();
-		frappe.dom.unfreeze();
 	}
 
 	set_pos_profile_data() {
@@ -1035,12 +1066,13 @@ erpnext.PointOfSale.Controller = class {
 					await this.check_stock_availability(item_row, value, this.frm.doc.set_warehouse);
 
 				await this.trigger_new_item_events(item_row);
+
 				this.update_cart_html(item_row);
 
 				if (this.item_details.$component.is(':visible'))
 					this.edit_item_details_of(item_row);
 
-				if (this.check_serial_batch_selection_needed(item_row))
+				if (this.check_serial_batch_selection_needed(item_row) && !this.item_details.$component.is(':visible'))
 					this.edit_item_details_of(item_row);
 			}
 
@@ -1186,21 +1218,97 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	remove_item_from_cart() {
-		frappe.dom.freeze();
-		const { doctype, name, current_item } = this.item_details;
 
-		frappe.model.set_value(doctype, name, 'qty', 0)
-			.then(() => {
-				frappe.model.clear_doc(doctype, name);
-				this.update_cart_html(current_item, true);
-				this.item_details.toggle_item_details_section(null);
-				frappe.dom.unfreeze();
-			})
-			.catch(e => console.log(e));
+		// new code Start for GH customization #PRE00715
+		let me = this
+		var d = new frappe.ui.Dialog({
+			title: __("Supervisor Authorization"),
+			fields: [
+				{
+					label : "Supervisor ID",
+					fieldname: "user",
+					fieldtype: "Link",
+					reqd: 1,
+					options: "User"
+				},
+				{
+					label: "Password",
+					fieldname: "password",
+					fieldtype: "Password",
+					reqd: 1,
+				}
+			],
+			primary_action: function() {
+				var data = d.get_values();
+				frappe.call({
+					method: "erpnext.selling.page.point_of_sale.point_of_sale.remove_authorize",
+					
+					args: {
+						 "user": data.user,
+						"password": data.password,
+						"action" : "Remove Item",
+						"pos_profile": cur_frm.doc.pos_profile,
+						"owner" : cur_frm.doc.owner,
+						"item": me.item_details.item_row.item_code,
+						"canceled_transaction" : "" },
+					callback: (res) => {
+						if (res.message){
+							d.hide();
+							frappe.dom.freeze();
+							
+							const { doctype, name, current_item } = me.item_details;
+
+							return frappe.model.set_value(doctype, name, 'qty', 0)
+								.then(() => {
+									frappe.model.clear_doc(doctype, name);
+									me.update_cart_html(current_item, true);
+									me.item_details.toggle_item_details_section(null);
+									frappe.dom.unfreeze();
+									
+								})
+								.catch(e => console.log(e));
+						}else{
+							d.hide();
+							frappe.msgprint(__("Invalid Credentials. You cannot remove this item"));
+							
+						}
+					}
+				});
+
+				d.hide();
+			},
+			primary_action_label: __('Authorize')
+		});
+		d.show();
+
+		// new doc end
+
+		// frappe.dom.freeze();
+		// console.log(" this is item_details ", this.item_details)
+		// const { doctype, name, current_item } = this.item_details;
+
+		// return frappe.model.set_value(doctype, name, 'qty', 0)
+		// 	.then(() => {
+		// 		frappe.model.clear_doc(doctype, name);
+		// 		this.update_cart_html(current_item, true);
+		// 		this.item_details.toggle_item_details_section(null);
+		// 		frappe.dom.unfreeze();
+		// 	})
+		// 	.catch(e => console.log(e));
 	}
 
 	async save_and_checkout() {
-		this.frm.is_dirty() && await this.frm.save();
-		this.payment.checkout();
+		if (this.frm.is_dirty()) {
+			let save_error = false;
+			await this.frm.save(null, null, null, () => save_error = true);
+			// only move to payment section if save is successful
+			!save_error && this.payment.checkout();
+			// show checkout button on error
+			save_error && setTimeout(() => {
+				this.cart.toggle_checkout_btn(true);
+			}, 300); // wait for save to finish
+		} else {
+			this.payment.checkout();
+		}
 	}
 };
