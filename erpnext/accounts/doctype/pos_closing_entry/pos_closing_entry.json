@@ -24,6 +24,7 @@
   "payment_reconciliation_details",
   "section_break_11",
   "payment_reconciliation",
+  "multiple_currency_denominations",
   "section_break_13",
   "grand_total",
   "net_total",
@@ -219,6 +220,12 @@
    "fieldtype": "Small Text",
    "label": "Error",
    "read_only": 1
+  },
+  {
+   "fieldname": "multiple_currency_denominations",
+   "fieldtype": "Table",
+   "label": "Multiple Currency Denominations",
+   "options": "Multiple Currency Denominations"
   }
  ],
  "is_submittable": 1,
@@ -228,7 +235,7 @@
    "link_fieldname": "pos_closing_entry"
   }
  ],
- "modified": "2021-10-20 16:19:25.340565",
+ "modified": "2022-08-24 11:10:16.164241",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Closing Entry",
