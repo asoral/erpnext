@@ -516,20 +516,19 @@ class SalarySlip(TransactionBase):
 			num_days = monthrange(a, b)[1]
 			self.days_in_month = num_days
 
+		lt = []
 		leaveA = frappe.db.get_all("Leave Application",{'employee':self.employee,'from_date':[">=",self.start_date],'to_date':["<=",self.end_date]},['total_leave_days'])
 		holidays = self.get_holidays_for_employee(self.start_date, self.end_date)
 		holiday1= len(holidays)
-		print("##############################",holiday1,leaveA)
 		if leaveA :
-			lt = []
 			for i in leaveA:
 				lt.append(i.get("total_leave_days"))
-
-			# print("$$$$$$$$$$$$$$$$$$$$$$leaves",i)
-			print("$$$$$$$$$$$$$$$$$$$$$$holiday",holiday1)
-			print("$$$$$$$$$$$$$$$$$$$$$$wd",self.total_working_days)
-			self.net_present_days = num_days - sum(lt) - holiday1
-			print("*********************************",self.net_present_days)
+		from calendar import monthrange
+		a = getdate(self.start_date).year
+		b = getdate(self.start_date).month
+		num_days = monthrange(a, b)[1]
+		self.net_present_days = num_days - sum(lt) - holiday1
+		print("*********************************",self.net_present_days)
 
 		#Paid Holidays
 		if not self.paid_holidays:
@@ -604,12 +603,16 @@ class SalarySlip(TransactionBase):
 					total_leave_list.append(diff)
 			
 			#present_days
+			from calendar import monthrange
+			a = getdate(self.start_date).year
+			b = getdate(self.start_date).month
+			num_days = monthrange(a, b)[1]
 			if (sum(total_leave_list) == None):
 				self.leave = 0
-				self.present_days = self.days_in_month - self.weekly_off - self.paid_holidays
+				self.present_days = num_days - self.weekly_off - self.paid_holidays
 			else:
 				self.leave = sum(total_leave_list)
-				self.present_days = self.days_in_month - self.weekly_off - self.paid_holidays - float(self.leave)
+				self.present_days = num_days - self.weekly_off - self.paid_holidays - float(self.leave)
 			print("self.leave",self.leave)
 
 	def calculate_lwp_or_ppl_based_on_leave_application(self, holidays, working_days):
@@ -779,8 +782,8 @@ class SalarySlip(TransactionBase):
 		data = self.get_data_for_eval()
 		for struct_row in self._salary_structure_doc.get(component_type):
 			amount = self.eval_condition_and_formula(struct_row, data)
-			if amount and struct_row.statistical_component == 0:
-				self.update_component_row(struct_row, amount, component_type)
+			if amount is not None and struct_row.statistical_component == 0:
+				self.update_component_row(struct_row, amount, component_type, data=data)
 
 	def get_data_for_eval(self):
 		"""Returns data for evaluating formula"""
@@ -934,7 +937,7 @@ class SalarySlip(TransactionBase):
 			self.update_component_row(tax_row, tax_amount, "deductions")
 
 	def update_component_row(
-		self, component_data, amount, component_type, additional_salary=None, is_recurring=0
+		self, component_data, amount, component_type, additional_salary=None, is_recurring=0, data=None
 	):
 		component_row = None
 		for d in self.get(component_type):
@@ -1004,12 +1007,18 @@ class SalarySlip(TransactionBase):
 		component_row.amount = amount
 
 		self.update_component_amount_based_on_payment_days(component_row)
+		if data:
+			data[component_row.abbr] = component_row.amount
 
 	def update_component_amount_based_on_payment_days(self, component_row):
 		joining_date, relieving_date = self.get_joining_and_relieving_dates()
 		component_row.amount = self.get_amount_based_on_payment_days(
 			component_row, joining_date, relieving_date
 		)[0]
+
+		# remove 0 valued components that have been updated later
+		if component_row.amount == 0:
+			self.remove(component_row)
 
 	def set_precision_for_component_amounts(self):
 		for component_type in ("earnings", "deductions"):
@@ -1724,15 +1733,15 @@ class SalarySlip(TransactionBase):
 		self.year_to_date = year_to_date
 		self.gross_year_to_date = gross_year_to_date
 
-	@frappe.whitelist()
-	def leave_type_encasement_days(self):
-		if self.employee and self.start_date and self.end_date:
-			sick_leave = frappe.db.sql("""select sum(encashable_days) as result 
-			from `tabLeave Encashment`  where employee = '{0}' and
-						encashment_date between '{1}' and '{2}' and docstatus=1 
-						 """.format(self.employee, self.start_date, self.end_date), as_dict=1)
+	# @frappe.whitelist()
+	# def leave_type_encasement_days(self):
+	# 	if self.employee and self.start_date and self.end_date:
+	# 		sick_leave = frappe.db.sql("""select sum(encashable_days) as result 
+	# 		from `tabLeave Encashment`  where employee = '{0}' and
+	# 					encashment_date between '{1}' and '{2}' and docstatus=1 
+	# 					 """.format(self.employee, self.start_date, self.end_date), as_dict=1)
 
-			self.encashment_days = sick_leave[0]['result']
+	# 		self.encashment_days = sick_leave[0]['result']
 
 			
 
