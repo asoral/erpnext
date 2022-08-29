@@ -754,15 +754,19 @@ def create_salary_slips_for_employees(employees, args,end_date,start_date,payrol
 		num_days = monthrange(a, b)[1]
 		days_in_month = num_days
 
+		lt = []
 		leaveA = frappe.db.get_all("Leave Application",{'employee':emp,'from_date':[">=",start_date],'to_date':["<=",end_date]},['total_leave_days'])
 		net_present_days=0
 		holidays = get_holidays_for_employee(emp,start_date,end_date)
 		holiday1= len(holidays)
 		if leaveA :
-			lt = []
 			for i in leaveA:
 				lt.append(i.get("total_leave_days"))
-			net_present_days = days_in_month - sum(lt) - holiday1
+		from calendar import monthrange
+		a = getdate(start_date).year
+		b = getdate(start_date).month
+		num_days = monthrange(a, b)[1]
+		net_present_days = num_days - sum(lt) - holiday1
 			
 
 		#Paid Holidays
@@ -839,12 +843,16 @@ def create_salary_slips_for_employees(employees, args,end_date,start_date,payrol
 		#present_days
 		leave=0
 		present_days=0
+		from calendar import monthrange
+		a = getdate(start_date).year
+		b = getdate(start_date).month
+		num_days = monthrange(a, b)[1]
 		if (sum(total_leave_list) == None):
 			leave = 0
-			present_days = days_in_month - weekly_off - paid_holidays
+			present_days = num_days - weekly_off - paid_holidays
 		else:
 			leave = sum(total_leave_list)
-			present_days = days_in_month - weekly_off - paid_holidays - float(leave)
+			present_days = num_days - weekly_off - paid_holidays - float(leave)
 
 		
 		sick_leave = frappe.db.sql("""select sum(encashable_days) as result 
