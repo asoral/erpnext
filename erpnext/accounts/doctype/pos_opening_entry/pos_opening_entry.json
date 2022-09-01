@@ -21,6 +21,7 @@
   "opening_balance_details_section",
   "balance_details",
   "section_break_9",
+  "mul_curr_denominations",
   "amended_from"
  ],
  "fields": [
@@ -127,11 +128,17 @@
    "label": "Opening Balance Details",
    "options": "POS Opening Entry Detail",
    "reqd": 1
+  },
+  {
+   "fieldname": "mul_curr_denominations",
+   "fieldtype": "Table",
+   "label": "Multiple Currency Denominations",
+   "options": "Multiple Currency Denominations"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2020-05-29 15:08:40.955310",
+ "modified": "2022-08-24 11:09:04.996443",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Opening Entry",

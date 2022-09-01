@@ -75,10 +75,30 @@ frappe.ui.form.on('POS Closing Entry', {
 					frm.add_child("payment_reconciliation", {
 						mode_of_payment: detail.mode_of_payment,
 						opening_amount: detail.opening_amount,
-						expected_amount: detail.opening_amount
+						expected_amount: detail.opening_amount,
+						
 					});
+					console.log(detail.opening_amount)
 				})
+				
 			});
+		
+		frappe.db.get_doc("POS Opening Entry", frm.doc.pos_opening_entry)
+		.then(({ mul_curr_denominations }) => {
+			mul_curr_denominations.forEach(detail => {
+				frm.add_child("multiple_currency_denominations", {
+					factor: detail.factor,
+					mode_of_payment: detail.mode_of_payment,
+					exchange_rate:detail.exchange_rate,
+					count:detail.count,
+					total_amount:detail.total_amount
+					
+					
+				});
+				
+			})
+			
+		});
 	},
 
 	get_pos_invoices(frm) {
@@ -197,6 +217,7 @@ function reset_values(frm) {
 function refresh_fields(frm) {
 	frm.refresh_field("pos_transactions");
 	frm.refresh_field("payment_reconciliation");
+	frm.refresh_field("multiple_currency_denominations");
 	frm.refresh_field("taxes");
 	frm.refresh_field("grand_total");
 	frm.refresh_field("net_total");

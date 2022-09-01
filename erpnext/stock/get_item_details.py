@@ -855,9 +855,15 @@ def validate_conversion_rate(args, meta):
 			frappe._dict({"fields": args})))
 
 	if args.price_list:
+		print("123454894651516",args.price_list,args,meta)
 		if (not args.plc_conversion_rate
 			and args.price_list_currency==frappe.db.get_value("Price List", args.price_list, "currency", cache=True)):
 			args.plc_conversion_rate = 1.0
+			print("yes**********************")
+
+		args.update({
+			"price_list_currency":"INR"
+		})
 
 		# validate price list currency conversion rate
 		if not args.get("price_list_currency"):

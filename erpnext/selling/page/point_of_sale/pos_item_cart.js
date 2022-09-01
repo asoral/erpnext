@@ -1,13 +1,19 @@
 erpnext.PointOfSale.ItemCart = class {
 	constructor({ wrapper, events, settings }) {
+		
 		this.wrapper = wrapper;
 		this.events = events;
 		this.customer_info = undefined;
 		this.hide_images = settings.hide_images;
 		this.allowed_customer_groups = settings.customer_groups;
+		this.allow_qty_change = settings.allow_qty_change
 		this.allow_rate_change = settings.allow_rate_change;
 		this.allow_discount_change = settings.allow_discount_change;
 		this.init_component();
+
+		console.log(" this is setting", settings)
+
+		console.log(" thisis Quantity allow rate", this.allow_rate_change)
 	}
 
 	init_component() {
@@ -130,10 +136,10 @@ erpnext.PointOfSale.ItemCart = class {
 			},
 			cols: 5,
 			keys: [
-				[ 1, 2, 3, __('Quantity') ],
-				[ 4, 5, 6, __('Discount') ],
-				[ 7, 8, 9, __('Rate') ],
-				[ '.', 0, __('Delete'), __('Remove') ]
+				[ 1, 2, 3, 'Quantity' ],
+				[ 4, 5, 6, 'Discount' ],
+				[ 7, 8, 9, 'Rate' ],
+				[ '.', 0, 'Delete', 'Remove' ]
 			],
 			css_classes: [
 				[ '', '', '', 'col-span-2' ],
@@ -201,8 +207,80 @@ erpnext.PointOfSale.ItemCart = class {
 		});
 
 		this.$totals_section.on('click', '.edit-cart-btn', () => {
-			this.events.edit_cart();
-			this.toggle_checkout_btn(true);
+			
+		
+			// New code for GH customization Edit Cart Button
+			console.log("22222222222222222222222222222222222")
+
+			var d = new frappe.ui.Dialog({
+				title: __("Supervisor Authorization"),
+				fields: [
+					{
+						label : "Supervisor ID",
+						fieldname: "user",
+						fieldtype: "Link",
+						reqd: 1,
+						options: "User"
+					},
+					{
+						label: "Password",
+						fieldname: "password",
+						fieldtype: "Password",
+						reqd: 1,
+					}
+				],
+				primary_action: function() {
+					console.log(" tjhis is to cancel", cur_frm.doc.name)
+					var data = d.get_values();
+					frappe.call({
+						method: "erpnext.selling.page.point_of_sale.point_of_sale.editcart_authorize",
+						
+						args: {
+							 "user": data.user,
+							"password": data.password,
+							"action" : "Edit Cart",
+							"pos_profile": cur_frm.doc.pos_profile,
+							"owner" : cur_frm.doc.owner,
+							"item": "",
+							"canceled_transaction" : cur_frm.doc.name
+						 },
+						callback: (res) => {
+							if (res.message){
+								frappe.show_alert({
+									message:__('Your currenct Invoice {0} has been Cancelled', [cur_frm.doc.name]),
+									indicator:'red'
+								}, 5);
+								me.events.new_order();
+								// me.toggle_component(false);
+								// this.$component.find('.no-summary-placeholder').css('display', 'flex');
+								// this.$summary_wrapper.css('display', 'none');
+
+								// console.log(" this is event", me.events.new_order())
+								// me.events.init_order_summary.new_order();	
+
+								console.log(" this is return from cancell order ", me , this)
+								me.events.edit_cart();
+								// me.toggle_checkout_btn(true);
+								// cur_frm.refresh();
+								d.hide();
+								
+							}else{
+								d.hide();
+								frappe.msgprint(__("Invalid Credentials. You cannot edit this cart"));
+								
+							}
+						}
+					});
+	
+					d.hide();
+				},
+				primary_action_label: __('Authorize')
+			});
+			d.show();
+			
+			// New code for GH customization
+			// this.events.edit_cart();
+			// this.toggle_checkout_btn(true);
 		});
 
 		this.$component.on('click', '.add-discount-wrapper', () => {
@@ -520,6 +598,7 @@ erpnext.PointOfSale.ItemCart = class {
 	}
 
 	render_taxes(taxes) {
+		console.log("92420482",taxes.length)
 		if (taxes.length) {
 			const currency = this.events.get_frm().doc.currency;
 			const taxes_html = taxes.map(t => {
@@ -699,12 +778,14 @@ erpnext.PointOfSale.ItemCart = class {
 	}
 
 	on_numpad_event($btn) {
+		console.log(" thisis Quantity allow rate", this.allow_rate_change)
 		const current_action = $btn.attr('data-button-value');
 		const action_is_field_edit = ['qty', 'discount_percentage', 'rate'].includes(current_action);
 		const action_is_allowed = action_is_field_edit ? (
 			(current_action == 'rate' && this.allow_rate_change) ||
 			(current_action == 'discount_percentage' && this.allow_discount_change) ||
-			(current_action == 'qty')) : true;
+			(current_action == 'qty' && this.allow_qty_change)) : true;
+			// (current_action == 'qty')) : true;
 
 		const action_is_pressed_twice = this.prev_action === current_action;
 		const first_click_event = !this.prev_action;
@@ -712,7 +793,23 @@ erpnext.PointOfSale.ItemCart = class {
 
 		if (action_is_field_edit) {
 			if (!action_is_allowed) {
-				const label = current_action == 'rate' ? 'Rate'.bold() : 'Discount'.bold();
+
+				console.log(" thisis Quantity allow rate", this.allow_rate_change)
+				// let label = current_action == 'rate' ? 'Rate'.bold() : 'Discount'.bold() ;
+				// new code for GH customization
+				let label = ""
+					if(current_action == 'rate'){
+						label = 'Rate'.bold()
+					}
+					else if(current_action == 'qty'){
+						label = 'Quantity'.bold()
+					}
+					else(current_action == 'discount'){
+						label = 'Discount'.bold()
+					}
+
+				// label = 
+				console.log(" this is label", label)
 				const message = __('Editing {0} is not allowed as per POS Profile settings', [label]);
 				frappe.show_alert({
 					indicator: 'red',
@@ -996,6 +1093,7 @@ erpnext.PointOfSale.ItemCart = class {
 
 	load_invoice() {
 		const frm = this.events.get_frm();
+
 		this.attach_refresh_field_event(frm);
 
 		this.fetch_customer_details(frm.doc.customer).then(() => {
