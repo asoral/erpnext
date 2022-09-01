@@ -228,9 +228,11 @@ erpnext.PointOfSale.Controller = class {
 			settings: this.settings,
 			events: {
 				item_selected: args => this.on_cart_update(args),
-
+			
 				get_frm: () => this.frm || {}
+			
 			}
+
 		})
 	}
 
@@ -262,6 +264,7 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	init_item_details() {
+		const li = []
 		this.item_details = new erpnext.PointOfSale.ItemDetails({
 			wrapper: this.$components_wrapper,
 			settings: this.settings,
@@ -281,9 +284,13 @@ erpnext.PointOfSale.Controller = class {
 							value,
 							item: this.item_details.current_item
 						};
+						
+						li.push(item.item_name,item.amount)
+						
 						return this.on_cart_update(args);
-					}
 
+					}
+					
 					return Promise.resolve();
 				},
 
@@ -499,17 +506,22 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	async on_cart_update(args) {
+		const mylist =[]
+		const qty_list = []
 		frappe.dom.freeze();
 		let item_row = undefined;
 		try {
 			let { field, value, item } = args;
 			item_row = this.get_item_from_frm(item);
 			const item_row_exists = !$.isEmptyObject(item_row);
-
+			console.log(item)
+			mylist.push(item.item_code,item.rate)
+			
+			
 			const from_selector = field === 'qty' && value === "+1";
 			if (from_selector)
 				value = flt(item_row.qty) + flt(value);
-
+				
 			if (item_row_exists) {
 				if (field === 'qty')
 					value = flt(value);
@@ -523,6 +535,8 @@ erpnext.PointOfSale.Controller = class {
 					await frappe.model.set_value(item_row.doctype, item_row.name, field, value);
 					this.update_cart_html(item_row);
 				}
+				qty_list.push(item_row.item_name,item_row.amount,item_row.qty)
+				
 
 			} else {
 				if (!this.frm.doc.customer)
@@ -556,7 +570,11 @@ erpnext.PointOfSale.Controller = class {
 
 				if (this.check_serial_batch_selection_needed(item_row))
 					this.edit_item_details_of(item_row);
+
+		
 			}
+			var func = this.myfunction(mylist);
+			
 
 		} catch (error) {
 			console.log(error);
@@ -626,8 +644,9 @@ erpnext.PointOfSale.Controller = class {
 	async trigger_new_item_events(item_row) {
 		await this.frm.script_manager.trigger('item_code', item_row.doctype, item_row.name);
 		await this.frm.script_manager.trigger('qty', item_row.doctype, item_row.name);
-	}
+	};
 
+	
 	async check_stock_availability(item_row, qty_needed, warehouse) {
 		const resp = (await this.get_available_stock(item_row.item_code, warehouse)).message;
 		const available_qty = resp[0];
@@ -717,4 +736,22 @@ erpnext.PointOfSale.Controller = class {
 		this.frm.is_dirty() && await this.frm.save();
 		this.payment.checkout();
 	}
+	
+	
+	myfunction(name, data){
+		
+		var a=this.cart.update_totals_section(this.frm)
+		frappe.call({
+			method: "erpnext.selling.page.point_of_sale.pos.pole_display",
+			args:{
+				"item":name[0],
+				"amount":name[1],
+				"grand_total":a
+			},
+			
+        });
+		};		
+			
+	
 };
+
