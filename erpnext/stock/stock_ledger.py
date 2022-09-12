@@ -1170,15 +1170,27 @@ def get_batch_incoming_rate(
 
 	sle = frappe.qb.DocType("Stock Ledger Entry")
 
-	timestamp_condition = "and" +str(CombineDatetime(sle.posting_date, sle.posting_time) < CombineDatetime(posting_date, posting_time))
-# 	if creation:
-# 		timestamp_condition |= (
-# 			CombineDatetime(sle.posting_date, sle.posting_time)
-# 			== CombineDatetime(posting_date, posting_time)
-# 		) & (sle.creation < creation)
-	
-	batch_details =frappe.db.sql("""select  Sum(sle.stock_value_difference) as batch_value,Sum(sle.actual_qty) as batch_qty from `tabStock Ledger Entry`  where 
-		item_code='{0}' and warehouse='{1}' and batch_no='{2}' and is_cancelled=0 {timestamp_condition}""".format(item_code,warehouse,batch_no,timestamp_condition=timestamp_condition),as_dict=1)
+	timestamp_condition = CombineDatetime(sle.posting_date, sle.posting_time) < CombineDatetime(
+		posting_date, posting_time
+	)
+	if creation:
+		timestamp_condition |= (
+			CombineDatetime(sle.posting_date, sle.posting_time)
+			== CombineDatetime(posting_date, posting_time)
+		) & (sle.creation < creation)
+
+	batch_details = (
+		frappe.qb.from_(sle)
+		.select(Sum(sle.stock_value_difference).as_("batch_value"), Sum(sle.actual_qty).as_("batch_qty"))
+		.where(
+			(sle.item_code == item_code)
+			& (sle.warehouse == warehouse)
+			& (sle.batch_no == batch_no)
+			& (sle.is_cancelled == 0)
+		)
+		.where(timestamp_condition)
+	).run(as_dict=True)
+
 	if batch_details and batch_details[0].batch_qty:
 		return batch_details[0].batch_value / batch_details[0].batch_qty
 
