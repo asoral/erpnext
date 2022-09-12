@@ -1171,12 +1171,12 @@ def get_batch_incoming_rate(
 	sle = frappe.qb.DocType("Stock Ledger Entry")
 
 	timestamp_condition = CombineDatetime(sle.posting_date, sle.posting_time) < CombineDatetime(
-		posting_date, posting_time
+		posting_date, str(posting_time)
 	)
 	if creation:
 		timestamp_condition |= (
 			CombineDatetime(sle.posting_date, sle.posting_time)
-			== CombineDatetime(posting_date, posting_time)
+			== CombineDatetime(posting_date, str(posting_time))
 		) & (sle.creation < creation)
 
 	batch_details = (
