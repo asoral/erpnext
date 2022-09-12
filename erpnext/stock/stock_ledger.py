@@ -1177,8 +1177,8 @@ def get_batch_incoming_rate(
 # 			== CombineDatetime(posting_date, posting_time)
 # 		) & (sle.creation < creation)
 	
-	batch_details =frappe.db.sql("""select  Sum(sle.stock_value_difference) as batch_value,Sum(sle.actual_qty) as batch_qty from `tabStock Ledger Entry` sle where 
-		sle.item_code='{0}' and sle.warehouse='{1}' and sle.batch_no='{2}' and sle.is_cancelled=0 {timestamp_condition}""".format(item_code,warehouse,batch_no,timestamp_condition=timestamp_condition),as_dict=1)
+	batch_details =frappe.db.sql("""select  Sum(sle.stock_value_difference) as batch_value,Sum(sle.actual_qty) as batch_qty from `tabStock Ledger Entry`  where 
+		item_code='{0}' and warehouse='{1}' and batch_no='{2}' and is_cancelled=0 {timestamp_condition}""".format(item_code,warehouse,batch_no,timestamp_condition=timestamp_condition),as_dict=1)
 	if batch_details and batch_details[0].batch_qty:
 		return batch_details[0].batch_value / batch_details[0].batch_qty
 
