@@ -1,0 +1,59 @@
+{
+ "actions": [],
+ "creation": "2021-01-28 16:31:47.184451",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "data_1",
+  "data_2",
+  "data_3",
+  "data_4",
+  "data_5"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "data_1",
+   "fieldtype": "Data",
+   "in_list_view": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "data_2",
+   "fieldtype": "Data",
+   "in_list_view": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "data_3",
+   "fieldtype": "Data",
+   "in_list_view": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "data_4",
+   "fieldtype": "Data",
+   "in_list_view": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "data_5",
+   "fieldtype": "Data",
+   "in_list_view": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-04-14 15:12:52.636046",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Lab",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

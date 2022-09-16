@@ -273,6 +273,25 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Payment Follow Up",
+   "link_to": "Follow Up",
+   "link_type": "DocType",
+   "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Payment Commitment",
+   "link_to": "Payment Receivable Commitment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Accounts Payable",
    "onboard": 0,
    "type": "Card Break"
@@ -455,6 +474,24 @@
    "type": "Link"
   },
   {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Trial Balance Without Cancellation Entries",
+   "link_to": "Trial Balance Without Cancellation Entries",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Payment Period Based On Invoice Without Cancellation Entries",
+   "link_to": "Payment Period Based On Invoice Without Cancellation Entries",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
    "dependencies": "GL Entry",
    "hidden": 0,
    "is_query_report": 1,
@@ -476,9 +513,30 @@
   },
   {
    "hidden": 0,
+   "is_query_report": 1,
+   "label": "Collection Commitment vs Payment",
+   "link_to": "Collection Commitment vs Payment",
+   "link_type": "Report",
+   "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Failed Commitment",
+   "link_to": "Failed Commitment",
+   "link_type": "Report",
+   "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
    "is_query_report": 0,
    "label": "Financial Statements",
    "onboard": 0,
+   "only_for": "",
    "type": "Card Break"
   },
   {
@@ -536,6 +594,7 @@
    "is_query_report": 0,
    "label": "Multi Currency",
    "onboard": 0,
+   "only_for": "",
    "type": "Card Break"
   },
   {
@@ -573,6 +632,7 @@
    "is_query_report": 0,
    "label": "Settings",
    "onboard": 0,
+   "only_for": "",
    "type": "Card Break"
   },
   {
@@ -603,6 +663,16 @@
    "link_to": "Mode of Payment",
    "link_type": "DocType",
    "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Follow Up Level",
+   "link_to": "Follow Up Level",
+   "link_type": "DocType",
+   "onboard": 0,
    "type": "Link"
   },
   {
@@ -610,6 +680,7 @@
    "is_query_report": 0,
    "label": "Banking and Payments",
    "onboard": 0,
+   "only_for": "",
    "type": "Card Break"
   },
   {
@@ -685,6 +756,7 @@
    "is_query_report": 0,
    "label": "Subscription Management",
    "onboard": 0,
+   "only_for": "",
    "type": "Card Break"
   },
   {
@@ -848,9 +920,19 @@
   },
   {
    "hidden": 0,
+   "is_query_report": 1,
+   "label": "ITC",
+   "link_to": "ITC-04",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
    "is_query_report": 0,
    "label": "Share Management",
    "onboard": 0,
+   "only_for": "",
    "type": "Card Break"
   },
   {
@@ -898,6 +980,7 @@
    "is_query_report": 0,
    "label": "Cost Center and Budgeting",
    "onboard": 0,
+   "only_for": "",
    "type": "Card Break"
   },
   {
@@ -1130,7 +1213,7 @@
    "type": "Link"
   }
  ],
- "modified": "2022-02-21 12:55:17.768043",
+ "modified": "2022-06-23 10:57:45.979165",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",

@@ -552,7 +552,9 @@ frappe.ui.form.on('Stock Entry', {
 				},
 				callback: function (r) {
 					if (!r.exc) {
-						$.extend(child, r.message);
+						["actual_qty", "basic_rate"].forEach((field) => {
+							frappe.model.set_value(cdt, cdn, field, (r.message[field] || 0.0));
+						});
 						frm.events.calculate_basic_amount(frm, child);
 					}
 				}
@@ -743,21 +745,6 @@ frappe.ui.form.on('Stock Entry', {
 		if (frm.doc.apply_putaway_rule) erpnext.apply_putaway_rule(frm, frm.doc.purpose);
 	},
 
-	create_batch: function (frm) {
-		console.log(" this is create nbutton")
-		frm.save()
-		frappe.call({
-			method: "create_new_batch_no",
-			doc : frm.doc,
-			callback: function (r) {
-				if (r.message) {
-					console.log(" Success")
-					// frappe.model.set_value(cdt, cdn, r.message);
-				}
-			}
-		});
-	}
-
 });
 
 frappe.ui.form.on('Stock Entry Detail', {
@@ -775,6 +762,12 @@ frappe.ui.form.on('Stock Entry Detail', {
 		frm.events.set_serial_no(frm, cdt, cdn, () => {
 			frm.events.get_warehouse_details(frm, cdt, cdn);
 		});
+
+		// set allow_zero_valuation_rate to 0 if s_warehouse is selected.
+		let item = frappe.get_doc(cdt, cdn);
+		if (item.s_warehouse) {
+			frappe.model.set_value(cdt, cdn, "allow_zero_valuation_rate", 0);
+		}
 	},
 
 	t_warehouse: function (frm, cdt, cdn) {
@@ -972,14 +965,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	},
 
 	refresh: function (frm) {
-		console.log('obj: ', frm)
-		if (frm.work_order) {
-			console.log("frm.doc.work_order: ")
-			console.log(frm.work_order)
-			if (frm.doc.stock_entry_type === "Material Consumption for Manufacture") {
-				set_qty(frm)
-			}
-		}
+
 		var me = this;
 		erpnext.toggle_naming_series();
 		this.toggle_related_fields(this.frm.doc);
@@ -990,6 +976,13 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		}
 		erpnext.hide_company();
 		erpnext.utils.add_item(this.frm);
+
+		if (frm.work_order) {
+			
+			if (frm.doc.stock_entry_type === "Material Consumption for Manufacture") {
+				set_qty(frm)
+			}
+		}
 	},
 	scan_barcode: function () {
 		let transaction_controller = new erpnext.TransactionController({ frm: this.frm });
@@ -1218,10 +1211,10 @@ function attach_bom_items(bom_no) {
 }
 
 function check_should_not_attach_bom_items(bom_no) {
-	return (
-		bom_no === undefined ||
-		(erpnext.stock.bom && erpnext.stock.bom.name === bom_no)
-	);
+  return (
+	bom_no === undefined ||
+	(erpnext.stock.bom && erpnext.stock.bom.name === bom_no)
+  );
 }
 
 $.extend(cur_frm.cscript, new erpnext.stock.StockEntry({ frm: cur_frm }));

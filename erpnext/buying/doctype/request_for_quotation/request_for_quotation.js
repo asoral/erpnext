@@ -31,7 +31,7 @@ frappe.ui.form.on("Request for Quotation",{
 		if (frm.doc.docstatus === 1) {
 
 			frm.add_custom_button(__('Supplier Quotation'),
-				function(){ frm.trigger("make_suppplier_quotation") }, __("Create"));
+				function(){ frm.trigger("make_supplier_quotation") }, __("Create"));
 
 
 			frm.add_custom_button(__("Send Emails to Suppliers"), function() {
@@ -87,16 +87,24 @@ frappe.ui.form.on("Request for Quotation",{
 
 	},
 
-	make_suppplier_quotation: function(frm) {
+	make_supplier_quotation: function(frm) {
 		var doc = frm.doc;
 		var dialog = new frappe.ui.Dialog({
 			title: __("Create Supplier Quotation"),
 			fields: [
-				{	"fieldtype": "Select", "label": __("Supplier"),
+				{	"fieldtype": "Link",
+					"label": __("Supplier"),
 					"fieldname": "supplier",
-					"options": doc.suppliers.map(d => d.supplier),
+					"options": 'Supplier',
 					"reqd": 1,
-					"default": doc.suppliers.length === 1 ? doc.suppliers[0].supplier_name : "" },
+					get_query: () => {
+						return {
+							filters: [
+								["Supplier", "name", "in", frm.doc.suppliers.map((row) => {return row.supplier;})]
+							]
+						}
+					}
+				}
 			],
 			primary_action_label: __("Create"),
 			primary_action: (args) => {
@@ -218,8 +226,6 @@ frappe.ui.form.on("Request for Quotation Supplier",{
 	},
 
 })
-
-
 
 erpnext.buying.RequestforQuotationController = erpnext.buying.BuyingController.extend({
 	refresh: function() {
@@ -431,4 +437,3 @@ erpnext.buying.RequestforQuotationController = erpnext.buying.BuyingController.e
 
 // for backward compatibility: combine new and previous states
 $.extend(cur_frm.cscript, new erpnext.buying.RequestforQuotationController({frm: cur_frm}));
-

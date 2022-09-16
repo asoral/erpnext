@@ -17,47 +17,19 @@ frappe.query_reports["GSTR-1"] = {
 			"fieldtype": "Link",
 			"options": "Address",
 			"get_query": function () {
-				var company = frappe.query_report.get_filter_value('company');
+				let company = frappe.query_report.get_filter_value('company');
 				if (company) {
 					return {
 						"query": 'frappe.contacts.doctype.address.address.address_query',
 						"filters": { link_doctype: 'Company', link_name: company }
 					};
 				}
-			},
-			// onchange added
-			on_change: function () {
-				var a_group = frappe.query_report.get_filter_value('company_address');
-				if(a_group){
-					frappe.query_report.set_filter_value('address_group',"");
-					frappe.query_report.refresh()
-				}
-				frappe.query_report.refresh()
 			}
 		},
 		{
-			// new filter and on_change
-			"fieldname": "address_group",
-			"label": __("Address Group"),
-			"fieldtype": "Link",
-			"options": "Address Group",
-			// "get_query": function () {
-			// 	var company = frappe.query_report.get_filter_value('company');
-			// 	if (company) {
-			// 		return {
-			// 			"query": 'frappe.contacts.doctype.address.address.address_query',
-			// 			"filters": { link_doctype: 'Company', link_name: company }
-			// 		};
-			// 	}
-			// }
-			on_change: function () {
-				var address = frappe.query_report.get_filter_value('address_group');
-				if(address){
-					frappe.query_report.set_filter_value('company_address',"");
-					frappe.query_report.refresh()
-				}
-				frappe.query_report.refresh()
-			}
+			"fieldname": "company_gstin",
+			"label": __("Company GSTIN"),
+			"fieldtype": "Select"
 		},
 		{
 			"fieldname": "from_date",
@@ -93,9 +65,21 @@ frappe.query_reports["GSTR-1"] = {
 		}
 	],
 	onload: function (report) {
+		let filters = report.get_values();
+
+		frappe.call({
+			method: 'erpnext.regional.report.gstr_1.gstr_1.get_company_gstins',
+			args: {
+				company: filters.company
+			},
+			callback: function(r) {
+				frappe.query_report.page.fields_dict.company_gstin.df.options = r.message;
+				frappe.query_report.page.fields_dict.company_gstin.refresh();
+			}
+		});
 
 		report.page.add_inner_button(__("Download as JSON"), function () {
-			var filters = report.get_values();
+			let filters = report.get_values();
 
 			frappe.call({
 				method: 'erpnext.regional.report.gstr_1.gstr_1.get_json',
@@ -118,5 +102,4 @@ frappe.query_reports["GSTR-1"] = {
 			});
 		});
 	}
-
 }

@@ -67,6 +67,22 @@ frappe.query_reports["Accounts Receivable"] = {
 			}
 		},
 		{
+			"fieldname": "party_account",
+			"label": __("Receivable Account"),
+			"fieldtype": "Link",
+			"options": "Account",
+			get_query: () => {
+				var company = frappe.query_report.get_filter_value('company');
+				return {
+					filters: {
+						'company': company,
+						'account_type': 'Receivable',
+						'is_group': 0
+					}
+				};
+			}
+		},
+		{
 			"fieldname": "ageing_based_on",
 			"label": __("Ageing Based On"),
 			"fieldtype": "Select",
@@ -200,30 +216,6 @@ frappe.query_reports["Accounts Receivable"] = {
 		report.page.add_inner_button(__("Accounts Receivable Summary"), function() {
 			var filters = report.get_values();
 			frappe.set_route('query-report', 'Accounts Receivable Summary', {company: filters.company});
-		});
-
-		report.page.add_menu_item(__("New Email"), function(communication_doc=null, reply_all=false) {
-			let email_id;
-			let cust_id = frappe.query_report.get_filter_value('customer');
-			frappe.db.get_doc('Customer', cust_id).then(e  => {
-				email_id = e.email_id;
-				const args = {
-					report: report.page,
-					recipients: email_id,
-					is_a_reply: Boolean(communication_doc),
-					title: communication_doc ? __('Reply') : null,
-					last_email: communication_doc,
-					subject: communication_doc && communication_doc.subject
-				};
-				if (communication_doc && reply_all) {
-					args.cc = communication_doc.cc;
-					args.bcc = communication_doc.bcc;
-				}
-				new frappe.views.CommunicationComposer(args);
-			});
-
-
-			
 		});
 	}
 }

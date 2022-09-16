@@ -23,6 +23,10 @@
   "order_confirmation_no",
   "order_confirmation_date",
   "amended_from",
+  "accounting_dimensions_section",
+  "cost_center",
+  "dimension_col_break",
+  "project",
   "drop_ship",
   "customer",
   "customer_name",
@@ -63,6 +67,7 @@
   "items",
   "sb_last_purchase",
   "total_qty",
+  "material_request_check",
   "base_total",
   "base_net_total",
   "column_break_26",
@@ -1147,13 +1152,42 @@
    "fieldtype": "Link",
    "label": "Tax Withholding Category",
    "options": "Tax Withholding Category"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "accounting_dimensions_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Dimensions "
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "dimension_col_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "default": "0",
+   "fieldname": "material_request_check",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Material Request Check"
   }
  ],
  "icon": "fa fa-file-text",
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-28 13:10:47.955401",
+ "modified": "2022-07-15 12:34:42.366463",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

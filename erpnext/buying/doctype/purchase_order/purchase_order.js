@@ -43,8 +43,6 @@ frappe.ui.form.on("Purchase Order", {
 		erpnext.queries.setup_queries(frm, "Warehouse", function() {
 			return erpnext.queries.warehouse(frm.doc);
 		});
-
-		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
 	},
 
 	apply_tds: function(frm) {
@@ -57,115 +55,6 @@ frappe.ui.form.on("Purchase Order", {
 
 	refresh: function(frm) {
 		frm.trigger('get_materials_from_supplier');
-	},
-	tax_category:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-				
-                frm.refresh_field("items")
-			}
-		});
-	},
-	shipping_address:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-				
-                frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                frm.refresh_field("tax_category")
-			}
-		});
-	},
-	supplier_address:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-				
-                frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	customer_address:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-				
-                frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	billing_address:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-				
-                frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	branch:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-				
-				frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	location:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-				
-				frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	cost_center:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-				
-				frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
 	},
 	get_materials_from_supplier: function(frm) {
 		let po_details = [];
@@ -208,6 +97,7 @@ frappe.ui.form.on("Purchase Order Item", {
 			}
 		}
 	},
+
 });
 
 erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend({
@@ -550,7 +440,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 						company: me.frm.doc.company
 					},
 					allow_child_item_selection: true,
-					child_fielname: "items",
+					child_fieldname: "items",
 					child_columns: ["item_code", "qty"]
 				})
 			}, __("Get Items From"));
@@ -614,7 +504,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 								d.qty = d.qty  - my_qty;
 								me.frm.doc.items[i].stock_qty = my_qty * me.frm.doc.items[i].conversion_factor;
 								me.frm.doc.items[i].qty = my_qty;
-
+								
 								frappe.msgprint("Assigning " + d.mr_name + " to " + d.item_code + " (row " + me.frm.doc.items[i].idx + ")");
 								if (qty > 0) {
 									frappe.msgprint("Splitting " + qty + " units of " + d.item_code);
@@ -635,11 +525,27 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 						});
 						i++;
 					}
+					var count = 0
+					$.each(cur_frm.doc.items, (idx, row) => {
+						if(row.material_request){
+							count = count + 1						
+						}
+					});
+					if (count > 0){
+						cur_frm.set_value("material_request_check", 1)
+						cur_frm.refresh_field("material_request_check")
+						cur_frm.set_value("material_request_check", 0)
+						cur_frm.refresh_field("material_request_check")
+						// cur_frm.save()
+					}
+					
 					refresh_field("items");
 				}
 			});
 		}, __("Tools"));
 	},
+
+	
 
 	tc_name: function() {
 		this.get_terms();

@@ -3,15 +3,17 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
+from re import I
 import frappe
 from frappe.model.document import Document
 from frappe.utils import getdate, now_datetime, nowdate
+from datetime import date
 import json
 class CustomerPricingRule(Document):
 	def on_submit(self):
 		for i in self.item_details:
 			price_list_rate = frappe.db.get_value("Item Price", {"item_code": i.item, 'price_list':self.for_price_list}, "price_list_rate")
-			list_price = price_list_rate + i.additional_price
+			list_price = price_list_rate + i.additional_price if  price_list_rate else  i.additional_price
 			i.base_price = price_list_rate
 			i.list_price = list_price
 			doc_title = self.customer+'-'+i.get("item")
@@ -45,15 +47,12 @@ class CustomerPricingRule(Document):
 			if pr_doc:
 				if pr_doc.get('title'):
 					if i.get("type") == "Discount":
-						query = """UPDATE `tabPricing Rule` SET discount_amount = '{0}',rate_or_discount = "Discount Amount",margin_rate_or_amount=0.00 WHERE title = '{1}';""".format(i.get("discount_margin") ,doc_title)	
+						query = """UPDATE `tabPricing Rule` SET discount_amount = '{0}',rate_or_discount = "Discount Amount",margin_rate_or_amount=0.00 WHERE title = '{1}'""".format(i.get("discount_margin") ,doc_title)	
 					if i.get("type") == "Margin":
 						query = """UPDATE `tabPricing Rule` SET margin_rate_or_amount = '{0}',margin_type = "Amount",discount_amount=0.00 WHERE title = '{1}';""".format(i.get("discount_margin") ,doc_title)	
 					
 					frappe.db.sql(query)
 					frappe.db.commit()
-
-	def on_cancel(self):
-		frappe.db.sql("""delete from `tabPricing Rule` where customer_pricing_rule_id ='{0}' """.format(self.name))
 
 
 	def before_insert(self):

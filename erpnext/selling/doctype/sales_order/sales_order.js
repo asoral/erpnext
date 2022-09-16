@@ -84,7 +84,11 @@ frappe.ui.form.on("Sales Order", {
 			frm.set_value('transaction_date', frappe.datetime.get_today())
 		}
 		erpnext.queries.setup_queries(frm, "Warehouse", function() {
-			return erpnext.queries.warehouse(frm.doc);
+			return {
+				filters: [
+					["Warehouse", "company", "in", ["", cstr(frm.doc.company)]],
+				]
+			};
 		});
 
 		frm.set_query('project', function(doc, cdt, cdn) {
@@ -96,7 +100,19 @@ frappe.ui.form.on("Sales Order", {
 			}
 		});
 
-		erpnext.queries.setup_warehouse_query(frm);
+		frm.set_query('warehouse', 'items', function(doc, cdt, cdn) {
+			let row  = locals[cdt][cdn];
+			let query = {
+				filters: [
+					["Warehouse", "company", "in", ["", cstr(frm.doc.company)]],
+				]
+			};
+			if (row.item_code) {
+				query.query = "erpnext.controllers.queries.warehouse_query";
+				query.filters.push(["Bin", "item_code", "=", row.item_code]);
+			}
+			return query;
+		});
 
 		frappe.call({
 			method: 'erpnext.selling.doctype.customer_pricing_rule.customer_pricing_rule.fetch_order_warehouse_num',
@@ -112,17 +128,7 @@ frappe.ui.form.on("Sales Order", {
 		})
 		frm.ignore_doctypes_on_cancel_all = ['Purchase Order'];
 	},
-	// before_save:function(frm){
-	// 	frm.call({
-	// 		method:"get_commision",
-	// 		doc:frm.doc,
-	// 		callback: function(r)
-	// 		{
 
-	// 			frm.refresh_field("total_commission")
-	// 		}
-	// 	});
-	// },
 	
 
 	delivery_date: function(frm) {
@@ -130,115 +136,6 @@ frappe.ui.form.on("Sales Order", {
 			if(!d.delivery_date) d.delivery_date = frm.doc.delivery_date;
 		});
 		refresh_field("items");
-	},
-	tax_category:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-
-                frm.refresh_field("items")
-			}
-		});
-	},
-	shipping_address:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-
-                frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                frm.refresh_field("tax_category")
-			}
-		});
-	},
-	supplier_address:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-
-                frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	customer_address:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-
-                frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	company_address:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-
-                frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	branch:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-
-				frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	location:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-
-				frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
-	},
-	cost_center:function(frm){
-		frm.call({
-			method:"calculate_taxes",
-			doc:frm.doc,
-			callback: function(r)
-			{
-
-				frm.set_value("tax_category","");
-				frm.refresh_field("tax_category")
-                frm.set_value("tax_category",r.message);
-                refresh_field("tax_category")
-			}
-		});
 	},
 	customer: function(frm,cdt,cdn) {
 
@@ -353,7 +250,9 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 						}
 					}
 
-					this.frm.add_custom_button(__('Pick List'), () => this.create_pick_list(), __('Create'));
+					if (flt(doc.per_picked, 6) < 100 && flt(doc.per_delivered, 6) < 100) {
+						this.frm.add_custom_button(__('Pick List'), () => this.create_pick_list(), __('Create'));
+					}
 
 					const order_is_a_sale = ["Sales", "Shopping Cart"].indexOf(doc.order_type) !== -1;
 					const order_is_maintenance = ["Maintenance"].indexOf(doc.order_type) !== -1;
@@ -763,6 +662,7 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 		var me = this;
 		var dialog = new frappe.ui.Dialog({
 			title: __("Select Items"),
+			size: "large",
 			fields: [
 				{
 					"fieldtype": "Check",
@@ -864,7 +764,8 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 			} else {
 				let po_items = [];
 				me.frm.doc.items.forEach(d => {
-					let pending_qty = (flt(d.stock_qty) - flt(d.ordered_qty)) / flt(d.conversion_factor);
+					let ordered_qty = me.get_ordered_qty(d, me.frm.doc);
+					let pending_qty = (flt(d.stock_qty) - ordered_qty) / flt(d.conversion_factor);
 					if (pending_qty > 0) {
 						po_items.push({
 							"doctype": "Sales Order Item",
@@ -888,6 +789,24 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 		dialog.get_field("items_for_po").refresh();
 		dialog.wrapper.find('.grid-heading-row .grid-row-check').click();
 		dialog.show();
+	},
+
+	get_ordered_qty: function(item, so) {
+		let ordered_qty = item.ordered_qty;
+		if (so.packed_items && so.packed_items.length) {
+			// calculate ordered qty based on packed items in case of product bundle
+			let packed_items = so.packed_items.filter(
+				(pi) => pi.parent_detail_docname == item.name
+			);
+			if (packed_items && packed_items.length) {
+				ordered_qty = packed_items.reduce(
+					(sum, pi) => sum + flt(pi.ordered_qty),
+					0
+				);
+				ordered_qty = ordered_qty / packed_items.length;
+			}
+		}
+		return ordered_qty;
 	},
 
 	hold_sales_order: function(){
