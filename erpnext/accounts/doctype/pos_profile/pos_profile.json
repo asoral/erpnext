@@ -19,7 +19,7 @@
   "section_break_11",
   "payments",
   "supervisor_section",
-  "table_14",
+  "pos_profile_supervisor",
   "section_break_14",
   "hide_images",
   "hide_unavailable_items",
@@ -54,8 +54,8 @@
   "apply_discount_on",
   "accounting_dimensions_section",
   "cost_center",
-  "dimension_col_break",
-  "offers"
+  "offers",
+  "dimension_col_break"
  ],
  "fields": [
   {
@@ -368,15 +368,15 @@
    "label": "Supervisor"
   },
   {
-   "fieldname": "table_14",
+   "fieldname": "offers",
+   "fieldtype": "Small Text",
+   "label": "Offers"
+  },
+  {
+   "fieldname": "pos_profile_supervisor",
    "fieldtype": "Table",
    "label": "POS Supervisor",
    "options": "POS Profile Supervisor"
-  },
-  {
-   "fieldname": "offers",
-   "fieldtype": "Data",
-   "label": "Offers"
   }
  ],
  "icon": "icon-cog",
@@ -404,7 +404,7 @@
    "link_fieldname": "pos_profile"
   }
  ],
- "modified": "2022-08-17 13:26:23.180901",
+ "modified": "2022-09-20 12:43:55.943655",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Profile",

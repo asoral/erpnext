@@ -49,174 +49,7 @@ erpnext.PointOfSale.Controller = class {
 					});
 				}
 			},
-			// {
-			// 	fieldname: "button", fieldtype: "Button",
-			// 	in_list_view: 1, label: "Denominations",
-			// 	reqd:1,
-			// 	click: () => {
-			// 		const val = {}
-					
-					
-			// 		dialog.fields_dict.balance_details.df.data.some(d => {
-			// 		console.log("NNNNNNNNNNNNNNNNNNn",this.doc)
-			// 		val[d.idx] = d.mode_of_payment
-			// 		console.log(val)
-			// 		dialog.fields_dict.mop.set_value(d.idx);
-			// 		dialog.fields_dict.mop.refresh();
-					
-			// 		if (d.idx == val.idx){
-			// 			console.log(me)
-			// 				var mop = d.idx
-			// 				const deno = {}
-			// 				frappe.db.get_doc("Mode of Payment", d.mode_of_payment).then(({ currency }) => {
-			// 					frappe.db.get_doc("Currency",currency).then(({denominations}) => {
-			// 						denominations.forEach(pay => {
-			// 							deno[pay.name1] = pay.factor
-			// 						});
-									
-			// 						for(var i in deno) {
-			// 							console.log(e)
-			// 							var name1 = i
-			// 							var factor = deno[i]
-
-			// 							e.fields_dict.currency_deno.df.data.push({name1 , factor})
-			// 							e.fields_dict.currency_deno
-			// 							e.fields_dict.currency_deno.grid.refresh();
-			// 							dialog.fields_dict.mop.set_value(mop);
-			// 							dialog.fields_dict.mop.refresh();
-
-					
-			// 						 }
-
-			// 					})
-								
-			// 				});
-			// 		}
-					
-						
-						
-							
-							
-						
-
-			// 			const table_fields3 = [
-							
-			// 				{
-			// 					fieldname: "name1", fieldtype: "Data",
-			// 					in_list_view: 1, label: "Name",
-			// 					 reqd: 1
-			// 				},
-
-			// 				{
-			// 					fieldname: "factor", fieldtype: "Currency",
-			// 					in_list_view: 0, label: "Factor",
-			// 					 reqd: 1
-			// 				},
-			// 				{
-			// 					fieldname:"exchange_rate",fieldtype:"Float",
-			// 					in_list_view: 0, label: "Factor",
-			// 					 reqd: 1
-
-			// 				},
-			// 				{
-			// 					fieldname: "count", fieldtype: "Int",
-			// 					in_list_view: 1, label: "Count",
-			// 					 reqd: 1,
-			// 					 change: function () {
-									
-			// 						e.fields_dict.currency_deno.df.data.forEach(d => {
-			// 							if (d.idx == this.doc.idx) {
-			// 								d.subtotal = d.count*d.factor
-			// 								e.fields_dict.currency_deno.grid.refresh();
-			// 								return true;
-			// 							}
-										
-										
-			// 						});
-			// 						var st = {"total_amt":0.0}
-			// 						let x = 0
-			// 						e.fields_dict.currency_deno.df.data.forEach(e => {
-			// 							st["total_amt"] += e.subtotal
-			// 							console.log("9242",st)
-			// 							e.subtotal ? x+=e.subtotal : 0
-										
-			// 						});
-			// 						console.log("x is: ", x)
-
-			// 						e.fields_dict.total_amount.set_value(x);
-			// 						e.fields_dict.total_amount.refresh();
-
-
-
-									
-
-									
-
-
-			// 					}
-			// 				},
-			// 				{
-			// 					fieldname: "subtotal", fieldtype: "Currency",
-			// 					in_list_view: 1, label: "Subtotal",
-			// 					 reqd: 1,
-			// 					 read_only :1
-			// 				}
-			// 			]
-
-						
-
-
-						
-			// 				const e = new frappe.ui.Dialog({
-			// 					title: 'Enter Denominations',
-								
-								
-
-			// 					fields: [
-									
-
-			// 						{
-			// 							fieldname: "currency_deno",
-			// 							fieldtype: "Table",
-			// 							label: "Currency Denominations",
-			// 							cannot_add_rows: true,
-			// 							in_place_edit: true,
-			// 							reqd: 1,
-			// 							data: [],
-			// 							fields: table_fields3
-			// 						},
-			// 						{
-			// 							label: 'Total Amount',
-			// 							fieldname: 'total_amount',
-			// 							fieldtype: 'Currency',
-			// 							read_only :1
-			// 						},
-									
-			// 					],
-								 
-			// 					primary_action_label: 'Submit',
-			// 					primary_action(values) {
-			// 						dialog.fields_dict.balance_details.df.data.some(d => {
-			// 							if(d.idx == e.idx){
-
-			// 							}
-										
-			// 							d.opening_amount = parseFloat(d.opening_amount) + parseFloat(values.total_amount)
-			// 							dialog.fields_dict.balance_details.grid.refresh();
-
-			// 						})
-			// 						e.hide();
-			// 					}
-			// 				});
-							
-			// 				e.show();
-
-							
-			// 			}
-			// 		)
-			// 	}
-			// }
-
+			
 		];
 		const table_fields2 = [
 			
@@ -631,6 +464,7 @@ erpnext.PointOfSale.Controller = class {
 		this.prepare_components();
 		this.prepare_menu();
 		this.make_new_invoice();
+		this.button()
 	}
 
 	prepare_dom() {
@@ -661,6 +495,167 @@ erpnext.PointOfSale.Controller = class {
 
 		this.page.add_menu_item(__('Close the POS'), this.close_pos.bind(this), false, 'Shift+Ctrl+C');
 	}
+
+	get_mapped_printer() {
+		// returns a list of "print format: printer" mapping filtered by the current print format
+		let print_format_printer_map = this.get_print_format_printer_map();
+		if (print_format_printer_map[this.frm.doctype]) {
+			return print_format_printer_map[this.frm.doctype].filter(
+				(printer_map) => printer_map.print_format == this.selected_format()
+			);
+		} else {
+			return [];
+		}
+	}
+	get_print_format_printer_map() {
+		// returns the whole object "print_format_printer_map" stored in the localStorage.
+		try {
+			let print_format_printer_map = JSON.parse(
+				localStorage.print_format_printer_map
+			);
+			return print_format_printer_map;
+		} catch (e) {
+			return {};
+		}
+	}
+
+	button(){
+		this.page.add_inner_button(('Open Cash Drawer'),()=>{
+			
+			// const me = this;
+			console.log("%%%%%%%%%%%%%%%%%%%%%%%",this)
+			this.print_format_printer_map = this.get_print_format_printer_map();
+			this.data = this.print_format_printer_map[this.frm.doctype] || [];
+		    // let printer_list = [];
+			f
+			frappe.ui.form.qz_get_printer_list().then((data) => {
+				
+				data.forEach(printer => {
+					d.fields_dict.printer.df.options.push(printer)
+					d.fields_dict.printer.refresh()
+				})
+	
+			})
+		const d = new frappe.ui.Dialog({
+			title: __("Supervisor Authorization"),
+			fields: [
+				{
+					label : "Supervisor ID",
+					fieldname: "user",
+					fieldtype: "Select",
+					reqd: 1,
+					options: []
+				},
+				{
+					label: "Password",
+					fieldname: "password",
+					fieldtype: "Password",
+					reqd: 1,
+				},
+				{
+					label: 'Date & Time',
+					fieldname: 'date_and_time',
+					fieldtype: 'Datetime',
+					reqd:1,
+					read_only:1,
+					default: frappe.datetime.now_datetime(),
+					hidden:1
+				},
+				{
+					label: 'POS User',
+					fieldname: 'pos_user',
+					fieldtype: 'Data',
+					reqd:1,
+					read_only:1,
+					hidden:1
+				},
+				{
+					label:'POS Profile',
+					fieldname:'pos_profile',
+					fieldtype:'Data',
+					reqd:1,
+					read_only:1,
+					hidden:1
+				},
+				{
+					label:'Reason',
+					fieldname:'reason',
+					fieldtype:'Small Text',
+					reqd:1
+				},
+				{
+					label:"Printer",
+					fieldname:'printer',
+					fieldtype:"Select",
+					options:[]
+				}
+				
+			],
+			primary_action(v) {
+				var data = d.get_values();
+				frappe.call({
+					method: "grandhyper.api.remove_authorize",
+					
+					args: {
+						"user": data.user,
+						"password": data.password,
+						"pos_profile": cur_frm.doc.pos_profile,
+						'date_and_time':data.date_and_time,
+						'pos_user':data.pos_user,
+						'pos_profile':data.pos_profile,
+						'reason':data.reason
+					},
+					callback:function(r){
+	
+						if(r.message){
+
+
+					// frappe.ui.form.qz_get_printer_list().then(
+						frappe.ui.form.qz_connect()
+							// frappe.utils.print(
+							// 	'Supervisor Log',
+							// 	r.message,
+							// 	'Demo'
+							// )
+							.then(function () {
+
+								var config = qz.configs.create(v.printer);
+								var data =["Cash Drawer Open"]
+								return qz.print(config,data);
+
+							})
+							.then(frappe.ui.form.qz_success)
+							.catch(err => {
+								frappe.ui.form.qz_fail(err);
+							})
+						}
+						
+						else{
+							frappe.throw('Please enter valid "Supervisor ID" and "Password."');
+							
+						}
+
+					
+					}
+				});
+
+				d.hide();
+			},
+			primary_action_label: __('Authorize')
+		});
+		d.fields_dict.pos_user.set_value(user)
+		d.fields_dict.pos_profile.set_value(this.pos_profile)
+
+		frappe.db.get_doc('POS Profile', this.pos_profile).then((doc) => {
+			doc.pos_profile_supervisor.forEach(m=>{
+				d.fields_dict.user.df.options.push(m.user)
+				d.fields_dict.user.refresh();
+			})
+		});		
+		d.show();			
+		}).addClass("btn-warning").css({'color':'#FFFFFF','font-weight': 'bold','background-color':'#0096FF'})
+	}
+
 
 	open_form_view() {
 		frappe.model.sync(this.frm.doc);
