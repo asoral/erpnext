@@ -755,7 +755,7 @@ def create_salary_slips_for_employees(employees, args,end_date,start_date,payrol
 		days_in_month = num_days
 
 		lt = []
-		leaveA = frappe.db.get_all("Leave Application",{'employee':emp,'from_date':[">=",start_date],'to_date':["<=",end_date]},['total_leave_days'])
+		leaveA = frappe.db.get_all("Leave Application",{'employee':emp,'from_date':[">=",start_date],'to_date':["<=",end_date],"docstatus":1},['total_leave_days'])
 		net_present_days=0
 		holidays = get_holidays_for_employee(emp,start_date,end_date)
 		holiday1= len(holidays)
@@ -813,7 +813,7 @@ def create_salary_slips_for_employees(employees, args,end_date,start_date,payrol
 		start = datetime(year=cur_year, month=cur_month, day=1).strftime("%Y-%m-%d")
 		end = datetime(year=cur_year, month=cur_month, day=int(last_date_of_month[1])).strftime("%Y-%m-%d")
 
-		all_leave_with_start_date = frappe.db.get_all("Leave Application", {'employee':emp, "from_date":['between',[start,end]],'leave_type':['in',['Casual Leave','Sick Leave','Earned Leave','Leave Without Pay']] },['from_date','to_date','total_leave_days'])
+		all_leave_with_start_date = frappe.db.get_all("Leave Application", {'employee':emp, "from_date":['between',[start,end]],'leave_type':['in',['Casual Leave','Sick Leave','Earned Leave','Leave Without Pay']],"docstatus":1 },['from_date','to_date','total_leave_days'])
 
 		total_leave_list = []
 		for leave in all_leave_with_start_date:
@@ -830,7 +830,7 @@ def create_salary_slips_for_employees(employees, args,end_date,start_date,payrol
 				total_leave_list.append(leaves_in_cur_month)
 
 
-		all_leave_with_end_date = frappe.db.get_all("Leave Application", {'employee':emp, "to_date":['between',[start,end]],'leave_type':['in',['Casual Leave','Sick Leave','Earned Leave','Leave Without Pay']] },['from_date','to_date','total_leave_days'])
+		all_leave_with_end_date = frappe.db.get_all("Leave Application", {'employee':emp, "to_date":['between',[start,end]],'leave_type':['in',['Casual Leave','Sick Leave','Earned Leave','Leave Without Pay']],"docstatus":1 },['from_date','to_date','total_leave_days'])
 		for leave in all_leave_with_end_date:
 			to_date_obj = leave.get('to_date')
 			from_date_obj = leave.get('from_date')
