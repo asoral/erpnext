@@ -592,7 +592,7 @@ class SalarySlip(TransactionBase):
 					total_leave_list.append(leaves_in_cur_month)
 
 
-			all_leave_with_end_date = frappe.db.get_all("Leave Application", {'employee':self.employee, "to_date":['between',[start,end]],'leave_type':['in',['Casual Leave','Sick Leave','Earned Leave','Leave Without Pay']],,"docstatus":1},['from_date','to_date','total_leave_days'])
+			all_leave_with_end_date = frappe.db.get_all("Leave Application", {'employee':self.employee, "to_date":['between',[start,end]],'leave_type':['in',['Casual Leave','Sick Leave','Earned Leave','Leave Without Pay']],"docstatus":1},['from_date','to_date','total_leave_days'])
 			for leave in all_leave_with_end_date:
 				to_date_obj = leave.get('to_date')
 				from_date_obj = leave.get('from_date')
