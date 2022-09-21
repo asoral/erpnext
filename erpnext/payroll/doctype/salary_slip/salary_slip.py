@@ -517,7 +517,7 @@ class SalarySlip(TransactionBase):
 			self.days_in_month = num_days
 
 		lt = []
-		leaveA = frappe.db.get_all("Leave Application",{'employee':self.employee,'from_date':[">=",self.start_date],'to_date':["<=",self.end_date]},['total_leave_days'])
+		leaveA = frappe.db.get_all("Leave Application",{'employee':self.employee,'from_date':[">=",self.start_date],'to_date':["<=",self.end_date],"docstatus":1},['total_leave_days'])
 		holidays = self.get_holidays_for_employee(self.start_date, self.end_date)
 		holiday1= len(holidays)
 		if leaveA :
