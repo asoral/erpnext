@@ -6,7 +6,6 @@
 frappe.provide("erpnext.stock");
 
 frappe.ui.form.on("Purchase Receipt", {
-
 	setup: (frm) => {
 		frm.make_methods = {
 			'Landed Cost Voucher': () => {
@@ -53,9 +52,20 @@ frappe.ui.form.on("Purchase Receipt", {
 	},
 
 	// New Code for ITC04 new to fetch reference challan after save
-	after_save: function(frm) {
-	
+	get_supplied_item: function(frm) {
 		if (frm.doc.is_subcontracted == "Yes" ){
+			frappe.call({
+				method : 'get_items',
+				doc:frm.doc,
+				callback: function(r)
+				{
+					if (r.message){
+					
+					frm.refresh()
+					frm.refresh_field("supplied_items")
+					}
+				}
+			});
 			frappe.call({
 				method : 'on_get_items_button',
 				doc:frm.doc,
