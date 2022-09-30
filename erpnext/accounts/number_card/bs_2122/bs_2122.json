@@ -1,0 +1,22 @@
+{
+ "creation": "2021-12-04 11:21:40.143670",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{\"company\":\"Arofine Polymers Private Limited\",\"filter_based_on\":\"Fiscal Year\",\"period_start_date\":\"2021-04-01\",\"period_end_date\":\"2022-03-31\",\"from_fiscal_year\":\"19-20\",\"to_fiscal_year\":\"21-22\",\"periodicity\":\"Yearly\",\"cost_center\":[],\"accumulated_values\":1,\"include_default_book_entries\":1}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "BS-2122",
+ "modified": "2021-12-04 11:21:40.196949",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "BS-2122",
+ "owner": "Administrator",
+ "report_field": "mar_2022",
+ "report_function": "Sum",
+ "report_name": "Balance Sheet",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "type": "Report"
+}

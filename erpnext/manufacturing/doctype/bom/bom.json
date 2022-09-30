@@ -10,7 +10,7 @@
   "company",
   "item_name",
   "uom",
-  "batch_size",
+  "batch_size1",
   "cb0",
   "is_active",
   "is_default",
@@ -577,6 +577,11 @@
   {
    "fieldname": "column_break_70",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "batch_size1",
+   "fieldtype": "Float",
+   "label": "Batch Size"
   }
  ],
  "icon": "fa fa-sitemap",

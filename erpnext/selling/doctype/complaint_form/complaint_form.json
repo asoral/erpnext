@@ -1,0 +1,370 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2021-01-28 15:27:48.291750",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "amended_from",
+  "naming_series",
+  "customer",
+  "customer_name",
+  "consumption_of_our_product",
+  "serviced_by_authorized_dealer",
+  "column_break_3",
+  "date",
+  "data_6",
+  "product_name",
+  "batch_no",
+  "persons_met",
+  "competitor_product_name",
+  "to_be_filled_while_reporting_a_product_complaint_section",
+  "quantity_supplied",
+  "invoice_no",
+  "invoice_date",
+  "column_break_17",
+  "quantity_consumed",
+  "rejection",
+  "application_details_section",
+  "machine_make_speed",
+  "substrate_on_which_coating_adhesive_is_applied",
+  "how_long_is_the_customer_using_our_product",
+  "time_interval_between_each_operation",
+  "changes",
+  "other_remarks_regarding",
+  "quantity_required_for_trial",
+  "pricing_of_alternate_product_currently_used",
+  "column_break_23",
+  "type_of_substrates",
+  "other_application_conditions",
+  "complaint_faced_issue_for_all_jobs_or_only_for_specific_job",
+  "complaint_observed_during_which_operation",
+  "storage_conditions",
+  "is_customer_willing_to_conduct_trial_of_modified_product",
+  "any_competitor_product_approved",
+  "samples_of_substrates_provided",
+  "section_break_38",
+  "sample__enclosures",
+  "notes",
+  "report_prepared_by_section",
+  "prepared_by",
+  "salesperson_name",
+  "section_break_43",
+  "lab",
+  "section_break_45",
+  "comment"
+ ],
+ "fields": [
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Complaint Form",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "CF:.####."
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer Code",
+   "options": "Customer"
+  },
+  {
+   "fetch_from": "Customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consumption_of_our_product",
+   "fieldtype": "Data",
+   "label": "Consumption of our product"
+  },
+  {
+   "fieldname": "serviced_by_authorized_dealer",
+   "fieldtype": "Data",
+   "label": "Serviced by Authorized Dealer"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date "
+  },
+  {
+   "fieldname": "data_6",
+   "fieldtype": "Link",
+   "label": "Product Code",
+   "options": "Item"
+  },
+  {
+   "depends_on": "data_6",
+   "fetch_from": "produce_code.item_name",
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "persons_met",
+   "fieldtype": "Data",
+   "label": "Persons met"
+  },
+  {
+   "fieldname": "competitor_product_name",
+   "fieldtype": "Data",
+   "label": "Competitor Product Name "
+  },
+  {
+   "fieldname": "to_be_filled_while_reporting_a_product_complaint_section",
+   "fieldtype": "Section Break",
+   "label": "To be filled while reporting a Product Complaint"
+  },
+  {
+   "fieldname": "quantity_supplied",
+   "fieldtype": "Data",
+   "label": "Quantity Supplied "
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Link",
+   "label": "Invoice No.",
+   "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Date",
+   "label": "Invoice Date"
+  },
+  {
+   "fieldname": "column_break_17",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quantity_consumed",
+   "fieldtype": "Data",
+   "label": "Quantity consumed"
+  },
+  {
+   "fieldname": "rejection",
+   "fieldtype": "Percent",
+   "label": "% Rejection"
+  },
+  {
+   "fieldname": "application_details_section",
+   "fieldtype": "Section Break",
+   "label": "Application Details"
+  },
+  {
+   "fieldname": "machine_make_speed",
+   "fieldtype": "Data",
+   "label": "Machine Make & Speed "
+  },
+  {
+   "fieldname": "substrate_on_which_coating_adhesive_is_applied",
+   "fieldtype": "Data",
+   "label": "Substrate on which coating/adhesive is applied:"
+  },
+  {
+   "fieldname": "how_long_is_the_customer_using_our_product",
+   "fieldtype": "Data",
+   "label": "How long is the customer using our product"
+  },
+  {
+   "fieldname": "time_interval_between_each_operation",
+   "fieldtype": "Select",
+   "label": "Time interval between each operation",
+   "options": "Printing\nCoating\nLamination\nDrying\nPunching\nOther"
+  },
+  {
+   "fieldname": "changes",
+   "fieldtype": "Select",
+   "label": "Changes",
+   "options": "Deviation in board\nFilm\nOther substrate\nNot Applicable"
+  },
+  {
+   "fieldname": "other_remarks_regarding",
+   "fieldtype": "Select",
+   "label": "Other remarks regarding ",
+   "options": "Product\nProcess"
+  },
+  {
+   "fieldname": "quantity_required_for_trial",
+   "fieldtype": "Data",
+   "label": "Quantity required for Trial"
+  },
+  {
+   "fieldname": "pricing_of_alternate_product_currently_used",
+   "fieldtype": "Data",
+   "label": "Pricing of alternate product currently used "
+  },
+  {
+   "fieldname": "column_break_23",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "type_of_substrates",
+   "fieldtype": "Data",
+   "label": "Type of Substrates"
+  },
+  {
+   "fieldname": "other_application_conditions",
+   "fieldtype": "Data",
+   "label": "Other Application Conditions"
+  },
+  {
+   "fieldname": "complaint_faced_issue_for_all_jobs_or_only_for_specific_job",
+   "fieldtype": "Data",
+   "label": "Complaint faced issue for all jobs or only for specific job"
+  },
+  {
+   "fieldname": "complaint_observed_during_which_operation",
+   "fieldtype": "Data",
+   "label": "Complaint observed during which operation"
+  },
+  {
+   "fieldname": "storage_conditions",
+   "fieldtype": "Data",
+   "label": "Storage Conditions"
+  },
+  {
+   "fieldname": "is_customer_willing_to_conduct_trial_of_modified_product",
+   "fieldtype": "Data",
+   "label": "Is customer willing to conduct trial of modified product"
+  },
+  {
+   "fieldname": "any_competitor_product_approved",
+   "fieldtype": "Data",
+   "label": "Any competitor product approved"
+  },
+  {
+   "fieldname": "samples_of_substrates_provided",
+   "fieldtype": "Data",
+   "label": "Samples of Substrates provided"
+  },
+  {
+   "fieldname": "section_break_38",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "sample__enclosures",
+   "fieldtype": "Select",
+   "label": "Sample  /Enclosures",
+   "options": "Yes\nNo"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes",
+   "translatable": 1
+  },
+  {
+   "fieldname": "report_prepared_by_section",
+   "fieldtype": "Section Break",
+   "label": "Report Prepared by"
+  },
+  {
+   "fieldname": "salesperson_name",
+   "fieldtype": "Link",
+   "label": "Salesperson Name",
+   "options": "Sales Person"
+  },
+  {
+   "fieldname": "section_break_43",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "lab",
+   "fieldtype": "Table",
+   "label": "Lab",
+   "options": "Lab"
+  },
+  {
+   "fieldname": "section_break_45",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "comment",
+   "fieldtype": "Text Editor",
+   "in_list_view": 1,
+   "label": "Comment"
+  },
+  {
+   "fieldname": "prepared_by",
+   "fieldtype": "Select",
+   "label": "Prepared By",
+   "options": "Sales Person"
+  },
+  {
+   "fieldname": "batch_no",
+   "fieldtype": "Link",
+   "label": "Batch No",
+   "options": "Batch"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2022-05-26 18:00:56.347854",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Complaint Form",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "track_views": 1
+}

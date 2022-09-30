@@ -346,9 +346,9 @@ class PurchaseReceipt(BuyingController):
 		for row in self.items:
 			# print("row.nature_of_job_work_done -------------",row.nature_of_job_work_done )
 			str_nature = row.nature_of_job_work_done
-			if row.is_subcontracted == "Yes" and not row.challan_number_issues_by_job_worker and not row.challan_date_issues_by_job_worker and not str_nature:
-					frappe.throw("Challan Number Issues by Job Worker, Challan Date Issues by Job Worker"
-								 "and Nature of Job Work Done Is Mandatory at row "+str(row.idx))
+			# if row.is_subcontracted == "Yes" and not row.challan_number_issues_by_job_worker and not row.challan_date_issues_by_job_worker and not str_nature:
+			# 		frappe.throw("Challan Number Issues by Job Worker, Challan Date Issues by Job Worker"
+			# 					 "and Nature of Job Work Done Is Mandatory at row "+str(row.idx))
 
 	def validate_cwip_accounts(self):
 		for item in self.get("items"):
@@ -707,6 +707,7 @@ class PurchaseReceipt(BuyingController):
 				and not d.is_fixed_asset
 				and flt(d.qty)
 				and provisional_accounting_for_non_stock_items
+				and d.get("provisional_expense_account")
 			):
 				self.add_provisional_gl_entry(
 					d, gl_entries, self.posting_date, d.get("provisional_expense_account")
@@ -982,31 +983,6 @@ class PurchaseReceipt(BuyingController):
 		for asset in assets:
 			frappe.db.set_value("Asset", asset.name, "gross_purchase_amount", flt(valuation_rate))
 			frappe.db.set_value("Asset", asset.name, "purchase_receipt_amount", flt(valuation_rate))
-
-	@frappe.whitelist()
-	def calculate_taxes(self):
-		if self.supplier:
-			sup = frappe.get_doc("Supplier",self.supplier)
-			if not sup.tax_category:
-				if self.tax_category:
-					for i in self.items:
-						if i.item_code:
-							doc=frappe.get_doc("Item",i.item_code)
-							for j in doc.taxes:
-								if self.tax_category==j.tax_category:
-									if j.item_tax_template:
-										i.item_tax_template=j.item_tax_template
-			if sup.tax_category:
-				if self.tax_category:
-					for i in self.items:
-						if i.item_code:
-							doc=frappe.get_doc("Item",i.item_code)
-							for j in doc.taxes:
-								if sup.tax_category==j.tax_category:
-									if j.item_tax_template:
-										i.item_tax_template=j.item_tax_template
-				self.tax_category=sup.tax_category
-			return self.tax_category
 
 	def update_status(self, status):
 		self.set_status(update=True, status=status)

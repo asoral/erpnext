@@ -161,7 +161,6 @@ frappe.ui.form.on("Work Order", {
 		let transaction_controller = new erpnext.TransactionController();
 		transaction_controller.autofill_warehouse(frm.doc.required_items, "source_warehouse", frm.doc.source_warehouse);
 	},
-
 	refresh: function(frm) {
 
 		// code to reload doc
@@ -762,7 +761,7 @@ erpnext.work_order = {
 					}, __('Finish'))}
 					if(doc.material_transferred_for_manufacturing>=doc.qty) {
 						// all materials transferred for manufacturing, make this primary
-						finish_btn.addClass('btn-primary');
+						// finish_btn.addClass('btn-primary');
 					}
 				}
 			} else {

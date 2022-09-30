@@ -19,6 +19,7 @@ from frappe.utils import (
 	comma_and,
 	date_diff,
 	flt,
+	get_link_to_form,
 	getdate,
 )
 
@@ -48,6 +49,7 @@ class PayrollEntry(Document):
 
 	def before_submit(self):
 		self.validate_employee_details()
+		self.validate_payroll_payable_account()
 		if self.validate_attendance:
 			if self.validate_employee_attendance():
 				frappe.throw(_("Cannot Submit, Employees left to mark attendance"))
@@ -68,6 +70,14 @@ class PayrollEntry(Document):
 
 		if len(emp_with_sal_slip):
 			frappe.throw(_("Salary Slip already exists for {0}").format(comma_and(emp_with_sal_slip)))
+
+	def validate_payroll_payable_account(self):
+		if frappe.db.get_value("Account", self.payroll_payable_account, "account_type"):
+			frappe.throw(
+				_(
+					"Account type cannot be set for payroll payable account {0}, please remove and try again"
+				).format(frappe.bold(get_link_to_form("Account", self.payroll_payable_account)))
+			)
 
 	def on_cancel(self):
 		frappe.delete_doc(
@@ -744,15 +754,20 @@ def create_salary_slips_for_employees(employees, args,end_date,start_date,payrol
 		num_days = monthrange(a, b)[1]
 		days_in_month = num_days
 
-		leaveA = frappe.db.get_all("Leave Application",{'employee':emp,'from_date':[">=",start_date],'to_date':["<=",end_date]},['total_leave_days'])
-		
+		lt = []
+		leaveA = frappe.db.get_all("Leave Application",{'employee':emp,'from_date':[">=",start_date],'to_date':["<=",end_date],"docstatus":1},['total_leave_days'])
+		net_present_days=0
 		holidays = get_holidays_for_employee(emp,start_date,end_date)
 		holiday1= len(holidays)
 		if leaveA :
-			lt = []
 			for i in leaveA:
 				lt.append(i.get("total_leave_days"))
-			net_present_days = days_in_month - sum(lt) - holiday1
+		from calendar import monthrange
+		a = getdate(start_date).year
+		b = getdate(start_date).month
+		num_days = monthrange(a, b)[1]
+		net_present_days = num_days - sum(lt) - holiday1
+			
 
 		#Paid Holidays
 		paid_holidays=0
@@ -828,12 +843,16 @@ def create_salary_slips_for_employees(employees, args,end_date,start_date,payrol
 		#present_days
 		leave=0
 		present_days=0
+		from calendar import monthrange
+		a = getdate(start_date).year
+		b = getdate(start_date).month
+		num_days = monthrange(a, b)[1]
 		if (sum(total_leave_list) == None):
 			leave = 0
-			present_days = days_in_month - weekly_off - paid_holidays
+			present_days = num_days - weekly_off - paid_holidays
 		else:
 			leave = sum(total_leave_list)
-			present_days = days_in_month - weekly_off - paid_holidays - float(leave)
+			present_days = num_days - weekly_off - paid_holidays - float(leave)
 
 		
 		sick_leave = frappe.db.sql("""select sum(encashable_days) as result 

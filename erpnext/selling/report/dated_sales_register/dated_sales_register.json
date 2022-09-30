@@ -1,0 +1,52 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2021-09-17 19:24:38.189478",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "json": "{\"columns\":[{\"label\":\"Invoice\",\"fieldname\":\"invoice\",\"fieldtype\":\"Link\",\"options\":\"Sales Invoice\",\"width\":120,\"id\":\"invoice\",\"name\":\"Invoice\",\"editable\":false,\"compareValue\":null},{\"label\":\"Posting Date\",\"fieldname\":\"posting_date\",\"fieldtype\":\"Date\",\"width\":80,\"id\":\"posting_date\",\"name\":\"Posting Date\",\"editable\":false},{\"label\":\"Customer\",\"fieldname\":\"customer\",\"fieldtype\":\"Link\",\"options\":\"Customer\",\"width\":120,\"id\":\"customer\",\"name\":\"Customer\",\"editable\":false,\"compareValue\":null},{\"label\":\"Customer Name\",\"fieldname\":\"customer_name\",\"fieldtype\":\"Data\",\"width\":120,\"id\":\"customer_name\",\"name\":\"Customer Name\",\"editable\":false,\"compareValue\":null},{\"label\":\"Customer Group\",\"fieldname\":\"customer_group\",\"fieldtype\":\"Link\",\"options\":\"Customer Group\",\"width\":120,\"id\":\"customer_group\",\"name\":\"Customer Group\",\"editable\":false,\"compareValue\":null},{\"label\":\"Territory\",\"fieldname\":\"territory\",\"fieldtype\":\"Link\",\"options\":\"Territory\",\"width\":80,\"id\":\"territory\",\"name\":\"Territory\",\"editable\":false,\"compareValue\":null},{\"label\":\"Tax Id\",\"fieldname\":\"tax_id\",\"fieldtype\":\"Data\",\"width\":120,\"id\":\"tax_id\",\"name\":\"Tax Id\",\"editable\":false,\"compareValue\":null},{\"label\":\"Receivable Account\",\"fieldname\":\"receivable_account\",\"fieldtype\":\"Link\",\"options\":\"Account\",\"width\":80,\"id\":\"receivable_account\",\"name\":\"Receivable Account\",\"editable\":false,\"compareValue\":null},{\"label\":\"Mode Of Payment\",\"fieldname\":\"mode_of_payment\",\"fieldtype\":\"Data\",\"width\":120,\"id\":\"mode_of_payment\",\"name\":\"Mode Of Payment\",\"editable\":false,\"compareValue\":null},{\"label\":\"Project\",\"fieldname\":\"project\",\"fieldtype\":\"Link\",\"options\":\"Project\",\"width\":80,\"id\":\"project\",\"name\":\"Project\",\"editable\":false,\"compareValue\":null},{\"label\":\"Owner\",\"fieldname\":\"owner\",\"fieldtype\":\"Data\",\"width\":150,\"id\":\"owner\",\"name\":\"Owner\",\"editable\":false,\"compareValue\":null},{\"label\":\"Remarks\",\"fieldname\":\"remarks\",\"fieldtype\":\"Data\",\"width\":150,\"id\":\"remarks\",\"name\":\"Remarks\",\"editable\":false,\"compareValue\":null},{\"label\":\"Sales Order\",\"fieldname\":\"sales_order\",\"fieldtype\":\"Link\",\"options\":\"Sales Order\",\"width\":100,\"id\":\"sales_order\",\"name\":\"Sales Order\",\"editable\":false,\"compareValue\":null},{\"label\":\"Delivery Note\",\"fieldname\":\"delivery_note\",\"fieldtype\":\"Link\",\"options\":\"Delivery Note\",\"width\":100,\"id\":\"delivery_note\",\"name\":\"Delivery Note\",\"editable\":false,\"compareValue\":null},{\"label\":\"Cost Center\",\"fieldname\":\"cost_center\",\"fieldtype\":\"Link\",\"options\":\"Cost Center\",\"width\":100,\"id\":\"cost_center\",\"name\":\"Cost Center\",\"editable\":false,\"compareValue\":null},{\"label\":\"Warehouse\",\"fieldname\":\"warehouse\",\"fieldtype\":\"Link\",\"options\":\"Warehouse\",\"width\":100,\"id\":\"warehouse\",\"name\":\"Warehouse\",\"editable\":false,\"compareValue\":null},{\"fieldname\":\"currency\",\"label\":\"Currency\",\"fieldtype\":\"Data\",\"width\":80,\"id\":\"currency\",\"name\":\"Currency\",\"editable\":false,\"compareValue\":null},{\"label\":\"301001 - Sales - Local - APPL\",\"fieldname\":\"301001___sales___local___appl\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"301001___sales___local___appl\",\"name\":\"301001 - Sales - Local - APPL\",\"editable\":false,\"compareValue\":null},{\"label\":\"Net Total\",\"fieldname\":\"net_total\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"net_total\",\"name\":\"Net Total\",\"editable\":false,\"compareValue\":null},{\"fieldname\":\"total_qty\",\"field\":\"total_qty\",\"fieldtype\":\"Float\",\"label\":\"Total Quantity\",\"insert_after_index\":18,\"link_field\":\"invoice\",\"doctype\":\"Sales Invoice\",\"width\":100,\"id\":\"total_qty\",\"name\":\"Total Quantity\",\"editable\":false,\"compareValue\":null},{\"label\":\"106060 - SGST - APPL\",\"fieldname\":\"106060___sgst___appl\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"106060___sgst___appl\",\"name\":\"106060 - SGST - APPL\",\"editable\":false,\"compareValue\":null},{\"label\":\"106061 - CGST - APPL\",\"fieldname\":\"106061___cgst___appl\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"106061___cgst___appl\",\"name\":\"106061 - CGST - APPL\",\"editable\":false,\"compareValue\":null},{\"label\":\"106062 - IGST - APPL\",\"fieldname\":\"106062___igst___appl\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"106062___igst___appl\",\"name\":\"106062 - IGST - APPL\",\"editable\":false,\"compareValue\":null},{\"label\":\"106068 - Tcs On Sale Of Goods - APPL\",\"fieldname\":\"106068___tcs_on_sale_of_goods___appl\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"106068___tcs_on_sale_of_goods___appl\",\"name\":\"106068 - Tcs On Sale Of Goods - APPL\",\"editable\":false,\"compareValue\":null},{\"label\":\"Tax Total\",\"fieldname\":\"tax_total\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"tax_total\",\"name\":\"Tax Total\",\"editable\":false,\"compareValue\":null},{\"label\":\"Grand Total\",\"fieldname\":\"grand_total\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"grand_total\",\"name\":\"Grand Total\",\"editable\":false,\"compareValue\":null},{\"label\":\"Rounded Total\",\"fieldname\":\"rounded_total\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"rounded_total\",\"name\":\"Rounded Total\",\"editable\":false,\"compareValue\":null},{\"label\":\"Outstanding Amount\",\"fieldname\":\"outstanding_amount\",\"fieldtype\":\"Currency\",\"options\":\"currency\",\"width\":120,\"id\":\"outstanding_amount\",\"name\":\"Outstanding Amount\",\"editable\":false,\"compareValue\":null}]}",
+ "modified": "2021-09-30 18:51:28.022943",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Dated Sales Register",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Sales Invoice",
+ "reference_report": "Sales Register",
+ "report_name": "Dated Sales Register",
+ "report_type": "Custom Report",
+ "roles": [
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Employee Self Service"
+  },
+  {
+   "role": "DESK SALES"
+  },
+  {
+   "role": "SALES EXECUTIVES"
+  },
+  {
+   "role": "QUALITY CONTROL"
+  },
+  {
+   "role": "SENIOR QC"
+  },
+  {
+   "role": "Sales User"
+  },
+  {
+   "role": "Report"
+  }
+ ]
+}

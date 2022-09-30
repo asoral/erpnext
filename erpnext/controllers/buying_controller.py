@@ -57,17 +57,8 @@ class BuyingController(StockController, Subcontracting):
 			self.create_raw_materials_supplied("supplied_items")
 			self.set_landed_cost_voucher_amount()
 
-			if self.doctype in ("Purchase Receipt", "Purchase Invoice"):
-				self.update_valuation_rate()
-
-	# def before_insert(self):
-	# 	# self.validate_for_subcontracting()
-	# 	self.create_raw_materials_supplied("supplied_items")
-	# 	self.set_landed_cost_voucher_amount()
-		
-	# 	if self.doctype in ("Purchase Receipt", "Purchase Invoice"):
-	# 		self.update_valuation_rate()
-
+		if self.doctype in ("Purchase Receipt", "Purchase Invoice"):
+			self.update_valuation_rate()
 
 	def onload(self):
 		super(BuyingController, self).onload()
@@ -307,7 +298,7 @@ class BuyingController(StockController, Subcontracting):
 						raise_error_if_no_rate=False,
 					)
 
-					rate = flt(outgoing_rate * d.conversion_factor, d.precision("rate"))
+					rate = flt(outgoing_rate * (d.conversion_factor or 1), d.precision("rate"))
 				else:
 					rate = frappe.db.get_value(ref_doctype, d.get(frappe.scrub(ref_doctype)), "rate")
 
