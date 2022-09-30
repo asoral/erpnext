@@ -60,7 +60,18 @@ def execute(filters=None):
 		data.append(sle)
 
 		for d in data:
-			d['ref_challan'] = frappe.get_value("Stock Entry", d.get('voucher_no'), ['reference_challan'])
+			ref_challan = ""
+			if d.get("batch_no"):
+				stock_e = frappe.db.sql("""
+									Select se.reference_challan, se.posting_date from `tabStock Entry` se 
+									join `tabStock Entry Detail` sed on sed.parent = se.name 
+									where se.stock_entry_type = "Material Receipt"
+									and sed.batch_no = '{0}'
+									""".format(d.get("batch_no")), as_dict=1)
+			if stock_e:
+				ref_challan = (stock_e[0].get('reference_challan'))
+			# d['ref_challan'] = frappe.get_value("Stock Entry", d.get('voucher_no'), ['reference_challan'])
+			d['ref_challan'] = ref_challan
 
 		if include_uom:
 			conversion_factors.append(item_detail.conversion_factor)

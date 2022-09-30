@@ -16,7 +16,6 @@ from erpnext.controllers.subcontracting import Subcontracting
 from erpnext.stock.get_item_details import get_conversion_factor
 from erpnext.stock.utils import get_incoming_rate
 
-
 class QtyMismatchError(ValidationError):
 	pass
 
@@ -365,8 +364,9 @@ class BuyingController(StockController, Subcontracting):
 					item.bom = None
 
 	def create_raw_materials_supplied(self, raw_material_table):
-		if self.is_subcontracted == "Yes":
+		if self.is_subcontracted == "Yes" and self.doctype=="Purchase Order":
 			self.set_materials_for_subcontracted_items(raw_material_table)
+		
 
 		elif self.doctype in ["Purchase Receipt", "Purchase Invoice"]:
 			for item in self.get("items"):

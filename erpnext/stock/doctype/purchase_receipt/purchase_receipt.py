@@ -21,121 +21,213 @@ form_grid_templates = {"items": "templates/form_grid/item_grid.html"}
 
 
 class PurchaseReceipt(BuyingController):
-
-	# New Code for Kroslink TASK TASK-2022-00015, Field challan_number_issues_by_job_worker
+	def before_submit(self):
+		if self.is_subcontracted == "Yes":
+			if len(self.supplied_items)< 0:
+				frappe.throw("Supplied Items Table Mandatory For Subcontracted Item Entry")
 
 	@frappe.whitelist()
+	def get_items(self):
+		self.supplied_items=[]
+		xy=get_data(self.name,self.company)
+		print("8888888888888888888888",xy)
+		for i in xy:
+			item=frappe.db.get_value("Item",{"intercompany_item":i.get("item_code")},["name"])
+			# if i.get("original_challan_number_issued_by_principal"):
+			se=frappe.get_doc("Stock Entry",i.get("original_challan_number_issued_by_principal"))
+			for k in se.items:
+				if item==k.item_code:
+					self.append("supplied_items",
+						{
+							"main_item_code":i.get("production_item"),
+							"rm_item_code":item,
+							"batch_no":k.batch_no,
+							"required_qty":i.get("quantity"),
+							"qty_to_be_consumed":i.get("quantity"),
+							"rate":k.basic_rate,
+							"amount": flt(i.get("quantity"))* flt(k.basic_rate),
+							"reference_challan":i.get("original_challan_number_issued_by_principal")
+
+						}
+					)
+					self.save(ignore_permissions=True)
+		return True
+		# for row in self.supplied_items:
+		# 	if row.qty_to_be_consumed:
+		# 		if row.consumed_qty > 0 and row.qty_to_be_consumed <= 0 and self.is_new():
+		# 			row.qty_to_be_consumed = row.consumed_qty
+		# 	elif not row.qty_to_be_consumed and self.is_new():
+		# 		if row.consumed_qty > 0:
+		# 			row.qty_to_be_consumed = row.consumed_qty
+		# 	if row.qty_to_be_consumed:
+		# 		if row.consumed_qty != row.qty_to_be_consumed and row.loss_qty != 0:
+		# 			row.consumed_qty = row.qty_to_be_consumed + row.loss_qty
+
+	# New Code for Kroslink TASK TASK-2022-00015, Field challan_number_issues_by_job_worker
+	data2 = []
+	@frappe.whitelist()
 	def on_get_items_button(self, po):
-
-
-		
+		ref_challan = ""
+		ref_date = ""
 		# s_company = frappe.db.get_value("Supplier", self.supplier, )
-		print(" this is on get items click", frappe.get_doc("Purchase Receipt", "MAT-PRE-2022-00022-1").get_signature())
+		# print(" this is on get items click", frappe.get_doc("Purchase Receipt", "MAT-PRE-2022-00022-1").get_signature())
 		count = 0
 		# 1st get item_code , challan_number_issues_by_job_worker (name of soi) 
-		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'purchase_order'])
-		print(" got item at 1", pr_items)
-
-		for i in pr_items:
-			sub_com = frappe.get_doc("Stock Entry",{ "purchase_order" : i.purchase_order, "stock_entry_type" : "Send to Subcontractor"})
-			print(" sub com", sub_com.name)
-			# 2nd Getting Batch no from SOIorder
+		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'challan_date_issues_by_job_worker', 'nature_of_job_work_done', 'purchase_order','idx', 'received_qty'])
+		# print("1 LIST OF PR ITEMS", pr_items)
+		for i in self.items:
+			main_item = i.get("item_code")
+			main_item_challan = i.get("challan_number_issues_by_job_worker")
+			main_item_cdate = i.get("challan_date_issues_by_job_worker"),
+			main_item_nature = i.get("nature_of_job_work_done")
+			# print(" main ITEMS", i.get("item_code"), main_item_challan, main_item_cdate, main_item_nature)
+			
+			# Getting Batch no from SOIorder
 			if i.challan_number_issues_by_job_worker:
 				soi_item = frappe.db.get_value("Sales Invoice Item", i.challan_number_issues_by_job_worker, ['item_code', 'batch_no', 'sales_order'], as_dict= 1)
 				# 3rd From Sales invoice to Sales Order and Sales Order to Work Order
-				# Send Type 
-				print("soi  details 2", soi_item)
-				if soi_item:
-					soi_so = frappe.db.get_value("Work Order", { "sales_order": soi_item.get('sales_order'),
-					"production_item": soi_item.get("item_code"), "company": self.represents_company },["name"])
+				# print("soi_item.get(batch_no) ",soi_item.get("batch_no"))
+				
+				st_entry = frappe.db.sql("""
+											Select se.name from `tabStock Entry Detail` sed
+											Join `tabStock Entry` se ON se.name = sed.parent
+											where sed.batch_no = "{0}"
+											and se.stock_entry_type = "Manufacture"
+										""".format(soi_item.get("batch_no")), as_dict=1)
 
-					print("soi so 3", soi_so)
-					# 4 WOrkorder to Stock Entrt of Above Work Order and Get its name 
-					if soi_so: 
-						se_wo_man = frappe.get_all("Stock Entry", {"work_order" :soi_so, "stock_entry_type": "Manufacture"}, ["name"])
+
+				# print("st entry", st_entry)
+				if st_entry:
+					se_bom = frappe.get_doc("Stock Entry", st_entry[0].get("name"))
+
+					# print(" thid id filters : - ", se_bom.get("to_warehouse"), se_bom.get("bom_no"), se_bom.get("work_order"))
+					se_01 = frappe.get_value("Stock Entry", { "work_order": se_bom.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" }, ["to_warehouse"])
+
+					stock_filter = { 'bom':se_bom.get("bom_no"), 
+								'qty_to_produce': i.get("qty"),
+								'show_exploded_view' :1,
+								'warehouse': se_01 }
+				# level_up_se('WOKPPL2203-0106-01', self.data2)
+					# print(" stick filter", stock_filter)
+					# bom_stock = get_bom_stock(stock_filter)
+
+					# print(" this is bom", bom_stock)	
+
+					level_up_se(soi_item.get("batch_no"), self.data2)			
+					# print("level_ip called", self.data2)
+
+					new_list = []
+					for s in self.data2:
+						# for j in bom_stock:
+							# print(" s j", s , j)
+							if frappe.db.get_value("Item", s.get('item_code'), ["intercompany_item"]):
+								# new_list.append({"main_item_code" : main_item,	
+								# 				"rm_item_code" : frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) if frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) else s.get('item_code'),
+								# 				"stock_uom" : s.get('stock_uom'),
+								# 				"required_qty" : j.get('req_qty'),
+								# 				"qty_to_be_consumed" : j.get('req_qty'),
+								# 				"rate" : s.get('basic_rate'),
+								# 				"amount" : s.get('amount'),
+								# 				"item_name" :  frappe.db.get_value("Item", 
+								# 				s.get('item_code'), ["intercompany_item_name"]) if frappe.db.get_value("Item", s.get('item_code'), 
+								# 				["intercompany_item_name"]) else s.get('item_name'),
+								# 				"description" : s.get('description'),
+								# 				"batch_no" : frappe.get_value("Batch", s.get('batch_no'), 'original_batch_no'),
+								# 				"consumed_qty" : j.get('req_qty')			
+								# })
+								new_list.append({
+									"main_item_code" : main_item,
+									"rm_item_code" : frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) if frappe.db.get_value("Item", s.get("item_code"), ["intercompany_item"]) else s.get('item_code'),
+									"batch_no" : s.get('batch_no')
+								})
+
+					# print(" new list", new_list)
+
+					res_list = [i for n, i in enumerate(new_list) if i not in new_list[n + 1:]]
+					# print(" mnew set , ", res_list)
+
+					for r in res_list:
+						r_batch =  r.get('batch_no') 
+						# r_batch = frappe.get_value("Batch", { 'original_batch_no': 'TANKER/P1735/21-22'}, ['name'])
 						
-						# from Stock Entry Get Stock Items with above item and batch no matching above and get its parent
-						print(" this se_wo_name 4", se_wo_man)
-						if se_wo_man:
-							for won in se_wo_man:
-								print("5 in for ", won)
-							
-								# se_man = frappe.get_all("Stock Entry Detail", {"parent" :won }, ["item_code", "batch_no", "parent"])
-
-								se_man = frappe.get_doc("Stock Entry", won)
-								for i in  se_man.items:
-
-									print(" 6 SE MAN", i)
-									if i.item_code == soi_item.get("item_code") and i.batch_no == soi_item.get("batch_no"):
-
-										se_mat_con = frappe.get_doc("Stock Entry", {'work_order': soi_so, 'stock_entry_type': 'Material Consumption for Manufacture'})
-										print(" 7 this is new se of com for man", se_mat_con.name)
-										if se_mat_con:
-											print("8 se mat com", se_mat_con)
-											se_mat_con_entry = frappe.db.get_all("Stock Entry Detail", {"parent" : se_mat_con.name}, 
-											["item_code", "item_name", "description", "qty", "stock_uom", "conversion_factor", "basic_rate", "amount"])
-											# print("9 se mat com", se_mat_con_entry)
-											if se_mat_con_entry:
-												for sei in se_mat_con_entry:
-													print(' 10 sei', sei)	
-													self.append("supplied_items",{
-													"main_item_code" : sei.item_code,	
-													"rm_item_code" : sei.item_code,
-													"stock_uom" : sei.stock_uom,
-													"required_qty" : sei.qty,
-													"qty_to_be_consumed" : sei.qty,
-													"rate" : sei.basic_rate,
-													"amount" : sei.amount,
-													"item_name" : sei.item_name,
-													"description" : sei.description,
-													 "reference_challan" : sub_com.name
-													})
-													count = count + 1
-
-		if count > 1:
-			return True	
-					
-	@frappe.whitelist()
-	def to_button_hide(self, po):
-		a = frappe.get_value("Puchase Order", po, "is_subcontracted")
-		s = frappe.get_value("Supplier", self.supplier, "is_internal_supplier")
-		if a == "Yes" and s == 1:
-			return True
+						# print(" r_batch no", r_batch)
+						
+						# print(" ref dare", ref_date, ref_challan)
+						if r_batch :
+							stock_e = frappe.db.sql("""
+													Select se.reference_challan, se.posting_date from `tabStock Entry` se 
+													join `tabStock Entry Detail` sed on sed.parent = se.name 
+													where se.stock_entry_type = "Material Receipt"
+													and sed.batch_no = '{0}'
+													""".format(r_batch), as_dict=1)
+							# print("stock EEE", stock_e[0].get('reference_challan'), stock_e[0].get('posting_date'))	
+							if stock_e:
+								# print("this is reference challan Number and date ", stock_e)
+								for item in self.supplied_items:
+									# print(" this is Supplied Item ", item)
+									# frappe.db.set_value("")
+									frappe.db.set_value('Purchase Receipt Item Supplied', item.name, 'reference_challan', stock_e[0].reference_challan, update_modified=False)
+								
+								self.reload()
+								return stock_e 
 
 	@frappe.whitelist()
 	def on_challan_date(self, item):
-		print("THi i new deu daye")
+		# print("THi i new deu daye")
 		due_date = frappe.db.sql("""
-								Select si.due_date, soi.new_name from `tabSales Invoice Item` soi , `tabSales Invoice` si
+								Select si.posting_date, soi.new_name from `tabSales Invoice Item` soi , `tabSales Invoice` si
 								Where soi.parent = si.name and soi.name = '{0}'	""".format(item), as_dict = 1)
 
 		return due_date
 
+	@frappe.whitelist()
+	def on_challan_number_save(self):
+		for i in self.items:
+			pr_item = frappe.db.sql("""
+									Select name, parent from `tabPurchase Receipt Item` where 
+									challan_number_issues_by_job_worker = "{0}"
+									and docstatus = 1
+								""".format(  i.challan_number_issues_by_job_worker), as_dict =1)
+
+			if pr_item:
+				frappe.throw(" Purchase Receipt {1} already created with Challan Number {0}".format(i.challan_number_issues_by_job_worker, pr_item[0].get("parent")))				
+			
+
 	# New Code for Kroslink TASK TASK-2022-00015, Field challan_number_issues_by_job_worker
 	@frappe.whitelist()
 	def on_challan_number(self, item_code):
-		print("this is Inside on_challan_number")
+		# print("this is Inside on_challan_number")
 		new_company = frappe.get_value("Supplier", self.supplier, 'represents_company')
 
 		new_code = (frappe.get_value("Item", item_code, "intercompany_item") or item_code)
 
-		print(" new cm , new code", new_company, new_code)
+		# print(" new cm , new code", new_company, new_code)
 		soi = frappe.db.sql("""
 			select soi.name, si.name as si_name from `tabSales Invoice Item` soi , `tabSales Invoice` si
 				Where soi.parent = si.name
 				AND si.docstatus = 1
-				AND soi.item_code = "{0}"
+				AND soi.item_code = "{0}" OR soi.item_code = "{3}"
 				AND si.company = "{1}"
 				AND si.represents_company = "{2}"
-		""".format(new_code, new_company, self.company), as_dict = 1)
+		""".format(new_code, new_company, self.company, item_code), as_dict = 1)
+		
 		new_soi = []
 		for s in soi:
-			new_soi.append(s["name"])
-			print(s)
-		print("soi", soi, new_soi)
+			pr_item = frappe.db.sql("""
+									Select name from `tabPurchase Receipt Item` where 
+									challan_number_issues_by_job_worker = "{0}"
+									and docstatus = 1
+								""".format( s.get("name")))
+			
+			if pr_item:
+				print(" this is pr item", pr_item)	
+			else: 				
+				new_soi.append(s["name"])
 
+		new_list = list(set(new_soi))		
 		
-		return soi
+		
+		return set(new_list)
 
 	def __init__(self, *args, **kwargs):
 		super(PurchaseReceipt, self).__init__(*args, **kwargs)
@@ -222,6 +314,7 @@ class PurchaseReceipt(BuyingController):
 
 
 	def validate(self):
+		self.on_challan_number_save()
 		self.validate_posting_time()
 		super(PurchaseReceipt, self).validate()
 
@@ -231,18 +324,7 @@ class PurchaseReceipt(BuyingController):
 			self.set_status()
 
 		if self._action == "save":
-			for row in self.supplied_items:
-				if row.qty_to_be_consumed:
-					if row.consumed_qty > 0 and row.qty_to_be_consumed <= 0 and self.is_new():
-						row.qty_to_be_consumed = row.consumed_qty
-				elif not row.qty_to_be_consumed and self.is_new():
-					if row.consumed_qty > 0:
-						row.qty_to_be_consumed = row.consumed_qty
-				if row.qty_to_be_consumed:
-					if row.consumed_qty != row.qty_to_be_consumed and row.loss_qty != 0:
-						row.consumed_qty = row.qty_to_be_consumed + row.loss_qty
-
-
+			pass
 		self.po_required()
 		self.validate_with_previous_doc()
 		self.validate_uom_is_integer("uom", ["qty", "received_qty"])
@@ -262,7 +344,7 @@ class PurchaseReceipt(BuyingController):
 
 	def validate_challan_number_issue_by_job_worker(self):
 		for row in self.items:
-			print("row.nature_of_job_work_done -------------",row.nature_of_job_work_done )
+			# print("row.nature_of_job_work_done -------------",row.nature_of_job_work_done )
 			str_nature = row.nature_of_job_work_done
 			# if row.is_subcontracted == "Yes" and not row.challan_number_issues_by_job_worker and not row.challan_date_issues_by_job_worker and not str_nature:
 			# 		frappe.throw("Challan Number Issues by Job Worker, Challan Date Issues by Job Worker"
@@ -376,6 +458,23 @@ class PurchaseReceipt(BuyingController):
 		self.make_gl_entries()
 		self.repost_future_sle_and_gle()
 		self.set_consumed_qty_in_po()
+		
+		if self.is_subcontracted == "Yes":
+			doc=frappe.new_doc("Stock Entry")
+			doc.stock_entry_type="Material Issue"
+			doc.from_warehouse=self.supplier_warehouse
+			doc.company=self.company
+			for i in self.supplied_items:
+				doc.append("items",{
+					"s_warehouse":self.supplier_warehouse,
+					"item_code":i.rm_item_code,
+					"qty":i.required_qty,
+					"basic_rate":i.rate,
+					"batch_no":i.batch_no
+
+				})
+			doc.save(ignore_permissions=True)
+			doc.submit()
 
 	def check_next_docstatus(self):
 		submit_rv = frappe.db.sql(
@@ -1211,3 +1310,535 @@ def get_item_account_wise_additional_cost(purchase_document):
 
 def on_doctype_update():
 	frappe.db.add_index("Purchase Receipt", ["supplier", "is_return", "return_against"])
+
+
+#New Code for ITC 
+def level_up_se(se_m, data):
+		get_manufacture(se_m, data)
+
+def get_manufacture(batch, data, indent=0):
+			# print(" this is Level_up ")
+		
+			soi_se = frappe.db.sql("""
+									Select se.work_order from `tabStock Entry Detail` sed
+									Join `tabStock Entry` se ON se.name = sed.parent
+									where sed.batch_no = "{0}"
+									and se.stock_entry_type = "Manufacture"
+										""".format(batch), as_dict=1)	
+			if soi_se:
+				# print(" workorder ", soi_se[0].get('work_order'))
+				se_01 = frappe.get_value("Stock Entry", { "work_order": soi_se[0].get('work_order'), "stock_entry_type" : "Material Transfer for Manufacture" }, ["name"])
+
+				if se_01:
+					# print(" se 01 ", se_01)
+					se_02 = frappe.db.get_all("Stock Entry Detail", {"parent" : se_01}, ['*'])
+					
+					if se_02:
+						# print(" se 012222222222 ")
+						for s in se_02:
+							s["indent"] = indent
+							batch_new = s.get('batch_no')
+
+							
+							new_entry = frappe.db.sql("""
+														Select se.name from `tabStock Entry Detail` sed
+														Join `tabStock Entry` se ON se.name = sed.parent
+														where sed.batch_no = "{0}"
+														and se.stock_entry_type = "Manufacture"
+													""".format(batch_new), as_dict=1)
+							# if new_entry:
+							# print(" new_ entry", new_entry)	
+							if new_entry:
+								get_manufacture(batch_new, data, indent= indent + 1)
+
+							else:
+								data.append({
+								'item_code': s.item_code,
+								'item_name': s.item_name,
+								'parent' : s.parent,
+								'indent': indent,
+								'bom_level': indent,
+								"stock_uom" : s.stock_uom,
+								"required_qty" : s.qty,
+								"qty_to_be_consumed" : s.qty,
+								"rate" : s.basic_rate,
+								"amount" : s.amount,
+								"batch_no" : s.batch_no,
+								"consumed_qty" : s.qty,
+								'qty': s.qty ,
+								'uom': s.uom,
+								'description': s.description,
+								'reference_challan':"",
+								'reference_challan': "",
+								})
+
+
+def get_data(name,company):
+	
+	mr=[]
+	if name:
+		po=frappe.get_doc("Purchase Receipt",name)
+		for k in po.items:
+			if k.purchase_order and k.idx==1:
+				pe=frappe.db.get_all("Stock Entry",{"purchase_order":k.purchase_order},["name"])
+				for l in pe:
+					mr.append(l.name)
+	total=tuple(mr)
+		
+	data = []
+	print("PR NAME",name)
+	# print(" dates", s_d, m_d, filters.get('company'))
+	query = """
+				Select pris.*, pr.name, pr.supplier   from `tabPurchase Receipt Item` pris
+				Join `tabPurchase Receipt` pr on pr.name = pris.parent
+				where pr.name='{0}'
+				and pr.is_subcontracted = "Yes" and pr.docstatus = 0
+				and pris.challan_number_issues_by_job_worker is not null
+				and pr.company = '{1}' """.format(name,company)
+
+
+	pr = frappe.db.sql(query,as_dict=1)
+
+	print(" PR ", pr)
+	for p in pr:
+		# print("this is pr p", p.received_qty)
+		if p.challan_number_issues_by_job_worker:
+			# print(" this is salsinvoice child", p.challan_number_issues_by_job_worker)
+			soi_item = frappe.db.get_value("Sales Invoice Item", p.challan_number_issues_by_job_worker, ['item_code', 'batch_no', 'sales_order'], as_dict= 1)
+			# From Sales invoice to Sales Order and Sales Order to Work Order
+			# print("soi_item.get(batch_no) ",soi_item.get("batch_no"))
+
+			sales_invoice = frappe.db.get_value("Sales Invoice Item", p.challan_number_issues_by_job_worker, ["parent"])
+			
+			st_entry = frappe.db.sql("""
+										Select se.name from `tabStock Entry Detail` sed
+										Join `tabStock Entry` se ON se.name = sed.parent
+										where sed.batch_no = "{0}"
+										and se.stock_entry_type = "Manufacture"
+									""".format(soi_item.get("batch_no")), as_dict=1)
+
+
+			# print("st entry", st_entry)
+
+			# LEvel ONE
+			if st_entry:
+				print(" This is level 11111111111111111111111111 ")
+				se_bom = frappe.get_doc("Stock Entry", st_entry[0].get("name"))
+				# print(" this is stock entry bom", se_bom)
+
+				se_01 = frappe.get_doc("Stock Entry", { "work_order": se_bom.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" })
+				print(" this is manafactuffe ", se_01, se_01.get("fg_completed_qty"))
+
+				if se_01:
+					se_01_child = frappe.get_all("Stock Entry Detail", {"parent":se_01.get("name")})
+
+					for s in se_01_child:
+						
+						se = frappe.get_doc("Stock Entry Detail", s)
+						print(" this is se o1 child", se.batch_no)
+
+						if se.name:
+							st_entry1 = frappe.db.sql("""
+										Select se.name from `tabStock Entry Detail` sed
+										Join `tabStock Entry` se ON se.name = sed.parent
+										where sed.batch_no = "{0}"
+										and se.stock_entry_type = "Manufacture"
+									""".format(se.get("batch_no")), as_dict=1)
+
+							# Leve Two
+							if st_entry1:
+								print(" This is level 22222222222222222222222222 ")
+								se_bom1 = frappe.get_doc("Stock Entry", st_entry1[0].get("name"))
+								print(" this is se_bom1 oooooooooooo", se_bom1)
+
+								se_011 = frappe.get_doc("Stock Entry", { "work_order": se_bom1.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" })
+								print(" this is manafactuffe 2", se_011)
+
+								if se_011:
+									se_01_child1 = frappe.get_all("Stock Entry Detail", {"parent":se_011.get("name")})
+
+									for s1 in se_01_child1:
+										
+										se1 = frappe.get_doc("Stock Entry Detail", s1)
+										print(" this is se o2 child", se1.batch_no)
+
+										if se1.name:
+											st_entry2 = frappe.db.sql("""
+														Select se.name from `tabStock Entry Detail` sed
+														Join `tabStock Entry` se ON se.name = sed.parent
+														where sed.batch_no = "{0}"
+														and se.stock_entry_type = "Manufacture"
+
+													""".format(se1.get("batch_no")), as_dict=1)
+
+											# Level Three
+											if st_entry2:
+												print(" This is level 333333333333333333333333333333333")
+											
+												se_bom2 = frappe.get_doc("Stock Entry", st_entry2[0].get("name"))
+												# print(" this is stock entry bom", se_bom)
+
+												se_012 = frappe.get_doc("Stock Entry", { "work_order": se_bom2.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" })
+												print(" this is manafactuffe 3", se_012)
+
+												if se_012:
+													se_01_child2 = frappe.get_all("Stock Entry Detail", {"parent":se_012.get("name")})
+
+													for s2 in se_01_child2:
+														print(" thjos os child se ", s2)
+														se2 = frappe.get_doc("Stock Entry Detail", s2)
+														print(" this is se o3 child", se2.batch_no)
+
+														if se2.name:
+															st_entry3 = frappe.db.sql("""
+																		Select se.name from `tabStock Entry Detail` sed
+																		Join `tabStock Entry` se ON se.name = sed.parent
+																		where sed.batch_no = "{0}"
+																		and se.stock_entry_type = "Manufacture"
+																	""".format(se2.get("batch_no")), as_dict=1)
+
+															# Level Four 
+															
+															if st_entry3:
+																print(" This is level 444444444444444444444444444")
+																
+																se_bom3 = frappe.get_doc("Stock Entry", st_entry3[0].get("name"))
+																# print(" this is stock entry bom", se_bom)
+
+																se_013 = frappe.get_doc("Stock Entry", { "work_order": se_bom3.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" })
+																print(" this is manafactuffe 4", se_013)
+
+																if se_013:
+																	se_01_child3 = frappe.get_all("Stock Entry Detail", {"parent":se_013.get("name")})
+
+																	for s3 in se_01_child3:
+																		print(" thjos os child se ", )
+																		se3 = frappe.get_doc("Stock Entry Detail", s3)
+																		print(" this is se o4 child", se3.batch_no)
+
+																		if se3.name:
+																			st_entry4 = frappe.db.sql("""
+																						Select se.name from `tabStock Entry Detail` sed
+																						Join `tabStock Entry` se ON se.name = sed.parent
+																						where sed.batch_no = "{0}"
+																						and se.stock_entry_type = "Manufacture"
+																					""".format(se3.get("batch_no")), as_dict=1)
+
+																			# Level Four 
+																			
+																			if st_entry4:
+																				print(" This is level 55555555555555555555")
+																				
+																
+																				se_bom4 = frappe.get_doc("Stock Entry", st_entry4[0].get("name"))
+																				# print(" this is stock entry bom", se_bom)
+
+																				se_014 = frappe.get_doc("Stock Entry", { "work_order": se_bom3.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" })
+																				print(" this is manafactuffe 5", se_014)
+
+																				if se_014:
+																					se_01_child4 = frappe.get_all("Stock Entry Detail", {"parent":se_014.get("name")})
+
+																					for s4 in se_01_child4:
+																						print(" thjos os child se ", )
+																						se4 = frappe.get_doc("Stock Entry Detail", s4)
+																						print(" this is se o5 child", se4.batch_no)
+																						if se4:
+																							ref_challan = ""
+																							if se4.get("batch_no"):
+																								stock_e = frappe.db.sql("""
+																													Select se.reference_challan, se.posting_date from `tabStock Entry` se 
+																													join `tabStock Entry Detail` sed on sed.parent = se.name 
+																													where se.stock_entry_type = "Material Receipt"
+																													and sed.batch_no = '{0}'
+																													""".format(se4.get("batch_no")), as_dict=1)
+																							if stock_e:
+																								ref_challan = (stock_e[0].get('reference_challan'))
+																																										
+																							data3 = {}
+
+																							supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
+																														adds.state as state, supp.gst_category as job_workers_type
+																														from `tabSupplier` supp
+																														INNER JOIN `tabDynamic Link` dl
+																														on dl.link_name = supp.name
+																														INNER JOIN `tabAddress` adds
+																														on dl.parent = adds.name
+																														where supp.name = %(supp)s """,
+																														{'supp': p.get("supplier")}, as_dict=1)
+																							if supp_details:								
+																								dic2 = supp_details[0]
+																								for key, value in dic2.items():
+																									data3[key] = value
+																							data3["production_item"]=p.item_code
+																							data3["item_code"]=se4.get("item_code")	
+																							data3["batch"]=se4.get("batch_no")
+																							data3["rate"]=se4.get("basic_rate")
+																							print("*********************************",se4.get("basic_rate"))
+																							data3['original_challan_number_issued_by_principal'] = ref_challan
+																							data3['original_challan_date_issued_by_principal'] = frappe.get_value("Stock Entry", ref_challan, 'posting_date')
+																							data3['challan_number_issued_by_job_worker'] = sales_invoice
+																							data3['challan_date_issued_by_job_worker'] = frappe.get_value("Sales Invoice", sales_invoice, 'posting_date')
+																							data3['description_of_goods'] = se4.description
+																							data3['unique_quantity_code'] = se4.stock_uom
+																							a = (p.qty/ se_bom.get("fg_completed_qty") ) * se.qty
+																							b = (a/ se_bom1.get("fg_completed_qty") ) * se1.qty
+																							c = (b/ se_bom2.get("fg_completed_qty") ) * se2.qty
+																							d = (c/ se_bom3.get("fg_completed_qty") ) * se3.qty
+																							data3['quantity'] = (d/ se_bom4.get("fg_completed_qty") ) * se4.qty
+																							data3['losses_uqc'] = se4.stock_uom
+																							data3['losses_quantity'] = 0
+																							data3['nature_of_job_work_done'] = p.nature_of_job_work_done
+																							data.append(data3)			
+
+																			else:
+																				print(" no elseeeeeeeeee no batchhhh 444 44444",  se3.description)
+																				ref_challan = ""
+																				if se3.get("batch_no"):
+																					stock_e = frappe.db.sql("""
+																										Select se.reference_challan, se.posting_date from `tabStock Entry` se 
+																										join `tabStock Entry Detail` sed on sed.parent = se.name 
+																										where se.stock_entry_type = "Material Receipt"
+																										and sed.batch_no = '{0}'
+																										""".format(se3.get("batch_no")), as_dict=1)
+																				if stock_e:
+																					ref_challan = (stock_e[0].get('reference_challan'))
+																																							
+																				data3 = {}
+
+																				supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
+																											adds.state as state, supp.gst_category as job_workers_type
+																											from `tabSupplier` supp
+																											INNER JOIN `tabDynamic Link` dl
+																											on dl.link_name = supp.name
+																											INNER JOIN `tabAddress` adds
+																											on dl.parent = adds.name
+																											where supp.name = %(supp)s """,
+																											{'supp': p.get("supplier")}, as_dict=1)
+																				if supp_details:								
+																					dic2 = supp_details[0]
+																					for key, value in dic2.items():
+																						data3[key] = value
+																				data3["production_item"]=p.item_code
+																				data3["item_code"]=se3.get("item_code")
+																				data3["rate"]=se3.get("basic_rate")
+																				data3["batch"]=se3.get("batch_no")
+																				data3['original_challan_number_issued_by_principal'] = ref_challan
+																				data3['original_challan_date_issued_by_principal'] = frappe.get_value("Stock Entry", ref_challan, 'posting_date')
+																				data3['challan_number_issued_by_job_worker'] = sales_invoice
+																				data3['challan_date_issued_by_job_worker'] = frappe.get_value("Sales Invoice", sales_invoice, 'posting_date')
+																				data3['description_of_goods'] = se3.description
+																				data3['unique_quantity_code'] = se3.stock_uom
+																				a = (p.qty/ se_bom.get("fg_completed_qty") ) * se.qty
+																				b = (a/ se_bom1.get("fg_completed_qty") ) * se1.qty
+																				c = (b/ se_bom2.get("fg_completed_qty") ) * se2.qty
+																				data3['quantity'] = (c/ se_bom3.get("fg_completed_qty") ) * se3.qty
+																				data3['losses_uqc'] = se3.stock_uom
+																				data3['losses_quantity'] = 0
+																				data3['nature_of_job_work_done'] = p.nature_of_job_work_done
+																				data.append(data3)
+																		
+
+																	
+															else:
+																print(" no elseeeeeeeeee no batchhhh 33333   33333",  se2.description)
+																
+																ref_challan = ""
+																if se2.get("batch_no"):
+																	stock_e = frappe.db.sql("""
+																						Select se.reference_challan, se.posting_date from `tabStock Entry` se 
+																						join `tabStock Entry Detail` sed on sed.parent = se.name 
+																						where se.stock_entry_type = "Material Receipt"
+																						and sed.batch_no = '{0}'
+																						""".format(se2.get("batch_no")), as_dict=1)
+																if stock_e:
+																	ref_challan = (stock_e[0].get('reference_challan'))
+																																			
+																data3 = {}
+
+																supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
+																							adds.state as state, supp.gst_category as job_workers_type
+																							from `tabSupplier` supp
+																							INNER JOIN `tabDynamic Link` dl
+																							on dl.link_name = supp.name
+																							INNER JOIN `tabAddress` adds
+																							on dl.parent = adds.name
+																							where supp.name = %(supp)s """,
+																							{'supp': p.get("supplier")}, as_dict=1)
+																if supp_details:								
+																	dic2 = supp_details[0]
+																	for key, value in dic2.items():
+																		data3[key] = value
+																data3["production_item"]=p.item_code
+																data3["item_code"]=se2.get("item_code")
+																data3["rate"]=se2.get("basic_rate")
+																data3["batch"]=se2.get("batch_no")	
+																data3['original_challan_number_issued_by_principal'] = ref_challan
+																data3['original_challan_date_issued_by_principal'] = frappe.get_value("Stock Entry", ref_challan, 'posting_date')
+																data3['challan_number_issued_by_job_worker'] = sales_invoice
+																data3['challan_date_issued_by_job_worker'] = frappe.get_value("Sales Invoice", sales_invoice, 'posting_date')
+																data3['description_of_goods'] = se2.description
+																data3['unique_quantity_code'] = se2.stock_uom
+																a = (p.qty/ se_bom.get("fg_completed_qty") ) * se.qty
+																b = (a/ se_bom1.get("fg_completed_qty") ) * se1.qty
+																data3['quantity'] = (b/ se_bom2.get("fg_completed_qty") ) * se2.qty
+																data3['losses_uqc'] = se2.stock_uom
+																data3['losses_quantity'] = 0
+																data3['nature_of_job_work_done'] = p.nature_of_job_work_done
+																data.append(data3)
+																
+
+											else:
+												print(" this is no000000000000000000000000000 22222222  22222222",  se1.description)	
+												ref_challan = ""
+												if se1.get("batch_no"):
+													stock_e = frappe.db.sql("""
+																		Select se.reference_challan, se.posting_date from `tabStock Entry` se 
+																		join `tabStock Entry Detail` sed on sed.parent = se.name 
+																		where se.stock_entry_type = "Material Receipt"
+																		and sed.batch_no = '{0}'
+																		""".format(se1.get("batch_no")), as_dict=1)
+												if stock_e:
+													ref_challan = (stock_e[0].get('reference_challan'))
+																															
+												data3 = {}
+
+												supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
+																			adds.state as state, supp.gst_category as job_workers_type
+																			from `tabSupplier` supp
+																			INNER JOIN `tabDynamic Link` dl
+																			on dl.link_name = supp.name
+																			INNER JOIN `tabAddress` adds
+																			on dl.parent = adds.name
+																			where supp.name = %(supp)s """,
+																			{'supp': p.get("supplier")}, as_dict=1)
+												if supp_details:								
+													dic2 = supp_details[0]
+													for key, value in dic2.items():
+														data3[key] = value
+												data3["production_item"]=p.item_code
+												data3["rate"]=se1.get("basic_rate")
+												data3["item_code"]=se1.get("item_code")
+												data3["batch"]=se1.get("batch_no")
+												data3['original_challan_number_issued_by_principal'] = ref_challan
+												data3['original_challan_date_issued_by_principal'] = frappe.get_value("Stock Entry", ref_challan, 'posting_date')
+												data3['description_of_goods'] = se1.description
+												data3['unique_quantity_code'] = se1.stock_uom
+												data3['challan_number_issued_by_job_worker'] = sales_invoice
+												data3['challan_date_issued_by_job_worker'] = frappe.get_value("Sales Invoice", sales_invoice, 'posting_date')
+												# data3['quantity'] = se1.qty
+												a = (p.qty/ se_bom.get("fg_completed_qty") ) * se.qty
+												data3['quantity'] = (a/ se_bom1.get("fg_completed_qty") ) * se1.qty
+												data3['losses_uqc'] = se1.stock_uom
+												data3['losses_quantity'] = 0
+												data3['nature_of_job_work_done'] = p.nature_of_job_work_done	
+												data.append(data3)				
+
+										
+							# level 0
+							else :
+								ref_challan = ""
+								if se.get("batch_no"):
+									stock_e = frappe.db.sql("""
+														Select se.reference_challan, se.posting_date from `tabStock Entry` se 
+														join `tabStock Entry Detail` sed on sed.parent = se.name 
+														where se.stock_entry_type = "Material Receipt"
+														and sed.batch_no = '{0}'
+														""".format(se.get("batch_no")), as_dict=1)
+								if stock_e:
+									ref_challan = (stock_e[0].get('reference_challan'))
+																											
+								data3 = {}
+
+								supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
+															adds.state as state, supp.gst_category as job_workers_type
+															from `tabSupplier` supp
+															INNER JOIN `tabDynamic Link` dl
+															on dl.link_name = supp.name
+															INNER JOIN `tabAddress` adds
+															on dl.parent = adds.name
+															where supp.name = %(supp)s """,
+															{'supp': p.get("supplier")}, as_dict=1)
+								if supp_details:								
+									dic2 = supp_details[0]
+									for key, value in dic2.items():
+										data3[key] = value
+								data3["production_item"]=p.item_code
+								data3["item_code"]=se.get("item_code")	
+								data3["batch"]=se.get("batch_no")
+								data3["rate"]=se.get("basic_rate")
+								print(" this is no000000000000000000000000000 11 ",  se.description)	
+								data3['original_challan_number_issued_by_principal'] = ref_challan
+								data3['original_challan_date_issued_by_principal'] = frappe.get_value("Stock Entry", ref_challan, 'posting_date')
+								data3['challan_number_issued_by_job_worker'] = sales_invoice
+								data3['challan_date_issued_by_job_worker'] = frappe.get_value("Sales Invoice", sales_invoice, 'posting_date')
+								data3['description_of_goods'] = se.description
+								data3['unique_quantity_code'] = se.stock_uom
+								data3['quantity'] = (p.qty/ se_bom.get("fg_completed_qty") ) * se.qty
+								data3['losses_uqc'] = se.stock_uom
+								data3['losses_quantity'] = 0
+								data3['nature_of_job_work_done'] = p.nature_of_job_work_done
+								data.append(data3)
+
+						
+							
+	
+	query2 = """
+				Select * from `tabStock Entry Detail` sed
+				Left Join `tabStock Entry` se on se.name = sed.parent
+				where se.stock_entry_type = "Material Receipt" 
+				and se.docstatus = 1
+				and se.return_from_supplier_for_itc_05 = 1
+				and se.reference_challan is not null
+				and se.name in {0}
+				and se.company = '{1}' """.format(total, company)
+
+	
+	pr1 = frappe.db.sql(query2,as_dict=1)	
+	print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",len(pr1))
+	for p in pr1:
+		if p.reference_challan and p.return_from_supplier_for_itc_05 == 1:
+			data3 = {}
+			sales_invoice = ""
+			si_date = ""
+			nature = ""
+			if p.reference_name:
+				pr_item = frappe.get_doc("Purchase Receipt Item", p.reference_name)
+				# print(" tjhis is PURCHASE RECEIPT ITEM", type(pr_item), pr_item.challan_number_issues_by_job_worker)
+				nature = pr_item.nature_of_job_work_done
+				sales_invoice, si_date = frappe.db.get_value("Sales Invoice Item", pr_item.challan_number_issues_by_job_worker, ["parent", "modified"])
+				# print( " pidd Natuer ", nature)
+
+			
+			data3['challan_number_issued_by_job_worker'] = p.reference_challan
+			data3['challan_date_issued_by_job_worker'] = frappe.get_value("Stock Entry", p.reference_challan, 'posting_date') 
+			supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
+											adds.state as state, supp.gst_category as job_workers_type
+											from `tabSupplier` supp
+											INNER JOIN `tabDynamic Link` dl
+											on dl.link_name = supp.name
+											INNER JOIN `tabAddress` adds
+											on dl.parent = adds.name
+											where supp.name = %(supp)s """,
+											{'supp': p.get("return_supplier_")}, as_dict=1)
+			if supp_details:								
+				dic2 = supp_details[0]
+				for key, value in dic2.items():
+					data3[key] = value
+
+			rm_item_obj = frappe.get_doc("Item", p.item_code)
+			data3["production_item"]=p.item_code
+			data3["item_code"]=p.item_code
+			data3["batch"]=p.batch_no
+			data3['description_of_goods'] = rm_item_obj.description
+			data3['unique_quantity_code'] = p.stock_uom
+			data3['quantity'] = p.qty
+			data3['losses_uqc'] = p.stock_uom
+			data3['losses_quantity'] = 0
+			data3['nature_of_job_work_done'] = nature
+			data3['original_challan_number_issued_by_principal'] = p.name
+			data3['original_challan_date_issued_by_principal'] = p.posting_date
+
+			data.append(data3)
+	print("**************************************45",data)
+	return data
