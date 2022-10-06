@@ -25,33 +25,58 @@ class PurchaseReceipt(BuyingController):
 		if self.is_subcontracted == "Yes":
 			if len(self.supplied_items)< 0:
 				frappe.throw("Supplied Items Table Mandatory For Subcontracted Item Entry")
+			val=[]
+			for i in self.items:
+				for j in self.supplied_items:
+					if i.item_code == j.main_item_code:
+						val.append(j.amount)
+				i.valuation_rate=(sum(val)+i.amount)/flt(i.qty)
+
 
 	@frappe.whitelist()
 	def get_items(self):
-		self.supplied_items=[]
-		xy=get_data(self.name,self.company)
-		print("8888888888888888888888",xy)
-		for i in xy:
-			item=frappe.db.get_value("Item",{"intercompany_item":i.get("item_code")},["name"])
-			# if i.get("original_challan_number_issued_by_principal"):
-			se=frappe.get_doc("Stock Entry",i.get("original_challan_number_issued_by_principal"))
-			for k in se.items:
-				if item==k.item_code:
+		if self.is_subcontracted == "Yes":
+			self.supplied_items=[]
+			xy=get_data(self.name,self.company)
+			for i in xy:
+				item=frappe.db.get_value("Item",{"intercompany_item":i.get("item_code")},["name"])
+				item_doc=frappe.get_doc("Item",item)
+				if i.get("original_challan_number_issued_by_principal"):
+					se=frappe.get_doc("Stock Entry",i.get("original_challan_number_issued_by_principal"))
+					for k in se.items:
+						if item==k.item_code:
+							self.append("supplied_items",
+								{
+									"main_item_code":i.get("production_item"),
+									"rm_item_code":item,
+									"item_name":item_doc.item_name,
+									"batch_no":k.batch_no,
+									"required_qty":i.get("quantity"),
+									"qty_to_be_consumed":i.get("quantity"),
+									"rate":k.basic_rate,
+									"amount": flt(i.get("quantity"))* flt(k.basic_rate),
+									"reference_challan":i.get("original_challan_number_issued_by_principal")
+
+								}
+							)
+						self.save(ignore_permissions=True)
+				else:
+					
 					self.append("supplied_items",
 						{
 							"main_item_code":i.get("production_item"),
 							"rm_item_code":item,
-							"batch_no":k.batch_no,
+							"item_name":item_doc.item_name,
 							"required_qty":i.get("quantity"),
 							"qty_to_be_consumed":i.get("quantity"),
-							"rate":k.basic_rate,
-							"amount": flt(i.get("quantity"))* flt(k.basic_rate),
+							"rate":i.get("rate"),
+							"amount": flt(i.get("quantity"))* flt(i.get("rate")),
 							"reference_challan":i.get("original_challan_number_issued_by_principal")
 
 						}
 					)
 					self.save(ignore_permissions=True)
-		return True
+			return True
 		# for row in self.supplied_items:
 		# 	if row.qty_to_be_consumed:
 		# 		if row.consumed_qty > 0 and row.qty_to_be_consumed <= 0 and self.is_new():
@@ -464,6 +489,7 @@ class PurchaseReceipt(BuyingController):
 			doc.stock_entry_type="Material Issue"
 			doc.from_warehouse=self.supplier_warehouse
 			doc.company=self.company
+			doc.purchase_receipt=self.name
 			for i in self.supplied_items:
 				doc.append("items",{
 					"s_warehouse":self.supplier_warehouse,
@@ -1398,17 +1424,6 @@ def get_manufacture(batch, data, indent=0):
 
 
 def get_data(name,company):
-	
-	mr=[]
-	if name:
-		po=frappe.get_doc("Purchase Receipt",name)
-		for k in po.items:
-			if k.purchase_order and k.idx==1:
-				pe=frappe.db.get_all("Stock Entry",{"purchase_order":k.purchase_order},["name"])
-				for l in pe:
-					mr.append(l.name)
-	total=tuple(mr)
-		
 	data = []
 	print("PR NAME",name)
 	# print(" dates", s_d, m_d, filters.get('company'))
@@ -1442,7 +1457,7 @@ def get_data(name,company):
 									""".format(soi_item.get("batch_no")), as_dict=1)
 
 
-			# print("st entry", st_entry)
+			print("st entry8888888888888888888888888888", st_entry)
 
 			# LEvel ONE
 			if st_entry:
@@ -1468,7 +1483,7 @@ def get_data(name,company):
 										where sed.batch_no = "{0}"
 										and se.stock_entry_type = "Manufacture"
 									""".format(se.get("batch_no")), as_dict=1)
-
+							print("*********************444444444444444444444444444",st_entry1)
 							# Leve Two
 							if st_entry1:
 								print(" This is level 22222222222222222222222222 ")
@@ -1569,6 +1584,7 @@ def get_data(name,company):
 																						print(" this is se o5 child", se4.batch_no)
 																						if se4:
 																							ref_challan = ""
+																							stock_e=[]
 																							if se4.get("batch_no"):
 																								stock_e = frappe.db.sql("""
 																													Select se.reference_challan, se.posting_date from `tabStock Entry` se 
@@ -1576,7 +1592,7 @@ def get_data(name,company):
 																													where se.stock_entry_type = "Material Receipt"
 																													and sed.batch_no = '{0}'
 																													""".format(se4.get("batch_no")), as_dict=1)
-																							if stock_e:
+																							if len(stock_e)>0:
 																								ref_challan = (stock_e[0].get('reference_challan'))
 																																										
 																							data3 = {}
@@ -1618,6 +1634,7 @@ def get_data(name,company):
 																			else:
 																				print(" no elseeeeeeeeee no batchhhh 444 44444",  se3.description)
 																				ref_challan = ""
+																				stock_e=[]
 																				if se3.get("batch_no"):
 																					stock_e = frappe.db.sql("""
 																										Select se.reference_challan, se.posting_date from `tabStock Entry` se 
@@ -1625,7 +1642,7 @@ def get_data(name,company):
 																										where se.stock_entry_type = "Material Receipt"
 																										and sed.batch_no = '{0}'
 																										""".format(se3.get("batch_no")), as_dict=1)
-																				if stock_e:
+																				if len(stock_e)> 0:
 																					ref_challan = (stock_e[0].get('reference_challan'))
 																																							
 																				data3 = {}
@@ -1666,7 +1683,7 @@ def get_data(name,company):
 																	
 															else:
 																print(" no elseeeeeeeeee no batchhhh 33333   33333",  se2.description)
-																
+																stock_e=[]
 																ref_challan = ""
 																if se2.get("batch_no"):
 																	stock_e = frappe.db.sql("""
@@ -1675,7 +1692,7 @@ def get_data(name,company):
 																						where se.stock_entry_type = "Material Receipt"
 																						and sed.batch_no = '{0}'
 																						""".format(se2.get("batch_no")), as_dict=1)
-																if stock_e:
+																if len(stock_e)>0:
 																	ref_challan = (stock_e[0].get('reference_challan'))
 																																			
 																data3 = {}
@@ -1715,6 +1732,7 @@ def get_data(name,company):
 											else:
 												print(" this is no000000000000000000000000000 22222222  22222222",  se1.description)	
 												ref_challan = ""
+												stock_e=[]
 												if se1.get("batch_no"):
 													stock_e = frappe.db.sql("""
 																		Select se.reference_challan, se.posting_date from `tabStock Entry` se 
@@ -1722,7 +1740,8 @@ def get_data(name,company):
 																		where se.stock_entry_type = "Material Receipt"
 																		and sed.batch_no = '{0}'
 																		""".format(se1.get("batch_no")), as_dict=1)
-												if stock_e:
+													print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",stock_e)
+												if len(stock_e)>0:
 													ref_challan = (stock_e[0].get('reference_challan'))
 																															
 												data3 = {}
@@ -1761,6 +1780,7 @@ def get_data(name,company):
 										
 							# level 0
 							else :
+								stock_e=[]
 								ref_challan = ""
 								if se.get("batch_no"):
 									stock_e = frappe.db.sql("""
@@ -1769,7 +1789,8 @@ def get_data(name,company):
 														where se.stock_entry_type = "Material Receipt"
 														and sed.batch_no = '{0}'
 														""".format(se.get("batch_no")), as_dict=1)
-								if stock_e:
+								print(stock_e)
+								if len(stock_e)>0:
 									ref_challan = (stock_e[0].get('reference_challan'))
 																											
 								data3 = {}
@@ -1804,20 +1825,41 @@ def get_data(name,company):
 								data3['nature_of_job_work_done'] = p.nature_of_job_work_done
 								data.append(data3)
 
-						
-							
+	mr=[]
+	if name:
+		po=frappe.get_doc("Purchase Receipt",name)
+		for k in po.items:
+			if k.purchase_order and k.idx==1:
+				pe=frappe.db.get_all("Stock Entry",{"purchase_order":k.purchase_order},["name"])
+				for l in pe:
+					mr.append(l.name)
+	total=[]
+	if len(mr) > 1:
+		total=tuple(mr)
+	if len(mr)==1:
+		total=mr[0]
+	query2=""				
+	if len(mr)>1:			
 	
-	query2 = """
-				Select * from `tabStock Entry Detail` sed
-				Left Join `tabStock Entry` se on se.name = sed.parent
-				where se.stock_entry_type = "Material Receipt" 
-				and se.docstatus = 1
-				and se.return_from_supplier_for_itc_05 = 1
-				and se.reference_challan is not null
-				and se.name in {0}
-				and se.company = '{1}' """.format(total, company)
-
-	
+		query2 = """
+					Select * from `tabStock Entry Detail` sed
+					Left Join `tabStock Entry` se on se.name = sed.parent
+					where se.stock_entry_type = "Material Receipt" 
+					and se.docstatus = 1
+					and se.return_from_supplier_for_itc_05 = 1
+					and se.reference_challan is not null
+					and se.name in {0}
+					and se.company = '{1}' """.format(total, company)
+	if len(mr)==1:
+		query2 = """
+					Select * from `tabStock Entry Detail` sed
+					Left Join `tabStock Entry` se on se.name = sed.parent
+					where se.stock_entry_type = "Material Receipt" 
+					and se.docstatus = 1
+					and se.return_from_supplier_for_itc_05 = 1
+					and se.reference_challan is not null
+					and se.name ='{0}'
+					and se.company = '{1}' """.format(total, company)
 	pr1 = frappe.db.sql(query2,as_dict=1)	
 	print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",len(pr1))
 	for p in pr1:
