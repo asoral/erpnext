@@ -1,5 +1,14 @@
 
-erpnext.PointOfSale.Controller = class {
+frappe.require('assets/js/point-of-sale.min.js', () => {
+	init_item_cart();
+	on_cart_update(args);
+	console.log('ZZZZZZZZZZZZZZZZZZzz')
+	
+});
+
+
+
+erpnext.POSDisplayCart.Controller = class {
 	constructor(wrapper) {
 		this.wrapper = $(wrapper).find('.layout-main-section');
 		this.page = wrapper.page;
@@ -8,7 +17,8 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	fetch_opening_entry() {
-		return frappe.call("erpnext.selling.page.point_of_sale.point_of_sale.check_opening_entry", { "user": frappe.session.user });
+		
+		return frappe.call("erpnext.selling.page.pos_display_cart.pos_display_cart.check_opening_entry", { "user": frappe.session.user });
 	}
 
 	check_opening_entry() {
@@ -20,6 +30,7 @@ erpnext.PointOfSale.Controller = class {
 				this.create_opening_voucher();
 			}
 		});
+		
 	}
 
 	create_opening_voucher() {
@@ -572,7 +583,7 @@ erpnext.PointOfSale.Controller = class {
 				// filter balance details for empty rows
 				balance_details = balance_details.filter(d => d.mode_of_payment);
 
-				const method = "erpnext.selling.page.point_of_sale.point_of_sale.create_opening_voucher";
+				const method = "erpnext.selling.page.pos_display_cart.pos_display_cart.create_opening_voucher";
 				const res = await frappe.call({ method, args: { pos_profile, company, balance_details ,mcdt }, freeze:true });
 				!res.exc && me.prepare_app_defaults(res.message);
 				dialog.hide();
@@ -594,8 +605,10 @@ erpnext.PointOfSale.Controller = class {
 
 	async prepare_app_defaults(data) {
 		this.pos_opening = data.name;
-		console.log("qazwsxedcrfv",data.name)
-		console.log("qazwsxedcrfv",data)
+		console.log("qazwsxedcrfv",data.pos_profile)
+		console.log("ggggggggggggggggggggggggggg",data)
+
+
 		this.company = data.company;
 		this.pos_profile = data.pos_profile;
 		this.pos_opening_time = data.period_start_date;
@@ -607,7 +620,7 @@ erpnext.PointOfSale.Controller = class {
 		});
 
 		frappe.call({
-			method: "erpnext.selling.page.point_of_sale.point_of_sale.get_pos_profile_data",
+			method: "erpnext.selling.page.pos_display_cart.pos_display_cart.get_pos_profile_data",
 			args: { "pos_profile": this.pos_profile },
 			callback: (res) => {
 				const profile = res.message;
@@ -632,28 +645,41 @@ erpnext.PointOfSale.Controller = class {
 		this.prepare_components();
 		this.prepare_menu();
 		this.make_new_invoice();
+		
 	}
 
 	prepare_dom() {
 		this.wrapper.append(
-			`<div class="point-of-sale-app"></div>`
+			`<div class="pos-display-cart-app">
+			<div class="items-selector">
+			<div class="filter-section">
+			<div class="promotions"></div>
+			</div>
+			</div>
+			
+			</div>
+
+			`
 		);
 
-		this.$components_wrapper = this.wrapper.find('.point-of-sale-app');
+		this.$components_wrapper = this.wrapper.find('.pos-display-cart-app');
+		this.$promotions = this.wrapper.find('.items-selector');
 	}
 
 	prepare_components() {
 		this.init_item_selector();
-		this.init_item_details();
+		// this.init_item_details();
 		this.init_item_cart();
 		this.init_payments();
 		this.init_recent_order_list();
 		this.init_order_summary();
-		this.getScreenDetails();
+        
+        
 	}
-
+    
 	prepare_menu() {
-		
+       
+       
 		this.page.clear_menu();
 
 		this.page.add_menu_item(__("Open Form View"), this.open_form_view.bind(this), false, 'Ctrl+F');
@@ -713,26 +739,24 @@ erpnext.PointOfSale.Controller = class {
 		voucher.period_end_date = frappe.datetime.now_datetime();
 		voucher.posting_date = frappe.datetime.now_date();
 		frappe.set_route('Form', 'POS Closing Entry', voucher.name);
-		console.log('%%%%%%%%%%%%%%%%%%%%%%%5',voucher.user)
 	}
 
 	init_item_selector() {
-		this.item_selector = new erpnext.PointOfSale.ItemSelector({
-			wrapper: this.$components_wrapper,
-			pos_profile: this.pos_profile,
-			settings: this.settings,
-			events: {
-				item_selected: args => this.on_cart_update(args),
+		
+			let wrapper = this.$promotions
+			let pos_profile = this.pos_profile
+			frappe.db.get_doc('POS Profile',pos_profile).then(doc=>{
+				wrapper.html(doc.html)
+			})
+			
+			
+			
 
-				get_frm: () => this.frm || {}
-			}
-		})
-
+		
 	}
 
 	init_item_cart() {
-		window.li = []
-		this.cart = new erpnext.PointOfSale.ItemCart({
+		this.cart = new erpnext.POSDisplayCart.ItemCart({
 			wrapper: this.$components_wrapper,
 			settings: this.settings,
 			events: {
@@ -740,11 +764,9 @@ erpnext.PointOfSale.Controller = class {
 
 				cart_item_clicked: (item) => {
 					const item_row = this.get_item_from_frm(item);
-					console.log("controller_item_details",item_row)
 					this.item_details.toggle_item_details_section(item_row);
-					console.log('ttttttttttttttttttttt',this.frm)
 				},
-				
+
 				numpad_event: (value, action) => this.update_item_field(value, action),
 
 				checkout: () => this.save_and_checkout(),
@@ -765,16 +787,14 @@ erpnext.PointOfSale.Controller = class {
 						() => frappe.dom.unfreeze(),
 					]);
 				}
-				
 			}
-			
 		})
-		
-		
+       
 	}
+    
 
 	init_item_details() {
-
+		const li = []
 		this.item_details = new erpnext.PointOfSale.ItemDetails({
 			wrapper: this.$components_wrapper,
 			settings: this.settings,
@@ -794,10 +814,13 @@ erpnext.PointOfSale.Controller = class {
 							value,
 							item: this.item_details.current_item
 						};
-
+						
+						li.push(item.item_name,item.amount)
+						
 						return this.on_cart_update(args);
-					}
 
+					}
+					
 					return Promise.resolve();
 				},
 
@@ -838,14 +861,11 @@ erpnext.PointOfSale.Controller = class {
 				},
 				get_available_stock: (item_code, warehouse) => this.get_available_stock(item_code, warehouse)
 			}
-			
 		});
-		
-		
 	}
 
 	init_payments() {
-		this.payment = new erpnext.PointOfSale.Payment({
+		this.payment = new erpnext.POSDisplayCart.Payment({
 			wrapper: this.$components_wrapper,
 			events: {
 				get_frm: () => this.frm || {},
@@ -887,28 +907,24 @@ erpnext.PointOfSale.Controller = class {
 				}
 			}
 		});
-		
 	}
 
 	init_recent_order_list() {
-		this.recent_order_list = new erpnext.PointOfSale.PastOrderList({
+		this.recent_order_list = new erpnext.POSDisplayCart.PastOrderList({
 			wrapper: this.$components_wrapper,
 			events: {
 				open_invoice_data: (name) => {
 					frappe.db.get_doc('POS Invoice', name).then((doc) => {
 						this.order_summary.load_summary_of(doc);
 					});
-					console.log('EEEEEEEEEEEEEEEE',name)
 				},
 				reset_summary: () => this.order_summary.toggle_summary_placeholder(true)
 			}
 		})
-		
-		// return open_invoice_data.name
 	}
 
 	init_order_summary() {
-		this.order_summary = new erpnext.PointOfSale.PastOrderSummary({
+		this.order_summary = new erpnext.POSDisplayCart.PastOrderSummary({
 			wrapper: this.$components_wrapper,
 			events: {
 				get_frm: () => this.frm,
@@ -921,7 +937,6 @@ erpnext.PointOfSale.Controller = class {
 							() => this.cart.load_invoice(),
 							() => this.item_selector.toggle_component(true)
 						]);
-						
 					});
 				},
 				edit_order: (name) => {
@@ -948,7 +963,6 @@ erpnext.PointOfSale.Controller = class {
 				}
 			}
 		})
-		
 	}
 
 	toggle_recent_order_list(show) {
@@ -1038,33 +1052,22 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	async on_cart_update(args) {
+		const mylist =[]
+		const qty_list = []
 		frappe.dom.freeze();
 		let item_row = undefined;
 		try {
 			let { field, value, item } = args;
 			item_row = this.get_item_from_frm(item);
 			const item_row_exists = !$.isEmptyObject(item_row);
-
 			console.log(item)
-			console.log('args',args)
-			li.push({"item_name":item_row.item_name,
-					"amount":item_row.amount,
-					"qty":item_row.qty,
-					"item_code":item_row.item_code,
-					"rate":item_row.rate,
-					'income_account':item_row.income_account,
-					'uom':item_row.uom,
-					'conversion_factor': item_row.conversion_factor
-				})
-			console.log('SSSSSSSSSSSSSSSSSSSss',li)
 			mylist.push(item.item_code,item.rate)
-			console.log(mylist)
-
-
+			
+			
 			const from_selector = field === 'qty' && value === "+1";
 			if (from_selector)
 				value = flt(item_row.qty) + flt(value);
-
+				
 			if (item_row_exists) {
 				if (field === 'qty')
 					value = flt(value);
@@ -1078,6 +1081,8 @@ erpnext.PointOfSale.Controller = class {
 					await frappe.model.set_value(item_row.doctype, item_row.name, field, value);
 					this.update_cart_html(item_row);
 				}
+				qty_list.push(item_row.item_name,item_row.amount,item_row.qty)
+				
 
 			} else {
 				if (!this.frm.doc.customer)
@@ -1112,15 +1117,16 @@ erpnext.PointOfSale.Controller = class {
 
 				if (this.check_serial_batch_selection_needed(item_row) && !this.item_details.$component.is(':visible'))
 					this.edit_item_details_of(item_row);
+
+		
 			}
-
-			// this.save_draft_invoice();
-			this.add_item();
+			console.log('ZZZZZZZZZZZZZZZZZZzz',li)
+			add_item();
 			console.log('###############')
-			this.getItem(li);
+			getItem(li);
 			var func = this.myfunction(mylist);
-			
-
+			console.log('::::::::::::;data',data)
+           
 
 		} catch (error) {
 			console.log(error);
@@ -1143,7 +1149,6 @@ erpnext.PointOfSale.Controller = class {
 		let item_row = null;
 		if (name) {
 			item_row = this.frm.doc.items.find(i => i.name == name);
-			console.log("9242*&&&*&*&*&*********************************",item_row)
 		} else {
 			// if item is clicked twice from item selector
 			// then "item_code, batch_no, uom, rate" will help in getting the exact item
@@ -1155,10 +1160,8 @@ erpnext.PointOfSale.Controller = class {
 					&& (i.uom === uom)
 					&& (i.rate == rate)
 			);
-			console.log("9242*&&&*&*&*&*********************************",item_row)
 		}
 
-		console.log("9242*&&&*&*&*&*********************************",item_row)
 		return item_row || {};
 	}
 
@@ -1193,8 +1196,9 @@ erpnext.PointOfSale.Controller = class {
 	async trigger_new_item_events(item_row) {
 		await this.frm.script_manager.trigger('item_code', item_row.doctype, item_row.name);
 		await this.frm.script_manager.trigger('qty', item_row.doctype, item_row.name);
-	}
+	};
 
+	
 	async check_stock_availability(item_row, qty_needed, warehouse) {
 		const resp = (await this.get_available_stock(item_row.item_code, warehouse)).message;
 		const available_qty = resp[0];
@@ -1290,7 +1294,7 @@ erpnext.PointOfSale.Controller = class {
 			primary_action: function() {
 				var data = d.get_values();
 				frappe.call({
-					method: "erpnext.selling.page.point_of_sale.point_of_sale.remove_authorize",
+					method: "erpnext.selling.page.pos_display_cart.pos_display_cart.remove_authorize",
 					
 					args: {
 						 "user": data.user,
@@ -1360,103 +1364,10 @@ erpnext.PointOfSale.Controller = class {
 			this.payment.checkout();
 		}
 	}
-
 	
-	myfunction(name, data){
-		var b = this.pos_profile;
-		var a=this.cart.update_totals_section(this.frm)
-		frappe.call({
-			method: "erpnext.selling.page.point_of_sale.pos.pole_display",
-			args:{
-				"item":name[0],
-				"amount":name[1],
-				"grand_total":a,
-				"pos_profile":b
-			},
-			
-        });
-		};	
-
-	check(name, data){
-		var b = this.pos_profile;
-		var a=this.cart.update_totals_section(this.frm)
-		frappe.call({
-			method: "erpnext.selling.page.point_of_sale.pos.check",
-			args:{
-				"grand_total":a,
-				"pos_profile":b
-			},
-			
-		});
-		};	
-
-	
-
-	getScreenDetails(){
-		const screenDetails = window.getScreenDetails();
-		console.log(screenDetails)
-		console.log(window.location)
-
-		var url = window.location.href
-		var arr = url.split("/");
-		var result = arr[0] + "//" + arr[2] + '/' + 'app' + '/'  + 'pos-display-cart'
-		console.log(result)
-
-		const popup = window.open(
-			result,
-			'My Popup',
-			'left=1920,top=0,width=1920,height=1080',
-		  );
-
-		  popup.moveTo(2500, 50);
-	}
-
-
-	getItem(data){
-		var a=this.pos_profile
-		console.log('QQQQQQQQQQQQ',data)
-		frappe.call({
-			method: "grandhyper.grandhyper.doctype.temporary_cart.temporary_cart.item",
-			args:{
-				"pos_profile":a,
-				"data":data
-				
-			},
-			
-        });
-		console.log('@@@@@@@@@@@current page',cur_page)
-		};	
-
-	add_item(){
-
-		if (!this.$components_wrapper.is(":visible")) return;
-
-		if (this.frm.doc.items.length == 0) {
-			frappe.show_alert({
-				message: __("You must add atleast one item to save it as draft."),
-				indicator:'red'
-			});
-			frappe.utils.play_sound("error");
-			return;
-		}
 		
-
-		this.frm.save(undefined, undefined, undefined, () => {
-			frappe.show_alert({
-				message: __("There was an error saving the document."),
-				indicator: 'red'
-			});
-			frappe.utils.play_sound("error");
-		}).then(() => {
-			frappe.run_serially([
-				() => frappe.dom.freeze(),
-				() => frappe.dom.unfreeze(),
-			]);
-		});
-		
-	};
-
 	
-
-
+			
+	
 };
+

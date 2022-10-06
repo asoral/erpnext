@@ -18,5 +18,14 @@ frappe.pages['point-of-sale'].refresh = function(wrapper) {
 		onScan.detachFrom(document);
 		wrapper.pos.wrapper.html("");
 		wrapper.pos.check_opening_entry();
+		
 	}
+	var b = this.pos_profile;
+	console.log('lllllllllllllllllll',b)
+	frappe.call({
+		method: "erpnext.selling.page.point_of_sale.pos.pole_clear",
+		args:{
+			"pos_profile":b
+		}
+	});
 };
