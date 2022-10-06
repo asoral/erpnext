@@ -1,0 +1,33 @@
+{
+ "content": null,
+ "creation": "2022-09-20 11:28:03.529645",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2022-09-20 11:29:00.522675",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "pos-display-cart",
+ "owner": "Administrator",
+ "page_name": "pos-display-cart",
+ "restrict_to_domain": "Retail",
+ "roles": [
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Sales User"
+  },
+  {
+   "role": "Sales Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "POS Display Cart"
+}
