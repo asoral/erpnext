@@ -297,6 +297,7 @@
    "label": "Required Items"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "required_items",
    "fieldtype": "Table",
    "label": "Required Items",
@@ -718,6 +719,18 @@
    "fieldname": "actual_fg_weight",
    "fieldtype": "Float",
    "label": "Actual FG Weight",
+   "read_only": 1
+  },
+  {
+   "fieldname": "specific_gravity",
+   "fieldtype": "Float",
+   "label": "Specific Gravity",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rm_weight",
+   "fieldtype": "Float",
+   "label": "RM Weight",
    "read_only": 1
   },
   {

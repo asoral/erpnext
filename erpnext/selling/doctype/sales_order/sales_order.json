@@ -25,11 +25,9 @@
   "transaction_date",
   "delivery_date",
   "po_no",
-  "order_warehouse_rule_number",
   "po_date",
   "tax_id",
   "accounting_dimensions_section",
-  "cost_center",
   "dimension_col_break",
   "project",
   "contact_info",
@@ -155,7 +153,9 @@
   "to_date",
   "column_break_108",
   "auto_repeat",
-  "update_auto_repeat_reference"
+  "update_auto_repeat_reference",
+  "column_break_62",
+  "section_break_64"
  ],
  "fields": [
   {
@@ -1367,6 +1367,8 @@
   },
   {
    "depends_on": "eval:!doc.commission_based_on_target_lines",
+   "fetch_from": "sales_partner.commission_rate",
+   "fetch_if_empty": 1,
    "fieldname": "commission_rate",
    "fieldtype": "Float",
    "hide_days": 1,
@@ -1504,16 +1506,10 @@
    "fieldname": "disable_rounded_total",
    "fieldtype": "Check",
    "label": "Disable Rounded Total"
-  }, 
+  },
   {
    "fieldname": "column_break_62",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "cost_center",
-   "fieldtype": "Link",
-   "label": "Cost Center",
-   "options": "Cost Center"
   },
   {
    "fieldname": "section_break_64",
@@ -1529,11 +1525,6 @@
    "fieldname": "update_party_balance",
    "fieldtype": "Button",
    "label": "Update Party Balance"
-  },
-  {
-   "fieldname": "order_warehouse_rule_number",
-   "fieldtype": "Read Only",
-   "label": "Order Warehouse Rule Number"
   },
   {
    "fieldname": "transporter",
@@ -1598,12 +1589,6 @@
    "label": "Accounting Dimensions"
   },
   {
-   "fieldname": "cost_center",
-   "fieldtype": "Link",
-   "label": "Cost Center",
-   "options": "Cost Center"
-  },
-  {
    "fieldname": "dimension_col_break",
    "fieldtype": "Column Break"
   }
@@ -1612,11 +1597,10 @@
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-04-26 14:38:18.350207",
+ "modified": "2022-08-25 22:36:28.038105",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -1686,7 +1670,6 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
  "timeline_field": "customer",
  "title_field": "customer_name",
  "track_changes": 1,

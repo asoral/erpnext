@@ -61,7 +61,7 @@ class FollowUp(Document):
 		if a:	
 			for i in a :
 				if i.party == name:
-					print(" a thi is aaaaaaaaaaaaaaa", i)
+					# print(" a thi is aaaaaaaaaaaaaaa", i)
 					new_acc.append(i)
 
 		fresh_acc = []
@@ -70,12 +70,17 @@ class FollowUp(Document):
 		# print("Length of new_acc is ",len(new_acc))
 			#  Checking for log avaibality for voucher number
 			v_no = frappe.db.get_value("Follow Up Logs", {"voucher_no": i.voucher_no, "level_called": i.follow_up}, ["posting_date"])
-			if not v_no:
+			allow_after = frappe.db.get_value("Follow Up Level", i.follow_up , "allow_after")
+			if not v_no or allow_after == 1:
 				# v_no = frappe.db.get_value("Follow Up Logs", {"voucher_no": n.voucher_no, "level_called": n.follow_up}, ["posting_date"])
 				fresh_acc.append(i)
 		
 		self.data.clear()
-		return fresh_acc
+		print("this is lengtjh", len(fresh_acc))
+		if len(fresh_acc) > 0:
+			return fresh_acc
+		else:
+			frappe.msgprint(" No transcations available for follow-up ")	
 
 	# On Dynamic button click on Dialog Box 
 	@frappe.whitelist()
@@ -88,20 +93,29 @@ class FollowUp(Document):
 		log_name = ""
 		details_list = []
 		# Creating logs
-		for i in trans_items:
-			print("thi is i ", type(trans_items) , i.keys())
-			
+		for i in trans_items:			
 			print(" In sidde follow up button click", i.get("follow_up"),  follow_up)
+
+			outstanding = 0
 
 			if i["__checked"] == 1 and i["follow_up"] == follow_up :
 			# if i["__checked"] == 1 and i["follow_up"] == follow_up and "due_date" in i.keys():
 				print(" In sidde follow up button click", i.get("follow_up", follow_up))
 				if "due_date" in i.keys() and i["voucher_no"]:
+					if i["voucher_type"] == "Sales Invoice":
+						print(" this is sales Invoice ............. SI")
+						si_cur = frappe.get_value("Sales Invoice", i["voucher_no"], "currency")
+						if si_cur == frappe.defaults.get_global_default('currency'):
+							print(" this is currency")
+							outstanding = i["outstanding_amount"]
+						else: 
+							c_rate = frappe.get_value("Sales Invoice", i["voucher_no"], "conversion_rate")
+							outstanding =	i["outstanding_amount"] / c_rate
 					comm_voucher_no += i["voucher_type"] + "    " + i["voucher_no"] + "    " + i["due_date"] + "    " + str(i["outstanding_amount"]) +" \n "
 					detail_dict = {"voucher_type": i["voucher_type"],
 									"voucher_no": i["voucher_no"] if i["voucher_no"] else "",
 									"due_date": i["due_date"],
-									"outstanding_amount" :i["outstanding_amount"],
+									"outstanding_amount" : outstanding,
 									"invoice_amount" : i["invoice_amount"],
 									"date": frappe.db.get_value("Sales Invoice", i["voucher_no"],  "posting_date"),
 									"age": i["age"],
@@ -115,13 +129,13 @@ class FollowUp(Document):
 				# 					"outstanding_amount" :i["outstanding_amount"]}
 				# 	details_list.append(detail_dict)
 
-				total_due += i["outstanding_amount"]
+				total_due += outstanding
 				# print(" i[__checked]", i["__checked"], i["voucher_type"] )
 				new_log = frappe.new_doc("Follow Up Logs")
 				new_log.customer = customer
 				new_log.voucher_type = i["voucher_type"]
 				new_log.voucher_no = i["voucher_no"]
-				new_log.outstanding_amount = i["outstanding_amount"]
+				new_log.outstanding_amount = outstanding
 				new_log.posting_date = t_date
 				new_log.due_date = i["due_date"] if "due_date" in i.keys() else utils.today()
 				new_log.age = i["age"]
@@ -285,12 +299,20 @@ class FollowUp(Document):
 		for i in trans_items:
 			commit_name = ""
 			commit_link = ""
+			remarks = ""
+			outstanding = 0
 			comp = frappe.defaults.get_user_default('Company')
-			currency = frappe.db.get_value("Sales Invoice", i["voucher_no"] , "currency")
+			currency = frappe.db.get_value("Sales Invoice", i["voucher_no"] , ["currency"])
+			remarks = frappe.db.get_value("Sales Invoice", i["voucher_no"] , ["remarks"])
 			primary_c, full_name = frappe.db.get_value('Customer', customer, ["customer_primary_contact", "customer_name"])
 			email_id = frappe.db.get_list('Contact Email', {"parent":primary_c }, ['email_id'])
 			emails = []
-			
+
+			if currency == frappe.defaults.get_global_default('currency'):
+				outstanding = i["outstanding_amount"]
+			else:	
+				c_rate = frappe.get_value("Sales Invoice", i["voucher_no"], "conversion_rate")
+				outstanding = i["outstanding_amount"] / c_rate
 			
 
 			comm_email = ""
@@ -320,7 +342,7 @@ class FollowUp(Document):
 				prc.commitment_to = frappe.session.user
 				prc.voucher_type = i["voucher_type"]
 				prc.invoice_amount = i["invoice_amount"]
-				prc.total_outstanding = i["outstanding_amount"]
+				prc.total_outstanding = outstanding
 				prc.voucher_no = i["voucher_no"]
 				prc.total_due = i["total_due"]
 				prc.age = i["age"]
@@ -347,10 +369,28 @@ class FollowUp(Document):
 								<p>{0}</p><br> <a href="{1}">Click here to view Commitment information. </a>  </div>	""".format(comment_v, commit_link)
 				comm.save(ignore_permissions=True)	
 				
-				content = "Dear <b>{2}</b><br><br>Commitment given the following Transcation <br>Commitment given on <b>{0}</b> for Sales Invoice <b>{1}</b><br>".format(str(utils.today()), i["voucher_no"], full_name)
-				content += "Invoice Amount <b>{4} {0}</b> and Outstanding Amount <b>{4} {1}</b> <br>You have given commitment of Amount <b>{4} {2} </b> on <b>{3}</b><br><br>".format(str(i["invoice_amount"]), str(i['outstanding_amount']), str(i["commited_amount"]), str(i["commited_date"]), currency)
-					
+				# content = "Dear <b>{2}</b><br><br>Commitment given the following Transcation <br>Commitment given on <b>{0}</b> for Sales Invoice <b>{1}</b><br>".format(str(utils.today()), i["voucher_no"], full_name)
+				# content += "Invoice Amount <b>{4} {0}</b> and Outstanding Amount <b>{4} {1}</b> <br>You have given commitment of Amount <b>{4} {2} </b> on <b>{3}</b><br><br>".format(str(i["invoice_amount"]), str(i['outstanding_amount']), str(i["commited_amount"]), str(i["commited_date"]), currency)
 
+				content =	"""
+								Dear <b> {0}, </b> <br>
+								<p>We are thankful for your business and want to acknowledge that we hold your commitment, 
+								dated <b>{1}</b> to pay the <b>{2} {3}</b>against an outstanding of <b>{4} {3}</b> against voucher# <b>{5}</b>.<br>
+								Please find the voucher details for your reference:
+								<br>
+								<b>Voucher Type: {6} <br>
+								Voucher Number: {5} <br>
+								Remarks: {7} <br>
+								Currency: {3} <br>
+								Total Amount: {8} <br>
+								Outstanding Amount: {4} </b>
+								<br> <br>
+								Making a payment on time enables us to serve you better and we look forward to provide uninterrupted services to you.</p>
+				
+							""".format(full_name, str(utils.today()), str(i["commited_amount"]), currency, 
+							str(outstanding), i["voucher_no"], i["voucher_type"], remarks, str(i["invoice_amount"]))
+
+				#Adding comment on Customer
 				comm = frappe.new_doc("Comment")
 				comm.subject = "Overdue payment commitment"
 				comm.comment_type = "Comment" 
@@ -367,7 +407,8 @@ class FollowUp(Document):
 
 
 				# Sending email
-				content += "Thank You"
+				content += "Thanks<br> <b> {0} </b> ".format(comp)
+				
 				self.notify({
 					# for post in messages
 					"message": " <div class='ql-editor read-mode'><p> {0} </p></div>".format(content),

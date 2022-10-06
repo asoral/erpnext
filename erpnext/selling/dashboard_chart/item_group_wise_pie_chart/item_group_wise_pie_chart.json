@@ -1,0 +1,48 @@
+{
+ "chart_name": "ITEM GROUP WISE PIE CHART",
+ "chart_type": "Report",
+ "creation": "2021-08-11 17:34:35.110356",
+ "custom_options": "{\"x_field\": \"item_group\", \"chart_type\": \"Pie\", \"y_axis_fields\": [{\"idx\": 1, \"__islocal\": true, \"name\": \"row 1\", \"y_field\": \"apr_(qty)\", \"color\": \"#39E4A5\"}, {\"idx\": 2, \"__islocal\": true, \"name\": \"row 2\", \"y_field\": \"may_(qty)\", \"color\": \"#ECAD4B\"}, {\"idx\": 3, \"__islocal\": true, \"name\": \"row 3\", \"y_field\": \"jun_(qty)\", \"color\": \"#41e0d8\"}, {\"idx\": 4, \"__islocal\": true, \"name\": \"row 4\", \"y_field\": \"jul_(qty)\", \"color\": \"#4463F0\"}, {\"idx\": 5, \"__islocal\": true, \"name\": \"row 5\", \"y_field\": \"total(qty)\", \"color\": \"#ED6396\"}], \"y_fields\": [\"apr_(qty)\", \"may_(qty)\", \"jun_(qty)\", \"jul_(qty)\", \"total(qty)\"], \"colors\": [\"#39E4A5\", \"#ECAD4B\", \"#41e0d8\", \"#4463F0\", \"#ED6396\"]}",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "filters_json": "{\"period\":\"Monthly\",\"based_on\":\"Item Group\",\"fiscal_year\":\"21-22\",\"company\":\"Arofine Polymers Private Limited\"}",
+ "group_by_type": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "modified": "2021-08-11 17:34:35.174080",
+ "modified_by": "nadkarni@arofines.in",
+ "module": "Selling",
+ "name": "ITEM GROUP WISE PIE CHART",
+ "number_of_groups": 0,
+ "owner": "nadkarni@arofines.in",
+ "report_name": "Sales Invoice Trends",
+ "time_interval": "Yearly",
+ "timeseries": 0,
+ "timespan": "Last Year",
+ "type": "Pie",
+ "use_report_chart": 0,
+ "x_field": "item_group",
+ "y_axis": [
+  {
+   "color": "#39E4A5",
+   "y_field": "apr_(qty)"
+  },
+  {
+   "color": "#ECAD4B",
+   "y_field": "may_(qty)"
+  },
+  {
+   "color": "#41e0d8",
+   "y_field": "jun_(qty)"
+  },
+  {
+   "color": "#4463F0",
+   "y_field": "jul_(qty)"
+  },
+  {
+   "color": "#ED6396",
+   "y_field": "total(qty)"
+  }
+ ]
+}
