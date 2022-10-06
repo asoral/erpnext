@@ -156,6 +156,18 @@ frappe.ui.form.on('POS Invoice', {
 			});
 		}
 	},
+	on_submit:function(frm){
+		frappe.call({
+			method:"erpnext.accounts.doctype.loyalty_program_collection.row_wise_loyalty.row_wise_loyalty_point",
+			args:{
+				doc:frm.doc,
+				name:frm.doc.name
+			},
+			callback:function(r){
+				console.log("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+			}
+		})
+	},
 
 	get_loyalty_details: function(frm) {
 		if (frm.doc.customer && frm.doc.redeem_loyalty_points) {
