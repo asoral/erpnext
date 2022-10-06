@@ -29,5 +29,3 @@ frappe.pages['point-of-sale'].refresh = function(wrapper) {
 		}
 	});
 };
-
-

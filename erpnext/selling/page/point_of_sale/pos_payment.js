@@ -2,7 +2,10 @@
 erpnext.PointOfSale.Payment = class {
 	constructor({ events, wrapper }) {
 		this.wrapper = wrapper;
+		console.log("wrapper**************",wrapper)
 		this.events = events;
+		console.log("events***************************",events)
+		
 
 		this.init_component();
 	}
@@ -22,8 +25,13 @@ erpnext.PointOfSale.Payment = class {
 				<div class="payment-modes"></div>
 				<div class="fields-numpad-container">
 					<div class="fields-section">
-						<div class="section-label">${__('Additional Information')}</div>
+						<div class="section-label">${__('Additional Information')}
+						
+						
+						</div>
+						
 						<div class="invoice-fields"></div>
+						
 					</div>
 					<div class="number-pad"></div>
 				</div>
@@ -39,6 +47,7 @@ erpnext.PointOfSale.Payment = class {
 		this.$totals = this.$component.find('.totals');
 		this.$numpad = this.$component.find('.number-pad');
 		this.$invoice_fields_section = this.$component.find('.fields-section');
+		console.log("og_numpad",this.$numpad)
 	}
 
 	make_invoice_fields_control() {
@@ -198,29 +207,861 @@ erpnext.PointOfSale.Payment = class {
 			me.selected_mode.set_value(value);
 		});
 
-		this.$component.on('click', '.submit-order-btn', () => {
+		// this.$component.on('click', '.submit-order-btn', () => {
+		// 	const doc = this.events.get_frm().doc;
+		// 	const paid_amount = doc.paid_amount;
+		// 	const items = doc.items;
+
+		// 	if (paid_amount == 0 || !items.length) {
+		// 		const message = items.length ? __("You cannot submit the order without payment.") : __("You cannot submit empty order.");
+		// 		frappe.show_alert({ message, indicator: "orange" });
+		// 		frappe.utils.play_sound("error");
+		// 		return;
+		// 	}
+
+		// 	console.log(" this is invoice submit", this.events)
+		// 	this.events.submit_invoice();
+		// 	// frappe.run_serially([
+		// 	// 	() => this.events.submit_invoice(),
+		// 	// 	// () => this.events.new_order()
+		// 	// ]);
+			
+		// });
+
+		
+			
+		this.$component.on('click', ".submit-order-btn", () => {
+			window.dicty = {}
+			
+			const pmts = [];
+			const me = this ;
+			const tot = 0.0;
+			
+			
+
+			
+
+			
+
+			
+
 			const doc = this.events.get_frm().doc;
+			console.log("doc*********************************8",doc.opening)
 			const paid_amount = doc.paid_amount;
 			const items = doc.items;
+			const payments = doc.payments;
+			const gt = doc.grand_total;
+			
 
-			if (paid_amount == 0 || !items.length) {
-				const message = items.length ? __("You cannot submit the order without payment.") : __("You cannot submit empty order.");
-				frappe.show_alert({ message, indicator: "orange" });
-				frappe.utils.play_sound("error");
-				return;
+			const table_fields = [
+			
+				
+				{
+					fieldname: "base_amount", fieldtype: "Float",
+					in_list_view: 1, label: "Amount",reqd: 0,
+					 
+					
+				},
+
+				{
+					fieldname: "mode_of_payment", fieldtype: "Data",
+					in_list_view: 1, label: "Mode Of Payment",reqd: 0,
+					 
+					
+				},
+				{
+					
+					fieldname: "currency", fieldtype: "Link",
+					in_list_view: 0, label: "Currency",reqd: 0,
+					hidden:0
+						
+				},
+				{
+					
+					fieldname: "exchange_rate", fieldtype: "Float",
+					in_list_view: 0, label: "Exchange Rate",reqd: 0,
+					
+					
+						
+				},
+				{
+					fieldname: "amount", fieldtype: "Currency",
+					in_list_view: 1, label: "Base Amount",reqd: 0,
+					options:"Currency"
+					 
+					
+				},
+
+			]
+			
+
+			
+
+
+
+
+
+			
+
+
+			const d = new frappe.ui.Dialog({
+				title: 'Enter details',
+				fields: [
+					{
+						fieldtype: 'Select', label: __('Mode of Payment'), 
+						options: [], fieldname: 'mop', reqd: 1,
+						onchange: () => fetch_curr_and_xchg_rate()
+					},
+
+					{
+						fieldtype: 'Section Break'
+					},
+
+					{
+						fieldtype: 'HTML', label: __('Grand Total'), 
+						 fieldname: 'gte', reqd: 0
+				
+						
+					},
+
+					{
+						fieldtype: 'Section Break'
+					},
+
+					{
+						fieldtype: 'Float', label: __('Base Amount'), 
+						 fieldname: 'bamount', reqd: 1,
+						onchange: () => get_total()
+
+						
+					},
+
+					{
+						fieldtype: 'Column Break'
+					},
+
+					{
+						fieldtype: 'Link', label: __('Currency'), 
+						 fieldname: 'currency', reqd: 1, options:"Currency",
+						 read_only:1
+						
+					},
+
+					{
+						fieldtype: 'Column Break'
+					},
+					{
+						fieldtype: 'Float', label: __('Exchange Rate'), 
+						 fieldname: 'xchg_rate', reqd: 1,
+						 read_only:1
+						
+					},
+					{
+						fieldtype: 'Column Break'
+					},
+					{
+						fieldtype: 'Currency', label: __('Amount(Base Currency)'), 
+						 fieldname: 'amt', reqd: 1,
+						 read_only:1
+						
+					},
+					{
+						fieldtype: 'Section Break'
+					},
+
+					{
+						fieldtype: 'HTML', label: __('Grand Total'), 
+						 fieldname: 'totals', reqd: 0
+				
+						
+					},
+
+					{
+						fieldtype: 'Section Break'
+					},
+
+
+					{
+					fieldname: "payment_details",
+					fieldtype: "Table",
+					label: "Payment Details",
+					cannot_add_rows: true,
+					in_place_edit: true,
+					reqd: 0,
+					data: [],
+					fields: table_fields,
+					hidden:1
+
+				},
+					{
+						fieldtype: 'Section Break'
+					},
+
+					{
+						fieldtype: 'HTML', label: __('Numpad'), 
+						 fieldname: 'numpad', reqd: 0,
+						//  click: () => {
+						// 	 console.log("helllo")
+						//  }
+				
+						
+					},
+					{
+						fieldtype: 'Section Break'
+					},
+					{
+						fieldtype: 'Button', label: __('Add Amount'), 
+						 fieldname: 'btn', reqd: 0,
+						 click:()=>{
+							 
+							//  tot += parseFloat(d.fields_dict.pamt.get_value() + d.fields_dict.amt.get_value())
+							 console.log("ooooooooooooooooooooooooooooo",tot)
+							 let base_amount = d.fields_dict.bamount.get_value()
+							 let currency = d.fields_dict.currency.get_value()
+							 let exchange_rate = d.fields_dict.xchg_rate.get_value()
+							 let amount = d.fields_dict.amt.get_value()
+							 let tobe_paid = d.fields_dict.amtp.get_value()
+							 let change = d.fields_dict.chg.get_value()
+							 let mode_of_payment = d.fields_dict.mop.get_value()
+							 console.log("9242*******************",d.fields_dict.payment_details.get_value())
+
+							 let ct = d.fields_dict.payment_details.get_value()
+							 console.log("ct^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^66",ct)
+
+							 const doc = this.events.get_frm().doc;
+							 const payments = doc.payments
+
+							 
+
+							 
+
+							 
+
+
+
+
+							
+							 
+							
+							 
+							 
+							if(ct.length != 0 ){
+								console.log("NOtEmpty*********************")
+								ct.forEach(i=>{
+									if(i["mode_of_payment"] == mode_of_payment){
+										i["base_amount"] += base_amount
+										i["amount"] += amount
+										
+									}
+									else{
+										console.log("mop not present")
+										
+										
+									}
+								})
+							}
+							
+							 
+
+							
+
+							//  d.fields_dict.payment_details.df.data.some(z => {
+							// 	// console.log("z)))))))))))))))))))00",z)
+							// 	// tot += z.amount
+							// 	console.log("z)))))))))))))))))))00",tot)
+							// })
+							// total_amt += amount + d.fields_dict.pamt.get_value()
+							if(!dicty["tamt"]){
+
+								dicty["tamt"] = amount
+								console.log("if&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+							}
+							else if(dicty["tamt"]){
+								dicty["tamt"] += amount
+								console.log("else&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+							}
+
+							if(!dicty["tobe_paid"]){
+								dicty["tobe_paid"] = tobe_paid
+							}
+							else if(dicty["tobe_paid"]){
+								dicty["tobe_paid"] += tobe_paid
+								
+							}
+
+							if(!dicty["change"]){
+								dicty["change"] = change
+							}
+							else if(dicty["change"]){
+								dicty["change"] += change
+								
+							}
+							
+
+							 d.fields_dict.payment_details.grid.refresh();
+							 d.fields_dict.pamt.set_value(dicty["tamt"])
+							//  d.fields_dict.amtp.set_value(dicty["tobe_paid"])
+							//  d.fields_dict.chg.set_value(dicty["change"])
+							let amtphtml = 0.0
+							let changehtml = 0.0
+
+							if(d.fields_dict.gtotal.get_value()-dicty["tamt"] > 0){
+								console.log("amtp****************************888",d.fields_dict.gtotal.get_value()-dicty["tamt"] > 0)
+								d.fields_dict.amtp.set_value(d.fields_dict.gtotal.get_value()-dicty["tamt"])
+								d.set_df_property('chg', 'hidden', 1)
+								d.set_df_property('amtp', 'hidden', 0)
+								amtphtml += d.fields_dict.gtotal.get_value()-dicty["tamt"]
+
+							}
+							else if(d.fields_dict.gtotal.get_value()-dicty["tamt"] < 0){
+								console.log("chg****************************888",d.fields_dict.gtotal.get_value()-dicty["tamt"] < 0)
+								d.fields_dict.chg.set_value(-(d.fields_dict.gtotal.get_value()-dicty["tamt"]))
+								d.set_df_property('amtp', 'hidden', 1)
+								d.set_df_property('chg', 'hidden', 0)
+								changehtml += (-(d.fields_dict.gtotal.get_value()-dicty["tamt"]))
+
+							}
+
+							
+
+							
+							
+
+
+							const totals = `
+							<style>
+							.styled-table {
+								border-collapse: collapse;
+								margin: 25px 0;
+								font-size: 1.2em;
+								font-family: sans-serif;
+								min-width: 510px;
+								box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+							}
+
+							.styled-table thead tr {
+								background-color: #009879;
+								color: #ffffff;
+								text-align: left;
+							}
+
+							.styled-table th,
+							.styled-table td {
+								padding: 12px 15px;
+							}
+							</style>
+
+
+							<table class="styled-table">
+							<thead>
+								<tr>
+									<th>Grand Total</th>
+									<th>Paid Amount</th>
+									<th>To Be Paid</th>
+									<th>Change</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>${format_currency(gt, "INR")}</td>
+									<td>${format_currency(dicty["tamt"], "INR")}</td>
+									<td>${format_currency(amtphtml, "INR")}</td>
+									<td>${format_currency(changehtml, "INR" )}</td>
+								</tr>
+								
+							</tbody>
+						</table>
+							`
+
+
+							$(d.fields_dict['totals'].wrapper).html(totals)
+
+							
+							
+
+							
+							 
+							 
+							 
+							 
+
+						 }
+				
+						
+					},
+					{
+						fieldtype: 'Column Break'
+					},
+
+					{
+						fieldtype: 'Button', label: __('Clear'), 
+						 fieldname: 'btn2', reqd: 0,
+						 click:()=>{
+
+							console.log("this_events(((((((((((((((((((",this.events)
+
+							dicty["tamt"] = 0.0
+							dicty["tobe_paid"] = 0.0
+							dicty["change"] = 0.0
+							d.fields_dict.pamt.set_value("")
+							d.fields_dict.amtp.set_value("")
+							d.fields_dict.chg.set_value("")
+							d.fields_dict.payment_details.df.data.length = 0
+							d.fields_dict.payment_details.refresh();
+							d.fields_dict.pamt.refresh()
+							d.fields_dict.amtp.refresh()
+
+							 
+							payments.forEach(m => {
+							let base_amount = 0.0
+							let amount = 0.0
+							let mode_of_payment = m.mode_of_payment
+							d.fields_dict.payment_details.df.data.push({base_amount,mode_of_payment,amount})
+							d.fields_dict.payment_details.refresh();
+							
+						})
+
+						const totals = `
+							<style>
+							.styled-table {
+								border-collapse: collapse;
+								margin: 25px 0;
+								font-size: 1.2em;
+								font-family: sans-serif;
+								min-width: 510px;
+								box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+							}
+
+							.styled-table thead tr {
+								background-color: #009879;
+								color: #ffffff;
+								text-align: left;
+							}
+
+							.styled-table th,
+							.styled-table td {
+								padding: 12px 15px;
+							}
+							</style>
+
+
+							<table class="styled-table">
+							<thead>
+								<tr>
+									<th>Grand Total</th>
+									<th>Paid Amount</th>
+									<th>To Be Paid</th>
+									<th>Change</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>${format_currency(gt, "INR")}</td>
+									<td>${format_currency(0.0, "INR")}</td>
+									<td>${format_currency(gt, "INR")}</td>
+									<td>${format_currency(0.0, "INR" )}</td>
+								</tr>
+								
+							</tbody>
+						</table>
+							`
+
+
+							$(d.fields_dict['totals'].wrapper).html(totals)
+							 
+
+							 
+							
+						 }
+				
+						
+					},
+					
+					{
+						fieldtype: 'Section Break'
+					},
+					{
+						fieldtype: 'Currency', label: __('Grand Total'), 
+						 fieldname: 'gtotal', reqd: 0,
+						 hidden:1
+						
+					},
+					{
+						fieldtype: 'Column Break'
+					},
+					{
+						fieldtype: 'Currency', label: __('Paid Amount'), 
+						 fieldname: 'pamt', reqd: 0,
+						 hidden:1,
+						 
+						
+					},
+					{
+						fieldtype: 'Column Break'
+					},
+					{
+						fieldtype: 'Currency', label: __('Amount To Be Paid'), 
+						 fieldname: 'amtp', reqd: 0,
+						 hidden:1
+						
+					},
+					{
+						fieldtype: 'Column Break'
+					},
+					{
+						fieldtype: 'Currency', label: __('Change'), 
+						 fieldname: 'chg', reqd: 0,
+						 hidden:1
+						
+					},
+
+
+
+					
+					
+
+					
+				],
+				primary_action_label: 'Submit',
+				primary_action(values) {
+					let me = this;
+
+					this.$components_wrapper = this.wrapper.find('.point-of-sale-app');
+					console.log("values**************************",me.events)
+					let final_dict = {"grand_total":parseFloat(values.gtotal),"paid_amount":values.pamt,"change_amount":values.chg,"currency":"INR","rounded_total":parseFloat(values.gtotal)
+
+					}
+					// me.update_totals_section(final_dict)
+					doc["base_paid_amount"] = values.pamt
+					doc["change_amount"] = values.chg
+					console.log("doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",doc)
+					
+					if(values.amtp == 0.0 || values.chg > 0.0){
+						for(var dg in values.payment_details){
+							frappe.call({
+								method:"erpnext.selling.page.point_of_sale.pos_payment.update_pos_invoice",
+								args:{
+									"values":values.payment_details[dg],
+									"inv":doc.name,
+									"paid_amount":values.pamt,
+									"change_amount":values.chg
+									
+		
+								},
+								callback:function(r){
+									frappe.ui.form.qz_connect()
+									.then(function () {
+										var config = qz.configs.create("POS-80")
+										// window.location.reload()
+										return qz.print(config, [r.message]);
+									})
+									.then(frappe.ui.form.qz_success)
+									.catch(err => {
+										frappe.ui.form.qz_fail(err);
+									});
+
+									
+		
+								}
+							})
+						}
+						
+						
+
+
+
+
+
+						d.hide();
+
+					}
+					else if(values.amtp > 0.0){
+						const message = __("You cannot submit the order without payment.")
+						frappe.show_alert({ message, indicator: "orange" });
+						frappe.utils.play_sound("error");
+						return;
+
+					}
+					
+					
+					
+
+
+					
+					
+				}
+			});
+			
+			
+			d.show();
+			d.$wrapper.find('.modal-dialog').css("width", "1000px");
+			console.log("fields_dict",d.fields_dict.numpad)
+
+			
+
+			
+
+			let numpad_loc = d.fields_dict.numpad.$wrapper.find('.payment-container');
+			let npddg = numpad_loc.find('.number-pad');
+
+			console.log("find",npddg)
+
+
+
+			
+
+			
+
+
+		
+			
+
+			//  = (val) => {
+			// 	d.fields_dict.bamount.set_value(val)
+		
+			// }get_total_amount
+
+
+			
+
+
+			const get_total = () => {
+				console.log("before",d.fields_dict.amt.get_value())
+				let total = d.fields_dict.bamount.get_value() * d.fields_dict.xchg_rate.get_value()
+				d.fields_dict.amt.set_value(total);
+				
+			}
+			const get_diff = () => {
+				console.log("before",d.fields_dict.pamt.get_value())
+				let total = d.fields_dict.gtotal.get_value() - d.fields_dict.amt.get_value()
+				let ftotal = 0.0
+				if(d.fields_dict.pamt.get_value()){
+					ftotal += total - d.fields_dict.pamt.get_value()
+					d.fields_dict.amtp.set_value(ftotal);
+				}
+				
+				// let ftotal = total - d.fields_dict.pamt.get_value()
+				let gtotal = d.fields_dict.gtotal.get_value()
+				if(ftotal < 0){
+					console.log("total********************",total)
+					d.fields_dict.chg.set_value((-ftotal));
+					d.fields_dict.amtp.set_value(0.0);
+					d.set_df_property('amtp', 'hidden', 1);
+					d.set_df_property('chg', 'hidden', 0);
+					
+				}
+				else if(ftotal >0){
+					d.fields_dict.chg.set_value(0.0);
+					d.set_df_property('chg', 'hidden', 1);
+					d.set_df_property('amtp', 'hidden', 0);
+					d.fields_dict.amtp.set_value(ftotal);
+
+				}
+				
 			}
 
-			// console.log(" this is invoice submit", this.events.submit_invoice())
-			this.events.submit_invoice();
-			// frappe.run_serially([
-			// 	() => this.events.submit_invoice(),
-			// 	// () => this.events.new_order()
-			// ]);
+			const fetch_curr_and_xchg_rate = () => {
+				const me = this;
+				const doc = this.events.get_frm().doc;
+				const comp = doc.company;
+				
+				d.fields_dict.gtotal.set_value(gt)
+				d.fields_dict.bamount.set_value(0.0)
+				d.fields_dict.currency.set_value("")
+				d.fields_dict.xchg_rate.set_value(0.0)
+				d.fields_dict.amt.set_value(0.0)
+				
+				
+				
+				
+				
+	
+				const flist = []
+				const fdict = {}
+				const p = {"mode_of_payment" : d.fields_dict.mop.get_value() }
+	
+					console.log("before getdoc",p.mode_of_payment,comp)
+					if(!p.mode_of_payment) return ;
+
+
+					frappe.db.get_doc("Mode of Payment", p.mode_of_payment).then(( currency ) => {
+						
+						
+						console.log("after getdoc",currency)
+						frappe.db.get_doc("Company",comp).then(({default_currency}) => {
+							console.log(default_currency)
+							frappe.call({
+								method:"erpnext.setup.utils.get_exchange_rate",
+								args:{
+									"from_currency":currency.currency,
+									"to_currency":default_currency
+	
+								},
+								callback:function(r){
+									if(r.message){
+
+										const formatted_currency_equi = format_currency(parseFloat(gt/r.message), currency.currency)
+										d.fields_dict.xchg_rate.set_value(r.message);
+										d.fields_dict.currency.set_value(currency.currency)
+										// $(d.fields_dict['numpad'].wrapper).html(npd);
+										const strhtml = `<h3>Grand Total in ${currency.currency} : ${formatted_currency_equi} </h3>`
+
+										
+										$(d.fields_dict['gte'].wrapper).html(strhtml)
+
+										
+										
+										
+	
+									}
+									// else{
+									// 	console.log("hiii")
+										
+									// 	dialog.fields_dict.mul_curr_denominations.grid.refresh();
+									// }
+								}
+								
+							})
+	
+						});
+						
+						
+	
+					});
+					
+				
+			
+			const npd = `<!DOCTYPE html>
+			<html>
+			<head>
+			<style>
+			.button {
+			  border: none;
+			  color: black;
+			  padding: 15px 32px;
+			  text-align: center;
+			  text-decoration: none;
+			  display: inline-block;
+			  font-size: 16px;
+			  margin: 4px 2px;
+			  cursor: pointer;
+			}
+			
+			.button1  /* Green */
+			.button2  /* Blue */
+			.button3 
+			.button4
+			.button5
+			.button6
+			.button7
+			.button8
+			.button9
+			.button10
+			.button11
+			.button12
+			
+			
+			</style>
+			</head>
+			<body>
+			
+			
+			<p id="demo"></p>
+			
+			<script>
+			
+			
+			function myFunction(v) {
+				window.lk = 0.0
+				
+
+				// frappe.call({
+				// 	method:"erpnext.selling.page.point_of_sale.pos_payment.get_total_amount",
+				// 	args:{
+				// 		"equi":v
+				// 	},
+				// 	callback:function(r){
+				// 		lk += v
+
+				
+		
+		
+						
+		
+		
+				// 	},
+				// })
+			  document.getElementById("demo").innerHTML += v ;
+			//   get_total_amount(document.getElementById("demo").innerHTML)
+			  window.lk = document.getElementById("demo").innerHTML
+			  console.log(lk)
+			
+						
+			  
+			 
+			}
+			function myFunction2(){
+				document.getElementById("demo").innerHTML=""
+			}
+			</script>
+			
+			
+			
+			<button class="button button1" onclick="myFunction(1)" >1</button>
+			<button class="button button2" onclick="myFunction(2)">2</button>
+			<button class="button button3" onclick="myFunction(3)">3</button>
+			
+			<br> <button class="button button4" onclick="myFunction(4)">4</button>
+				<button class="button button5" onclick="myFunction(5)">5</button>
+				<button class="button button6" onclick="myFunction(6)">6</button> 
+			</br>
+			
+			
+			  <button class="button button7" onclick="myFunction(7)">7</button>
+			  <button class="button button8" onclick="myFunction(8)">8</button>
+			  <button class="button button9" onclick="myFunction(9)">9</button>
+			
+			
+			<br>
+			  <button class="button button10" onclick="myFunction('.')">.</button>
+			  <button class="button button11" onclick="myFunction(0)">0</button>
+			  <button class="button button12" onclick="myFunction2()">Del</button>
+			</br>
+			
+			
+			
+			
+			</body>
+			</html>`
+	
+			}
+
+
+
+			payments.forEach(m => {
+				d.fields_dict.mop.df.options.push(m.mode_of_payment)
+				d.fields_dict.mop.refresh();
+				
+				let base_amount = 0.0
+				let amount = 0.0
+				let mode_of_payment = m.mode_of_payment
+				d.fields_dict.payment_details.df.data.push({base_amount,mode_of_payment,amount})
+				d.fields_dict.payment_details.refresh();
+				
+			})
+
+			
+			
+
+			
 			
 		});
 
+		
+
 		frappe.ui.form.on('POS Invoice', 'paid_amount', (frm) => {
 			this.update_totals_section(frm.doc);
+			console.log("frm.doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",frm.doc)
 
 			// need to re calculate cash shortcuts after discount is applied
 			const is_cash_shortcuts_invisible = !this.$payment_modes.find('.cash-shortcuts').is(':visible');
@@ -243,6 +1084,8 @@ erpnext.PointOfSale.Payment = class {
 			}
 		});
 	}
+
+	
 
 	setup_listener_for_payments() {
 		frappe.realtime.on("process_phone_payment", (data) => {
@@ -322,6 +1165,7 @@ erpnext.PointOfSale.Payment = class {
 	}
 
 	render_payment_section() {
+		
 		this.render_payment_mode_dom();
 		this.make_invoice_fields_control();
 		this.update_totals_section();
@@ -358,60 +1202,297 @@ erpnext.PointOfSale.Payment = class {
 		}
 	}
 
+	fetch_curr_and_xchg_rate(mode_of_payment,amount){
+		let to_curr = ""
+		let equi = 0.0
+		// setTimeout(this.render_payment_mode_dom, 2000)
+		return frappe.call({
+			method:"erpnext.selling.page.point_of_sale.pos_payment.get_dets",
+			args:{
+				"mop":mode_of_payment,
+				"amount":amount
+
+			},
+			callback:function(r){
+				console.log("789456123",r.message)
+				to_curr = r.message[1]
+				equi = r.message[0]
+				console.log("to_curr9242",to_curr)
+				console.log("equi9242",equi)
+
+				return equi
+				//return Promise.resolve(equi);
+
+
+				
+
+
+			},
+			
+
+		})
+		
+	 };
+
+	 fetch_gt(mode_of_payment,amount){
+		let to_curr = ""
+		let equi = 0.0
+		// setTimeout(this.render_payment_mode_dom, 2000)
+		return frappe.call({
+			method:"erpnext.selling.page.point_of_sale.pos_payment.get_gt",
+			args:{
+				"mop":mode_of_payment,
+				"amount":amount
+
+			},
+			callback:function(r){
+				console.log("789456123",r.message)
+				to_curr = r.message[1]
+				equi = r.message[0]
+				console.log("to_curr9242",to_curr)
+				console.log("equi9242",equi)
+
+				return equi
+				//return Promise.resolve(equi);
+
+
+				
+
+
+			},
+			
+
+		})
+		
+	 };
+
+	
+	// get_grand_total_in_multiple_currencies(){
+	// 	const doc = this.events.get_frm().doc;
+	// 	const grand_total = doc.grand_total;
+	// 	const pos_profile = doc.pos_profile
+	// 	const mop = [];
+	// 	let component = this.wrapper.find('.payment-container');
+	// 	let ai = component.find('.fields-section')
+	// 	frappe.db.get_doc("POS Profile",pos_profile).then(mods=> {
+			
+	// 		for(var key in mods.payments){
+	// 			console.log("key**************88",mods.payments[key]["mode_of_payment"].replace(/ +/g, "_").toLowerCase())
+	// 			mop.push(mods.payments[key]["mode_of_payment"])
+	// 		}
+	// 		ai.append(`<button type="button"><div class="multi-curr-btn">${__("Payment Methods")}</div></button>`)
+	// 		mop.forEach(w => {
+	// 			console.log("Currency Dict^^^^^^^^^^^^^^^^^^^^^^^^^^^",w)
+	// 			this.fetch_gt(w,grand_total).then(e => {
+	// 			console.log("MYList for grand total is: ", e.message)
+	// 			let activemode = e.message[w.replace(/ +/g, "_").toLowerCase()]
+	// 			console.log("MYList for grand total is: ", activemode)
+	// 			window.to_curr = activemode[0]
+	// 			window.equi = activemode[1]
+
+	// 			const formatted_currency_equi = format_currency(equi, to_curr);
+	// 			ai.append(`
+
+							
+	// 						<div class="cash-to_curr"> Grand Total in  ${to_curr} :${formatted_currency_equi} </div>`
+
+	// 					)
+
+
+					
+					
+
+	// 			})
+	// 		})
+
+			
+			
+			
+	// 	})
+
+
+
+	// }
+
 	render_payment_mode_dom() {
-		const doc = this.events.get_frm().doc;
-		const payments = doc.payments;
-		const currency = doc.currency;
+		
 
-		this.$payment_modes.html(`${
-			payments.map((p, i) => {
-				const mode = p.mode_of_payment.replace(/ +/g, "_").toLowerCase();
-				const payment_type = p.type;
-				const margin = i % 2 === 0 ? 'pr-2' : 'pl-2';
-				const amount = p.amount > 0 ? format_currency(p.amount, currency) : '';
 
-				return (`
-					<div class="payment-mode-wrapper">
-						<div class="mode-of-payment" data-mode="${mode}" data-payment-type="${payment_type}">
-							${p.mode_of_payment}
-							<div class="${mode}-amount pay-amount">${amount}</div>
-							<div class="${mode} mode-of-payment-control"></div>
-						</div>
-					</div>
-				`);
-			}).join('')
-		}`);
 
-		payments.forEach(p => {
-			const mode = p.mode_of_payment.replace(/ +/g, "_").toLowerCase();
-			const me = this;
-			this[`${mode}_control`] = frappe.ui.form.make_control({
-				df: {
-					label: p.mode_of_payment,
-					fieldtype: 'Currency',
-					placeholder: __('Enter {0} amount.', [p.mode_of_payment]),
-					onchange: function() {
-						const current_value = frappe.model.get_value(p.doctype, p.name, 'amount');
-						if (current_value != this.value) {
-							frappe.model
-								.set_value(p.doctype, p.name, 'amount', flt(this.value))
-								.then(() => me.update_totals_section())
+	// 	const doc = this.events.get_frm().doc;
+	// 	const pos_profile = doc.pos_profile
+	// 	const grand_total = doc.grand_total
+	// 	console.log("89415615194984",doc)
+		
+	// 	const currency = doc.currency;
+		
+		
 
-							const formatted_currency = format_currency(this.value, currency);
-							me.$payment_modes.find(`.${mode}-amount`).html(formatted_currency);
-						}
-					}
-				},
-				parent: this.$payment_modes.find(`.${mode}.mode-of-payment-control`),
-				render_input: true,
-			});
-			this[`${mode}_control`].toggle_label(false);
-			this[`${mode}_control`].set_value(p.amount);
-		});
 
-		this.render_loyalty_points_payment_mode();
 
-		this.attach_cash_shortcuts(doc);
+	// 	// this.fetch_curr_and_xchg_rate(p.mode_of_payment,current_value).then(e => {
+	// 	// 	console.log("MYList is: ", e.message)
+	// 	// 	window.activemode = e.message[active_mode]
+	// 	// 		window.to_curr = activemode[0]
+	// 	// 		window.equi = activemode[1]
+	// 	// })
+	// 	// console.log("mop*****************&&&&&&&&&&&&&&&&",mop)
+		
+	// 	const payments = doc.payments;
+	// 	console.log("Currency Dict",currency)
+		
+
+
+		
+	// 	const default_company = frappe.defaults.get_default('company');
+	// 	const com_curr = frappe.get_doc(":Company", default_company).default_currency;
+	// 	var xchg = 0.0
+
+	// 	this.$payment_modes.html(`${
+			
+	// 		console.log("payments",payments),
+	// 		payments.map((p, i) => {
+	// 			console.log("p&&&&&&&&*************",i)
+	// 			const mode = p.mode_of_payment.replace(/ +/g, "_").toLowerCase();
+	// 			const amount = p.amount > 0 ? format_currency(p.amount, currency) : '';
+	// 			console.log("Amount is",currency)
+	// 			let mop_curr = ""
+			
+	// 			console.log("mode",mop_curr)
+	// 			const payment_type = p.type;
+	// 			const margin = i % 2 === 0 ? 'pr-2' : 'pl-2';
+				
+
+
+				
+				
+	// 			this.fetch_curr_and_xchg_rate(p.mode_of_payment,p.amount).then(e => {
+	// 				console.log("MYList is: ", e.message)
+
+	// 				window.to_curr = e.message[1]
+	// 				window.equi = e.message[0]
+
+	// 			})
+
+				
+
+	// 			var x= (`
+	// 			<div class="payment-mode-wrapper">
+	// 				<div class="mode-of-payment" data-mode="${mode}" data-payment-type="${payment_type}">
+	// 					${p.mode_of_payment}
+	// 					<div class="${mode}-amount pay-amount">${amount}</div>
+	// 					<div class="${mode} mode-of-payment-control"></div>
+						
+						
+	// 				</div>
+					
+					
+	// 			</div>
+	// 		`);
+				
+				
+	// 			return  x
+	// 		}).join('')
+	// 	}`);
+
+	// 	payments.forEach(p => {
+	// 		// console.log("index of payments*******************",i)
+	// 		const mode = p.mode_of_payment.replace(/ +/g, "_").toLowerCase();
+	// 		const me = this;
+	// 		const doc = this.events.get_frm().doc;
+	// 		this[`${mode}_control`] = frappe.ui.form.make_control({
+	// 			df: {
+	// 				label: p.mode_of_payment,
+	// 				fieldtype: 'Currency',
+	// 				placeholder: __('Enter {0} amount.', [p.mode_of_payment]),
+	// 				onchange: function() {
+
+
+	// 					let active_mode2 = me.$payment_modes.find(".border-primary");
+	// 					let active_mode = active_mode2.length ? active_mode2.attr("data-mode") : undefined;
+	// 					console.log("9242********************",active_mode)
+
+
+
+	// 					if (!active_mode) return;
+
+	// 					// const mode_of_payments = Array.from(this.$payment_modes.find(".mode-of-payment")).map(m => $(m).attr("data-mode"));
+	// 					// const mode_index = mode_of_payments.indexOf(active_mode);
+
+	// 					// console.log("9242********************",mode_index)
+						
+	// 					const current_value = frappe.model.get_value(p.doctype, p.name, 'amount');
+	// 					me.fetch_curr_and_xchg_rate(p.mode_of_payment,current_value).then(e => {
+	// 						console.log("MYList is: ", e.message)
+	// 						window.activemode = e.message[active_mode]
+	// 							window.to_curr = activemode[0]
+	// 							window.equi = activemode[1]
+	// 					})
+	// 					console.log("ct",frappe.model.get_value(p.doctype, p.name, 'mode_of_payment'))
+	// 					if (current_value != this.value) {
+	// 						console.log("yes")
+	// 						frappe.model
+	// 							.set_value(p.doctype, p.name, 'amount', flt(this.value))
+	// 							.then(() => me.update_totals_section())
+	// 							me.fetch_curr_and_xchg_rate(p.mode_of_payment,this.value).then(e => {
+	// 								console.log("MYList is: ", e.message)
+	// 								window.activemode = Object.keys(e.message)[0]
+									
+	// 								console.log("am*******************",activemode)
+	// 								window.to_curr = e.message[activemode][0]
+	// 								window.equi = e.message[activemode][1]
+	// 								const formatted_currency_equi = format_currency(equi, to_curr);
+									
+	// 							console.log("yyyyyyyyyyyyyyyyyyyyyyyeeeeeeeeeeessssssssssss",activemode)
+	// 							console.log(">>>>>>>>>>>>>>>>>>>>>>: ",me.wrapper.find('.payment-container') , to_curr)
+	// 							me.$payment_modes.find(`cash-equi`).html(formatted_currency_equi);
+	// 							// let component = me.wrapper.find('.payment-container');
+	// 							// let ai = component.find('.fields-section')
+
+								
+	// 							if(to_curr != com_curr && equi > 0.0){
+									
+	// 								frappe.model
+	// 								.set_value(p.doctype, p.name, 'amount', flt(equi))
+	// 								.then(() => me.update_totals_section())
+
+									
+
+								
+								
+						
+						
+										
+						
+						
+	// 								}
+								
+	// 							// else if (to_curr == com_curr){
+									
+	// 							// 	doc["updated_amount"] =  equi
+	// 							// 	console.log("equi*********************",doc,equi)
+									
+	// 							// }
+								
+
+								
+							
+	// 							})
+ 
+
+	// 					}
+	// 				}
+	// 			},
+	// 			parent: this.$payment_modes.find(`.${mode}.mode-of-payment-control`),
+	// 			render_input: true,
+	// 		});
+	// 		this[`${mode}_control`].toggle_label(false);
+	// 		this[`${mode}_control`].set_value(p.amount);
+	// 	});
+
+	// 	this.render_loyalty_points_payment_mode();
+
+	// 	this.attach_cash_shortcuts(doc);
 	}
 
 	focus_on_default_mop() {
@@ -537,32 +1618,33 @@ erpnext.PointOfSale.Payment = class {
 
 	update_totals_section(doc) {
 		if (!doc) doc = this.events.get_frm().doc;
-		const paid_amount = doc.paid_amount;
+		const paid_amount = parseFloat(doc.paid_amount);
 		const grand_total = cint(frappe.sys_defaults.disable_rounded_total) ? doc.grand_total : doc.rounded_total;
-		const remaining = grand_total - doc.paid_amount;
+		const remaining = grand_total-parseFloat(doc.paid_amount);
 		const change = doc.change_amount || remaining <= 0 ? -1 * remaining : undefined;
 		const currency = doc.currency;
 		const label = change ? __('Change') : __('To Be Paid');
 
-		this.$totals.html(
-			`<div class="col">
-				<div class="total-label">${__('Grand Total')}</div>
-				<div class="value">${format_currency(grand_total, currency)}</div>
-			</div>
-			<div class="seperator-y"></div>
-			<div class="col">
-				<div class="total-label">${__('Paid Amount')}</div>
-				<div class="value">${format_currency(paid_amount, currency)}</div>
-			</div>
-			<div class="seperator-y"></div>
-			<div class="col">
-				<div class="total-label">${label}</div>
-				<div class="value">${format_currency(change || remaining, currency)}</div>
-			</div>`
-		);
+		// this.$totals.html(
+		// 	`<div class="col">
+		// 		<div class="total-label">${__('Grand Total')}</div>
+		// 		<div class="value">${format_currency(grand_total, currency)}</div>
+		// 	</div>
+		// 	<div class="seperator-y"></div>
+		// 	<div class="col">
+		// 		<div class="total-label">${__('Paid Amount')}</div>
+		// 		<div class="value">${format_currency(paid_amount, currency)}</div>
+		// 	</div>
+		// 	<div class="seperator-y"></div>
+		// 	<div class="col">
+		// 		<div class="total-label">${label}</div>
+		// 		<div class="value">${format_currency(change || remaining, currency)}</div>
+		// 	</div>`
+		// );
 	}
 
 	toggle_component(show) {
+		console.log("show**********************************************")
 		show ? this.$component.css('display', 'flex') : this.$component.css('display', 'none');
 	}
 };
