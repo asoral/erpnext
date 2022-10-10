@@ -30,4 +30,6 @@ frappe.pages['point-of-sale'].refresh = function(wrapper) {
 	// 		"pos_profile":b
 	// 	}
 	// });
+
+	
 };

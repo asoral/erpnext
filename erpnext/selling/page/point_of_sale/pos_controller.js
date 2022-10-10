@@ -5,6 +5,7 @@ erpnext.PointOfSale.Controller = class {
 		this.page = wrapper.page;
 
 		this.check_opening_entry();
+		
 	}
 
 	fetch_opening_entry() {
@@ -653,7 +654,18 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	prepare_menu() {
-		
+
+		var pos = this.pos_profile;
+		this.page.add_inner_button(__("Clear"), function() {
+			frappe.call({
+				method: "erpnext.selling.page.point_of_sale.pos.pole_clear",
+				args:{
+				"pos_profile":pos
+			}
+			});
+			console.log('clear the pole display')
+		});
+
 		this.page.clear_menu();
 
 		this.page.add_menu_item(__("Open Form View"), this.open_form_view.bind(this), false, 'Ctrl+F');
@@ -1120,6 +1132,9 @@ erpnext.PointOfSale.Controller = class {
 			console.log('###############')
 			// this.getItem(li);
 			// var func = this.myfunction(mylist);
+			this.getItem(li);
+			var func = this.
+			myfunction(mylist);
 			
 
 

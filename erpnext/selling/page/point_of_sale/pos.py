@@ -21,11 +21,14 @@ def pole_display(item,amount,grand_total,pos_profile):
         dat = frappe.get_last_doc('POS Opening Entry')
         print('!!!!!!!!!!!pos_opening_entry',dat)
         doc = frappe.get_doc('Item',item)
-        port = frappe.get_doc('POS Profile',pos_profile,'port_display')
+        port = frappe.get_value('POS Profile',pos_profile,'port_display')
+        print('AAAAAAAAAAAAport',port)
         if port:
             #initialize the serial port
             s = serial.Serial()
-            s.port = port
+            # COMPORT = int(input("Please enter the port number: ")) #this refers to which port your usb is inserted into
+            # ser.port = "COM{}".format(COMPORT-1)
+            s.port = str(port)
             s.baudrate = 9600
             s.open()
             
@@ -52,7 +55,7 @@ def pole_display(item,amount,grand_total,pos_profile):
 @frappe.whitelist()
 def pole_clear(pos_profile):
     print('iiiiiiiiiiiiiiiiiiiii')
-    port = frappe.get_doc('POS Profile',pos_profile,'port_display')
+    port = frappe.get_value('POS Profile',pos_profile,'port_display')
     if port:
         s = serial.Serial()
         s.port = port
@@ -70,7 +73,7 @@ def check(grand_total,pos_profile):
     print('((((((((((((((*************')
     if item:
         doc = frappe.get_doc('Item',item)
-        port = frappe.get_doc('POS Profile',pos_profile,'port_display')
+        port = frappe.get_value('POS Profile',pos_profile,'port_display')
         if port:
             s = serial.Serial()
             s.port = port
