@@ -10,6 +10,7 @@
   "customer",
   "country",
   "disabled",
+  "wtable",
   "column_break_9",
   "warehouse",
   "campaign",
@@ -377,6 +378,13 @@
    "fieldtype": "Table",
    "label": "POS Supervisor",
    "options": "POS Profile Supervisor"
+  },
+  {
+   "default": "27",
+   "fieldname": "wtable",
+   "fieldtype": "Int",
+   "label": "Weighable Barcode Starts With",
+   "read_only": 1
   }
  ],
  "icon": "icon-cog",
@@ -404,7 +412,7 @@
    "link_fieldname": "pos_profile"
   }
  ],
- "modified": "2022-09-20 12:43:55.943655",
+ "modified": "2022-10-06 17:22:07.523077",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Profile",

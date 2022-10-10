@@ -273,10 +273,8 @@ erpnext.PointOfSale.ItemSelector = class {
 
 		this.$component.on('click', '.item-wrapper', function(){
 
-			if(st.substring(0,2) != '27'){
-
-
-			const $item = $(this);
+			if(!st){
+				const $item = $(this);
 			console.log("NON DYNAMIC",st,pp)
 			const item_code = unescape($item.attr('data-item-code'));
 			let batch_no = unescape($item.attr('data-batch-no'));
@@ -298,83 +296,119 @@ erpnext.PointOfSale.ItemSelector = class {
 			
 			
 			me.search_field.set_focus();
-
+				
 			}
+			else{
 
-			else if(st.substring(0,2) == '27'){
-
+				if(st.substring(0,2) != '27'){
+					console.log("9242yessssssssssssssssssssss")
+	
+	
 				const $item = $(this);
-			console.log("item",st,pp)
-			const item_code = unescape($item.attr('data-item-code'));
-			let batch_no = unescape($item.attr('data-batch-no'));
-			let serial_no = unescape($item.attr('data-serial-no'));
-			let uom = unescape($item.attr('data-uom'));
-			let rate = unescape($item.attr('data-rate'));
-			// console.log("me.events",val)
-
-			if(st.length == 13){
-				console.log("yes*************************8")
-				frappe.db.get_doc("POS Profile",pp).then(p => {
-					console.log("wtable",p.wtable,st.su)
-					if(p.wtable == st.substring(0,2)){
-						let ic = st.substring(2,7)
-						let ip = st.substring(7,12)
-						frappe.call({
-							method: "erpnext.selling.page.point_of_sale.pos_payment.update_cart",
-							args: {"ic":ic,"barcode":st,"ip":ip},
-							callback:function(r){
-								let msg = {}
-								msg["items"] = r.message
-
-								console.log("this12345*********************",r.message)
-								const {items , serial_no, batch_no, barcode } = msg;
-								window.qty = r.message[0].qty
-								let price = r.message[0].cprice
-								console.log("qty**********************************************",typeof qty,price)
-								me.items = items;
-								me.render_item_list2(items);
-								
-
-
-
-								
-								
-
-								me.auto_add_item && me.items.length == 1
-								me.set_search_value('');
-
-								
-								
-
-							}
-
-											
-						})
+				console.log("NON DYNAMIC",st,pp)
+				const item_code = unescape($item.attr('data-item-code'));
+				let batch_no = unescape($item.attr('data-batch-no'));
+				let serial_no = unescape($item.attr('data-serial-no'));
+				let uom = unescape($item.attr('data-uom'));
+				let rate = unescape($item.attr('data-rate'));
+	
+	
+				batch_no = batch_no === "undefined" ? undefined : batch_no;
+				serial_no = serial_no === "undefined" ? undefined : serial_no;
+				uom = uom === "undefined" ? undefined : uom;
+				rate = rate === "undefined" ? undefined : rate;
+	
+				me.events.item_selected({
+					field: 'qty',
+					value :'+1',
+					item: { item_code, batch_no, serial_no, uom, rate }
+				});
+				
+				
+				me.search_field.set_focus();
+	
+				}
+	
+				else if(st.substring(0,2) == '27'){
+	
+					const $item = $(this);
+				console.log("item",st,pp)
+				const item_code = unescape($item.attr('data-item-code'));
+				let batch_no = unescape($item.attr('data-batch-no'));
+				let serial_no = unescape($item.attr('data-serial-no'));
+				let uom = unescape($item.attr('data-uom'));
+				let rate = unescape($item.attr('data-rate'));
+				// console.log("me.events",val)
+	
+				if(st.length == 13){
+					console.log("yes*************************8")
+					frappe.db.get_doc("POS Profile",pp).then(p => {
+						console.log("wtable",p.wtable,st.su)
+						if(p.wtable == st.substring(0,2)){
+							let ic = st.substring(2,7)
+							let ip = st.substring(7,12)
+							frappe.call({
+								method: "erpnext.selling.page.point_of_sale.pos_payment.update_cart",
+								args: {"ic":ic,"barcode":st,"ip":ip},
+								callback:function(r){
+									let msg = {}
+									msg["items"] = r.message
+	
+									console.log("this12345*********************",r.message)
+									const {items , serial_no, batch_no, barcode } = msg;
+									window.qty = r.message[0].qty
+									let price = r.message[0].cprice
+									console.log("qty**********************************************",typeof qty,price)
+									me.items = items;
+									me.render_item_list2(items);
+									
+	
+	
+	
+									
+									
+	
+									me.auto_add_item && me.items.length == 1
+									me.set_search_value('');
+	
+									
+									
+	
+								}
+	
+												
+							})
+							
+						}
 						
-					}
-					
-				})
+					})
+				}
+				
+	
+				// console.log("item*************************************************",val)
+	
+				// escape(undefined) returns "undefined" then unescape returns "undefined"
+				batch_no = batch_no === "undefined" ? undefined : batch_no;
+				serial_no = serial_no === "undefined" ? undefined : serial_no;
+				uom = uom === "undefined" ? undefined : uom;
+				rate = rate === "undefined" ? undefined : rate;
+	
+				me.events.item_selected({
+					field: 'qty',
+					value : (__('+{0}',[qty])),
+					item: { item_code, batch_no, serial_no, uom, rate }
+				});
+				
+				
+				me.search_field.set_focus();
+	
+				}
+
 			}
+
 			
 
-			// console.log("item*************************************************",val)
-
-			// escape(undefined) returns "undefined" then unescape returns "undefined"
-			batch_no = batch_no === "undefined" ? undefined : batch_no;
-			serial_no = serial_no === "undefined" ? undefined : serial_no;
-			uom = uom === "undefined" ? undefined : uom;
-			rate = rate === "undefined" ? undefined : rate;
-
-			me.events.item_selected({
-				field: 'qty',
-				value : (__('+{0}',[qty])),
-				item: { item_code, batch_no, serial_no, uom, rate }
-			});
 			
-			
-			me.search_field.set_focus();
-
-			}
 
 
 
@@ -487,7 +521,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				console.log("message123*********************************")
 				const { items, serial_no, batch_no, barcode } = message;
 				if(search_term.length == 13){
-					// console.log("message*********************************",items)
+					console.log("message*********************************",items)
 					frappe.db.get_doc("POS Profile",this.pos_profile).then(p => {
 					
 					if(p.wtable == search_term.substring(0,2)){

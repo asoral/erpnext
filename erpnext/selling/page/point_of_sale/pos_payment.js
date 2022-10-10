@@ -246,7 +246,7 @@ erpnext.PointOfSale.Payment = class {
 			
 
 			const doc = this.events.get_frm().doc;
-			console.log("doc*********************************8",doc.opening)
+			console.log("doc*********************************8",doc)
 			const paid_amount = doc.paid_amount;
 			const items = doc.items;
 			const payments = doc.payments;
@@ -734,37 +734,34 @@ erpnext.PointOfSale.Payment = class {
 					// me.update_totals_section(final_dict)
 					doc["base_paid_amount"] = values.pamt
 					doc["change_amount"] = values.chg
-					console.log("doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",doc)
+					console.log("doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",doc.name)
 					
 					if(values.amtp == 0.0 || values.chg > 0.0){
-						for(var dg in values.payment_details){
-							frappe.call({
-								method:"erpnext.selling.page.point_of_sale.pos_payment.update_pos_invoice",
-								args:{
-									"values":values.payment_details[dg],
-									"inv":doc.name,
-									"paid_amount":values.pamt,
-									"change_amount":values.chg
-									
-		
-								},
-								callback:function(r){
-									frappe.ui.form.qz_connect()
-									.then(function () {
-										var config = qz.configs.create("POS-80")
-										// window.location.reload()
-										return qz.print(config, [r.message]);
-									})
-									.then(frappe.ui.form.qz_success)
-									.catch(err => {
-										frappe.ui.form.qz_fail(err);
-									});
+						frappe.call({
+							method:"erpnext.selling.page.point_of_sale.pos_payment.update_pos_invoice",
+							args:{
+								"values":values.payment_details,
+								"inv":doc.name,
+								"paid_amount":values.pamt,
+								"change_amount":values.chg
+							},
+							callback:function(r){
+								console.log("Doc name",doc.name)
+								// frappe.ui.form.qz_connect()
+								// .then(function () {
+								// 	var config = qz.configs.create("POS-80")
+								// 	// window.location.reload()
+								// 	return qz.print(config, [r.message]);
+								// })
+								// .then(frappe.ui.form.qz_success)
+								// .catch(err => {
+								// 	frappe.ui.form.qz_fail(err);
+								// });
 
-									
-		
-								}
-							})
-						}
+								
+	
+							}
+						})
 						
 						
 
@@ -1039,14 +1036,31 @@ erpnext.PointOfSale.Payment = class {
 
 
 			payments.forEach(m => {
-				d.fields_dict.mop.df.options.push(m.mode_of_payment)
-				d.fields_dict.mop.refresh();
+				frappe.db.get_doc("POS Invoice",m.parent).then(p => {
+					frappe.db.get_doc("POS Profile",p.pos_profile).then(g => {
+						g.payments.forEach(pymts => {
+						d.fields_dict.mop.df.options.push(pymts.mode_of_payment)
+						console.log("9242*********************")
+						d.fields_dict.mop.refresh();
+						let base_amount = 0.0
+						let amount = 0.0
+						let mode_of_payment = pymts.mode_of_payment
+						d.fields_dict.payment_details.df.data.push({base_amount,mode_of_payment,amount})
+						d.fields_dict.payment_details.refresh();
+
+						})
+						
+
+					})
+
+
+				})
+
 				
-				let base_amount = 0.0
-				let amount = 0.0
-				let mode_of_payment = m.mode_of_payment
-				d.fields_dict.payment_details.df.data.push({base_amount,mode_of_payment,amount})
-				d.fields_dict.payment_details.refresh();
+
+				
+				
+				
 				
 			})
 

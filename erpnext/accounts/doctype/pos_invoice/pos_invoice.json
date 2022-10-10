@@ -1570,6 +1570,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "barcode",
    "fieldtype": "Barcode",
    "label": "Barcode"
@@ -1578,7 +1579,7 @@
  "icon": "fa fa-file-text",
  "is_submittable": 1,
  "links": [],
- "modified": "2022-08-18 17:45:21.743537",
+ "modified": "2022-10-10 14:55:07.101857",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Invoice",

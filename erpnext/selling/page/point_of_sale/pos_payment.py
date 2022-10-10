@@ -1,8 +1,15 @@
+# from ast import main
 from filecmp import cmp
 from frappe.frappe.utils.data import flt
 from erpnext.erpnext import get_default_company
 from erpnext.setup.utils import get_exchange_rate
 from frappe.www.printview import get_print_style
+from erpnext.erpnext.accounts.doctype.loyalty_program_collection.row_wise_loyalty import row_wise_loyalty_point
+
+# from erpnext.erpnext.accounts.doctype.pos_invoice.pos_invoice import (check_phone_payments,set_status)
+
+# from erpnext.erpnext.accounts.doctype.sales_invoice.sales_invoice import (make_loyalty_point_entry , apply_loyalty_points)
+
 
 import frappe
 
@@ -36,6 +43,8 @@ def get_gt(mop,amount):
     }
     return final
 
+
+
 @frappe.whitelist()
 def get_total_amount(equi):
     ap = {"gt":equi}
@@ -43,14 +52,41 @@ def get_total_amount(equi):
     return ap
 
 
+# def inv_sub(doc):
+#     if doc.loyalty_program:
+#         doc.make_loyalty_point_entry()
+#     elif doc.is_return and doc.return_against and doc.loyalty_program:
+#         against_psi_doc = frappe.get_doc("POS Invoice", doc.return_against)
+#         against_psi_doc.delete_loyalty_point_entry()
+#         against_psi_doc.make_loyalty_point_entry()
+#     if doc.redeem_loyalty_points and doc.loyalty_points:
+#         doc.apply_loyalty_points()
+#     check_phone_payments()
+#     set_status(update=True)
+
+#     if doc.coupon_code:
+#         from erpnext.accounts.doctype.pricing_rule.utils import update_coupon_code_count
+#         update_coupon_code_count(doc.coupon_code,'used')
+
+
 
 @frappe.whitelist()
 def update_pos_invoice(values,inv,paid_amount,change_amount):
+    lod = []
     val = eval(values)
     print("dict1",val)
+    for kl in val:
+        print("********************",kl)
+        lod.append({
+            kl["mode_of_payment"]:[kl["base_amount"],kl["amount"]]
+        })
+
+    print("****************new",lod)
+
+
     main_doc = frappe.get_doc("POS Invoice",inv)
-    doc = frappe.db.get_all("Sales Invoice Payment",{'parent':inv},['*'])
-    print("dict2",doc)
+    # doc = frappe.db.get_all("Sales Invoice Payment",{'parent':inv},['*'])
+    # print("dict2",doc)
     lst = ["mode_of_payment"]
 
     
@@ -59,82 +95,74 @@ def update_pos_invoice(values,inv,paid_amount,change_amount):
         # if o in val and doc:
         #     print("yes",val.get(o),doc.get(o))
     
-        if doc:
+        if main_doc:
             
 
             # print(doc.payments)
-            for i in doc:
-                print(i.mode_of_payment)
-                for j in val.keys():
-                    print("val******************",val,j)
-                    if i.mode_of_payment == val[o]:
-                        frappe.db.set_value("Sales Invoice Payment",i.name,"amount",val.get("amount"))
-                        frappe.db.set_value("Sales Invoice Payment",i.name,"foriegn_amount",val.get("base_amount"))
-                        frappe.db.set_value("Sales Invoice Payment",i.name,"foreign_currency",val.get("currency"))
+            for k in val:
+                for dnry in k:
+                    print("(@$@*********************0",k.get(dnry))
+                    main_doc.set("payments",[])
+                    main_doc.append("payments",{
+                        "mode_of_payment":k.get("mode_of_payment"),
+                        "amount":k.get("amount"),
+                        "foriegn_amount":k.get("base_amount")
+                    })
+
+                                
+                        
+                              
+
+
 
                         
-                        frappe.db.set_value("POS Invoice",inv,"base_change_amount",change_amount)
-                        frappe.db.set_value("POS Invoice",inv,"change_amount",change_amount)
-                        frappe.db.set_value("POS Invoice",inv,"paid_amount",paid_amount)
 
+            main_doc.base_change_amount = change_amount
+            main_doc.change_amount = change_amount
 
+            main_doc.paid_amount = paid_amount
+
+            main_doc.save(ignore_permissions = True)
+            if float(main_doc.paid_amount) > 0:
+                row_wise_loyalty_point(main_doc.name)
+                main_doc.submit()          
+                        # frappe.db.commit()
 
                         
 
                         
-                        frappe.db.commit()
 
-                        frappe.db.sql("""
-                        Update `tabPOS Invoice` 
-                        set docstatus = 1 , status = "Paid"
-                        where name = '{0}' """.format(inv))
+                        # doc2 = {}
 
-                        doc2 = {}
+                        # pos_inv = frappe.db.get_all("POS Invoice",{'name':inv},['*'])
+                        # pdoc = frappe.get_doc("POS Invoice",inv)
+                        # print("pdoc",pdoc.items)
 
-                        pos_inv = frappe.db.get_all("POS Invoice",{'name':inv},['*'])
-                        pdoc = frappe.get_doc("POS Invoice",inv)
-                        print("pdoc",pdoc.items)
+                        # inv_sub(pdoc)
 
-                        for i in pos_inv:
-                            print("items",i.items)
-                            items = frappe.db.get_all("POS Invoice Item",{'parent':inv},['*'])
-                            print("items2",items)
-                            doc2.update({
-                                "company_address":i.company_address,
-                                "pos_profile":i.pos_profile,
-                                "customer_name":i.customer_name,
-                                "posting_date":i.posting_date,
-                                "posting_time":i.posting_time,
-                                "items":items,
-                                "total":i.total,
-                                "total_taxes_and_charges":i.total_taxes_and_charges,
-                                "grand_total":i.grand_total,
-                                "barcode":i.barcode
+                        # for i in pos_inv:
+                        #     print("items",i.items)
+                        #     items = frappe.db.get_all("POS Invoice Item",{'parent':inv},['*'])
+                        #     print("items2",items)
+                        #     doc2.update({
+                        #         "company_address":i.company_address,
+                        #         "pos_profile":i.pos_profile,
+                        #         "customer_name":i.customer_name,
+                        #         "posting_date":i.posting_date,
+                        #         "posting_time":i.posting_time,
+                        #         "items":items,
+                        #         "total":i.total,
+                        #         "total_taxes_and_charges":i.total_taxes_and_charges,
+                        #         "grand_total":i.grand_total,
+                        #         "barcode":i.barcode
 
-                            })
+                        #     })
 
 
 
 
 
-                        base_template_path = "frappe/www/printview.html"
-                        template_path = (
-                            "erpnext/pos_invoice.html"
-                        )
                         
-
-                        html = frappe.render_template(
-                            template_path,
-                            doc2
-                        )
-
-                        html2 = frappe.render_template(
-                            base_template_path,
-                            {"body": html, "css": get_print_style(), "title": "POS Invoice"},
-                        )
-
-
-                        return html2
                         # main_doc.save(ignore_permissions=True)
                         # main_doc.submit()
 

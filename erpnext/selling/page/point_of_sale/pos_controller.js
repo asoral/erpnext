@@ -649,7 +649,7 @@ erpnext.PointOfSale.Controller = class {
 		this.init_payments();
 		this.init_recent_order_list();
 		this.init_order_summary();
-		this.getScreenDetails();
+		// this.getScreenDetails();
 	}
 
 	prepare_menu() {
@@ -1038,6 +1038,7 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	async on_cart_update(args) {
+		let mylist = [];
 		frappe.dom.freeze();
 		let item_row = undefined;
 		try {
@@ -1115,10 +1116,10 @@ erpnext.PointOfSale.Controller = class {
 			}
 
 			// this.save_draft_invoice();
-			this.add_item();
+			// this.add_item();
 			console.log('###############')
-			this.getItem(li);
-			var func = this.myfunction(mylist);
+			// this.getItem(li);
+			// var func = this.myfunction(mylist);
 			
 
 
@@ -1392,24 +1393,24 @@ erpnext.PointOfSale.Controller = class {
 
 	
 
-	getScreenDetails(){
-		const screenDetails = window.getScreenDetails();
-		console.log(screenDetails)
-		console.log(window.location)
+	// getScreenDetails(){
+	// 	const screenDetails = window.getScreenDetails();
+	// 	console.log(screenDetails)
+	// 	console.log(window.location)
 
-		var url = window.location.href
-		var arr = url.split("/");
-		var result = arr[0] + "//" + arr[2] + '/' + 'app' + '/'  + 'pos-display-cart'
-		console.log(result)
+	// 	var url = window.location.href
+	// 	var arr = url.split("/");
+	// 	var result = arr[0] + "//" + arr[2] + '/' + 'app' + '/'  + 'pos-display-cart'
+	// 	console.log(result)
 
-		const popup = window.open(
-			result,
-			'My Popup',
-			'left=1920,top=0,width=1920,height=1080',
-		  );
+	// 	const popup = window.open(
+	// 		result,
+	// 		'My Popup',
+	// 		'left=1920,top=0,width=1920,height=1080',
+	// 	  );
 
-		  popup.moveTo(2500, 50);
-	}
+	// 	  popup.moveTo(2500, 50);
+	// }
 
 
 	getItem(data){

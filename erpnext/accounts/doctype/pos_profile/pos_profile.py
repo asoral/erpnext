@@ -17,6 +17,7 @@ class POSProfile(Document):
 		self.validate_payment_methods()
 
 	def validate_default_profile(self):
+		print("92451451651",self.name)
 		for row in self.applicable_for_users:
 			res = frappe.db.sql("""select pf.name
 				from
@@ -134,6 +135,7 @@ def pos_profile_query(doctype, txt, searchfield, start, page_len, filters):
 		'page_len': page_len,
 		'txt': '%%%s%%' % txt
 	}
+	
 
 	pos_profile = frappe.db.sql("""select pf.name
 		from

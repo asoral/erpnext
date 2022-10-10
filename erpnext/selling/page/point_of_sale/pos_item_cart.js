@@ -392,7 +392,9 @@ erpnext.PointOfSale.ItemCart = class {
 				get_query: () => query,
 				onchange: function() {
 					if (this.value) {
+						console.log("9242@@@@@@@@@@@@@@@@@@",this.value)
 						const frm = me.events.get_frm();
+						console.log("84165151616",frm)
 						frappe.dom.freeze();
 						frappe.model.set_value(frm.doc.doctype, frm.doc.name, 'customer', this.value);
 						frm.script_manager.trigger('customer', frm.doc.doctype, frm.doc.name).then(() => {
