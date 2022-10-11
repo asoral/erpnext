@@ -96,18 +96,17 @@ def update_pos_invoice(values,inv,paid_amount,change_amount):
         #     print("yes",val.get(o),doc.get(o))
     
         if main_doc:
+            main_doc.set("payments",[])
             
 
             # print(doc.payments)
             for k in val:
-                for dnry in k:
-                    print("(@$@*********************0",k.get(dnry))
-                    main_doc.set("payments",[])
-                    main_doc.append("payments",{
-                        "mode_of_payment":k.get("mode_of_payment"),
-                        "amount":k.get("amount"),
-                        "foriegn_amount":k.get("base_amount")
-                    })
+                # print("(@$@*********************0",dnry)
+                main_doc.append("payments",{
+                    "mode_of_payment":k.get("mode_of_payment"),
+                    "amount":k.get("amount"),
+                    "foriegn_amount":k.get("base_amount")
+                })
 
                                 
                         
@@ -124,8 +123,10 @@ def update_pos_invoice(values,inv,paid_amount,change_amount):
 
             main_doc.save(ignore_permissions = True)
             if float(main_doc.paid_amount) > 0:
-                row_wise_loyalty_point(main_doc.name)
-                main_doc.submit()          
+                # row_wise_loyalty_point(main_doc.name)
+                main_doc.submit()    
+                if main_doc.docstatus == 1:
+                    return "reload"      
                         # frappe.db.commit()
 
                         

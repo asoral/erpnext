@@ -45,13 +45,14 @@ def row_wise_loyalty_point(name):
 	# print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",point1)
 		# t_points+=pos_pt
 		# print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",pos_pt)
-	lpe=frappe.new_doc("Loyalty Point Entry")
-	lpe.loyalty_program=pos_in.loyalty_program
-	lpe.customer=pos_in.customer
-	lpe.invoice_type=pos_in.doctype
-	lpe.invoice=pos_in.name
-	lpe.loyalty_points=points
-	lpe.expiry_date=condition.to_date
-	lpe.posting_date=condition.from_date
-	lpe.save()
-	return True
+	if points > 0:
+		lpe=frappe.new_doc("Loyalty Point Entry")
+		lpe.loyalty_program=pos_in.loyalty_program
+		lpe.customer=pos_in.customer
+		lpe.invoice_type=pos_in.doctype
+		lpe.invoice=pos_in.name
+		lpe.loyalty_points=points
+		lpe.expiry_date=condition.to_date
+		lpe.posting_date=condition.from_date
+		lpe.save()
+		return True

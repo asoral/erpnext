@@ -744,9 +744,12 @@ erpnext.PointOfSale.Payment = class {
 								"inv":doc.name,
 								"paid_amount":values.pamt,
 								"change_amount":values.chg
+								
 							},
 							callback:function(r){
-								console.log("Doc name",doc.name)
+								if (r.message == "reload"){
+									window.location.reload()
+								}
 								// frappe.ui.form.qz_connect()
 								// .then(function () {
 								// 	var config = qz.configs.create("POS-80")

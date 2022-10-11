@@ -360,7 +360,7 @@ erpnext.PointOfSale.ItemSelector = class {
 									let price = r.message[0].cprice
 									console.log("qty**********************************************",typeof qty,price)
 									me.items = items;
-									me.render_item_list2(items);
+									// me.render_item_list2(items);
 									
 	
 	

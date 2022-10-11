@@ -383,8 +383,7 @@
    "default": "27",
    "fieldname": "wtable",
    "fieldtype": "Int",
-   "label": "Weighable Barcode Starts With",
-   "read_only": 1
+   "label": "Weighable Barcode Starts With"
   }
  ],
  "icon": "icon-cog",
@@ -412,7 +411,7 @@
    "link_fieldname": "pos_profile"
   }
  ],
- "modified": "2022-10-06 17:22:07.523077",
+ "modified": "2022-10-11 12:37:08.426779",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Profile",

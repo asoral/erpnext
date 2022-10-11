@@ -1379,6 +1379,7 @@ erpnext.PointOfSale.Controller = class {
 
 	
 	myfunction(name, data){
+		console.log("9242*******************8980808080*",this.pos_profile)
 		var b = this.pos_profile;
 		var a=this.cart.update_totals_section(this.frm)
 		frappe.call({
@@ -1428,20 +1429,20 @@ erpnext.PointOfSale.Controller = class {
 	// }
 
 
-	getItem(data){
-		var a=this.pos_profile
-		console.log('QQQQQQQQQQQQ',data)
-		frappe.call({
-			method: "grandhyper.grandhyper.doctype.temporary_cart.temporary_cart.item",
-			args:{
-				"pos_profile":a,
-				"data":data
+	// getItem(data){
+	// 	var a=this.pos_profile
+	// 	console.log('QQQQQQQQQQQQ',data)
+	// 	frappe.call({
+	// 		method: "grandhyper.grandhyper.doctype.temporary_cart.temporary_cart.item",
+	// 		args:{
+	// 			"pos_profile":a,
+	// 			"data":data
 				
-			},
+	// 		},
 			
-        });
-		console.log('@@@@@@@@@@@current page',cur_page)
-		};	
+    //     });
+	// 	console.log('@@@@@@@@@@@current page',cur_page)
+	// 	};	
 
 	add_item(){
 
