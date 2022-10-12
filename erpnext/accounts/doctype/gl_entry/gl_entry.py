@@ -16,7 +16,6 @@ from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import g
 from erpnext.accounts.doctype.accounting_dimension_filter.accounting_dimension_filter import get_dimension_filter_map
 from six import iteritems
 import datetime
-import nepali_datetime
 from datetime import timedelta
 
 exclude_from_linked_with = True

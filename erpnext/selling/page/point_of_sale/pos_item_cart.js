@@ -1,13 +1,20 @@
 erpnext.PointOfSale.ItemCart = class {
 	constructor({ wrapper, events, settings }) {
+
+		console.log(" this is setting", settings)
 		this.wrapper = wrapper;
 		this.events = events;
 		this.customer_info = undefined;
 		this.hide_images = settings.hide_images;
 		this.allowed_customer_groups = settings.customer_groups;
+		this.allow_qty_change = settings.allow_qty_change
 		this.allow_rate_change = settings.allow_rate_change;
 		this.allow_discount_change = settings.allow_discount_change;
 		this.init_component();
+
+		console.log(" this is setting", settings)
+
+		console.log(" thisis Quantity allow rate", this.allow_rate_change)
 	}
 
 	init_component() {
@@ -49,11 +56,11 @@ erpnext.PointOfSale.ItemCart = class {
 		this.$component.append(
 			`<div class="cart-container">
 				<div class="abs-cart-container">
-					<div class="cart-label">Item Cart</div>
+					<div class="cart-label">${__('Item Cart')}</div>
 					<div class="cart-header">
-						<div class="name-header">Item</div>
-						<div class="qty-header">Qty</div>
-						<div class="rate-amount-header">Amount</div>
+						<div class="name-header">${__('Item')}</div>
+						<div class="qty-header">${__('Quantity')}</div>
+						<div class="rate-amount-header">${__('Amount')}</div>
 					</div>
 					<div class="cart-items-section"></div>
 					<div class="cart-totals-section"></div>
@@ -78,7 +85,7 @@ erpnext.PointOfSale.ItemCart = class {
 	make_no_items_placeholder() {
 		this.$cart_header.css('display', 'none');
 		this.$cart_items_wrapper.html(
-			`<div class="no-item-wrapper">No items in cart</div>`
+			`<div class="no-item-wrapper">${__('No items in cart')}</div>`
 		);
 	}
 
@@ -98,19 +105,23 @@ erpnext.PointOfSale.ItemCart = class {
 
 		this.$totals_section.append(
 			`<div class="add-discount-wrapper">
-				${this.get_discount_icon()} Add Discount
+				${this.get_discount_icon()} ${__('Add Discount')}
+			</div>
+			<div class="item-qty-total-container">
+				<div class="item-qty-total-label">${__('Total Items')}</div>
+				<div class="item-qty-total-value">0.00</div>
 			</div>
 			<div class="net-total-container">
-				<div class="net-total-label">Net Total</div>
+				<div class="net-total-label">${__("Net Total")}</div>
 				<div class="net-total-value">0.00</div>
 			</div>
 			<div class="taxes-container"></div>
 			<div class="grand-total-container">
-				<div>Grand Total</div>
+				<div>${__('Grand Total')}</div>
 				<div>0.00</div>
 			</div>
-			<div class="checkout-btn">Checkout</div>
-			<div class="edit-cart-btn">Edit Cart</div>`
+			<div class="checkout-btn">${__('Checkout')}</div>
+			<div class="edit-cart-btn">${__('Edit Cart')}</div>`
 		)
 
 		this.$add_discount_elem = this.$component.find(".add-discount-wrapper");
@@ -142,13 +153,14 @@ erpnext.PointOfSale.ItemCart = class {
 
 		this.$numpad_section.prepend(
 			`<div class="numpad-totals">
+			<span class="numpad-item-qty-total"></span>
 				<span class="numpad-net-total"></span>
 				<span class="numpad-grand-total"></span>
 			</div>`
 		)
 
 		this.$numpad_section.append(
-			`<div class="numpad-btn checkout-btn" data-button-value="checkout">Checkout</div>`
+			`<div class="numpad-btn checkout-btn" data-button-value="checkout">${__('Checkout')}</div>`
 		)
 	}
 
@@ -186,18 +198,90 @@ erpnext.PointOfSale.ItemCart = class {
 			this.numpad_value = '';
 		});
 
-		this.$component.on('click', '.checkout-btn', function() {
+		this.$component.on('click', '.checkout-btn', async function() {
 			if ($(this).attr('style').indexOf('--blue-500') == -1) return;
 
-			me.events.checkout();
+			await me.events.checkout();
 			me.toggle_checkout_btn(false);
 
 			me.allow_discount_change && me.$add_discount_elem.removeClass("d-none");
 		});
 
 		this.$totals_section.on('click', '.edit-cart-btn', () => {
-			this.events.edit_cart();
-			this.toggle_checkout_btn(true);
+			
+		
+			// New code for GH customization Edit Cart Button
+			console.log("22222222222222222222222222222222222")
+
+			var d = new frappe.ui.Dialog({
+				title: __("Supervisor Authorization"),
+				fields: [
+					{
+						label : "Supervisor ID",
+						fieldname: "user",
+						fieldtype: "Link",
+						reqd: 1,
+						options: "User"
+					},
+					{
+						label: "Password",
+						fieldname: "password",
+						fieldtype: "Password",
+						reqd: 1,
+					}
+				],
+				primary_action: function() {
+					console.log(" tjhis is to cancel", cur_frm.doc.name)
+					var data = d.get_values();
+					frappe.call({
+						method: "erpnext.selling.page.point_of_sale.point_of_sale.editcart_authorize",
+						
+						args: {
+							 "user": data.user,
+							"password": data.password,
+							"action" : "Edit Cart",
+							"pos_profile": cur_frm.doc.pos_profile,
+							"owner" : cur_frm.doc.owner,
+							"item": "",
+							"canceled_transaction" : cur_frm.doc.name
+						 },
+						callback: (res) => {
+							if (res.message){
+								frappe.show_alert({
+									message:__('Your currenct Invoice {0} has been Cancelled', [cur_frm.doc.name]),
+									indicator:'red'
+								}, 5);
+								me.events.new_order();
+								// me.toggle_component(false);
+								// this.$component.find('.no-summary-placeholder').css('display', 'flex');
+								// this.$summary_wrapper.css('display', 'none');
+
+								// console.log(" this is event", me.events.new_order())
+								// me.events.init_order_summary.new_order();	
+
+								console.log(" this is return from cancell order ", me , this)
+								me.events.edit_cart();
+								// me.toggle_checkout_btn(true);
+								// cur_frm.refresh();
+								d.hide();
+								
+							}else{
+								d.hide();
+								frappe.msgprint(__("Invalid Credentials. You cannot edit this cart"));
+								
+							}
+						}
+					});
+	
+					d.hide();
+				},
+				primary_action_label: __('Authorize')
+			});
+			d.show();
+			
+			// New code for GH customization
+			// this.events.edit_cart();
+			// this.toggle_checkout_btn(true);
 		});
 
 		this.$component.on('click', '.add-discount-wrapper', () => {
@@ -308,7 +392,9 @@ erpnext.PointOfSale.ItemCart = class {
 				get_query: () => query,
 				onchange: function() {
 					if (this.value) {
+						console.log("9242@@@@@@@@@@@@@@@@@@",this.value)
 						const frm = me.events.get_frm();
+						console.log("84165151616",frm)
 						frappe.dom.freeze();
 						frappe.model.set_value(frm.doc.doctype, frm.doc.name, 'customer', this.value);
 						frm.script_manager.trigger('customer', frm.doc.doctype, frm.doc.name).then(() => {
@@ -367,15 +453,16 @@ erpnext.PointOfSale.ItemCart = class {
 			`<div class="add-discount-field"></div>`
 		);
 		const me = this;
+		const frm = me.events.get_frm();
+		let discount = frm.doc.additional_discount_percentage;
 
 		this.discount_field = frappe.ui.form.make_control({
 			df: {
 				label: __('Discount'),
 				fieldtype: 'Data',
-				placeholder: __('Enter discount percentage.'),
+				placeholder: ( discount ? discount + '%' :  __('Enter discount percentage.') ),
 				input_class: 'input-xs',
 				onchange: function() {
-					const frm = me.events.get_frm();
 					if (flt(this.value) != 0) {
 						frappe.model.set_value(frm.doc.doctype, frm.doc.name, 'additional_discount_percentage', flt(this.value));
 						me.hide_discount_control(this.value);
@@ -385,7 +472,7 @@ erpnext.PointOfSale.ItemCart = class {
 							'border': '1px dashed var(--gray-500)',
 							'padding': 'var(--padding-sm) var(--padding-md)'
 						});
-						me.$add_discount_elem.html(`${me.get_discount_icon()} Add Discount`);
+						me.$add_discount_elem.html(`${me.get_discount_icon()} ${__('Add Discount')}`);
 						me.discount_field = undefined;
 					}
 				},
@@ -410,7 +497,7 @@ erpnext.PointOfSale.ItemCart = class {
 			});
 			this.$add_discount_elem.html(
 				`<div class="edit-discount-btn">
-					${this.get_discount_icon()} Additional&nbsp;${String(discount).bold()}% discount applied
+					${this.get_discount_icon()} ${__("Additional")}&nbsp;${String(discount).bold()}% ${__("discount applied")}
 				</div>`
 			);
 		}
@@ -444,7 +531,7 @@ erpnext.PointOfSale.ItemCart = class {
 
 		function get_customer_description() {
 			if (!email_id && !mobile_no) {
-				return `<div class="customer-desc">Click to add email / phone</div>`;
+				return `<div class="customer-desc">${__('Click to add email / phone')}</div>`;
 			} else if (email_id && !mobile_no) {
 				return `<div class="customer-desc">${email_id}</div>`;
 			} else if (mobile_no && !email_id) {
@@ -469,6 +556,7 @@ erpnext.PointOfSale.ItemCart = class {
 		if (!frm) frm = this.events.get_frm();
 
 		this.render_net_total(frm.doc.net_total);
+		this.render_total_item_qty(frm.doc.items);
 		const grand_total = cint(frappe.sys_defaults.disable_rounded_total) ? frm.doc.grand_total : frm.doc.rounded_total;
 		this.render_grand_total(grand_total);
 
@@ -478,29 +566,46 @@ erpnext.PointOfSale.ItemCart = class {
 	render_net_total(value) {
 		const currency = this.events.get_frm().doc.currency;
 		this.$totals_section.find('.net-total-container').html(
-			`<div>Net Total</div><div>${format_currency(value, currency)}</div>`
+			`<div>${__('Net Total')}</div><div>${format_currency(value, currency)}</div>`
 		)
 
 		this.$numpad_section.find('.numpad-net-total').html(
-			`<div>Net Total: <span>${format_currency(value, currency)}</span></div>`
+			`<div>${__('Net Total')}: <span>${format_currency(value, currency)}</span></div>`
+		);
+	}
+
+	render_total_item_qty(items) {
+		var total_item_qty = 0;
+		items.map((item) => {
+			total_item_qty = total_item_qty + item.qty;
+		});
+
+		this.$totals_section.find('.item-qty-total-container').html(
+			`<div>${__('Total Quantity')}</div><div>${total_item_qty}</div>`
+		);
+
+		this.$numpad_section.find('.numpad-item-qty-total').html(
+			`<div>${__('Total Quantity')}: <span>${total_item_qty}</span></div>`
 		);
 	}
 
 	render_grand_total(value) {
 		const currency = this.events.get_frm().doc.currency;
 		this.$totals_section.find('.grand-total-container').html(
-			`<div>Grand Total</div><div>${format_currency(value, currency)}</div>`
+			`<div>${__('Grand Total')}</div><div>${format_currency(value, currency)}</div>`
 		)
 
 		this.$numpad_section.find('.numpad-grand-total').html(
-			`<div>Grand Total: <span>${format_currency(value, currency)}</span></div>`
+			`<div>${__('Grand Total')}: <span>${format_currency(value, currency)}</span></div>`
 		);
 	}
 
 	render_taxes(taxes) {
+		console.log("92420482",taxes.length)
 		if (taxes.length) {
 			const currency = this.events.get_frm().doc.currency;
 			const taxes_html = taxes.map(t => {
+				if (t.tax_amount_after_discount_amount == 0.0) return;
 				const description = /[0-9]+/.test(t.description) ? t.description : `${t.description} @ ${t.rate}%`;
 				return `<div class="tax-row">
 					<div class="tax-label">${description}</div>
@@ -563,7 +668,6 @@ erpnext.PointOfSale.ItemCart = class {
 		)
 
 		set_dynamic_rate_header_width();
-		this.scroll_to_item($item_to_update);
 
 		function set_dynamic_rate_header_width() {
 			const rate_cols = Array.from(me.$cart_items_wrapper.find(".item-rate-amount"));
@@ -638,12 +742,6 @@ erpnext.PointOfSale.ItemCart = class {
 		$($img).parent().replaceWith(`<div class="item-image item-abbr">${item_abbr}</div>`);
 	}
 
-	scroll_to_item($item) {
-		if ($item.length === 0) return;
-		const scrollTop = $item.offset().top - this.$cart_items_wrapper.offset().top + this.$cart_items_wrapper.scrollTop();
-		this.$cart_items_wrapper.animate({ scrollTop });
-	}
-
 	update_selector_value_in_cart_item(selector, value, item) {
 		const $item_to_update = this.get_cart_item(item);
 		$item_to_update.attr(`data-${selector}`, escape(value));
@@ -683,12 +781,14 @@ erpnext.PointOfSale.ItemCart = class {
 	}
 
 	on_numpad_event($btn) {
+		console.log(" thisis Quantity allow rate", this.allow_rate_change)
 		const current_action = $btn.attr('data-button-value');
 		const action_is_field_edit = ['qty', 'discount_percentage', 'rate'].includes(current_action);
 		const action_is_allowed = action_is_field_edit ? (
 			(current_action == 'rate' && this.allow_rate_change) ||
 			(current_action == 'discount_percentage' && this.allow_discount_change) ||
-			(current_action == 'qty')) : true;
+			(current_action == 'qty' && this.allow_qty_change)) : true;
+			// (current_action == 'qty')) : true;
 
 		const action_is_pressed_twice = this.prev_action === current_action;
 		const first_click_event = !this.prev_action;
@@ -696,7 +796,23 @@ erpnext.PointOfSale.ItemCart = class {
 
 		if (action_is_field_edit) {
 			if (!action_is_allowed) {
-				const label = current_action == 'rate' ? 'Rate'.bold() : 'Discount'.bold();
+
+				console.log(" thisis Quantity allow rate", this.allow_rate_change)
+				// let label = current_action == 'rate' ? 'Rate'.bold() : 'Discount'.bold() ;
+				// new code for GH customization
+				let label = ""
+					if(current_action == 'rate'){
+						label = 'Rate'.bold()
+					}
+					else if(current_action == 'qty'){
+						label = 'Quantity'.bold()
+					}
+					else if(current_action == 'discount'){
+						label = 'Discount'.bold()
+					}
+
+				// label = 
+				console.log(" this is label", label)
 				const message = __('Editing {0} is not allowed as per POS Profile settings', [label]);
 				frappe.show_alert({
 					indicator: 'red',
@@ -969,6 +1085,7 @@ erpnext.PointOfSale.ItemCart = class {
 		$(frm.wrapper).off('refresh-fields');
 		$(frm.wrapper).on('refresh-fields', () => {
 			if (frm.doc.items.length) {
+				this.$cart_items_wrapper.html('');
 				frm.doc.items.forEach(item => {
 					this.update_item_html(item);
 				});
@@ -979,7 +1096,7 @@ erpnext.PointOfSale.ItemCart = class {
 
 	load_invoice() {
 		const frm = this.events.get_frm();
-		
+
 		this.attach_refresh_field_event(frm);
 
 		this.fetch_customer_details(frm.doc.customer).then(() => {

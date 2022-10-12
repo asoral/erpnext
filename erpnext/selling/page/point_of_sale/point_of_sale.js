@@ -14,9 +14,22 @@ frappe.pages['point-of-sale'].on_page_load = function(wrapper) {
 };
 
 frappe.pages['point-of-sale'].refresh = function(wrapper) {
+	// const frm = me.events.get_frm();
+	// console.log("941561561616",frm)
 	if (document.scannerDetectionData) {
 		onScan.detachFrom(document);
 		wrapper.pos.wrapper.html("");
 		wrapper.pos.check_opening_entry();
+		console.log("12345789",wrapper)
 	}
+	// var b = this.pos_profile;
+	// console.log('lllllllllllllllllll',b)
+	// frappe.call({
+	// 	method: "erpnext.selling.page.point_of_sale.pos.pole_clear",
+	// 	args:{
+	// 		"pos_profile":b
+	// 	}
+	// });
+
+	
 };

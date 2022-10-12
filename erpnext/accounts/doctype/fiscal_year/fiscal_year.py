@@ -7,7 +7,6 @@ from frappe import msgprint, _
 from frappe.utils import getdate, add_days, add_years, cstr
 from dateutil.relativedelta import relativedelta
 import datetime
-import nepali_datetime
 from datetime import timedelta
 from frappe.model.document import Document
 
@@ -101,34 +100,34 @@ class FiscalYear(Document):
 					frappe.throw(_("Year start date or end date is overlapping with {0}. To avoid please set company")
 						.format(existing.name), frappe.NameError)
 
-	def handle_nepali_calendar(self):
-		sdt = datetime.datetime.strptime(self.year_start_date, "%Y-%m-%d").date()
-		edt = datetime.datetime.strptime(self.year_end_date, "%Y-%m-%d").date()
+	# def handle_nepali_calendar(self):
+	# 	sdt = datetime.datetime.strptime(self.year_start_date, "%Y-%m-%d").date()
+	# 	edt = datetime.datetime.strptime(self.year_end_date, "%Y-%m-%d").date()
 		
-		self.nepali_year_start_date = nepali_datetime.date.from_datetime_date(sdt).strftime("%d-%m-%Y")
-		self.nepali_year_end_date = nepali_datetime.date.from_datetime_date(edt).strftime("%d-%m-%Y")
+	# 	self.nepali_year_start_date = nepali_datetime.date.from_datetime_date(sdt).strftime("%d-%m-%Y")
+	# 	self.nepali_year_end_date = nepali_datetime.date.from_datetime_date(edt).strftime("%d-%m-%Y")
 
-		stripped_start_date = self.year_start_date.split('-')
-		stripped_end_date = self.year_end_date.split('-')
+	# 	stripped_start_date = self.year_start_date.split('-')
+	# 	stripped_end_date = self.year_end_date.split('-')
 		
-		start_date = datetime.date(int(stripped_start_date[0]), int(stripped_start_date[1]),int(stripped_start_date[2]))
-		end_date = datetime.date(int(stripped_end_date[0]), int(stripped_end_date[1]),int(stripped_end_date[2]))
-		delta = datetime.timedelta(days=1)
+	# 	start_date = datetime.date(int(stripped_start_date[0]), int(stripped_start_date[1]),int(stripped_start_date[2]))
+	# 	end_date = datetime.date(int(stripped_end_date[0]), int(stripped_end_date[1]),int(stripped_end_date[2]))
+	# 	delta = datetime.timedelta(days=1)
 
-		while start_date <= end_date:
-			converted_date = nepali_datetime.date.from_datetime_date(start_date)
-			self.append("date_tablenepal",{
-				"gregorian_date" : start_date,
-				"nepali_date" : converted_date.strftime("%D-%n-%K"),
-				"nepali_month" : converted_date.strftime("%N")
-			})
-			start_date += delta
+	# 	while start_date <= end_date:
+	# 		converted_date = nepali_datetime.date.from_datetime_date(start_date)
+	# 		self.append("date_tablenepal",{
+	# 			"gregorian_date" : start_date,
+	# 			"nepali_date" : converted_date.strftime("%D-%n-%K"),
+	# 			"nepali_month" : converted_date.strftime("%N")
+	# 		})
+	# 		start_date += delta
 
-		start_date_nepal = nepali_datetime.date.from_datetime_date(start_date)
-		end_date_nepal = nepali_datetime.date.from_datetime_date(end_date)
+	# 	start_date_nepal = nepali_datetime.date.from_datetime_date(start_date)
+	# 	end_date_nepal = nepali_datetime.date.from_datetime_date(end_date)
 		
-		self.year_start_date_nepal = start_date_nepal.strftime("%D-%n-%K")
-		self.year_end_date_nepal = end_date_nepal.strftime("%D-%n-%K")
+	# 	self.year_start_date_nepal = start_date_nepal.strftime("%D-%n-%K")
+	# 	self.year_end_date_nepal = end_date_nepal.strftime("%D-%n-%K")
 
 		
 
