@@ -21,19 +21,14 @@ erpnext.PointOfSale.Payment = class {
 	prepare_dom() {
 		this.wrapper.append(
 			`<section class="payment-container">
-				<div class="section-label payment-section">${__('Payment Method')}</div>
 				<div class="payment-modes"></div>
 				<div class="fields-numpad-container">
 					<div class="fields-section">
-						<div class="section-label">${__('Additional Information')}
 						
-						
-						</div>
 						
 						<div class="invoice-fields"></div>
 						
 					</div>
-					<div class="number-pad"></div>
 				</div>
 				<div class="totals-section">
 					<div class="totals"></div>

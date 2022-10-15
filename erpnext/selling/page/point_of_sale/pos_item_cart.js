@@ -208,10 +208,26 @@ erpnext.PointOfSale.ItemCart = class {
 		});
 
 		this.$totals_section.on('click', '.edit-cart-btn', () => {
+
+			
 			
 		
 			// New code for GH customization Edit Cart Button
-			console.log("22222222222222222222222222222222222")
+			console.log("22222222222222222222222222222222222",this.$component.context.pos.pos_profile)
+			let pos_profile = this.$component.context.pos.pos_profile
+			let users = []
+			frappe.db.get_doc("POS Profile",pos_profile).then(pos_sp => {
+				console.log("9242 in POS2***************************",pos_sp)
+				for (var key in pos_sp.pos_profile_supervisor){
+					console.log("9242 in POS***************************",)
+					users.push(pos_sp.pos_profile_supervisor[key]["user"])
+
+				}
+
+			})
+			console.log("9242nnnidnsnvi",cur_frm.doc.pos_profile)
+			
+
 
 			var d = new frappe.ui.Dialog({
 				title: __("Supervisor Authorization"),
@@ -221,7 +237,8 @@ erpnext.PointOfSale.ItemCart = class {
 						fieldname: "user",
 						fieldtype: "Link",
 						reqd: 1,
-						options: "User"
+						options: "User",
+						filters: {"name":["in",users]}
 					},
 					{
 						label: "Password",
@@ -230,8 +247,10 @@ erpnext.PointOfSale.ItemCart = class {
 						reqd: 1,
 					}
 				],
+
+
 				primary_action: function() {
-					console.log(" tjhis is to cancel", cur_frm.doc.name)
+					console.log(" this is to cancel", )
 					var data = d.get_values();
 					frappe.call({
 						method: "erpnext.selling.page.point_of_sale.point_of_sale.editcart_authorize",

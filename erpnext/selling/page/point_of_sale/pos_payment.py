@@ -4,7 +4,7 @@ from frappe.frappe.utils.data import flt
 from erpnext.erpnext import get_default_company
 from erpnext.setup.utils import get_exchange_rate
 from frappe.www.printview import get_print_style
-from erpnext.erpnext.accounts.doctype.loyalty_program_collection.row_wise_loyalty import row_wise_loyalty_point
+# from erpnext.accounts.doctype.loyalty_program_collection.row_wise_loyalty import row_wise_loyalty_point
 
 # from erpnext.erpnext.accounts.doctype.pos_invoice.pos_invoice import (check_phone_payments,set_status)
 
@@ -201,6 +201,7 @@ def update_cart(ic,barcode,ip):
        rate =frappe.get_doc("Item Price",{'item_code':item.name})
        qty = float(res)/rate.price_list_rate
        items = {}
+       uom = frappe.db.get_value("Item Barcode",{'parent':item.name},["uom"])
        items.update({
            "actual_qty":100,
            "barcode":barcode,
@@ -217,6 +218,8 @@ def update_cart(ic,barcode,ip):
            "cprice":res,
            "qty":str(qty)
        })
+
+       print("9242frwfwfwgwrg",items)
 
        return [items]
 

@@ -275,7 +275,7 @@ erpnext.PointOfSale.ItemSelector = class {
 
 			if(!st){
 				const $item = $(this);
-			console.log("NON DYNAMIC",st,pp)
+			console.log("NON DYNAMIC C1",st,pp)
 			const item_code = unescape($item.attr('data-item-code'));
 			let batch_no = unescape($item.attr('data-batch-no'));
 			let serial_no = unescape($item.attr('data-serial-no'));
@@ -343,7 +343,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				if(st.length == 13){
 					console.log("yes*************************8")
 					frappe.db.get_doc("POS Profile",pp).then(p => {
-						console.log("wtable",p.wtable,st.su)
+						console.log("wtable",p.wtable)
 						if(p.wtable == st.substring(0,2)){
 							let ic = st.substring(2,7)
 							let ip = st.substring(7,12)
@@ -360,7 +360,7 @@ erpnext.PointOfSale.ItemSelector = class {
 									let price = r.message[0].cprice
 									console.log("qty**********************************************",typeof qty,price)
 									me.items = items;
-									// me.render_item_list2(items);
+									me.render_item_list2(items);
 									
 	
 	

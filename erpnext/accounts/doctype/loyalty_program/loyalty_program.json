@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "field:loyalty_program_name",
  "creation": "2018-01-23 06:23:05.731431",
  "doctype": "DocType",
@@ -15,6 +16,10 @@
   "auto_opt_in",
   "rules",
   "collection_rules",
+  "row_wise_loyalty_points_section",
+  "doctype_name",
+  "row_wise_loyalty_point",
+  "pos_invoice_wise_loyalty_points",
   "redemption",
   "conversion_factor",
   "expiry_duration",
@@ -143,9 +148,33 @@
   {
    "fieldname": "dimension_col_break",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "row_wise_loyalty_points_section",
+   "fieldtype": "Section Break",
+   "label": "Row Wise Loyalty Points"
+  },
+  {
+   "fieldname": "doctype_name",
+   "fieldtype": "Link",
+   "label": "Doctype Name",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "row_wise_loyalty_point",
+   "fieldtype": "Table",
+   "label": "Row wise Loyalty Point",
+   "options": "Doctype Wise Loyalty Point"
+  },
+  {
+   "fieldname": "pos_invoice_wise_loyalty_points",
+   "fieldtype": "Table",
+   "label": "POS Invoice Wise Loyalty Points",
+   "options": "POS Invoice Wise Loyalty Points"
   }
  ],
- "modified": "2019-05-26 09:11:46.120251",
+ "links": [],
+ "modified": "2022-10-15 11:49:29.391975",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Loyalty Program",

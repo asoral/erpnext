@@ -17,6 +17,9 @@
   "company_address",
   "section_break_15",
   "applicable_for_users",
+  "pole_display_settings_section",
+  "terminal_display",
+  "port_display",
   "section_break_11",
   "payments",
   "section_break_14",
@@ -370,6 +373,24 @@
    "fieldtype": "Table",
    "label": "POS Profile Supervisor",
    "options": "POS Profile Supervisor"
+  },
+  {
+   "fieldname": "pole_display_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Pole Display Settings"
+  },
+  {
+   "fieldname": "terminal_display",
+   "fieldtype": "Link",
+   "label": "Terminal Profile",
+   "options": "Terminal Profile"
+  },
+  {
+   "fetch_from": "terminal_display.port_display",
+   "fieldname": "port_display",
+   "fieldtype": "Data",
+   "label": "Port Display",
+   "read_only": 1
   }
  ],
  "icon": "icon-cog",
@@ -397,7 +418,7 @@
    "link_fieldname": "pos_profile"
   }
  ],
- "modified": "2022-10-12 12:41:10.474484",
+ "modified": "2022-10-13 18:22:58.359356",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Profile",
