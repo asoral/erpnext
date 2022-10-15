@@ -37,7 +37,7 @@ frappe.ui.form.on('Loyalty Program', {
 		set_field_options("loyalty_program_help", help_content);
 	},
 
-	onload: function(frm) {
+	onload: function(frm,cdt,cdn) {
 		frm.set_query("expense_account", function(doc) {
 			return {
 				filters: {
@@ -50,6 +50,66 @@ frappe.ui.form.on('Loyalty Program', {
 
 		frm.set_value("company", frappe.defaults.get_user_default("Company"));
 		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
+
+		frm.fields_dict["row_wise_loyalty_point"].grid.get_field("document_type").get_query = function(doc, cdt, cdn) {
+			var child = locals[cdt][cdn];
+			return {    
+				filters:{
+					name:["in",["Item","Item Group"]]
+				}
+			}
+		}
+
+
+
+		if(cur_frm.doc.doctype_name="POS Invoice"){		
+		var fields1=[]
+		var labels=[]
+		frappe.call({
+			method:"grandhyper.grandhyper.doctype.pos_invoice_wise_loyalty_points.pos_invoice_wise_loyalty_points.get_list",
+			args:{
+				"docname":"POS Invoice"
+			},
+			callback:function(r){
+				if(r.message){
+					fields1.push(r.message)
+					labels=Object.keys(fields1[0])
+					frm.fields_dict.pos_invoice_wise_loyalty_point.grid.update_docfield_property(
+						'pos_invoice',
+						'options',
+						[""].concat(labels)
+						);
+				}
+			}		
+		})
+		frappe.ui.form.on("POS Invoice Wise Loyalty Points",{
+			pos_invoice:function(frm,cdt,cdn){
+				const child=locals[cdt][cdn];
+		const fields2=[]
+		frappe.call({
+			method:"grandhyper.grandhyper.doctype.pos_invoice_wise_loyalty_points.pos_invoice_wise_loyalty_points.get_list",
+			args:{
+				"docname":"POS Invoice"
+			},
+			callback:function(r){
+				if(r.message){
+					fields2.push(r.message)
+					for (const [key, value] of Object.entries(fields2[0])) {
+						if(child.pos_invoice == key){
+							frappe.model.set_value(cdt,cdn,"field_name",value[0])
+							frappe.model.set_value(cdt,cdn,"field_type",value[1])
+						}
+					  }
+					  
+				}
+			}
+			
+		})
+			}
+		}
+		
+)}
+
 	},
 
 	refresh: function(frm) {
