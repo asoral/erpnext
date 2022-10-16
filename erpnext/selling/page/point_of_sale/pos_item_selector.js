@@ -275,7 +275,7 @@ erpnext.PointOfSale.ItemSelector = class {
 
 			if(!st){
 				const $item = $(this);
-			console.log("NON DYNAMIC C1",st,pp)
+			console.log("NON DYNAMIC C1",st,pp,me.search_field)
 			const item_code = unescape($item.attr('data-item-code'));
 			let batch_no = unescape($item.attr('data-batch-no'));
 			let serial_no = unescape($item.attr('data-serial-no'));
@@ -301,12 +301,36 @@ erpnext.PointOfSale.ItemSelector = class {
 			else{
 
 				if(st.substring(0,2) != '27'){
-					console.log("9242yessssssssssssssssssssss")
+					
 	
 	
 				const $item = $(this);
-				console.log("NON DYNAMIC",st,pp)
+				const barcodes_list =[];
+
+
+				console.log("NON DYNAMIC")
+
+				// frappe.call({
+				// 	method:"erpnext.erpnext.selling.page.point_of_sale.pos_payment.get_barcode",
+				// 	args:{
+				// 		sf:barcodes_list
+				// 	}
+				// })
+				
 				const item_code = unescape($item.attr('data-item-code'));
+				frappe.db.get_doc("Item",item_code).then(ib => {
+					for(var uom in ib.barcodes){
+						
+						if(st == ib.barcodes[uom].barcode){
+							
+						}
+
+						console.log(st,"9242**********bcWiseuom**********88",ib.barcodes[uom].posa_uom,)
+
+					}
+					
+				})
+				
 				let batch_no = unescape($item.attr('data-batch-no'));
 				let serial_no = unescape($item.attr('data-serial-no'));
 				let uom = unescape($item.attr('data-uom'));
@@ -332,7 +356,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				else if(st.substring(0,2) == '27'){
 	
 					const $item = $(this);
-				console.log("item",st,pp)
+				console.log("item******************************************",$item)
 				const item_code = unescape($item.attr('data-item-code'));
 				let batch_no = unescape($item.attr('data-batch-no'));
 				let serial_no = unescape($item.attr('data-serial-no'));

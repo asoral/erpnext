@@ -14,6 +14,11 @@ import frappe
 
 
 @frappe.whitelist()
+def get_barcode(sf):
+    print("jnsnbjdbkjjbdbs",sf)
+
+
+@frappe.whitelist()
 def get_dets(mop,amount):
     
     to_curr = frappe.get_doc("Mode of Payment",mop).currency
@@ -125,6 +130,7 @@ def update_pos_invoice(values,inv,paid_amount,change_amount):
                 # row_wise_loyalty_point(main_doc.name)
                 main_doc.submit()    
                 if main_doc.docstatus == 1:
+                    print("jsnjnvjsnjnsjvjsjvj j")
                     return "reload"      
                         # frappe.db.commit()
 

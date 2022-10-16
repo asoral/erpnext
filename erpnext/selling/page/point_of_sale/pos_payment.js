@@ -246,6 +246,7 @@ erpnext.PointOfSale.Payment = class {
 			const items = doc.items;
 			const payments = doc.payments;
 			const gt = doc.grand_total;
+			const pos = doc.pos_profile
 			
 
 			const table_fields = [
@@ -743,6 +744,12 @@ erpnext.PointOfSale.Payment = class {
 							},
 							callback:function(r){
 								if (r.message == "reload"){
+									frappe.call({
+										method: "erpnext.selling.page.point_of_sale.pos.pole_clear",
+										args:{
+										"pos_profile":pos
+									}
+									});
 									window.location.reload()
 								}
 								// frappe.ui.form.qz_connect()

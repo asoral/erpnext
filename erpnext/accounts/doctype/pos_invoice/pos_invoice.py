@@ -13,6 +13,7 @@ from erpnext.accounts.doctype.payment_request.payment_request import make_paymen
 from erpnext.accounts.doctype.loyalty_program.loyalty_program import validate_loyalty_points
 from erpnext.stock.doctype.serial_no.serial_no import get_pos_reserved_serial_nos, get_serial_nos
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import SalesInvoice, get_bank_cash_account, update_multi_mode_option, get_mode_of_payment_info
+from erpnext.selling.page.point_of_sale.row_wise_loyalty import row_wise_loyalty_point
 
 from six import iteritems
 
@@ -48,11 +49,13 @@ class POSInvoice(SalesInvoice):
 	def on_submit(self):
 		# create the loyalty point ledger entry if the customer is enrolled in any loyalty program
 		if self.loyalty_program:
-			self.make_loyalty_point_entry()
+			# self.make_loyalty_point_entry()
+			row_wise_loyalty_point(self.name)
 		elif self.is_return and self.return_against and self.loyalty_program:
 			against_psi_doc = frappe.get_doc("POS Invoice", self.return_against)
 			against_psi_doc.delete_loyalty_point_entry()
-			against_psi_doc.make_loyalty_point_entry()
+			# against_psi_doc.make_loyalty_point_entry()
+			row_wise_loyalty_point(against_psi_doc.name)
 		if self.redeem_loyalty_points and self.loyalty_points:
 			self.apply_loyalty_points()
 		self.check_phone_payments()

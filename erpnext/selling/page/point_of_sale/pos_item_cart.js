@@ -214,9 +214,9 @@ erpnext.PointOfSale.ItemCart = class {
 		
 			// New code for GH customization Edit Cart Button
 			console.log("22222222222222222222222222222222222",this.$component.context.pos.pos_profile)
-			let pos_profile = this.$component.context.pos.pos_profile
+			// let pos_profile = this.$component.context.pos.pos_profile
 			let users = []
-			frappe.db.get_doc("POS Profile",pos_profile).then(pos_sp => {
+			frappe.db.get_doc("POS Profile",cur_frm.doc.pos_profile).then(pos_sp => {
 				console.log("9242 in POS2***************************",pos_sp)
 				for (var key in pos_sp.pos_profile_supervisor){
 					console.log("9242 in POS***************************",)
@@ -237,7 +237,7 @@ erpnext.PointOfSale.ItemCart = class {
 						fieldname: "user",
 						fieldtype: "Link",
 						reqd: 1,
-						options: "User",
+						options: "POS Supervisor User",
 						filters: {"name":["in",users]}
 					},
 					{
