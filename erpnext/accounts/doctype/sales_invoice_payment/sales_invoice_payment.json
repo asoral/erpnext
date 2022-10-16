@@ -8,6 +8,8 @@
   "default",
   "mode_of_payment",
   "amount",
+  "paid_currency",
+  "amount_paid_currency",
   "column_break_3",
   "account",
   "type",
@@ -75,11 +77,22 @@
    "hidden": 1,
    "label": "Default",
    "read_only": 1
+  },
+  {
+   "fieldname": "paid_currency",
+   "fieldtype": "Link",
+   "label": "Amount Paid In Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "amount_paid_currency",
+   "fieldtype": "Data",
+   "label": "Amount Equivalent in Currency"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2020-08-03 12:45:39.986598",
+ "modified": "2022-10-16 12:59:36.001330",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Sales Invoice Payment",

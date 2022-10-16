@@ -1,7 +1,9 @@
 # from ast import main
 from filecmp import cmp
-from frappe.frappe.utils.data import flt
-from erpnext.erpnext import get_default_company
+from locale import currency
+from frappe.utils import fmt_money
+from frappe.utils.data import flt
+from erpnext import get_default_company
 from erpnext.setup.utils import get_exchange_rate
 from frappe.www.printview import get_print_style
 # from erpnext.accounts.doctype.loyalty_program_collection.row_wise_loyalty import row_wise_loyalty_point
@@ -106,11 +108,13 @@ def update_pos_invoice(values,inv,paid_amount,change_amount):
 
             # print(doc.payments)
             for k in val:
-                # print("(@$@*********************0",dnry)
+                mop = frappe.get_doc("Mode of Payment",k.get("mode_of_payment"))
+                print("(@$@*********************0",k)
                 main_doc.append("payments",{
                     "mode_of_payment":k.get("mode_of_payment"),
                     "amount":k.get("amount"),
-                    "foriegn_amount":k.get("base_amount")
+                    "paid_currency":mop.currency,
+                    "amount_paid_currency":fmt_money(k.get("base_amount"),currency = mop.currency)
                 })
 
                                 
