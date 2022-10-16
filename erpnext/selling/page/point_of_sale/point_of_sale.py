@@ -12,9 +12,11 @@ from erpnext.accounts.doctype.pos_profile.pos_profile import get_child_nodes, ge
 
 
 def search_by_term(search_term, warehouse, price_list):
+	print("9242************************************st",search_term)
 	result = search_for_serial_or_batch_or_barcode_number(search_term) or {}
 
 	item_code = result.get("item_code") or search_term
+	print("item_code********************",item_code)
 	serial_no = result.get("serial_no") or ""
 	batch_no = result.get("batch_no") or ""
 	barcode = result.get("barcode") or ""
@@ -51,7 +53,7 @@ def search_by_term(search_term, warehouse, price_list):
 				"actual_qty": item_stock_qty,
 			}
 		)
-
+		print("item_info",item_info)
 		return {"items": [item_info]}
 
 
@@ -65,6 +67,7 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 
 	if search_term:
 		result = search_by_term(search_term, warehouse, price_list) or []
+		print("result_call**************",result)
 		if result:
 			return result
 
@@ -145,7 +148,7 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 				}
 			)
 			result.append(row)
-
+	print("94894444844561651516",result)
 	return {"items": result}
 
 
@@ -155,6 +158,7 @@ def search_for_serial_or_batch_or_barcode_number(search_value):
 	barcode_data = frappe.db.get_value(
 		"Item Barcode", {"barcode": search_value}, ["barcode", "parent as item_code"], as_dict=True
 	)
+	print("barcode_data",barcode_data)
 	if barcode_data:
 		return barcode_data
 
