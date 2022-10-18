@@ -241,12 +241,19 @@ erpnext.PointOfSale.Payment = class {
 			
 
 			const doc = this.events.get_frm().doc;
-			console.log("doc*********************************8",doc)
+			console.log("doc*********************************8 16/10",doc.company)
 			const paid_amount = doc.paid_amount;
 			const items = doc.items;
 			const payments = doc.payments;
 			const gt = doc.grand_total;
 			const pos = doc.pos_profile
+			const def_curr = ""
+			frappe.db.get_doc("Company",doc.company).then(comp => {
+				def_curr = comp.default_currency
+			})
+			console.log("comp_curr*******************************",def_curr)
+
+			console.log("92444414141481841481481481484814141",def_curr)
 			
 
 			const table_fields = [
@@ -559,10 +566,10 @@ erpnext.PointOfSale.Payment = class {
 							</thead>
 							<tbody>
 								<tr>
-									<td>${format_currency(gt, "INR")}</td>
-									<td>${format_currency(dicty["tamt"], "INR")}</td>
-									<td>${format_currency(amtphtml, "INR")}</td>
-									<td>${format_currency(changehtml, "INR" )}</td>
+									<td>${format_currency(gt, def_curr)}</td>
+									<td>${format_currency(dicty["tamt"], def_curr)}</td>
+									<td>${format_currency(amtphtml, def_curr)}</td>
+									<td>${format_currency(changehtml, def_curr )}</td>
 								</tr>
 								
 							</tbody>
@@ -652,10 +659,10 @@ erpnext.PointOfSale.Payment = class {
 							</thead>
 							<tbody>
 								<tr>
-									<td>${format_currency(gt, "INR")}</td>
-									<td>${format_currency(0.0, "INR")}</td>
-									<td>${format_currency(gt, "INR")}</td>
-									<td>${format_currency(0.0, "INR" )}</td>
+									<td>${format_currency(gt, def_curr)}</td>
+									<td>${format_currency(0.0, def_curr)}</td>
+									<td>${format_currency(gt, def_curr)}</td>
+									<td>${format_currency(0.0, def_curr )}</td>
 								</tr>
 								
 							</tbody>

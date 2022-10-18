@@ -711,11 +711,20 @@ erpnext.PointOfSale.Controller = class {
 		    // let printer_list = [];
 			f
 			frappe.ui.form.qz_get_printer_list().then((data) => {
-				
-				data.forEach(printer => {
-					d.fields_dict.printer.df.options.push(printer)
+				console.log("printer object********************",data.length,data)
+				console.log("9242&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
+				if(data.length > 1 ){
+					data.forEach(printer => {
+						d.fields_dict.printer.df.options.push(printer)
+						d.fields_dict.printer.refresh()
+					})
+				}
+				else if(data.length == 1){
+					console.log("8242455555511",d.fields_dict.printer.df.default)
+					d.fields_dict.printer.set_value(data[0])
 					d.fields_dict.printer.refresh()
-				})
+				}
+				
 	
 			})
 		const d = new frappe.ui.Dialog({
@@ -768,7 +777,7 @@ erpnext.PointOfSale.Controller = class {
 				{
 					label:"Printer",
 					fieldname:'printer',
-					fieldtype:"Select",
+					fieldtype:"Data",
 					options:[]
 				}
 				

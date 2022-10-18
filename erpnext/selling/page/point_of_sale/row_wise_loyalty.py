@@ -26,7 +26,7 @@ def row_wise_loyalty_point(name):
 						point=int(r.amount/i.collection_factor)
 						points+=point		
 
-	for k in condition.pos_invoice_wise_loyalty_point:
+	for k in condition.pos_invoice_wise_loyalty_points:
 		if k.get("field_name") in pos_in.get():
 			if pos_in.get(k.field_name) >= k.minimum_total_spend:		
 				point1=int(pos_in.get(k.field_name)/k.collection_factor)
