@@ -61,6 +61,8 @@ erpnext.PointOfSale.ItemDetails = class {
 		return item && item.name == this.current_item.name;
 	}
 
+
+
 	async toggle_item_details_section(item) {
 		const current_item_changed = !this.compare_with_current_item(item);
 
@@ -194,9 +196,11 @@ erpnext.PointOfSale.ItemDetails = class {
 	}
 
 	get_form_fields(item) {
+		console.log("get_form_fields(********************************",item)
 		const fields = ['qty', 'uom', 'rate', 'conversion_factor', 'discount_percentage', 'warehouse', 'actual_qty', 'price_list_rate'];
 		if (item.has_serial_no) fields.push('serial_no');
-		if (item.has_batch_no) fields.push('batch_no');
+		if (item.has_batch_no) fields.push('batch_no')
+		
 		return fields;
 	}
 
@@ -298,10 +302,12 @@ erpnext.PointOfSale.ItemDetails = class {
 			this.batch_no_control.refresh();
 		}
 
-		if (this.uom_control) {
+		
+
+		if (this.uom_control){
+			console.log("944646464646%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55",this)
 			this.uom_control.df.onchange = function() {
 				me.events.form_updated(me.current_item, 'uom', this.value);
-
 				const item_row = frappe.get_doc(me.doctype, me.name);
 				me.conversion_factor_control.df.read_only = (item_row.stock_uom == this.value);
 				me.conversion_factor_control.refresh();

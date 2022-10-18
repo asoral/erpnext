@@ -16,12 +16,31 @@ def search_by_term(search_term, warehouse, price_list):
 	result = search_for_serial_or_batch_or_barcode_number(search_term) or {}
 
 	item_code = result.get("item_code") or search_term
-	print("item_code********************",item_code)
+	# print("item_code********************",item)
 	serial_no = result.get("serial_no") or ""
 	batch_no = result.get("batch_no") or ""
 	barcode = result.get("barcode") or ""
 
 	if result:
+
+		ii = frappe.db.sql("""
+		select item.name as item_code,
+				item.item_name,
+				item.description,
+				itb.posa_uom as stock_uom,
+				item.image as item_image,
+				item.is_stock_item 
+
+		from `tabItem` as item
+		join `tabItem Barcode` as itb on itb.parent=item.name
+		where item.name = "{0}" 
+		and itb.barcode = "{1}"
+
+		""".format(item_code,barcode),as_dict=1)
+
+		print("custom item uom ************************",ii[0])
+
+
 		item_info = frappe.db.get_value(
 			"Item",
 			item_code,
@@ -43,18 +62,18 @@ def search_by_term(search_term, warehouse, price_list):
 			["price_list_rate", "currency"],
 		) or [None, None]
 
-		item_info.update(
+		ii[0].update(
 			{
 				"serial_no": serial_no,
 				"batch_no": batch_no,
 				"barcode": barcode,
 				"price_list_rate": price_list_rate,
 				"currency": currency,
-				"actual_qty": item_stock_qty,
+				"actual_qty": item_stock_qty
 			}
 		)
-		print("item_info",item_info)
-		return {"items": [item_info]}
+		print("item_info",ii[0])
+		return {"items": [ii[0]]}
 
 
 @frappe.whitelist()

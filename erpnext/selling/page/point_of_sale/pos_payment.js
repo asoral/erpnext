@@ -178,6 +178,15 @@ erpnext.PointOfSale.Payment = class {
 				if (!frm.doc.ignore_pricing_rule) {
 					frm.applying_pos_coupon_code = true;
 					frappe.run_serially([
+
+
+
+
+
+
+
+
+
 						() => frm.doc.ignore_pricing_rule=1,
 						() => frm.trigger('ignore_pricing_rule'),
 						() => frm.doc.ignore_pricing_rule=0,
@@ -247,13 +256,13 @@ erpnext.PointOfSale.Payment = class {
 			const payments = doc.payments;
 			const gt = doc.grand_total;
 			const pos = doc.pos_profile
-			const def_curr = "";
-			frappe.db.get_doc("Company",doc.company).then(comp=>{
-				def_curr = comp.default_currency
-			})
-			console.log("comp_curr*******************************",def_curr)
+			// const "INR" = ""
+			// frappe.db.get_doc("Company",doc.company).then(comp => {
+			// 	"INR" = comp.default_currency
+			// })
+			console.log("comp_curr*******************************","INR")
 
-			console.log("92444414141481841481481481484814141",def_curr)
+			console.log("92444414141481841481481481484814141","INR")
 			
 
 			const table_fields = [
@@ -566,10 +575,10 @@ erpnext.PointOfSale.Payment = class {
 							</thead>
 							<tbody>
 								<tr>
-									<td>${format_currency(gt, def_curr)}</td>
-									<td>${format_currency(dicty["tamt"], def_curr)}</td>
-									<td>${format_currency(amtphtml, def_curr)}</td>
-									<td>${format_currency(changehtml, def_curr )}</td>
+									<td>${format_currency(gt, "INR")}</td>
+									<td>${format_currency(dicty["tamt"], "INR")}</td>
+									<td>${format_currency(amtphtml, "INR")}</td>
+									<td>${format_currency(changehtml, "INR" )}</td>
 								</tr>
 								
 							</tbody>
@@ -659,10 +668,10 @@ erpnext.PointOfSale.Payment = class {
 							</thead>
 							<tbody>
 								<tr>
-									<td>${format_currency(gt, def_curr)}</td>
-									<td>${format_currency(0.0, def_curr)}</td>
-									<td>${format_currency(gt, def_curr)}</td>
-									<td>${format_currency(0.0, def_curr )}</td>
+									<td>${format_currency(gt, "INR")}</td>
+									<td>${format_currency(0.0, "INR")}</td>
+									<td>${format_currency(gt, "INR")}</td>
+									<td>${format_currency(0.0, "INR" )}</td>
 								</tr>
 								
 							</tbody>

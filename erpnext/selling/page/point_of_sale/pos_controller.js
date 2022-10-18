@@ -895,9 +895,11 @@ erpnext.PointOfSale.Controller = class {
 			settings: this.settings,
 			events: {
 				item_selected: args => this.on_cart_update(args),
+				// console.log()
 
 				get_frm: () => this.frm || {}
 			}
+			
 		})
 
 	}
@@ -912,7 +914,7 @@ erpnext.PointOfSale.Controller = class {
 
 				cart_item_clicked: (item) => {
 					const item_row = this.get_item_from_frm(item);
-					console.log("controller_item_details",item_row)
+					console.log("controller_item_details",item)
 					this.item_details.toggle_item_details_section(item_row);
 					console.log('ttttttttttttttttttttt',this.frm)
 				},
@@ -1215,21 +1217,24 @@ erpnext.PointOfSale.Controller = class {
 		let item_row = undefined;
 		try {
 			let { field, value, item } = args;
+			
 			item_row = this.get_item_from_frm(item);
+			console.log("item_details**********************>>>>>>>>>>>>>>>..",item_row)
+			// item_row["uom"] = args.item["uom"]
 			const item_row_exists = !$.isEmptyObject(item_row);
 
 			console.log(item)
-			console.log('args',args)
+			console.log('args',args.item["uom"])
 			li.push({"item_name":item_row.item_name,
 					"amount":item_row.amount,
 					"qty":item_row.qty,
 					"item_code":item_row.item_code,
 					"rate":item_row.rate,
 					'income_account':item_row.income_account,
-					'uom':item_row.uom,
+					'uom':args.item["uom"],
 					'conversion_factor': item_row.conversion_factor
 				})
-			console.log('SSSSSSSSSSSSSSSSSSSss',li)
+			console.log('SSSSSSSSSSSSSSSSSSSss',args)
 			mylist.push(item.item_code,item.rate)
 			console.log(mylist)
 
@@ -1293,7 +1298,7 @@ erpnext.PointOfSale.Controller = class {
 			// this.getItem(li);
 			// var func = this.myfunction(mylist);
 			this.getItem(li);
-			var func = this.
+			// var func = this.
 			myfunction(mylist);
 			
 
@@ -1318,23 +1323,26 @@ erpnext.PointOfSale.Controller = class {
 	get_item_from_frm({ name, item_code, batch_no, uom, rate }) {
 		let item_row = null;
 		if (name) {
+			console.log("9242*&&&*&*&*&*********************************",name)
 			item_row = this.frm.doc.items.find(i => i.name == name);
-			console.log("9242*&&&*&*&*&*********************************",item_row)
+			
 		} else {
+			console.log("%%%%%%%%%%%%%%%%%%%%^^^^^^^^^^^^^^^^^^^^^^^",)
 			// if item is clicked twice from item selector
 			// then "item_code, batch_no, uom, rate" will help in getting the exact item
 			// to increase the qty by one
 			const has_batch_no = batch_no;
+
 			item_row = this.frm.doc.items.find(
 				i => i.item_code === item_code
 					&& (!has_batch_no || (has_batch_no && i.batch_no === batch_no))
 					&& (i.uom === uom)
 					&& (i.rate == rate)
 			);
-			console.log("9242*&&&*&*&*&*********************************",item_row)
+			console.log("9242*&&&*&*&*&**************33333333333",item_row)
 		}
 
-		console.log("9242*&&&*&*&*&*********************************",item_row)
+		console.log("9242*&&&*&*&*&*********************************before_return",item_row)
 		return item_row || {};
 	}
 
@@ -1347,6 +1355,7 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	update_cart_html(item_row, remove_item) {
+		console.log("******************************************update_cart_html",this.frm)
 		this.cart.update_item_html(item_row, remove_item);
 		this.cart.update_totals_section(this.frm);
 	}

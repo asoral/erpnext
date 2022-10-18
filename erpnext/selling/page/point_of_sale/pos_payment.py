@@ -211,7 +211,7 @@ def update_cart(ic,barcode,ip):
        rate =frappe.get_doc("Item Price",{'item_code':item.name})
        qty = float(res)/rate.price_list_rate
        items = {}
-       uom = frappe.db.get_value("Item Barcode",{'parent':item.name},["uom"])
+       uom = frappe.db.get_value("Item Barcode",{'parent':item.name},["posa_uom"])
        items.update({
            "actual_qty":100,
            "barcode":barcode,
@@ -236,6 +236,40 @@ def update_cart(ic,barcode,ip):
     
     else:
         print(ic,"no")
+
+
+@frappe.whitelist()
+def update_cart_for_non_dynamic_items(barcode):
+    items = {}
+    item_code = frappe.db.get_all("Item",{'name':barcode,'disabled':0},['*'])
+    if item_code:
+        for dets in item_code:
+            items.update({
+           "actual_qty":100,
+           "barcode":barcode,
+           "batch_no":"",
+           "currency":"INR",
+           "description":dets.description,
+           "is_stock_item":dets.is_stock_item,
+           "item_code":dets.name,
+           "item_name":dets.item_name,
+           "item_image":dets.image,
+           "price_list_rate":frappe.db.get_value("Item Price",{'item_code':barcode},["price_list_rate"]),
+           "serial_no":"",
+           "stock_uom":dets.stock_uom,
+           "cprice":frappe.db.get_value("Item Price",{'item_code':barcode},["price_list_rate"]),
+           "qty":"01"
+       })
+
+        print("item_code search((((((((((((((((((((((((((((((((",items)
+
+        return [items]
+    
+    
+
+
+
+
         
         
 
