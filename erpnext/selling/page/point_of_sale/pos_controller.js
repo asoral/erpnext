@@ -1240,7 +1240,7 @@ erpnext.PointOfSale.Controller = class {
 				})
 			console.log('SSSSSSSSSSSSSSSSSSSss',li)
 			mylist.push(item.item_code,item.rate)
-			console.log(mylist)
+			// console.log(m)
 
 
 			const from_selector = field === 'qty' && value === "+1";
@@ -1301,9 +1301,9 @@ erpnext.PointOfSale.Controller = class {
 			console.log('###############')
 			// this.getItem(li);
 			// var func = this.myfunction(mylist);
-			this.getItem(li);
-			var func = this.
-			myfunction(mylist);
+			// this.getItem(li);
+			// var func = this.
+			// this.myfunction(mylist);
 			
 
 
@@ -1560,10 +1560,11 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	
-	myfunction(name, data){
+	myfunction(name){
 		console.log("9242*******************8980808080*",this.pos_profile)
 		var b = this.pos_profile;
 		var a=this.cart.update_totals_section(this.frm)
+		console.log("9242*******************8980808080*",a)
 		frappe.call({
 			method: "erpnext.selling.page.point_of_sale.pos.pole_display",
 			args:{

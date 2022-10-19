@@ -10,7 +10,39 @@ from frappe.model.document import Document
 from frappe.utils import today, flt
 
 class LoyaltyProgram(Document):
-	pass
+	
+	def validate(self):
+		print("VALIDATE METHOD*********************88",self)
+		included_item_groups = []
+		if self.row_wise_loyalty_point:
+			# print("VALIDATE METHOD*********************2222222222222222222222",self)
+			for i in self.row_wise_loyalty_point:
+				# print("VALIDATE METHOD*********************333333333333333333333333333333333",self)
+				if i.get("document_type") == "Item Group" and i.get("document_id"):
+					parent_ig = frappe.get_doc("Item Group",i.get("document_id"))
+					child_ig = frappe.db.get_all("Item Group",{'lft':[">=",parent_ig.get("lft")],'rgt':['<=',parent_ig.get("rgt")]},['name'])
+					print("VALIDATE METHOD*********************44444444444444444444444444444444444",child_ig)
+					# if child_ig:
+					# 	for all in child_ig:
+					# 		condition = {
+					# 			"item_group":all.name,
+					# 			"minimum_total_spend":i.get("minimum_total_spend"),
+					# 			"collection_factor":i.get("collection_factor")
+
+					# 		}
+					# 		# self.set("detailed_item_groups",[])
+					# 		self.append("detailed_item_groups",condition)
+				
+				# if self.detailed_item_groups:
+				# 	for j in self.detailed_item_groups:
+				# 		if parent_ig.name != j.get("item_group"):
+				# 			self.append("detailed_item_groups",{
+				# 				"item_group":parent_ig.name,
+				# 				"minimum_total_spend":i.get("minimum_total_spend"),
+				# 				"collection_factor":i.get("collection_factor")
+				# 			})
+
+					
 
 
 def get_loyalty_details(customer, loyalty_program, expiry_date=None, company=None, include_expired_entry=False):
@@ -128,3 +160,7 @@ def validate_loyalty_points(ref_doc, points_to_redeem):
 
 		elif ref_doc.doctype == "Sales Order":
 			return loyalty_amount
+
+
+
+

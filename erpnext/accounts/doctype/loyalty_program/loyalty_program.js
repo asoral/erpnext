@@ -60,6 +60,21 @@ frappe.ui.form.on('Loyalty Program', {
 			}
 		}
 
+		frm.fields_dict["exclusion_list"].grid.get_field("item_group").get_query = function(doc, cdt, cdn) {
+			var child = locals[cdt][cdn];
+			return {    
+				filters:{
+					"is_group":1
+				}
+			}
+		}
+
+		console.log("sfsbnjdbk",)
+
+		
+
+		
+
 
 
 		if(cur_frm.doc.doctype_name="POS Invoice"){		
@@ -74,7 +89,7 @@ frappe.ui.form.on('Loyalty Program', {
 				if(r.message){
 					fields1.push(r.message)
 					labels=Object.keys(fields1[0])
-					frm.fields_dict.pos_invoice_wise_loyalty_point.grid.update_docfield_property(
+					frm.fields_dict.pos_invoice_wise_loyalty_points.grid.update_docfield_property(
 						'pos_invoice',
 						'options',
 						[""].concat(labels)
@@ -106,7 +121,18 @@ frappe.ui.form.on('Loyalty Program', {
 			
 		})
 			}
-		}
+		},
+
+
+		
+
+		
+
+
+
+		
+
+	
 		
 )}
 
@@ -122,3 +148,41 @@ frappe.ui.form.on('Loyalty Program', {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
 	}
 });
+
+
+
+frappe.ui.form.on("Exclusion List",{
+	item_group:function(frm,cdt,cdn){
+		var child  = locals[cdt][cdn]
+		if(child.item_group){
+			frm.fields_dict.row_wise_loyalty_point.grid.grid_rows.forEach((row) => {
+				if(row.doc.document_type == "Item Group" && row.doc.document_id == child.item_group){
+					frappe.model.set_value(cdt,cdn,"item_group","")
+					frappe.msgprint(__("You Cannot Select Same Item Group for both Inclusion and exclusion conditions"))
+					
+				}
+				
+			})
+
+		}
+	},
+	item:function(frm,cdt,cdn){
+		var child  = locals[cdt][cdn]
+		if(child.item){
+			frm.fields_dict.row_wise_loyalty_point.grid.grid_rows.forEach((row) => {
+				if(row.doc.document_type == "Item" && row.doc.document_id == child.item){
+					frappe.model.set_value(cdt,cdn,"item","")
+					frappe.throw(__("You Cannot Select Same Item for both inclusion and exclusion conditions"))
+					
+				}
+			})
+
+		}
+	},
+	
+
+})
+
+
+
+
