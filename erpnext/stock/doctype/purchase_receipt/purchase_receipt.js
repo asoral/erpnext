@@ -64,18 +64,18 @@ frappe.ui.form.on("Purchase Receipt", {
 					}
 				}
 			});
-			frappe.call({
-				method : 'on_get_items_button',
-				doc:frm.doc,
-				callback: function(r)
-				{
-					if (r.message){
+			// frappe.call({
+			// 	method : 'on_get_items_button',
+			// 	doc:frm.doc,
+			// 	callback: function(r)
+			// 	{
+			// 		if (r.message){
 					
-					frm.refresh()
-					frm.refresh_field("supplied_items")
-					}
-				}
-			});
+			// 		frm.refresh()
+			// 		frm.refresh_field("supplied_items")
+			// 		}
+			// 	}
+			// });
 		}
 
 	},
@@ -345,8 +345,8 @@ frappe.ui.form.on('Purchase Receipt Item', {
 
 	form_render:function(frm,cdt,cdn){
 		var child = locals[cdt][cdn];
-		if (child.item_code && frm.doc.is_subcontracted == "Yes" && frm.doc.doc_status != 1) {
-		
+		if (child.item_code && frm.doc.is_subcontracted == "Yes" && frm.doc.docstatus != 1) {
+			console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$4")
 			frappe.call({
 				method: 'on_challan_number',
 				doc : frm.doc,	

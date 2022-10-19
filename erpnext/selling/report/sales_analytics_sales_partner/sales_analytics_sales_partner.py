@@ -235,7 +235,7 @@ class Analytics(object):
 
 		if self.filters.sales_person:
 			self.entries = frappe.db.sql("""
-				select i.item_group as entity, s.{value_field} as value_field, s.{date_field}
+				select i.item_group as entity, i.{value_field} as value_field, s.{date_field}
 				from `tab{doctype} Item` i , `tab{doctype}` s join `tabSales Team` st on st.parent=s.name
 				where s.name = i.parent and i.docstatus = 1 and s.company = %s and st.sales_person = %s
 				and s.{date_field} between %s and %s

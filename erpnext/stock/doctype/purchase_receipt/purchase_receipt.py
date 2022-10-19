@@ -76,7 +76,7 @@ class PurchaseReceipt(BuyingController):
 						}
 					)
 					self.save(ignore_permissions=True)
-			return True
+		return True
 		# for row in self.supplied_items:
 		# 	if row.qty_to_be_consumed:
 		# 		if row.consumed_qty > 0 and row.qty_to_be_consumed <= 0 and self.is_new():
@@ -138,11 +138,11 @@ class PurchaseReceipt(BuyingController):
 
 					# print(" this is bom", bom_stock)	
 
-					level_up_se(soi_item.get("batch_no"), self.data2)			
+					level_up_se(soi_item.get("batch_no"), data2)			
 					# print("level_ip called", self.data2)
 
 					new_list = []
-					for s in self.data2:
+					for s in data2:
 						# for j in bom_stock:
 							# print(" s j", s , j)
 							if frappe.db.get_value("Item", s.get('item_code'), ["intercompany_item"]):
@@ -195,7 +195,8 @@ class PurchaseReceipt(BuyingController):
 								
 								self.reload()
 								return stock_e 
-
+		
+		
 	@frappe.whitelist()
 	def on_challan_date(self, item):
 		# print("THi i new deu daye")
@@ -487,6 +488,7 @@ class PurchaseReceipt(BuyingController):
 		if self.is_subcontracted == "Yes":
 			doc=frappe.new_doc("Stock Entry")
 			doc.stock_entry_type="Material Issue"
+			doc.naming_series="JWR-.abbr.-.FY.-.####"
 			doc.from_warehouse=self.supplier_warehouse
 			doc.company=self.company
 			doc.purchase_receipt=self.name
@@ -1404,7 +1406,7 @@ def get_data(name,company):
 	print("PR NAME",name)
 	# print(" dates", s_d, m_d, filters.get('company'))
 	query = """
-				Select pris.*, pr.name, pr.supplier   from `tabPurchase Receipt Item` pris
+				Select pris.*, pr.name, pr.supplier ,pr.company  from `tabPurchase Receipt Item` pris
 				Join `tabPurchase Receipt` pr on pr.name = pris.parent
 				where pr.name='{0}'
 				and pr.is_subcontracted = "Yes" and pr.docstatus = 0
@@ -1450,7 +1452,7 @@ def get_data(name,company):
 					for s in se_01_child:
 						
 						se = frappe.get_doc("Stock Entry Detail", s)
-						print(" this is se o1 child", se.batch_no)
+						print(" this is se o1 child", se.batch_no,se.item_code)
 
 						if se.name:
 							st_entry1 = frappe.db.sql("""
@@ -1466,7 +1468,7 @@ def get_data(name,company):
 								se_bom1 = frappe.get_doc("Stock Entry", st_entry1[0].get("name"))
 								print(" this is se_bom1 oooooooooooo", se_bom1)
 
-								se_011 = frappe.get_doc("Stock Entry", { "work_order": se_bom1.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture" })
+								se_011 = frappe.get_doc("Stock Entry", { "work_order": se_bom1.get("work_order"), "stock_entry_type" : "Material Transfer for Manufacture"})
 								print(" this is manafactuffe 2", se_011)
 
 								if se_011:
@@ -1475,7 +1477,7 @@ def get_data(name,company):
 									for s1 in se_01_child1:
 										
 										se1 = frappe.get_doc("Stock Entry Detail", s1)
-										print(" this is se o2 child", se1.batch_no)
+										print(" this is se o2 child", se1.batch_no,s1)
 
 										if se1.name:
 											st_entry2 = frappe.db.sql("""
@@ -1566,8 +1568,9 @@ def get_data(name,company):
 																													Select se.reference_challan, se.posting_date from `tabStock Entry` se 
 																													join `tabStock Entry Detail` sed on sed.parent = se.name 
 																													where se.stock_entry_type = "Material Receipt"
-																													and sed.batch_no = '{0}'
+																													and sed.batch_no = '{0}' and se.company="Kroslink Polymers Pvt Ltd"
 																													""".format(se4.get("batch_no")), as_dict=1)
+																								print("******************************************************",p.item_code,stock_e)
 																							if len(stock_e)>0:
 																								ref_challan = (stock_e[0].get('reference_challan'))
 																																										
@@ -1616,8 +1619,9 @@ def get_data(name,company):
 																										Select se.reference_challan, se.posting_date from `tabStock Entry` se 
 																										join `tabStock Entry Detail` sed on sed.parent = se.name 
 																										where se.stock_entry_type = "Material Receipt"
-																										and sed.batch_no = '{0}'
+																										and sed.batch_no = '{0}' and and se.company="Kroslink Polymers Pvt Ltd"
 																										""".format(se3.get("batch_no")), as_dict=1)
+																					print("******************************************************",stock_e)
 																				if len(stock_e)> 0:
 																					ref_challan = (stock_e[0].get('reference_challan'))
 																																							
@@ -1658,7 +1662,7 @@ def get_data(name,company):
 
 																	
 															else:
-																print(" no elseeeeeeeeee no batchhhh 33333   33333",  se2.description)
+																print(" no elseeeeeeeeee no batchhhh 33333   33333",  se2.description,company)
 																stock_e=[]
 																ref_challan = ""
 																if se2.get("batch_no"):
@@ -1666,8 +1670,9 @@ def get_data(name,company):
 																						Select se.reference_challan, se.posting_date from `tabStock Entry` se 
 																						join `tabStock Entry Detail` sed on sed.parent = se.name 
 																						where se.stock_entry_type = "Material Receipt"
-																						and sed.batch_no = '{0}'
+																						and sed.batch_no = '{0}' and se.company="Kroslink Polymers Pvt Ltd"
 																						""".format(se2.get("batch_no")), as_dict=1)
+																	print("******************************************************",stock_e)
 																if len(stock_e)>0:
 																	ref_challan = (stock_e[0].get('reference_challan'))
 																																			
@@ -1711,10 +1716,10 @@ def get_data(name,company):
 												stock_e=[]
 												if se1.get("batch_no"):
 													stock_e = frappe.db.sql("""
-																		Select se.reference_challan, se.posting_date from `tabStock Entry` se 
+																		Select se.reference_challan,sed.batch_no, se.posting_date from `tabStock Entry` se 
 																		join `tabStock Entry Detail` sed on sed.parent = se.name 
 																		where se.stock_entry_type = "Material Receipt"
-																		and sed.batch_no = '{0}'
+																		and sed.batch_no = '{0}' and se.company="Kroslink Polymers Pvt Ltd"
 																		""".format(se1.get("batch_no")), as_dict=1)
 													print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",stock_e)
 												if len(stock_e)>0:
@@ -1763,9 +1768,9 @@ def get_data(name,company):
 														Select se.reference_challan, se.posting_date from `tabStock Entry` se 
 														join `tabStock Entry Detail` sed on sed.parent = se.name 
 														where se.stock_entry_type = "Material Receipt"
-														and sed.batch_no = '{0}'
+														and sed.batch_no = '{0}' and se.company="Kroslink Polymers Pvt Ltd"
 														""".format(se.get("batch_no")), as_dict=1)
-								print(stock_e)
+									print("******************************************************",stock_e)
 								if len(stock_e)>0:
 									ref_challan = (stock_e[0].get('reference_challan'))
 																											

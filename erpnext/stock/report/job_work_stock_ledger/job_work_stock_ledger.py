@@ -58,31 +58,31 @@ def execute(filters=None):
 			update_available_serial_nos(available_serial_nos, sle)
 
 		data.append(sle)
-
-		for d in data:
-			ref_challan = ""
-			ref_date=""
-			customer_challan_number=""
-			customer_challan_date=""
-			if d.get("batch_no"):
-				stock_e = frappe.db.sql("""
-									Select se.reference_challan,se.reference_challan_date,se.posting_date,se.customer_challan_number,se.customer_challan_date from `tabStock Entry` se 
-									join `tabStock Entry Detail` sed on sed.parent = se.name 
-									where se.stock_entry_type = "Material Receipt"
-									and sed.batch_no = '{0}'
-									""".format(d.get("batch_no")), as_dict=1)
-			if stock_e:
-				ref_challan = (stock_e[0].get('reference_challan'))
-				ref_date=(stock_e[0].get('reference_challan_date'))
-				customer_challan_number=(stock_e[0].get('customer_challan_number'))
-				customer_challan_date=(stock_e[0].get('customer_challan_date'))
-			# d['ref_challan'] = frappe.get_value("Stock Entry", d.get('voucher_no'), ['reference_challan'])
-			d['ref_challan'] = ref_challan
-			d["ref_date"]=ref_date
-			d["customer_challan_number"]=customer_challan_number
-			d["customer_challan_date"]=customer_challan_date
 		if include_uom:
 			conversion_factors.append(item_detail.conversion_factor)
+	ref_challan = ""
+	ref_date=""
+	customer_challan_number=""
+	customer_challan_date=""
+	for d in data:
+		if d.get("batch_no"):
+			stock_e = frappe.db.sql("""
+								Select se.reference_challan,se.reference_challan_date,se.posting_date,se.customer_challan_number,se.customer_challan_date from `tabStock Entry` se 
+								join `tabStock Entry Detail` sed on sed.parent = se.name 
+								where se.stock_entry_type = "Material Receipt"
+								and sed.batch_no = '{0}'
+								""".format(d.get("batch_no")), as_dict=1)
+		if stock_e:
+			ref_challan = (stock_e[0].get('reference_challan'))
+			ref_date=(stock_e[0].get('reference_challan_date'))
+			customer_challan_number=(stock_e[0].get('customer_challan_number'))
+			customer_challan_date=(stock_e[0].get('customer_challan_date'))
+		# d['ref_challan'] = frappe.get_value("Stock Entry", d.get('voucher_no'), ['reference_challan'])
+		d['ref_challan'] = ref_challan
+		d["ref_date"]=ref_date
+		d["customer_challan_number"]=customer_challan_number
+		d["customer_challan_date"]=customer_challan_date
+		
 
 	update_included_uom_in_report(columns, data, include_uom, conversion_factors)
 	return columns, data
