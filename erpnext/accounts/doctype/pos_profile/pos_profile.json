@@ -22,7 +22,6 @@
   "company_address",
   "section_break_15",
   "applicable_for_users",
-  "pos_profile_supervisor",
   "pole_display_settings_section",
   "terminal_display",
   "port_display",
@@ -427,12 +426,6 @@
    "fieldname": "section_break_5",
    "fieldtype": "Section Break",
    "label": "Company Details"
-  },
-  {
-   "fieldname": "pos_profile_supervisor",
-   "fieldtype": "Table",
-   "label": "POS Profile Supervisor",
-   "options": "POS Profile Supervisor"
   }
  ],
  "icon": "icon-cog",
@@ -460,7 +453,7 @@
    "link_fieldname": "pos_profile"
   }
  ],
- "modified": "2022-10-19 15:56:16.600197",
+ "modified": "2022-10-20 11:38:31.003565",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Profile",

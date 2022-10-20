@@ -1464,10 +1464,10 @@ erpnext.PointOfSale.Controller = class {
 
 		// new code Start for GH customization #PRE00715
 		let me = this
-		console.log("9242*********************8pp",me.pos_profile)
+		console.log("9242*********************8pp",me.company)
 		let users = []
 
-		frappe.db.get_doc("POS Profile",me.pos_profile).then(pos_sp => {
+		frappe.db.get_doc("Company",me.company).then(pos_sp => {
 			console.log("9242 in POS2***************************",pos_sp)
 			for (var key in pos_sp.pos_profile_supervisor){
 				console.log("9242 in POS***************************",)
@@ -1504,6 +1504,7 @@ erpnext.PointOfSale.Controller = class {
 						"password": data.password,
 						"action" : "Remove Item",
 						"pos_profile": cur_frm.doc.pos_profile,
+						"company":cur_frm.doc.company,
 						"owner" : cur_frm.doc.owner,
 						"item": me.item_details.item_row.item_code,
 						"canceled_transaction" : "" },

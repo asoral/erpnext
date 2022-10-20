@@ -367,9 +367,9 @@ def get_pos_profile_data(pos_profile):
 
 from frappe.utils import nowdate, now_datetime
 @frappe.whitelist()
-def remove_authorize(user, password, action, pos_profile, owner, item, canceled_transaction):
+def remove_authorize(user, password, action, pos_profile,company, owner, item, canceled_transaction):
 	print(" we are verifying" ,  pos_profile, owner)	
-	docs = frappe.get_all("POS Profile Supervisor", {"parent":pos_profile }) 
+	docs = frappe.get_all("POS Profile Supervisor", {"parent":company }) 
 	print(docs)
 	for d in docs:
 		supervisor = frappe.get_doc("POS Profile Supervisor", d)
@@ -379,6 +379,7 @@ def remove_authorize(user, password, action, pos_profile, owner, item, canceled_
 			doc = frappe.new_doc("Supervisor Log")
 			doc.user = user
 			doc.action = action
+			doc.company = company
 			doc.date_time = now_datetime()
 			doc.pos_user = owner
 			doc.pos_profile = pos_profile
@@ -399,8 +400,8 @@ def remove_authorize(user, password, action, pos_profile, owner, item, canceled_
 		break
 	
 @frappe.whitelist()
-def editcart_authorize(user, password, action, pos_profile, owner, item, canceled_transaction):	
-	docs = frappe.get_all("POS Profile Supervisor", {"parent":pos_profile }) 
+def editcart_authorize(user, password, action, company,pos_profile, owner, item, canceled_transaction):	
+	docs = frappe.get_all("POS Profile Supervisor", {"parent":company }) 
 	print(docs)
 	for d in docs:
 		supervisor = frappe.get_doc("POS Profile Supervisor", d)
@@ -411,6 +412,7 @@ def editcart_authorize(user, password, action, pos_profile, owner, item, cancele
 			doc.user = user
 			doc.action = action
 			doc.date_time = now_datetime()
+			doc.company = company
 			doc.pos_user = owner
 			doc.pos_profile = pos_profile
 			doc.deleted_item = item

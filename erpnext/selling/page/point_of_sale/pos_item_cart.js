@@ -122,6 +122,8 @@ erpnext.PointOfSale.ItemCart = class {
 			</div>
 			<div class="checkout-btn">${__('Checkout')}</div>
 			<div class="edit-cart-btn">${__('Edit Cart')}</div>`
+
+
 		)
 
 		this.$add_discount_elem = this.$component.find(".add-discount-wrapper");
@@ -213,10 +215,10 @@ erpnext.PointOfSale.ItemCart = class {
 			
 		
 			// New code for GH customization Edit Cart Button
-			console.log("22222222222222222222222222222222222",this.$component.context.pos.pos_profile)
+			console.log("22222222222222222222222222222222222",cur_frm.doc.company)
 			// let pos_profile = this.$component.context.pos.pos_profile
 			let users = []
-			frappe.db.get_doc("POS Profile",cur_frm.doc.pos_profile).then(pos_sp => {
+			frappe.db.get_doc("Company",cur_frm.doc.company).then(pos_sp => {
 				console.log("9242 in POS2***************************",pos_sp)
 				for (var key in pos_sp.pos_profile_supervisor){
 					console.log("9242 in POS***************************",)
@@ -259,7 +261,8 @@ erpnext.PointOfSale.ItemCart = class {
 							 "user": data.user,
 							"password": data.password,
 							"action" : "Edit Cart",
-							"pos_profile": cur_frm.doc.pos_profile,
+							"pos_profile":cur_frm.doc.pos_profile,
+							"company": cur_frm.doc.company,
 							"owner" : cur_frm.doc.owner,
 							"item": "",
 							"canceled_transaction" : cur_frm.doc.name

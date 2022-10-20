@@ -34,6 +34,8 @@
   "tax_id",
   "date_of_establishment",
   "sales_settings",
+  "pos_profile_supervisor_section",
+  "pos_profile_supervisor",
   "monthly_sales_target",
   "sales_monthly_history",
   "column_break_goals",
@@ -780,6 +782,17 @@
    "fieldtype": "Data",
    "label": " UPI ID",
    "translatable": 1
+  },
+  {
+   "fieldname": "pos_profile_supervisor_section",
+   "fieldtype": "Section Break",
+   "label": "POS Profile Supervisor"
+  },
+  {
+   "fieldname": "pos_profile_supervisor",
+   "fieldtype": "Table",
+   "label": "POS Profile Supervisor",
+   "options": "POS Profile Supervisor"
   }
  ],
  "icon": "fa fa-building",
@@ -787,7 +800,7 @@
  "image_field": "company_logo",
  "is_tree": 1,
  "links": [],
- "modified": "2021-06-08 10:43:22.483787",
+ "modified": "2022-10-20 09:30:44.806380",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Company",
