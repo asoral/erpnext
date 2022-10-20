@@ -3,6 +3,7 @@ import os
 from time import sleep
 import click
 import frappe
+import time
 
 
 #global constants
@@ -16,7 +17,7 @@ GYRO_1_Z_addr = ord('K')
 
 
 @frappe.whitelist()
-def pole_display(item,amount,grand_total,pos_profile):
+def pole_display(item,amount,pos_profile):
     print("hvbskjsdnjnjnlkkkkkkkkkkkkkkkkkkkkkkkkkk")
     if item:
         dat = frappe.get_last_doc('POS Opening Entry')
@@ -32,24 +33,35 @@ def pole_display(item,amount,grand_total,pos_profile):
             s.port = str(port)
             s.baudrate = 9600
             s.open()
-            
+            # read = s.read()
+            # print("**************************read pole display",read)
             #a="Item:"+str(doc.item_name)+" Amt:"+str(amount)+" GT:"+str(grand_total)
-
-            a="Item:"+str(doc.item_name)
-            if len(a)<20:
+            iname = doc.item_name
+            a="Item:"+str(iname[0:12])
+            if len(a)<13:
                 b=20-len(a)
                 for i in range(1,b+1):
                     a+=" "
             s.write(a.encode())
+
+            
             
 
             c  = "Price:"+str(amount)
-            if len(c)<20:
+            if len(c)<14:
                 d=20-len(c)
                 for j in range(1,d+1):
                     c+=" "
+
+            
             s.write(c.encode())
+
+            
+            
+            time.sleep(1)
             s.close()
+            # s.Dispose()
+
         
         print('jjjjjjjjjjjjj')
 

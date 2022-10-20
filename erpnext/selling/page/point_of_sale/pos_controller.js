@@ -1308,7 +1308,7 @@ erpnext.PointOfSale.Controller = class {
 			// var func = this.myfunction(mylist);
 			// this.getItem(li);
 			// // var func = this.
-			// this.myfunction(mylist);
+			this.myfunction(mylist);
 			
 
 
@@ -1580,9 +1580,16 @@ erpnext.PointOfSale.Controller = class {
 			args:{
 				"item":name[0],
 				"amount":name[1],
-				"grand_total":a,
 				"pos_profile":b
 			},
+			callback:function(r){
+				frappe.call({
+				method: "erpnext.selling.page.point_of_sale.pos.pole_clear",
+				args:{
+				"pos_profile":b
+						}
+						});
+			}
 			
         });
 		};	
