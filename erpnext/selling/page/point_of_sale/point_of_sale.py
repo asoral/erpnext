@@ -86,7 +86,7 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 
 	if search_term:
 		result = search_by_term(search_term, warehouse, price_list) or []
-		print("result_call**************",result)
+		# print("result_call**************",result)
 		if result:
 			return result
 
@@ -167,7 +167,6 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 				}
 			)
 			result.append(row)
-	print("94894444844561651516",result)
 	return {"items": result}
 
 

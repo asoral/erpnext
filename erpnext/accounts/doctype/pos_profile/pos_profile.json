@@ -6,6 +6,11 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "profile_selector_section",
+  "company_profile",
+  "column_break_3",
+  "counter_profile",
+  "section_break_5",
   "company",
   "customer",
   "country",
@@ -17,6 +22,7 @@
   "company_address",
   "section_break_15",
   "applicable_for_users",
+  "pos_profile_supervisor",
   "pole_display_settings_section",
   "terminal_display",
   "port_display",
@@ -33,7 +39,6 @@
   "allow_discount_change",
   "section_break_23",
   "pos_profile_supervisor_section",
-  "pos_profile_supervisor",
   "item_groups",
   "column_break_25",
   "customer_groups",
@@ -75,6 +80,7 @@
    "options": "Customer"
   },
   {
+   "depends_on": "eval:doc.company_profile",
    "fieldname": "company",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -119,6 +125,7 @@
    "options": "POS Profile User"
   },
   {
+   "depends_on": "eval:doc.counter_profile",
    "fieldname": "section_break_11",
    "fieldtype": "Section Break",
    "label": "Payment Methods"
@@ -130,6 +137,7 @@
    "reqd": 1
   },
   {
+   "depends_on": "eval:doc.counter_profile",
    "fieldname": "section_break_14",
    "fieldtype": "Section Break",
    "label": "Configuration"
@@ -153,6 +161,7 @@
    "options": "POS Customer Group"
   },
   {
+   "depends_on": "eval:doc.company_profile",
    "fieldname": "section_break_16",
    "fieldtype": "Section Break",
    "label": "Print Settings"
@@ -190,6 +199,7 @@
    "options": "Print Heading"
   },
   {
+   "depends_on": "eval:doc.company_profile",
    "fieldname": "section_break_19",
    "fieldtype": "Section Break",
    "label": "Accounting"
@@ -274,6 +284,7 @@
    "options": "Grand Total\nNet Total"
   },
   {
+   "depends_on": "eval:doc.company_profile",
    "fieldname": "accounting_dimensions_section",
    "fieldtype": "Section Break",
    "label": "Accounting Dimensions"
@@ -299,6 +310,7 @@
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "Warehouse",
+   "mandatory_depends_on": "update_stock",
    "oldfieldname": "warehouse",
    "oldfieldtype": "Link",
    "options": "Warehouse",
@@ -312,6 +324,7 @@
   },
   {
    "default": "1",
+   "depends_on": "eval:doc.company_profile",
    "fieldname": "update_stock",
    "fieldtype": "Check",
    "hidden": 1,
@@ -364,15 +377,9 @@
    "label": "Weighable Barcodes Starts With"
   },
   {
+   "depends_on": "eval:doc.counter_profile",
    "fieldname": "pos_profile_supervisor_section",
-   "fieldtype": "Section Break",
-   "label": "POS Profile Supervisor"
-  },
-  {
-   "fieldname": "pos_profile_supervisor",
-   "fieldtype": "Table",
-   "label": "POS Profile Supervisor",
-   "options": "POS Profile Supervisor"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "pole_display_settings_section",
@@ -391,6 +398,41 @@
    "fieldtype": "Data",
    "label": "Port Display",
    "read_only": 1
+  },
+  {
+   "fieldname": "profile_selector_section",
+   "fieldtype": "Section Break",
+   "label": "Profile Selector"
+  },
+  {
+   "fieldname": "company_profile",
+   "fieldtype": "Link",
+   "label": "Company Profile",
+   "options": "POS Company Profile",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "counter_profile",
+   "fieldtype": "Link",
+   "label": "Counter Profile",
+   "options": "POS Company Profile",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.company_profile",
+   "fieldname": "section_break_5",
+   "fieldtype": "Section Break",
+   "label": "Company Details"
+  },
+  {
+   "fieldname": "pos_profile_supervisor",
+   "fieldtype": "Table",
+   "label": "POS Profile Supervisor",
+   "options": "POS Profile Supervisor"
   }
  ],
  "icon": "icon-cog",
@@ -418,7 +460,7 @@
    "link_fieldname": "pos_profile"
   }
  ],
- "modified": "2022-10-13 18:22:58.359356",
+ "modified": "2022-10-19 15:56:16.600197",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "POS Profile",

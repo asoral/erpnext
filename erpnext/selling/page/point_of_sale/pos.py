@@ -17,12 +17,13 @@ GYRO_1_Z_addr = ord('K')
 
 @frappe.whitelist()
 def pole_display(item,amount,grand_total,pos_profile):
+    print("hvbskjsdnjnjnlkkkkkkkkkkkkkkkkkkkkkkkkkk")
     if item:
         dat = frappe.get_last_doc('POS Opening Entry')
         print('!!!!!!!!!!!pos_opening_entry',dat)
         doc = frappe.get_doc('Item',item)
         port = frappe.get_value('POS Profile',pos_profile,'port_display')
-        print('AAAAAAAAAAAAport',port)
+        print('AAAAAAAAAAAAport****************************************************************************',port)
         if port:
             #initialize the serial port
             s = serial.Serial()
@@ -54,11 +55,12 @@ def pole_display(item,amount,grand_total,pos_profile):
 
 @frappe.whitelist()
 def pole_clear(pos_profile):
-    print('iiiiiiiiiiiiiiiiiiiii')
-    port = frappe.get_value('POS Profile',pos_profile,'port_display')
-    if port:
+    print('iiiiiiiiiiiiiiiiiiiii',pos_profile)
+    port_d = frappe.db.sql("""select port_display from  `tabPOS Profile` where name = "ORW" """,as_dict=1)
+    print('iiiiiiiiiiiiiiiiiiiii',type(port_d))
+    if port_d:
         s = serial.Serial()
-        s.port = port
+        s.port = port_d[0]["port_display"]
         s.baudrate = 9600
         s.open()
         a=""

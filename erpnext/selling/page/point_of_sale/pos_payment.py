@@ -1,10 +1,9 @@
 # from ast import main
 from filecmp import cmp
-from locale import currency
-from frappe.utils import fmt_money
 from frappe.utils.data import flt
 from erpnext import get_default_company
 from erpnext.setup.utils import get_exchange_rate
+from frappe.utils import fmt_money
 from frappe.www.printview import get_print_style
 # from erpnext.accounts.doctype.loyalty_program_collection.row_wise_loyalty import row_wise_loyalty_point
 

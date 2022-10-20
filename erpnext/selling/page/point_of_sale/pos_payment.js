@@ -256,11 +256,11 @@ erpnext.PointOfSale.Payment = class {
 			const payments = doc.payments;
 			const gt = doc.grand_total;
 			const pos = doc.pos_profile
-			// const "INR" = ""
-			// frappe.db.get_doc("Company",doc.company).then(comp => {
-			// 	"INR" = comp.default_currency
-			// })
-			console.log("comp_curr*******************************","INR")
+			let def_curr = ""
+			frappe.db.get_doc("Company",doc.company).then(comp => {
+				def_curr = comp.default_currency
+			})
+			console.log("comp_curr*******************************",def_curr)
 
 			console.log("92444414141481841481481481484814141","INR")
 			
@@ -746,7 +746,7 @@ erpnext.PointOfSale.Payment = class {
 					// me.update_totals_section(final_dict)
 					doc["base_paid_amount"] = values.pamt
 					doc["change_amount"] = values.chg
-					console.log("doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",doc.name)
+					console.log("doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",pos)
 					
 					if(values.amtp == 0.0 || values.chg > 0.0){
 						frappe.call({

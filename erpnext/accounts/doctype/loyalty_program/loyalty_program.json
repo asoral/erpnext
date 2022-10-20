@@ -19,6 +19,8 @@
   "row_wise_loyalty_points_section",
   "doctype_name",
   "row_wise_loyalty_point",
+  "detailed_item_groups",
+  "exclusion_list",
   "pos_invoice_wise_loyalty_points",
   "redemption",
   "conversion_factor",
@@ -152,7 +154,7 @@
   {
    "fieldname": "row_wise_loyalty_points_section",
    "fieldtype": "Section Break",
-   "label": "Row Wise Loyalty Points"
+   "label": " Loyalty Points Conditions"
   },
   {
    "fieldname": "doctype_name",
@@ -163,7 +165,7 @@
   {
    "fieldname": "row_wise_loyalty_point",
    "fieldtype": "Table",
-   "label": "Row wise Loyalty Point",
+   "label": "Inclusion List",
    "options": "Doctype Wise Loyalty Point"
   },
   {
@@ -171,10 +173,23 @@
    "fieldtype": "Table",
    "label": "POS Invoice Wise Loyalty Points",
    "options": "POS Invoice Wise Loyalty Points"
+  },
+  {
+   "fieldname": "exclusion_list",
+   "fieldtype": "Table",
+   "label": "Exclusion List",
+   "options": "Exclusion List"
+  },
+  {
+   "fieldname": "detailed_item_groups",
+   "fieldtype": "Table",
+   "hidden": 1,
+   "label": "Detailed Item Groups",
+   "options": "Detailed Item Groups"
   }
  ],
  "links": [],
- "modified": "2022-10-15 11:49:29.391975",
+ "modified": "2022-10-19 18:29:49.193582",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Loyalty Program",
