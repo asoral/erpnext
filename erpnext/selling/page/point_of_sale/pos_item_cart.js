@@ -121,7 +121,8 @@ erpnext.PointOfSale.ItemCart = class {
 				<div>0.00</div>
 			</div>
 			<div class="checkout-btn">${__('Checkout')}</div>
-			<div class="edit-cart-btn">${__('Edit Cart')}</div>`
+			<div class="edit-cart-btn">${__('Edit Order')}</div>
+			`
 
 
 		)
@@ -210,100 +211,10 @@ erpnext.PointOfSale.ItemCart = class {
 		});
 
 		this.$totals_section.on('click', '.edit-cart-btn', () => {
-
-			
-			
-		
-			// New code for GH customization Edit Cart Button
-			console.log("22222222222222222222222222222222222",cur_frm.doc.company)
-			// let pos_profile = this.$component.context.pos.pos_profile
-			let users = []
-			frappe.db.get_doc("Company",cur_frm.doc.company).then(pos_sp => {
-				console.log("9242 in POS2***************************",pos_sp)
-				for (var key in pos_sp.pos_profile_supervisor){
-					console.log("9242 in POS***************************",)
-					users.push(pos_sp.pos_profile_supervisor[key]["user"])
-
-				}
-
-			})
-			console.log("9242nnnidnsnvi",cur_frm.doc.pos_profile)
-			
-
-
-			var d = new frappe.ui.Dialog({
-				title: __("Supervisor Authorization"),
-				fields: [
-					{
-						label : "Supervisor ID",
-						fieldname: "user",
-						fieldtype: "Link",
-						reqd: 1,
-						options: "POS Supervisor User",
-						filters: {"name":["in",users]}
-					},
-					{
-						label: "Password",
-						fieldname: "password",
-						fieldtype: "Password",
-						reqd: 1,
-					}
-				],
-
-
-				primary_action: function() {
-					console.log(" this is to cancel", )
-					var data = d.get_values();
-					frappe.call({
-						method: "erpnext.selling.page.point_of_sale.point_of_sale.editcart_authorize",
-						
-						args: {
-							 "user": data.user,
-							"password": data.password,
-							"action" : "Edit Cart",
-							"pos_profile":cur_frm.doc.pos_profile,
-							"company": cur_frm.doc.company,
-							"owner" : cur_frm.doc.owner,
-							"item": "",
-							"canceled_transaction" : cur_frm.doc.name
-						 },
-						callback: (res) => {
-							if (res.message){
-								frappe.show_alert({
-									message:__('Your currenct Invoice {0} has been Cancelled', [cur_frm.doc.name]),
-									indicator:'red'
-								}, 5);
-								me.events.new_order();
-								// me.toggle_component(false);
-								// this.$component.find('.no-summary-placeholder').css('display', 'flex');
-								// this.$summary_wrapper.css('display', 'none');
-
-								// console.log(" this is event", me.events.new_order())
-								// me.events.init_order_summary.new_order();	
-
-								console.log(" this is return from cancell order ", me , this)
-								me.events.edit_cart();
-								// me.toggle_checkout_btn(true);
-								// cur_frm.refresh();
-								d.hide();
-								
-							}else{
-								d.hide();
-								frappe.msgprint(__("Invalid Credentials. You cannot edit this cart"));
-								
-							}
-						}
-					});
-	
-					d.hide();
-				},
-				primary_action_label: __('Authorize')
-			});
-			d.show();
 			
 			// New code for GH customization
-			// this.events.edit_cart();
-			// this.toggle_checkout_btn(true);
+			this.events.edit_cart();
+			this.toggle_checkout_btn(true);
 		});
 
 		this.$component.on('click', '.add-discount-wrapper', () => {
