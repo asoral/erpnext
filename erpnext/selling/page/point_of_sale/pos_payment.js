@@ -21,7 +21,6 @@ erpnext.PointOfSale.Payment = class {
 	prepare_dom() {
 		this.wrapper.append(
 			`<section class="payment-container">
-				<div class="payment-modes"></div>
 				<div class="fields-numpad-container">
 					<div class="fields-section">
 						
@@ -31,7 +30,7 @@ erpnext.PointOfSale.Payment = class {
 					</div>
 				</div>
 				<div class="totals-section">
-					<div class="totals"></div>
+				<button class="cancel-order-btn">Cancel Order</button>
 				</div>
 				<div class="submit-order-btn">${__("Complete Order")}</div>
 			</section>`
@@ -204,6 +203,8 @@ erpnext.PointOfSale.Payment = class {
 			}
 		});
 
+		
+
 		this.setup_listener_for_payments();
 
 		this.$payment_modes.on('click', '.shortcut', function() {
@@ -211,7 +212,100 @@ erpnext.PointOfSale.Payment = class {
 			me.selected_mode.set_value(value);
 		});
 
-		// this.$component.on('click', '.submit-order-btn', () => {
+
+
+
+		this.$component.on('click', '.cancel-order-btn', () => {
+
+			// New code for GH customization Edit Cart Button
+			console.log("22222222222222222222222222222222222",cur_frm.doc.company)
+			// let pos_profile = this.$component.context.pos.pos_profile
+			let users = []
+			frappe.db.get_doc("Company",cur_frm.doc.company).then(pos_sp => {
+				console.log("9242 in POS2***************************",pos_sp)
+				for (var key in pos_sp.pos_profile_supervisor){
+					console.log("9242 in POS***************************",)
+					users.push(pos_sp.pos_profile_supervisor[key]["user"])
+
+				}
+
+			})
+			console.log("9242nnnidnsnvi",cur_frm.doc.pos_profile)
+			
+
+
+			var d = new frappe.ui.Dialog({
+				title: __("Supervisor Authorization"),
+				fields: [
+					{
+						label : "Supervisor ID",
+						fieldname: "user",
+						fieldtype: "Link",
+						reqd: 1,
+						options: "POS Supervisor User",
+						filters: {"name":["in",users]}
+					},
+					{
+						label: "Password",
+						fieldname: "password",
+						fieldtype: "Password",
+						reqd: 1,
+					}
+				],
+
+
+				primary_action: function() {
+					console.log(" this is to cancel", )
+					var data = d.get_values();
+					frappe.call({
+						method: "erpnext.selling.page.point_of_sale.point_of_sale.editcart_authorize",
+						
+						args: {
+							 "user": data.user,
+							"password": data.password,
+							"action" : "Edit Cart",
+							"pos_profile":cur_frm.doc.pos_profile,
+							"company": cur_frm.doc.company,
+							"owner" : cur_frm.doc.owner,
+							"item": "",
+							"canceled_transaction" : cur_frm.doc.name
+						 },
+						callback: (res) => {
+							if (res.message){
+								frappe.show_alert({
+									message:__('Your currenct Invoice {0} has been Cancelled', [cur_frm.doc.name]),
+									indicator:'red'
+								}, 5);
+								// me.reload();
+								me.events.new_order();
+								window.location.reload()
+								// me.toggle_component(false);
+								// this.$component.find('.no-summary-placeholder').css('display', 'flex');
+								// this.$summary_wrapper.css('display', 'none');
+
+								// console.log(" this is event", me.events.new_order())
+								// me.events.init_order_summary.new_order();	
+
+								console.log(" this is return from cancell order ", me.events)
+								// me.events.edit_cart();
+								// me.toggle_checkout_btn(true);
+								// cur_frm.doc.reload();
+								d.hide();
+								
+							}else{
+								d.hide();
+								frappe.msgprint(__("Invalid Credentials. You cannot edit this cart"));
+								
+							}
+						}
+					});
+	
+					d.hide();
+				},
+				primary_action_label: __('Authorize')
+			});
+			d.show();
+		})
 		// 	const doc = this.events.get_frm().doc;
 		// 	const paid_amount = doc.paid_amount;
 		// 	const items = doc.items;
@@ -231,6 +325,8 @@ erpnext.PointOfSale.Payment = class {
 		// 	// ]);
 			
 		// });
+
+		
 
 		
 			
@@ -1157,6 +1253,17 @@ erpnext.PointOfSale.Payment = class {
 		if (!current_value && remaining_amount > 0 && this.selected_mode) {
 			this.selected_mode.set_value(remaining_amount);
 		}
+	}
+
+	edit_order(name){
+		console.log(thi)
+		this.recent_order_list.toggle_component(false);
+		frappe.run_serially([
+			() => this.frm.refresh(name),
+			() => this.frm.call('reset_mode_of_payments'),
+			() => this.cart.load_invoice(),
+			() => this.item_selector.toggle_component(true)
+		]);
 	}
 
 	attach_shortcuts() {

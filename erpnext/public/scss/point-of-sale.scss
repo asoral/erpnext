@@ -526,15 +526,9 @@
 					> .edit-cart-btn {
 						@extend .primary-action;
 						display: none;
-						background-color: var(--gray-300);
+						background-color: var(--green-500);
+						color: white;
 						font-weight: 500;
-						transition: all 0.15s ease-in-out;
-
-						&:hover {
-							background-color: var(--gray-600);
-							color: white;
-							font-weight: 700;
-						}
 					}
 				}
 
@@ -758,6 +752,13 @@
 
 		.border-primary {
 			border: 1px solid var(--blue-500);
+		}
+
+		.cancel-order-btn {
+			@extend .primary-action;
+			background-color: var(--red-500);
+			color: white;
+
 		}
 
 		.submit-order-btn {

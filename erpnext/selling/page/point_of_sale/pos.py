@@ -18,7 +18,7 @@ GYRO_1_Z_addr = ord('K')
 
 @frappe.whitelist()
 def pole_display(item,amount,pos_profile):
-    print("hvbskjsdnjnjnlkkkkkkkkkkkkkkkkkkkkkkkkkk")
+    # print("hvbskjsdnjnjnlkkkkkkkkkkkkkkkkkkkkkkkkkk",grand_total)
     if item:
         dat = frappe.get_last_doc('POS Opening Entry')
         print('!!!!!!!!!!!pos_opening_entry',dat)

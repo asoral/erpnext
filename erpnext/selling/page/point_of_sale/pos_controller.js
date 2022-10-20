@@ -705,7 +705,7 @@ erpnext.PointOfSale.Controller = class {
 		this.page.add_inner_button(('Open Cash Drawer'),()=>{
 			
 			// const me = this;
-			console.log("%%%%%%%%%%%%%%%%%%%%%%%",this)
+			console.log("%%%%%%%%%%%%%%%%%%%%%%%",this.company)
 			this.print_format_printer_map = this.get_print_format_printer_map();
 			this.data = this.print_format_printer_map[this.frm.doctype] || [];
 		    // let printer_list = [];
@@ -779,6 +779,15 @@ erpnext.PointOfSale.Controller = class {
 					fieldname:'printer',
 					fieldtype:"Data",
 					options:[]
+				},
+				{
+
+					label:"Company",
+					fieldname:'company',
+					fieldtype:"Link",
+					options:"Company",
+					hidden:1
+
 				}
 				
 			],
@@ -793,6 +802,7 @@ erpnext.PointOfSale.Controller = class {
 						"pos_profile": cur_frm.doc.pos_profile,
 						'date_and_time':data.date_and_time,
 						'pos_user':data.pos_user,
+						"company":cur_frm.doc.company,
 						'pos_profile':data.pos_profile,
 						'reason':data.reason
 					},
@@ -836,8 +846,10 @@ erpnext.PointOfSale.Controller = class {
 		});
 		d.fields_dict.pos_user.set_value(user)
 		d.fields_dict.pos_profile.set_value(this.pos_profile)
+		d.fields_dict.company.set_value(this.company)
 
-		frappe.db.get_doc('POS Profile', this.pos_profile).then((doc) => {
+
+		frappe.db.get_doc('Company', this.company).then((doc) => {
 			doc.pos_profile_supervisor.forEach(m=>{
 				d.fields_dict.user.df.options.push(m.user)
 				d.fields_dict.user.refresh();
@@ -937,7 +949,7 @@ erpnext.PointOfSale.Controller = class {
 				customer_details_updated: (details) => {
 					this.customer_details = details;
 					// will add/remove LP payment method
-					this.payment.render_loyalty_points_payment_mode();
+					// this.payment.render_loyalty_points_payment_mode();
 				},
 
 				new_order: () => {
