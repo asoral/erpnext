@@ -977,12 +977,14 @@ erpnext.PointOfSale.Controller = class {
 				get_frm: () => this.frm,
 
 				toggle_item_selector: (minimize) => {
+					console.log("init item selector *************888888889242",minimize)
 					this.item_selector.resize_selector(minimize);
 					this.cart.toggle_numpad(minimize);
 				},
 
 				form_updated: (item, field, value) => {
 					const item_row = frappe.model.get_doc(item.doctype, item.name);
+					console.log("8*******************************8888 form_updated",item_row)
 					if (item_row && item_row[field] != value) {
 						const args = {
 							field,

@@ -10,6 +10,7 @@
   "amount",
   "paid_currency",
   "amount_paid_currency",
+  "transaction_id",
   "column_break_3",
   "account",
   "type",
@@ -88,11 +89,18 @@
    "fieldname": "amount_paid_currency",
    "fieldtype": "Data",
    "label": "Paid Amount"
+  },
+  {
+   "depends_on": "eval:doc.type != \"Cash\"",
+   "fieldname": "transaction_id",
+   "fieldtype": "Data",
+   "label": "Transaction Id",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-10-16 12:15:06.738395",
+ "modified": "2022-10-22 13:08:11.928898",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Sales Invoice Payment",
