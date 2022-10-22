@@ -174,6 +174,7 @@ erpnext.PointOfSale.ItemDetails = class {
 			)
 
 			const field_meta = this.item_meta.fields.find(df => df.fieldname === fieldname);
+			console.log("fieldsmeta &&&&&&&&&&&&&&&&*****************",field_meta)
 			fieldname === 'discount_percentage' ? (field_meta.label = __('Discount (%)')) : '';
 			const me = this;
 
@@ -182,6 +183,7 @@ erpnext.PointOfSale.ItemDetails = class {
 					...field_meta,
 					onchange: function() {
 						me.events.form_updated(me.current_item, fieldname, this.value);
+						console.log("9242 onchange item details******************",this.value)
 					}
 				},
 				parent: this.$form_container.find(`.${fieldname}-control`),
@@ -197,7 +199,7 @@ erpnext.PointOfSale.ItemDetails = class {
 
 	get_form_fields(item) {
 		console.log("get_form_fields(********************************",item)
-		const fields = ['qty', 'uom', 'rate', 'conversion_factor', 'discount_percentage', 'warehouse', 'actual_qty', 'price_list_rate'];
+		const fields = ['qty', 'uom', 'rate', 'conversion_factor', 'discount_percentage', 'warehouse', 'actual_qty', 'price_list_rate','barcode_uom','barcode'];
 		if (item.has_serial_no) fields.push('serial_no');
 		if (item.has_batch_no) fields.push('batch_no')
 		

@@ -80,7 +80,7 @@ erpnext.PointOfSale.ItemSelector = class {
 
 	render_item_list2(items) {
 		this.$items_container.html('');
-		console.log("typeof core",items)
+		console.log("typeof core 2",items)
 		
 
 		for(var item in items){
@@ -353,7 +353,7 @@ erpnext.PointOfSale.ItemSelector = class {
 	
 				}
 	
-				else if(st.substring(0,2) == '27'){
+				if(st.substring(0,2) == '27'){
 	
 					const $item = $(this);
 				console.log("item******************************************",this.last_search)
@@ -592,6 +592,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				console.log("message*********************************else block call")
 
 				if (search_term && !barcode) {
+					console.log("9242***********&&&&&&&&&&77st & bc",barcode)
 					this.search_index[search_term] = items;
 				}
 				this.items = items;

@@ -1,5 +1,6 @@
 # from ast import main
 from filecmp import cmp
+from frappe.exceptions import UnsupportedMediaType
 from frappe.utils.data import flt
 from erpnext import get_default_company
 from erpnext.setup.utils import get_exchange_rate
@@ -91,6 +92,7 @@ def update_pos_invoice(values,inv,paid_amount,change_amount):
 
 
     main_doc = frappe.get_doc("POS Invoice",inv)
+    
     # doc = frappe.db.get_all("Sales Invoice Payment",{'parent':inv},['*'])
     # print("dict2",doc)
     lst = ["mode_of_payment"]

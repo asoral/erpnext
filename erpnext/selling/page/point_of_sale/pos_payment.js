@@ -361,7 +361,8 @@ erpnext.PointOfSale.Payment = class {
 			console.log("92444414141481841481481481484814141","INR")
 			
 
-			const table_fields = [
+			const 
+			table_fields = [
 			
 				
 				{
@@ -472,6 +473,12 @@ erpnext.PointOfSale.Payment = class {
 						 fieldname: 'amt', reqd: 1,
 						 read_only:1
 						
+					},
+					{
+						fieldtype: 'Data', label: __('Transaction Id'), 
+						 fieldname: 'txn_id', reqd: 0,
+						 hidden:1,
+
 					},
 					{
 						fieldtype: 'Section Break'
@@ -989,16 +996,22 @@ erpnext.PointOfSale.Payment = class {
 				
 				
 				
+				
 	
 				const flist = []
 				const fdict = {}
 				const p = {"mode_of_payment" : d.fields_dict.mop.get_value() }
 	
 					console.log("before getdoc",p.mode_of_payment,comp)
+					
 					if(!p.mode_of_payment) return ;
 
 
 					frappe.db.get_doc("Mode of Payment", p.mode_of_payment).then(( currency ) => {
+						if(currency.type != "Cash"){
+							d.set_df_property('txn_id','hidden','0')
+							d.set_df_property('txn_id','reqd','1')
+						}
 						
 						
 						console.log("after getdoc",currency)
@@ -1157,6 +1170,11 @@ erpnext.PointOfSale.Payment = class {
 					frappe.db.get_doc("POS Profile",p.pos_profile).then(g => {
 						g.payments.forEach(pymts => {
 						d.fields_dict.mop.df.options.push(pymts.mode_of_payment)
+						if(pymts.default == 1){
+							console.log("jjjjjjjjjjjjjjjjjhhhhhhhhhhhhhjjjjjjjsquidgame",pymts.mode_of_payment)
+							d.fields_dict.mop.set_value(pymts.mode_of_payment)
+							
+						}
 						console.log("9242*********************")
 						d.fields_dict.mop.refresh();
 						let base_amount = 0.0
