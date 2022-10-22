@@ -7,7 +7,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "barcode",
+  "barcodes",
   "item_code",
   "col_break1",
   "item_name",
@@ -102,12 +102,6 @@
   "page_break"
  ],
  "fields": [
-  {
-   "fieldname": "barcode",
-   "fieldtype": "Data",
-   "label": "Barcode",
-   "print_hide": 1
-  },
   {
    "bold": 1,
    "columns": 4,
@@ -821,12 +815,18 @@
    "no_copy": 1,
    "options": "currency",
    "read_only": 1
+  },
+  {
+   "fieldname": "barcodes",
+   "fieldtype": "Data",
+   "label": "Barcode",
+   "print_hide": 1
   }
  ],
  "idx": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-02-23 01:05:22.123527",
+ "modified": "2022-10-19 11:46:26.246492",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Sales Invoice Item",
