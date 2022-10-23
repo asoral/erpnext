@@ -602,7 +602,7 @@
    "fieldname": "custom_list",
    "fieldtype": "Link",
    "label": "Custom List",
-   "mandatory_depends_on": "eval:doc.is_custom_item == 1 || doc.is_custom_item_group == 1 || doc.is_custom_brand == 1",
+   "mandatory_depends_on": "eval:doc.is_custom_item == 1 || doc.is_custom_item_group == 1 || doc.is_custom_brand_list == 1",
    "options": "Custom List"
   },
   {
@@ -616,7 +616,7 @@
  "icon": "fa fa-gift",
  "idx": 1,
  "links": [],
- "modified": "2022-10-22 19:44:22.803998",
+ "modified": "2022-10-23 11:46:15.792362",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Pricing Rule",
