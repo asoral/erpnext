@@ -331,7 +331,7 @@ erpnext.PointOfSale.Payment = class {
 		
 			
 		this.$component.on('click', ".submit-order-btn", () => {
-			window.dicty = {}
+			window.dicty = {"tamt":0.0,"tobe_paid":0.0,"change":0.0}
 			
 			const pmts = [];
 			const me = this ;
@@ -535,13 +535,13 @@ erpnext.PointOfSale.Payment = class {
 							 let currency = d.fields_dict.currency.get_value()
 							 let exchange_rate = d.fields_dict.xchg_rate.get_value()
 							 let amount = d.fields_dict.amt.get_value()
-							 let tobe_paid = d.fields_dict.amtp.get_value()
+							 let tobe_paid = d.fields_dict.gtotal.get_value() - d.fields_dict.amt.get_value()
 							 let change = d.fields_dict.chg.get_value()
 							 let mode_of_payment = d.fields_dict.mop.get_value()
-							 console.log("9242*******************",d.fields_dict.payment_details.get_value())
+							 console.log("9242*******************",tobe_paid)
 
 							 let ct = d.fields_dict.payment_details.get_value()
-							 console.log("ct^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^66",ct)
+							 console.log("ct^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^66",d.fields_dict.amtp.get_value())
 
 							 const doc = this.events.get_frm().doc;
 							 const payments = doc.payments
@@ -597,9 +597,11 @@ erpnext.PointOfSale.Payment = class {
 							}
 
 							if(!dicty["tobe_paid"]){
+								console.log("tbp*********&&&&&&&&&&&&((((((((((((New",dicty)
 								dicty["tobe_paid"] = tobe_paid
 							}
 							else if(dicty["tobe_paid"]){
+								console.log("tbp*********&&&&&&&&&&&&((((((((((((Already Present")
 								dicty["tobe_paid"] += tobe_paid
 								
 							}
@@ -611,6 +613,8 @@ erpnext.PointOfSale.Payment = class {
 								dicty["change"] += change
 								
 							}
+
+							console.log("dicty******&&&&&&&&&&^^^^^^^^^^%%%%%%%%%%%%%%%%%%%%%%%%",dicty)
 							
 
 							 d.fields_dict.payment_details.grid.refresh();
@@ -621,7 +625,7 @@ erpnext.PointOfSale.Payment = class {
 							let changehtml = 0.0
 
 							if(d.fields_dict.gtotal.get_value()-dicty["tamt"] > 0){
-								console.log("amtp****************************888",d.fields_dict.gtotal.get_value()-dicty["tamt"] > 0)
+								console.log("amtp****************************888",d.fields_dict.gtotal.get_value()-dicty["tamt"])
 								d.fields_dict.amtp.set_value(d.fields_dict.gtotal.get_value()-dicty["tamt"])
 								d.set_df_property('chg', 'hidden', 1)
 								d.set_df_property('amtp', 'hidden', 0)
@@ -629,12 +633,22 @@ erpnext.PointOfSale.Payment = class {
 
 							}
 							else if(d.fields_dict.gtotal.get_value()-dicty["tamt"] < 0){
+								d.fields_dict.amtp.set_value(0.0)
 								console.log("chg****************************888",d.fields_dict.gtotal.get_value()-dicty["tamt"] < 0)
 								d.fields_dict.chg.set_value(-(d.fields_dict.gtotal.get_value()-dicty["tamt"]))
-								d.set_df_property('amtp', 'hidden', 1)
+								d.set_df_property('amtp', 'hidden', 0)
 								d.set_df_property('chg', 'hidden', 0)
 								changehtml += (-(d.fields_dict.gtotal.get_value()-dicty["tamt"]))
 
+							}
+							else if(d.fields_dict.gtotal.get_value()-dicty["tamt"] == 0){
+								console.log("Zero********************************8 Change")
+								d.fields_dict.chg.set_value((d.fields_dict.gtotal.get_value()-dicty["tamt"]))
+								d.fields_dict.amtp.set_value(0.0)
+
+								d.set_df_property('amtp', 'hidden', 1)
+								d.set_df_property('chg', 'hidden', 1)
+								// 
 							}
 
 							
@@ -842,23 +856,31 @@ erpnext.PointOfSale.Payment = class {
 					let me = this;
 
 					this.$components_wrapper = this.wrapper.find('.point-of-sale-app');
-					console.log("values**************************",me.events)
+					console.log("values*************************")
 					let final_dict = {"grand_total":parseFloat(values.gtotal),"paid_amount":values.pamt,"change_amount":values.chg,"currency":"INR","rounded_total":parseFloat(values.gtotal)
 
 					}
 					// me.update_totals_section(final_dict)
 					doc["base_paid_amount"] = values.pamt
 					doc["change_amount"] = values.chg
-					console.log("doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",pos)
-					
-					if(values.amtp == 0.0 || values.chg > 0.0){
+					console.log("doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",values)
+
+					if(values.amtp > 0.0){
+						const message = __("You cannot submit the order without payment.")
+						frappe.show_alert({ message, indicator: "orange" });
+						frappe.utils.play_sound("error");
+						return;
+
+					}
+					else{
+
 						frappe.call({
 							method:"erpnext.selling.page.point_of_sale.pos_payment.update_pos_invoice",
 							args:{
 								"values":values.payment_details,
 								"inv":doc.name,
 								"paid_amount":values.pamt,
-								"change_amount":values.chg
+								"change_amount":values.chg ? values.chg : 0.0
 								
 							},
 							callback:function(r){
@@ -886,6 +908,11 @@ erpnext.PointOfSale.Payment = class {
 	
 							}
 						})
+
+					}
+					
+					// if(values.amtp == 0.0 || values.chg > 0.0){
+
 						
 						
 
@@ -895,14 +922,8 @@ erpnext.PointOfSale.Payment = class {
 
 						d.hide();
 
-					}
-					else if(values.amtp > 0.0){
-						const message = __("You cannot submit the order without payment.")
-						frappe.show_alert({ message, indicator: "orange" });
-						frappe.utils.play_sound("error");
-						return;
-
-					}
+					
+					
 					
 					
 					
@@ -967,7 +988,7 @@ erpnext.PointOfSale.Payment = class {
 					console.log("total********************",total)
 					d.fields_dict.chg.set_value((-ftotal));
 					d.fields_dict.amtp.set_value(0.0);
-					d.set_df_property('amtp', 'hidden', 1);
+					d.set_df_property('amtp', 'hidden', 0);
 					d.set_df_property('chg', 'hidden', 0);
 					
 				}
