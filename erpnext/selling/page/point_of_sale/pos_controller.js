@@ -1240,9 +1240,11 @@ erpnext.PointOfSale.Controller = class {
 		let item_row = undefined;
 		try {
 			let { field, value, item } = args;
+
+
 			
 			item_row = this.get_item_from_frm(item);
-			console.log("item_details**********************>>>>>>>>>>>>>>>..",item_row)
+			console.log("item_details**********************>>>>>>>>>>>>>>>..",item)
 			// item_row["uom"] = args.item["uom"]
 			const item_row_exists = !$.isEmptyObject(item_row);
 
@@ -1362,7 +1364,7 @@ erpnext.PointOfSale.Controller = class {
 					&& (i.uom === uom)
 					&& (i.rate == rate)
 			);
-			console.log("9242*&&&*&*&*&**************33333333333",item_row)
+			// console.log("9242*&&&*&*&*&**************33333333333 1367",this.doc.frm.doc.items)
 		}
 
 		console.log("9242*&&&*&*&*&*********************************before_return",item_row)

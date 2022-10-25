@@ -37,7 +37,7 @@ frappe.ui.form.on('Loyalty Program', {
 		set_field_options("loyalty_program_help", help_content);
 	},
 
-	onload: function(frm,cdt,cdn) {
+	onload: function(frm) {
 		frm.set_query("expense_account", function(doc) {
 			return {
 				filters: {

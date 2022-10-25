@@ -347,7 +347,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				
 				
 				
-				me.search_field.set_focus();
+				// me.search_field.set_focus();
 
 				
 	
