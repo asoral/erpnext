@@ -15,8 +15,7 @@ from erpnext.exceptions import InvalidAccountCurrency, InvalidAccountDimensionEr
 from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import get_checks_for_pl_and_bs_accounts
 from erpnext.accounts.doctype.accounting_dimension_filter.accounting_dimension_filter import get_dimension_filter_map
 from six import iteritems
-import datetime
-from datetime import timedelta
+
 
 exclude_from_linked_with = True
 class GLEntry(Document):
