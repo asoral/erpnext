@@ -176,10 +176,10 @@ class PaymentReconciliation(Document):
 					reconciled_entry = lst
 
 				reconciled_entry.append(self.get_payment_details(e, dr_or_cr))
-				print(">>>>>>>>>>>>>>>>>reconcile entry",reconciled_entry)
+				# print(">>>>>>>>>>>>>>>>>reconcile entry",reconciled_entry)
 
 		if lst:
-			print(">>>>>>>>>>>>>>>>>>>>lst payment reconcilation",lst)
+			# print(">>>>>>>>>>>>>>>>>>>>lst payment reconcilation",lst)
 			reconcile_against_document(lst)
 
 		if dr_or_cr_notes:

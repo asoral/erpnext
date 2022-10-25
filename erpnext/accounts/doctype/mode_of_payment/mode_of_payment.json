@@ -10,7 +10,6 @@
  "field_order": [
   "mode_of_payment",
   "enabled",
-  "currency",
   "type",
   "accounts"
  ],
@@ -43,19 +42,13 @@
    "fieldname": "enabled",
    "fieldtype": "Check",
    "label": "Enabled"
-  },
-  {
-   "fieldname": "currency",
-   "fieldtype": "Link",
-   "label": "Currency",
-   "options": "Currency"
   }
  ],
  "icon": "fa fa-credit-card",
  "idx": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-16 11:43:00.154743",
+ "modified": "2022-10-25 18:42:21.560660",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Mode of Payment",

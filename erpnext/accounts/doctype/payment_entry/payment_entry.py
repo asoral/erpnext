@@ -700,7 +700,7 @@ class PaymentEntry(AccountsController):
 
 	def add_bank_gl_entries(self, gl_entries):
 		if self.payment_type in ("Pay", "Internal Transfer"):
-			print("*********************before append********",gl_entries)
+			# print("*********************before append********",gl_entries)
 			gl_entries.append(
 				self.get_gl_dict({
 					"account": self.paid_from,
@@ -711,7 +711,7 @@ class PaymentEntry(AccountsController):
 					"cost_center": self.cost_center
 				}, item=self)
 			)
-			print("*********************after append********",gl_entries)
+			# print("*********************after append********",gl_entries)
 		if self.payment_type in ("Receive", "Internal Transfer"):
 			gl_entries.append(
 				self.get_gl_dict({
