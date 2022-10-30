@@ -1,11 +1,14 @@
 # from ast import main
 from filecmp import cmp
+
+from erpnext.stock.get_item_details import insert_item_price
 from frappe.exceptions import UnsupportedMediaType
-from frappe.utils.data import flt
+from frappe.utils.data import flt, is_subset
 from erpnext import get_default_company
 from erpnext.setup.utils import get_exchange_rate
 from frappe.utils import fmt_money
 from frappe.www.printview import get_print_style
+from erpnext.accounts.doctype.pos_invoice.pos_invoice import get_stock_availability
 # from erpnext.accounts.doctype.loyalty_program_collection.row_wise_loyalty import row_wise_loyalty_point
 
 # from erpnext.erpnext.accounts.doctype.pos_invoice.pos_invoice import (check_phone_payments,set_status)
@@ -240,18 +243,23 @@ def update_cart(ic,barcode,ip):
 
 
 @frappe.whitelist()
-def update_cart_for_non_dynamic_items(barcode):
+def update_cart_for_non_dynamic_items(barcode,pos_profile):
+    warehouse = frappe.db.get_value("POS Profile",{'name':pos_profile},['warehouse'])
+    
+    
+    
     items = {}
     item_code = frappe.db.get_all("Item",{'name':barcode,'disabled':0},['*'])
     if item_code:
         for dets in item_code:
+            actual_qty,is_stock_item = get_stock_availability(dets.name,warehouse)
             items.update({
-           "actual_qty":100,
+           "actual_qty":actual_qty,
            "barcode":barcode,
            "batch_no":"",
            "currency":"INR",
            "description":dets.description,
-           "is_stock_item":dets.is_stock_item,
+           "is_stock_item":is_stock_item,
            "item_code":dets.name,
            "item_name":dets.item_name,
            "item_image":dets.image,
@@ -265,6 +273,33 @@ def update_cart_for_non_dynamic_items(barcode):
         print("item_code search((((((((((((((((((((((((((((((((",items)
 
         return [items]
+    
+    else:
+        print("else barcode less than 13 digits 8*********************")
+        barcode = frappe.db.get_all("Item Barcode",{'barcode':barcode},['*'])
+        if barcode:
+            for dets in barcode:
+                item = frappe.get_doc("Item",dets.parent)
+                actual_qty,is_stock_item = get_stock_availability(item.name,warehouse)
+                items.update({
+                        "actual_qty":actual_qty,
+                        "barcode":barcode,
+                        "batch_no":"",
+                        "currency":"INR",
+                        "description":item.description,
+                        "is_stock_item":is_stock_item,
+                        "item_code":item.name,
+                        "item_name":item.item_name,
+                        "item_image":item.image,
+                        "price_list_rate":frappe.db.get_value("Item Price",{'item_code':item.name},["price_list_rate"]),
+                        "serial_no":"",
+                        "stock_uom":item.stock_uom,
+                        "cprice":frappe.db.get_value("Item Price",{'item_code':item.name},["price_list_rate"]),
+                        "qty":"01"
+                 })
+                
+                return [items]
+
     
     
 

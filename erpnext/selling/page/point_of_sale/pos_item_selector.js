@@ -342,12 +342,13 @@ erpnext.PointOfSale.ItemSelector = class {
 
 				console.log("9242**********************************************itmedvnjksn*******************",uom)
 
-				// me.render_form()
+				me.render_form()
 
 				
 				
 				
-				// me.search_field.set_focus();
+				me.search_field.set_focus();
+				me.set_search_value('');
 
 				
 	
@@ -587,30 +588,36 @@ erpnext.PointOfSale.ItemSelector = class {
 						window.st = search_term
 						window.pp = this.pos_profile
 
-						// eslint-disable-next-line no-unused-vars
-				// const { items, serial_no, batch_no, barcode } = message;
-				console.log("message*********************************else block call")
+								// eslint-disable-next-line no-unused-vars
+						// const { items, serial_no, batch_no, barcode } = message;
+						console.log("message*********************************else block call")
 
-				if (search_term && !barcode) {
-					console.log("9242***********&&&&&&&&&&77st & bc",barcode)
-					this.search_index[search_term] = items;
-				}
-				this.items = items;
-				console.log("items_core",items)
-				this.render_item_list2(items);
+						if (search_term && !barcode) {
+							console.log("9242***********&&&&&&&&&&77st & bc",barcode)
+							this.search_index[search_term] = items;
+						}
+						this.items = items;
+						console.log("items_core",items)
+						this.render_item_list2(items);
 
-				this.auto_add_item && this.items.length == 1 && me.$items_container.find(".item-wrapper").click();
-						
-					}
-				})
+						this.auto_add_item && this.items.length == 1 && me.$items_container.find(".item-wrapper").click();
+						me.set_search_value('');
+						this.get_items({}).then(({message}) => {
+							console.log("9233432432545435564564message items",message.items)
+							this.render_item_list(message.items);
+						});
+								
+							}
+						})
 				}
 
 				else{
 
 
+					console.log("&&&&&&&&&&pos_profile",pp)
 					frappe.call({
 						method: "erpnext.selling.page.point_of_sale.pos_payment.update_cart_for_non_dynamic_items",
-						args: {"barcode":search_term},
+						args: {"barcode":search_term,"pos_profile":pp},
 						callback:function(r){
 
 							let msg = {}

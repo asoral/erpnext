@@ -652,7 +652,9 @@ def get_product_discount_rule(pricing_rule, item_details, args=None, doc=None):
 	if item_details.get("parenttype") == "Sales Order":
 		free_item_data_args["delivery_date"] = doc.delivery_date if doc else today()
 
-	item_details.free_item_data.append(free_item_data_args)
+	
+	if pricing_rule.auto_apply == 1:
+		item_details.free_item_data.append(free_item_data_args)
 
 
 def apply_pricing_rule_for_free_items(doc, pricing_rule_args, set_missing_values=False):

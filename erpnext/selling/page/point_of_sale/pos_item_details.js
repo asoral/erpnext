@@ -153,6 +153,7 @@ erpnext.PointOfSale.ItemDetails = class {
 	}
 
 	render_discount_dom(item) {
+		console.log("cnjsdncndsjnckdnskckdsd",item)
 		if (item.discount_percentage) {
 			this.$dicount_section.html(
 				`<div class="item-rate">${format_currency(item.price_list_rate, this.currency)}</div>

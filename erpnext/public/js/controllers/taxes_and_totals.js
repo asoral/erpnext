@@ -30,7 +30,7 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 			item_rate = flt((item.rate_with_margin) - (item.discount_amount), precision('rate', item));
 			item.discount_percentage = 100 * flt(item.discount_amount) / flt(item.rate_with_margin);
 		}
-
+		
 		frappe.model.set_value(item.doctype, item.name, "rate", item_rate);
 	},
 
@@ -599,6 +599,7 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 	},
 
 	apply_discount_amount: function() {
+		console.log("&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^^^^^^6")
 		var me = this;
 		var distributed_amount = 0.0;
 		this.frm.doc.base_discount_amount = 0.0;
@@ -777,6 +778,7 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 	},
 
 	calculate_paid_amount: function() {
+		console.log("paid_amount")
 		var me = this;
 		var paid_amount = 0.0;
 		var base_paid_amount = 0.0;

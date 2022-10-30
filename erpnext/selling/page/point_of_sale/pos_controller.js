@@ -869,6 +869,7 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	save_draft_invoice() {
+		// console.log("make new invoice((((",this.make_new_invoice())
 		if (!this.$components_wrapper.is(":visible")) return;
 
 		if (this.frm.doc.items.length == 0) {
@@ -887,6 +888,7 @@ erpnext.PointOfSale.Controller = class {
 			});
 			frappe.utils.play_sound("error");
 		}).then(() => {
+			console.log("make new invoice((((",this.make_new_invoice())
 			frappe.run_serially([
 				() => frappe.dom.freeze(),
 				() => this.make_new_invoice(),
@@ -1163,9 +1165,11 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	make_new_invoice() {
+		// console.log("((((((((((((((((((((((((((((((((((",this.make_sales_invoice_frm())
 		return frappe.run_serially([
 			() => frappe.dom.freeze(),
 			() => this.make_sales_invoice_frm(),
+
 			() => this.set_pos_profile_data(),
 			() => this.set_pos_profile_status(),
 			() => this.cart.load_invoice(),
@@ -1174,9 +1178,11 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	make_sales_invoice_frm() {
+
 		const doctype = 'POS Invoice';
 		return new Promise(resolve => {
 			if (this.frm) {
+
 				this.frm = this.get_new_frm(this.frm);
 				this.frm.doc.items = [];
 				this.frm.doc.is_pos = 1
@@ -1198,7 +1204,7 @@ erpnext.PointOfSale.Controller = class {
 		const frm = _frm || new frappe.ui.form.Form(doctype, page, false);
 		const name = frappe.model.make_new_doc_and_get_name(doctype, true);
 		frm.refresh(name);
-
+		console.log("frm***************************8",frm)
 		return frm;
 	}
 
@@ -1572,6 +1578,27 @@ erpnext.PointOfSale.Controller = class {
 
 	async save_and_checkout() {
 		if (this.frm.is_dirty()) {
+			// let me = this;
+			const doc = this.frm.doc
+			console.log("&&&&&&&&&&&&&&&&&&&*************** line 1581",this.frm.doc.items)
+			frappe.call({
+				method:"grandhyper.update_pos_invoice.update_invoice",
+				args:{
+					"items":this.frm.doc.items
+				},
+				callback:function(r){
+					if (r.message){
+						
+						console.log("&&&&&&&&&&&&&&&&&&*********************",r.message)
+						console.log("&&&&&&&&&&&&&&&&&&*********************",doc.items.length)
+						doc.items.length = 0
+						doc.items = r.message
+						console.log("***********************************************8",doc.items.length)
+
+						
+					}
+				}
+			})
 			let save_error = false;
 			await this.frm.save(null, null, null, () => save_error = true);
 			// only move to payment section if save is successful
