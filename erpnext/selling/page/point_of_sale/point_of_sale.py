@@ -12,33 +12,16 @@ from erpnext.accounts.doctype.pos_profile.pos_profile import get_child_nodes, ge
 
 
 def search_by_term(search_term, warehouse, price_list):
-	print("9242************************************st",search_term)
+	
 	result = search_for_serial_or_batch_or_barcode_number(search_term) or {}
 
 	item_code = result.get("item_code") or search_term
-	# print("item_code********************",item)
-	serial_no = result.get("serial_no") or ""
-	batch_no = result.get("batch_no") or ""
+	# # print("item_code********************",item)
+	# serial_no = result.get("serial_no") or ""
+	# batch_no = result.get("batch_no") or ""
 	barcode = result.get("barcode") or ""
 
 	if result:
-
-		ii = frappe.db.sql("""
-		select item.name as item_code,
-				item.item_name,
-				item.description,
-				itb.posa_uom as stock_uom,
-				item.image as item_image,
-				item.is_stock_item 
-
-		from `tabItem` as item
-		join `tabItem Barcode` as itb on itb.parent=item.name
-		where item.name = "{0}" 
-		and itb.barcode = "{1}"
-
-		""".format(item_code,barcode),as_dict=1)
-
-		print("custom item uom ************************",ii[0])
 
 
 		item_info = frappe.db.get_value(
@@ -62,18 +45,17 @@ def search_by_term(search_term, warehouse, price_list):
 			["price_list_rate", "currency"],
 		) or [None, None]
 
-		ii[0].update(
+		item_info.update(
 			{
-				"serial_no": serial_no,
-				"batch_no": batch_no,
+				# "serial_no": serial_no,
+				# "batch_no": batch_no,
 				"barcode": barcode,
 				"price_list_rate": price_list_rate,
 				"currency": currency,
 				"actual_qty": item_stock_qty
 			}
 		)
-		print("item_info",ii[0])
-		return {"items": [ii[0]]}
+		return {"items": [item_info]}
 
 
 @frappe.whitelist()
@@ -176,23 +158,22 @@ def search_for_serial_or_batch_or_barcode_number(search_value):
 	barcode_data = frappe.db.get_value(
 		"Item Barcode", {"barcode": search_value}, ["barcode", "parent as item_code"], as_dict=True
 	)
-	print("barcode_data",barcode_data)
 	if barcode_data:
 		return barcode_data
 
-	# search serial no
-	serial_no_data = frappe.db.get_value(
-		"Serial No", search_value, ["name as serial_no", "item_code"], as_dict=True
-	)
-	if serial_no_data:
-		return serial_no_data
+	# # search serial no
+	# serial_no_data = frappe.db.get_value(
+	# 	"Serial No", search_value, ["name as serial_no", "item_code"], as_dict=True
+	# )
+	# if serial_no_data:
+	# 	return serial_no_data
 
-	# search batch no
-	batch_no_data = frappe.db.get_value(
-		"Batch", search_value, ["name as batch_no", "item as item_code"], as_dict=True
-	)
-	if batch_no_data:
-		return batch_no_data
+	# # search batch no
+	# batch_no_data = frappe.db.get_value(
+	# 	"Batch", search_value, ["name as batch_no", "item as item_code"], as_dict=True
+	# )
+	# if batch_no_data:
+	# 	return batch_no_data
 
 	return {}
 

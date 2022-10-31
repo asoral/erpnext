@@ -5,6 +5,8 @@ import click
 import frappe
 import time
 
+# from grandhyper.grandhyper.grandhyper.doctype import terminal_profile
+
 
 #global constants
 control_byte = '\n'
@@ -23,9 +25,10 @@ def pole_display(item,amount,pos_profile):
         dat = frappe.get_last_doc('POS Opening Entry')
         print('!!!!!!!!!!!pos_opening_entry',dat)
         doc = frappe.get_doc('Item',item)
+        terminal_profile = frappe.get_value('POS Profile',pos_profile,'terminal_display')
         port = frappe.get_value('POS Profile',pos_profile,'port_display')
         print('AAAAAAAAAAAAport****************************************************************************',port)
-        if port:
+        if port and terminal_profile:
             #initialize the serial port
             s = serial.Serial()
             # COMPORT = int(input("Please enter the port number: ")) #this refers to which port your usb is inserted into
@@ -68,9 +71,10 @@ def pole_display(item,amount,pos_profile):
 @frappe.whitelist()
 def pole_clear(pos_profile):
     print('iiiiiiiiiiiiiiiiiiiii',pos_profile)
+    terminal_profile = frappe.get_value('POS Profile',pos_profile,'terminal_display')
     port_d = frappe.db.sql("""select port_display from  `tabPOS Profile` where name = "ORW" """,as_dict=1)
     print('iiiiiiiiiiiiiiiiiiiii',type(port_d))
-    if port_d:
+    if port_d and terminal_profile:
         s = serial.Serial()
         s.port = port_d[0]["port_display"]
         s.baudrate = 9600
