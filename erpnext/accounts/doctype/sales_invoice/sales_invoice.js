@@ -57,6 +57,7 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 	},
 
 	refresh: function (doc, dt, dn) {
+		if(frm.doc.docstatus==0){
 		frappe.call({
 			method: "erpnext.nepali_date.get_converted_date",
 			args: {
@@ -68,6 +69,7 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 				}
 			}
 		})
+		}
 
 
 		const me = this;
