@@ -150,8 +150,10 @@ class PricingRule(Document):
 				throw(_("{0} can not be negative").format(field))
 
 		if self.price_or_product_discount == "Product" and not self.free_item:
-			if self.mixed_conditions:
+			if self.mixed_conditions and self.discount_criteria == "Standard":
 				frappe.throw(_("Free item code is not selected"))
+			# elif:
+
 			else:
 				self.same_item = 1
 

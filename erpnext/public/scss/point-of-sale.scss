@@ -181,7 +181,87 @@
 				}
 
 			}
+
+			
 		}
+
+		> .plu_items-container {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: var(--margin-lg);
+			padding: var(--padding-lg);
+			padding-top: var(--padding-xs);
+			overflow-y: scroll;
+			overflow-x: hidden;
+
+			&:after {
+				content: "";
+				display: block;
+				height: 1px;
+			}
+
+			> .plu-item-wrapper {
+				@extend .pointer-no-select;
+				border-radius: var(--border-radius-md);
+				box-shadow: var(--shadow-base);
+				position: relative;
+
+				&:hover {
+					transform: scale(1.02, 1.02);
+				}
+
+				.item-qty-pill {
+					position: absolute;
+					display: flex;
+					margin: var(--margin-sm);
+					justify-content: flex-end;
+					right: 0px;
+				}
+
+				.item-display {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					border-radius: var(--border-radius-md);
+					margin: var(--margin-sm);
+					margin-bottom: 0px;
+					min-height: 8rem;
+					height: 8rem;
+					color: var(--gray-500);
+
+					> img {
+						@extend .image;
+					}
+				}
+
+				> .item-detail {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					min-height: 3.5rem;
+					height: 3.5rem;
+					padding-left: var(--padding-sm);
+					padding-right: var(--padding-sm);
+
+					> .item-name {
+						@extend .nowrap;
+						display: flex;
+						align-items: center;
+						font-size: var(--text-md);
+					}
+
+					> .item-rate {
+						font-weight: 700;
+					}
+				}
+
+			}
+
+			
+		}
+		
+
+		
 	}
 
 	> .customer-cart-container {

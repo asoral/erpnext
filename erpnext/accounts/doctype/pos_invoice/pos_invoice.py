@@ -234,7 +234,8 @@ class POSInvoice(SalesInvoice):
 		grand_total = flt(self.rounded_total) or flt(self.grand_total)
 		base_grand_total = flt(self.base_rounded_total) or flt(self.base_grand_total)
 		if not flt(self.change_amount) and grand_total < flt(self.paid_amount):
-			self.change_amount = flt(self.paid_amount - grand_total + flt(self.write_off_amount))
+			print("type********8",type(grand_total),self.paid_amount)
+			self.change_amount = flt(flt(self.paid_amount) - grand_total + flt(self.write_off_amount))
 			self.base_change_amount = flt(self.base_paid_amount) - base_grand_total + flt(self.base_write_off_amount)
 
 		if flt(self.change_amount) and not self.account_for_change_amount:
