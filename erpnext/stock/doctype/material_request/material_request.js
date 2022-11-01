@@ -121,7 +121,7 @@ frappe.ui.form.on('Material Request', {
 						company: frm.doc.company || undefined
 					},
 					get_query_filters: {
-						docstatus: 1,
+						docstatus: 0,
 					}
 				})
 			},

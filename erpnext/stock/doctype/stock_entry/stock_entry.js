@@ -176,6 +176,7 @@ frappe.ui.form.on('Stock Entry', {
 	},
 
 	get_intercompany_item: function (frm, cdt, cdn) {
+		if(frm.doc.stock_entry_type=="Material_Receipt"){
 		frm.clear_table('items');
 		frappe.call({
 			method: "erpnext.stock.doctype.stock_entry.stock_entry.referance_challan",
@@ -210,6 +211,44 @@ frappe.ui.form.on('Stock Entry', {
 
 			}
 		});
+		}
+		if(frm.doc.stock_entry_type=="Material Transfer"){
+
+		frm.clear_table('items');
+		frappe.call({
+			method: "erpnext.stock.doctype.stock_entry.stock_entry.referance_challan1",
+			args: {
+				return_reference_challan: frm.doc.return_reference_challan,
+				name: frm.doc.name
+			},
+			callback: function (r) {
+
+				$.each(r.message, function (index, row) {
+					var child = frm.add_child("items")
+					frappe.model.get_value("Item", { "item_code": row.item_code }, ["intercompany_item"], function (a) {
+						if (a.intercompany_item) {
+							child.item_code = a.intercompany_item
+						}
+						else {
+							var msg = `InterCompany Item for item ${row.item_code} not found`
+							frappe.throw(msg)
+
+						}
+					});
+					child.subcontracted_item = row.subcontracted_item,
+						child.qty = row.qty,
+						child.uom = row.uom,
+						child.conversion_factor = row.conversion_factor,
+						child.transfer_qty = row.transfer_qty,
+						child.stock_uom = row.stock_uom
+
+				});
+				frm.refresh_field('items');
+				frm.refresh();
+
+			}
+		});	
+	}
 	},
 	outgoing_stock_entry: function (frm) {
 		frappe.call({

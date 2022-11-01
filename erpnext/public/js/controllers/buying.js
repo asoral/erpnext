@@ -133,7 +133,7 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 				'read_only', this.frm.doc.__onload && this.frm.doc.__onload.backflush_based_on === 'BOM');
 
 			this.frm.set_df_property('supplied_items', 'cannot_add_rows', 1);
-			this.frm.set_df_property('supplied_items', 'cannot_delete_rows', 1);
+			// this.frm.set_df_property('supplied_items', 'cannot_delete_rows', 1);
 		}
 	},
 

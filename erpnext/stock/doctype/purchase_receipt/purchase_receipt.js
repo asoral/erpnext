@@ -343,54 +343,54 @@ frappe.ui.form.on('Purchase Receipt Item', {
 
 	// new code for Kroslink TASK TASK-2022-00015
 
-	form_render:function(frm,cdt,cdn){
-		var child = locals[cdt][cdn];
-		if (child.item_code && frm.doc.is_subcontracted == "Yes" && frm.doc.docstatus != 1) {
-			console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$4")
-			frappe.call({
-				method: 'on_challan_number',
-				doc : frm.doc,	
-				args :{
-					item_code : child.item_code
-				},
-					callback: (r) => {
-						var i = 0;
-						var b=[];
+	// form_render:function(frm,cdt,cdn){
+	// 	var child = locals[cdt][cdn];
+	// 	if (child.item_code && frm.doc.is_subcontracted == "Yes" && frm.doc.docstatus != 1) {
+	// 		console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$4")
+	// 		frappe.call({
+	// 			method: 'on_challan_number',
+	// 			doc : frm.doc,	
+	// 			args :{
+	// 				item_code : child.item_code
+	// 			},
+	// 				callback: (r) => {
+	// 					var i = 0;
+	// 					var b=[];
 											
-						for(i; i < r.message.length; i++) {
+	// 					for(i; i < r.message.length; i++) {
 						
-							let pu = r.message[i]
-							b.push(pu);	
-						}
-						cur_frm.fields_dict['items'].grid.get_field('challan_number_issues_by_job_worker').get_query = function(frm, cdt, cdn) {
-							return{
-								filters: [
-									['name', "in" , b]
-								]
-							};
-						}
+	// 						let pu = r.message[i]
+	// 						b.push(pu);	
+	// 					}
+	// 					cur_frm.fields_dict['items'].grid.get_field('challan_number_issues_by_job_worker').get_query = function(frm, cdt, cdn) {
+	// 						return{
+	// 							filters: [
+	// 								['name', "in" , b]
+	// 							]
+	// 						};
+	// 					}
 						
-					}
+	// 				}
 
-			});	
-		}
-    },
+	// 		});	
+	// 	}
+    // },
 
-	challan_number_issues_by_job_worker: function(frm, cdt, cdn){
-		var child = locals[cdt][cdn];
-		if (child.challan_number_issues_by_job_worker){
-			frappe.call({
-				method: 'on_challan_date',
-				doc: frm.doc,
-				args:{
-					item : child.challan_number_issues_by_job_worker
-				},
-				callback: (r) =>{
-					frappe.model.set_value(cdt, cdn, "challan_date_issues_by_job_worker", r.message[0].posting_date)					
-				}
-			})
-		}
-	},
+	// challan_number_issues_by_job_worker: function(frm, cdt, cdn){
+	// 	var child = locals[cdt][cdn];
+	// 	if (child.challan_number_issues_by_job_worker){
+	// 		frappe.call({
+	// 			method: 'on_challan_date',
+	// 			doc: frm.doc,
+	// 			args:{
+	// 				item : child.challan_number_issues_by_job_worker
+	// 			},
+	// 			callback: (r) =>{
+	// 				frappe.model.set_value(cdt, cdn, "challan_date_issues_by_job_worker", r.message[0].posting_date)					
+	// 			}
+	// 		})
+	// 	}
+	// },
 
 	item_code: function(frm, cdt, cdn) {
 		var d = locals[cdt][cdn];

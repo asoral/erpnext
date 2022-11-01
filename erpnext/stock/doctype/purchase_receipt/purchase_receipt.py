@@ -25,19 +25,23 @@ class PurchaseReceipt(BuyingController):
 		if self.is_subcontracted == "Yes":
 			if len(self.supplied_items)< 0:
 				frappe.throw("Supplied Items Table Mandatory For Subcontracted Item Entry")
-			val=[]
-			for i in self.items:
-				for j in self.supplied_items:
-					if i.item_code == j.main_item_code:
-						val.append(j.amount)
-				i.valuation_rate=(sum(val)+i.amount)/flt(i.qty)
+			d=frappe.db.sql("""select item_code,sum(qty) ,sum(amount) from `tabPurchase Receipt Item` where parent='{0}' group by item_code """.format(self.name),as_dict=1)
+			val1=[]
+			amount=[]
+			k=frappe.db.sql("""select main_item_code,sum(amount) from `tabPurchase Receipt Item Supplied` where parent='{0}' group by main_item_code """.format(self.name),as_dict=1)
 
+			for i in d:
+				for o in k:
+					for j in self.items:
+						if i.get("item_code") == j.item_code and o.get("main_item_code") == j.item_code:
+							j.valuation_rate=(o.get("sum(amount)")+flt(i.get("sum(amount)")))/flt(i.get("sum(qty)"))
 
 	@frappe.whitelist()
 	def get_items(self):
 		if self.is_subcontracted == "Yes":
 			self.supplied_items=[]
 			xy=get_data(self.name,self.company)
+			print("xy******************************************************",xy)
 			for i in xy:
 				item=frappe.db.get_value("Item",{"intercompany_item":i.get("item_code")},["name"])
 				item_doc=frappe.get_doc("Item",item)
@@ -59,7 +63,7 @@ class PurchaseReceipt(BuyingController):
 
 								}
 							)
-						self.save(ignore_permissions=True)
+						
 				else:
 					
 					self.append("supplied_items",
@@ -75,7 +79,7 @@ class PurchaseReceipt(BuyingController):
 
 						}
 					)
-					self.save(ignore_permissions=True)
+			self.save(ignore_permissions=True)
 		return True
 		# for row in self.supplied_items:
 		# 	if row.qty_to_be_consumed:
@@ -213,7 +217,7 @@ class PurchaseReceipt(BuyingController):
 									Select name, parent from `tabPurchase Receipt Item` where 
 									challan_number_issues_by_job_worker = "{0}"
 									and docstatus = 1
-								""".format(  i.challan_number_issues_by_job_worker), as_dict =1)
+								""".format(i.challan_number_issues_by_job_worker), as_dict =1)
 
 			if pr_item:
 				frappe.throw(" Purchase Receipt {1} already created with Challan Number {0}".format(i.challan_number_issues_by_job_worker, pr_item[0].get("parent")))				
@@ -338,9 +342,12 @@ class PurchaseReceipt(BuyingController):
 			apply_putaway_rule(self.doctype, self.get("items"), self.company)
 
 
-
+	def before_save(self):	
+		if len(self.supplied_items)>0:
+			for i in self.supplied_items:
+				i.amount=flt(i.qty_to_be_consumed)* flt(i.rate)
 	def validate(self):
-		self.on_challan_number_save()
+		# self.on_challan_number_save()
 		self.validate_posting_time()
 		super(PurchaseReceipt, self).validate()
 
@@ -366,7 +373,12 @@ class PurchaseReceipt(BuyingController):
 		self.reset_default_field_value("set_warehouse", "items", "warehouse")
 		self.reset_default_field_value("rejected_warehouse", "items", "rejected_warehouse")
 		self.reset_default_field_value("set_from_warehouse", "items", "from_warehouse")
-		self.validate_challan_number_issue_by_job_worker()
+		if self.is_subcontracted == "Yes":
+			for i in self.items:
+				if not i.challan_number_issues_by_job_worker:
+					frappe.throw("challan_number_issues_by_job_worker not set in Row:{0} ".format(i.idx))				
+
+		# self.validate_challan_number_issue_by_job_worker()
 
 	def validate_challan_number_issue_by_job_worker(self):
 		for row in self.items:
@@ -1403,7 +1415,6 @@ def get_manufacture(batch, data, indent=0):
 
 def get_data(name,company):
 	data = []
-	print("PR NAME",name)
 	# print(" dates", s_d, m_d, filters.get('company'))
 	query = """
 				Select pris.*, pr.name, pr.supplier ,pr.company  from `tabPurchase Receipt Item` pris
@@ -1841,51 +1852,52 @@ def get_data(name,company):
 					and se.reference_challan is not null
 					and se.name ='{0}'
 					and se.company = '{1}' """.format(total, company)
-	pr1 = frappe.db.sql(query2,as_dict=1)	
-	print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",len(pr1))
-	for p in pr1:
-		if p.reference_challan and p.return_from_supplier_for_itc_05 == 1:
-			data3 = {}
-			sales_invoice = ""
-			si_date = ""
-			nature = ""
-			if p.reference_name:
-				pr_item = frappe.get_doc("Purchase Receipt Item", p.reference_name)
-				# print(" tjhis is PURCHASE RECEIPT ITEM", type(pr_item), pr_item.challan_number_issues_by_job_worker)
-				nature = pr_item.nature_of_job_work_done
-				sales_invoice, si_date = frappe.db.get_value("Sales Invoice Item", pr_item.challan_number_issues_by_job_worker, ["parent", "modified"])
-				# print( " pidd Natuer ", nature)
+	if query2:
+		pr1 = frappe.db.sql(query2,as_dict=1)	
+		print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",len(pr1))
+		for p in pr1:
+			if p.reference_challan and p.return_from_supplier_for_itc_05 == 1:
+				data3 = {}
+				sales_invoice = ""
+				si_date = ""
+				nature = ""
+				if p.reference_name:
+					pr_item = frappe.get_doc("Purchase Receipt Item", p.reference_name)
+					# print(" tjhis is PURCHASE RECEIPT ITEM", type(pr_item), pr_item.challan_number_issues_by_job_worker)
+					nature = pr_item.nature_of_job_work_done
+					sales_invoice, si_date = frappe.db.get_value("Sales Invoice Item", pr_item.challan_number_issues_by_job_worker, ["parent", "modified"])
+					# print( " pidd Natuer ", nature)
 
-			
-			data3['challan_number_issued_by_job_worker'] = p.reference_challan
-			data3['challan_date_issued_by_job_worker'] = frappe.get_value("Stock Entry", p.reference_challan, 'posting_date') 
-			supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
-											adds.state as state, supp.gst_category as job_workers_type
-											from `tabSupplier` supp
-											INNER JOIN `tabDynamic Link` dl
-											on dl.link_name = supp.name
-											INNER JOIN `tabAddress` adds
-											on dl.parent = adds.name
-											where supp.name = %(supp)s """,
-											{'supp': p.get("return_supplier_")}, as_dict=1)
-			if supp_details:								
-				dic2 = supp_details[0]
-				for key, value in dic2.items():
-					data3[key] = value
+				
+				data3['challan_number_issued_by_job_worker'] = p.reference_challan
+				data3['challan_date_issued_by_job_worker'] = frappe.get_value("Stock Entry", p.reference_challan, 'posting_date') 
+				supp_details = frappe.db.sql(""" select adds.gstin as gstin_of_job_worker,
+												adds.state as state, supp.gst_category as job_workers_type
+												from `tabSupplier` supp
+												INNER JOIN `tabDynamic Link` dl
+												on dl.link_name = supp.name
+												INNER JOIN `tabAddress` adds
+												on dl.parent = adds.name
+												where supp.name = %(supp)s """,
+												{'supp': p.get("return_supplier_")}, as_dict=1)
+				if supp_details:								
+					dic2 = supp_details[0]
+					for key, value in dic2.items():
+						data3[key] = value
 
-			rm_item_obj = frappe.get_doc("Item", p.item_code)
-			data3["production_item"]=p.item_code
-			data3["item_code"]=p.item_code
-			data3["batch"]=p.batch_no
-			data3['description_of_goods'] = rm_item_obj.description
-			data3['unique_quantity_code'] = p.stock_uom
-			data3['quantity'] = p.qty
-			data3['losses_uqc'] = p.stock_uom
-			data3['losses_quantity'] = 0
-			data3['nature_of_job_work_done'] = nature
-			data3['original_challan_number_issued_by_principal'] = p.name
-			data3['original_challan_date_issued_by_principal'] = p.posting_date
+				rm_item_obj = frappe.get_doc("Item", p.item_code)
+				data3["production_item"]=p.item_code
+				data3["item_code"]=p.item_code
+				data3["batch"]=p.batch_no
+				data3['description_of_goods'] = rm_item_obj.description
+				data3['unique_quantity_code'] = p.stock_uom
+				data3['quantity'] = p.qty
+				data3['losses_uqc'] = p.stock_uom
+				data3['losses_quantity'] = 0
+				data3['nature_of_job_work_done'] = nature
+				data3['original_challan_number_issued_by_principal'] = p.name
+				data3['original_challan_date_issued_by_principal'] = p.posting_date
 
-			data.append(data3)
-	print("**************************************45",data)
+				data.append(data3)
+		print("**************************************45",data)
 	return data

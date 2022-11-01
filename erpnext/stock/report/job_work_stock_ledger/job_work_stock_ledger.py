@@ -53,7 +53,9 @@ def execute(filters=None):
 			"in_qty": max(sle.actual_qty, 0),
 			"out_qty": min(sle.actual_qty, 0)
 		})
-
+		if sle.voucher_no and sle.voucher_type=="Stock Entry":
+			doc=frappe.get_doc("Stock Entry",sle.voucher_no)
+			sle.update({"work_order":doc.work_order})
 		if sle.serial_no:
 			update_available_serial_nos(available_serial_nos, sle)
 
@@ -64,20 +66,21 @@ def execute(filters=None):
 	ref_date=""
 	customer_challan_number=""
 	customer_challan_date=""
+	work_order=""
 	for d in data:
+		stock_e=""
 		if d.get("batch_no"):
 			stock_e = frappe.db.sql("""
 								Select se.reference_challan,se.reference_challan_date,se.posting_date,se.customer_challan_number,se.customer_challan_date from `tabStock Entry` se 
 								join `tabStock Entry Detail` sed on sed.parent = se.name 
 								where se.stock_entry_type = "Material Receipt"
-								and sed.batch_no = '{0}'
-								""".format(d.get("batch_no")), as_dict=1)
+								and sed.batch_no = '{0}' and se.company='{1}'
+								""".format(d.get("batch_no"),filters.get("company")), as_dict=1)
 		if stock_e:
 			ref_challan = (stock_e[0].get('reference_challan'))
 			ref_date=(stock_e[0].get('reference_challan_date'))
 			customer_challan_number=(stock_e[0].get('customer_challan_number'))
 			customer_challan_date=(stock_e[0].get('customer_challan_date'))
-		# d['ref_challan'] = frappe.get_value("Stock Entry", d.get('voucher_no'), ['reference_challan'])
 		d['ref_challan'] = ref_challan
 		d["ref_date"]=ref_date
 		d["customer_challan_number"]=customer_challan_number
@@ -147,7 +150,7 @@ def get_columns():
 		{"label": _("Refrence Date"), "fieldname": "ref_date", "fieldtype": "Date", "width": 100},
 		{"label": _("Customer Challan Number"), "fieldname": "customer_challan_number", "fieldtype": "Data", "width": 150},
 		{"label": _("Customer Challan Date"), "fieldname": "customer_challan_date", "fieldtype": "Date", "width": 150},
-
+		{"label": _("Work Order"), "fieldname": "work_order", "fieldtype": "Link", "options": "Work Order", "width": 100},
 		{"label": _("Serial No"), "fieldname": "serial_no", "fieldtype": "Link", "options": "Serial No", "width": 100},
 		{"label": _("Balance Serial No"), "fieldname": "balance_serial_no", "width": 100},
 		{"label": _("Project"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 100},

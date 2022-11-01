@@ -2352,6 +2352,15 @@ def referance_challan(reference_challan,name):
 							['item_code','qty','subcontracted_item','uom','conversion_factor','stock_uom','transfer_qty','t_warehouse'])
 
 	return doc
+
+
+
+@frappe.whitelist()
+def referance_challan1(return_reference_challan,name):
+	doc=frappe.db.get_all("Stock Entry Detail",{"parent":return_reference_challan,"docstatus":1},
+							['item_code','qty','subcontracted_item','uom','conversion_factor','stock_uom','transfer_qty','t_warehouse'])
+
+	return doc
 	
 
 @frappe.whitelist()
