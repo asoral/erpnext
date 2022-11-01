@@ -238,8 +238,7 @@ def update_cart(ic,barcode,ip):
        return [items]
 
     
-    else:
-        print(ic,"no")
+    
 
 
 @frappe.whitelist()

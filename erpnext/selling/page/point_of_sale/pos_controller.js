@@ -1250,7 +1250,7 @@ erpnext.PointOfSale.Controller = class {
 
 			
 			item_row = this.get_item_from_frm(item);
-			console.log("item_details**********************>>>>>>>>>>>>>>>..",item)
+			console.log("item_details**********************>>>>>>>>>>>>>>>..",item_row)
 			// item_row["uom"] = args.item["uom"]
 			const item_row_exists = !$.isEmptyObject(item_row);
 
@@ -1270,20 +1270,26 @@ erpnext.PointOfSale.Controller = class {
 			// console.log(m)
 
 
-			const from_selector = field === 'qty' && value === "+1";
+			const from_selector = field === 'qty' && value === item_row.qty || "+1";
 			if (from_selector)
 				value = flt(item_row.qty) + flt(value);
 
 			if (item_row_exists) {
+				console.log("&&&&&&&&&&&&&&&&&&**************",from_selector)
 				if (field === 'qty')
 					value = flt(value);
+					console.log("9242&&&&&&&&&&&&^^^^^^^^^^^^^^^^^ if condtition 1281",value)
+				
 
 				if (['qty', 'conversion_factor'].includes(field) && value > 0 && !this.allow_negative_stock) {
+					
 					const qty_needed = field === 'qty' ? value * item_row.conversion_factor : item_row.qty * value;
+					console.log("2nd if condition&&&&&&&&&&&&&&&&&&&&&7",value)
 					await this.check_stock_availability(item_row, qty_needed, this.frm.doc.set_warehouse);
 				}
 
 				if (this.is_current_item_being_edited(item_row) || from_selector) {
+					console.log("3rd if condition&&&&&&&&&&&&&&&&&&&&&7",item_row)
 					await frappe.model.set_value(item_row.doctype, item_row.name, field, value);
 					this.update_cart_html(item_row);
 				}

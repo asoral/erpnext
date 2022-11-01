@@ -212,14 +212,14 @@
 
 				.item-qty-pill {
 					position: absolute;
-					display: flex;
+					display: none;
 					margin: var(--margin-sm);
 					justify-content: flex-end;
 					right: 0px;
 				}
 
 				.item-display {
-					display: flex;
+					display: none;
 					align-items: center;
 					justify-content: center;
 					border-radius: var(--border-radius-md);
@@ -235,7 +235,7 @@
 				}
 
 				> .item-detail {
-					display: flex;
+					display: none;
 					flex-direction: column;
 					justify-content: center;
 					min-height: 3.5rem;
@@ -245,7 +245,7 @@
 
 					> .item-name {
 						@extend .nowrap;
-						display: flex;
+						display: none;
 						align-items: center;
 						font-size: var(--text-md);
 					}
@@ -559,7 +559,7 @@
 						}
 
 						.edit-discount-btn {
-							display: flex;
+							display: none;
 							align-items: center;
 							font-weight: 500;
 							color: var(--dark-green-500);

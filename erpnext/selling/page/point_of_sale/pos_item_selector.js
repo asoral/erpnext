@@ -30,8 +30,8 @@ erpnext.PointOfSale.ItemSelector = class {
 					<div class="search-field"></div>
 					<div class="item-group-field"></div>
 				</div>
-				<div class="items-container"></div>
-				<div class="plu_items-container"></div>
+				<div  class="items-container"></div>
+				<div id="MyDiv" class="plu_items-container"></div>
 			</section>`
 
 		);
@@ -361,6 +361,13 @@ erpnext.PointOfSale.ItemSelector = class {
 
 		this.$component.on('click', '.plu-item-wrapper', function(){
 			console.log("st*************************************8",st)
+			// var x = document.getElementById("myDiv");
+			// console.log("html id display ***************",x)
+			// if (x.style.display === "none") {
+			// 	x.style.display = "block";
+			// } else {
+			// 	x.style.display = "none";
+			// }
 
 			const $item = $(this);
 			const item_code = unescape($item.attr('data-item-code'));
@@ -368,6 +375,8 @@ erpnext.PointOfSale.ItemSelector = class {
 			let serial_no = unescape($item.attr('data-serial-no'));
 			let uom = unescape($item.attr('data-uom'));
 			let rate = unescape($item.attr('data-rate'));
+
+			console.log("core*****************",qty)
 
 			// escape(undefined) returns "undefined" then unescape returns "undefined"
 			batch_no = batch_no === "undefined" ? undefined : batch_no;
@@ -377,12 +386,12 @@ erpnext.PointOfSale.ItemSelector = class {
 
 			me.events.item_selected({
 				field: 'qty',
-				value: "+1",
+				value: +qty,
 				item: { item_code, batch_no, serial_no, uom, rate }
 			});
 			// me.search_field.set_focus();
 
-			console.log("core*****************",$item)
+			
 		});
 
 		this.search_field.$input.on('input', (e) => {
@@ -666,14 +675,31 @@ erpnext.PointOfSale.ItemSelector = class {
 
 		this.get_items({ search_term })
 			.then(({ message }) => {
+				console.log("message&&&&&&&&&&&&&&****************",message)
 				// eslint-disable-next-line no-unused-vars
 				const { items, serial_no, batch_no, barcode } = message;
+				console.log("itema&&&&&&&&&&&&&&&&&&&&&&&&&7",items)
 				// if (search_term && !barcode) {
 				// 	this.search_index[search_term] = items;
 				// }
+				if(items.length ==1){
 				this.items = items;
 				this.render_item_list(items);
 				this.auto_add_item && this.items.length == 1 && this.add_filtered_item_to_cart();
+
+				}
+				else if(items.length == 0){
+
+					frappe.show_alert({
+						message: __("No items found. Scan barcode again."),
+						indicator: 'orange'
+					});
+					frappe.utils.play_sound("error");
+					this.barcode_scanned = false;
+					this.set_search_value('');
+
+				}
+				
 			});
 
 		
@@ -816,7 +842,7 @@ erpnext.PointOfSale.ItemSelector = class {
 			this.search_index = this.search_index || {};
 			if (this.search_index[search_term]) {
 				const items = this.search_index[search_term];
-				console.log("items_filter",items)
+				console.log("items_filter***************",this.items.length)
 				this.items = items;
 				this.render_item_list2(items);
 				this.auto_add_item && this.items.length == 1 && this.add_plu_item_to_cart();
@@ -846,19 +872,37 @@ erpnext.PointOfSale.ItemSelector = class {
 							method: "erpnext.selling.page.point_of_sale.pos_payment.update_cart",
 							args: {"ic":ic,"barcode":search_term,"ip":ip},
 							callback:function(r){
-								let msg = {}
+								if(r.message){
+									let msg = {}
 								msg["items"] = r.message
 
 								console.log("message********************* if block call")
+								
 
 								const {items , serial_no, batch_no, barcode } = msg;
 								window.qty = r.message[0].qty
 								let price = r.message[0].cprice
-								console.log("qty**********************************************",qty,price,barcode)
+								console.log("qty**********************************************",qty,price,items)
+
 								me.items = items;
+								console.log("items_filter***************",me.items.length)
 								me.render_item_list2(items);
 								me.auto_add_item && me.items.length == 1 && me.$plu_items_container.find(".plu-item-wrapper").click();
 								me.set_search_value('');
+								}
+								else{
+
+									frappe.show_alert({
+										message: __("No items found. Scan barcode again."),
+										indicator: 'orange'
+									});
+									frappe.utils.play_sound("error");
+									me.barcode_scanned = false;
+									me.set_search_value('');
+
+								}
+								
+								
 								
 
 							}
@@ -873,15 +917,7 @@ erpnext.PointOfSale.ItemSelector = class {
 						})
 				}
 
-				else{
-
-
-					console.log("9242 Not PLU Code")
-
-
-
-
-				}
+				
 
 
 				

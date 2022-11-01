@@ -217,11 +217,12 @@ erpnext.PointOfSale.ItemCart = class {
 			this.toggle_checkout_btn(true);
 		});
 
-		this.$component.on('click', '.add-discount-wrapper', () => {
-			const can_edit_discount = this.$add_discount_elem.find('.edit-discount-btn').length;
+		// this.$component.on('click', '.add-discount-wrapper', () => {
+		// 	const can_edit_discount = this.$add_discount_elem.find('.edit-discount-btn').length;
+		// 	console.log("discount*********************************",can_edit_discount)
 
-			if(!this.discount_field || can_edit_discount) this.show_discount_control();
-		});
+		// 	if(!this.discount_field || can_edit_discount) this.show_discount_control();
+		// });
 
 		frappe.ui.form.on("POS Invoice", "paid_amount", frm => {
 			// called when discount is applied
@@ -273,15 +274,15 @@ erpnext.PointOfSale.ItemCart = class {
 				this.$component.find(".edit-cart-btn").click();
 			}
 		});
-		this.$component.find(".add-discount-wrapper").attr("title", `${ctrl_label}+D`);
-		frappe.ui.keys.add_shortcut({
-			shortcut: "ctrl+d",
-			action: () => this.$component.find(".add-discount-wrapper").click(),
-			condition: () => this.$add_discount_elem.is(":visible"),
-			description: __("Add Order Discount"),
-			ignore_inputs: true,
-			page: cur_page.page.page
-		});
+		// this.$component.find(".add-discount-wrapper").attr("title", `${ctrl_label}+D`);
+		// frappe.ui.keys.add_shortcut({
+		// 	shortcut: "ctrl+d",
+		// 	action: () => this.$component.find(".add-discount-wrapper").click(),
+		// 	condition: () => this.$add_discount_elem.is(":visible"),
+		// 	description: __("Add Order Discount"),
+		// 	ignore_inputs: true,
+		// 	page: cur_page.page.page
+		// });
 		frappe.ui.keys.on("escape", () => {
 			const item_cart_visible = this.$component.is(":visible");
 			if (item_cart_visible && this.discount_field && this.discount_field.parent.is(":visible")) {
