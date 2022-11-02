@@ -190,7 +190,7 @@ def update_pos_invoice(values,inv,paid_amount,change_amount):
 
 
 @frappe.whitelist()
-def update_cart(ic,barcode,ip):
+def update_cart(ic,barcode,ip,pos_profile):
     print(ip)
     res = list(ip)
     res.insert(3,'.')
@@ -211,31 +211,39 @@ def update_cart(ic,barcode,ip):
         print("yes")
     
     elif ic[1:] in fi:
-       item =  frappe.get_doc("Item",ic[1:])
-       rate =frappe.get_doc("Item Price",{'item_code':item.name})
-       qty = float(res)/rate.price_list_rate
-       items = {}
-       uom = frappe.db.get_value("Item Barcode",{'parent':item.name},["posa_uom"])
-       items.update({
-           "actual_qty":100,
-           "barcode":barcode,
-           "batch_no":"",
-           "currency":"INR",
-           "description":item.description,
-           "is_stock_item":item.is_stock_item,
-           "item_code":item.name,
-           "item_name":item.item_name,
-           "item_image":item.image,
-           "price_list_rate":rate.price_list_rate,
-           "serial_no":"",
-           "stock_uom":item.stock_uom,
-           "cprice":res,
-           "qty":str(qty)
-       })
+        warehouse = frappe.db.get_value("POS Profile",{'name':pos_profile},['warehouse'])
+        item =  frappe.get_doc("Item",ic[1:])
+        if item.is_weighable_ == 1:
+            rate =frappe.get_doc("Item Price",{'item_code':item.name})
+            qty = float(res)/rate.price_list_rate
+            items = {}
+            uom = frappe.db.get_value("Item Barcode",{'parent':item.name},["posa_uom"])
+            actual_qty,is_stock_item = get_stock_availability(item.name,warehouse)
+            items.update({
+            "actual_qty":actual_qty,
+            "barcode":barcode,
+            "batch_no":"",
+            "currency":"INR",
+            "description":item.description,
+            "is_stock_item":item.is_stock_item,
+            "item_code":item.name,
+            "item_name":item.item_name,
+            "item_image":item.image,
+            "price_list_rate":rate.price_list_rate,
+            "serial_no":"",
+            "stock_uom":item.stock_uom,
+            "cprice":res,
+                "qty":str(qty)
+            })
 
-       print("9242frwfwfwgwrg",items)
+            print("9242frwfwfwgwrg",items)
 
-       return [items]
+            return [items]
+        
+        # else:
+        #     frappe.msgprint("Item : {0} is not an PLU Item".format(item.item_name) )
+
+
 
     
     
