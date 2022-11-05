@@ -1270,31 +1270,31 @@ erpnext.PointOfSale.Controller = class {
 			// console.log(m)
 
 
-			const from_selector = field === 'qty' && value === item_row.qty || "+1";
+			const from_selector = field === 'qty' && value === "+1";
 			if (from_selector)
-				value = flt(item_row.qty) + flt(value);
+				value = flt(value);
 
-			if (item_row_exists) {
-				console.log("&&&&&&&&&&&&&&&&&&**************",from_selector)
-				if (field === 'qty')
-					value = flt(value);
-					console.log("9242&&&&&&&&&&&&^^^^^^^^^^^^^^^^^ if condtition 1281",value)
+			// if (item_row_exists) {
+			// 	console.log("&&&&&&&&&&&&&&&&&&**************",from_selector)
+			// 	if (field === 'qty')
+			// 		value = flt(value);
+			// 		console.log("9242&&&&&&&&&&&&^^^^^^^^^^^^^^^^^ if condtition 1281",value)
 				
 
-				if (['qty', 'conversion_factor'].includes(field) && value > 0 && !this.allow_negative_stock) {
+			// 	if (['qty', 'conversion_factor'].includes(field) && value > 0 && !this.allow_negative_stock) {
 					
-					const qty_needed = field === 'qty' ? value * item_row.conversion_factor : item_row.qty * value;
-					console.log("2nd if condition&&&&&&&&&&&&&&&&&&&&&7",value)
-					await this.check_stock_availability(item_row, qty_needed, this.frm.doc.set_warehouse);
-				}
+			// 		const qty_needed = field === 'qty' ? value * item_row.conversion_factor : item_row.qty * value;
+			// 		console.log("2nd if condition&&&&&&&&&&&&&&&&&&&&&7",value)
+			// 		await this.check_stock_availability(item_row, qty_needed, this.frm.doc.set_warehouse);
+			// 	}
 
-				if (this.is_current_item_being_edited(item_row) || from_selector) {
-					console.log("3rd if condition&&&&&&&&&&&&&&&&&&&&&7",item_row)
-					await frappe.model.set_value(item_row.doctype, item_row.name, field, value);
-					this.update_cart_html(item_row);
-				}
+			// 	if (this.is_current_item_being_edited(item_row) || from_selector) {
+			// 		console.log("3rd if condition&&&&&&&&&&&&&&&&&&&&&7",item_row)
+			// 		await frappe.model.set_value(item_row.doctype, item_row.name, field, value);
+			// 		this.update_cart_html(item_row);
+			// 	}
 
-			} else {
+			// } else {
 				if (!this.frm.doc.customer)
 					return this.raise_customer_selection_alert();
 
@@ -1327,7 +1327,7 @@ erpnext.PointOfSale.Controller = class {
 
 				if (this.check_serial_batch_selection_needed(item_row) && !this.item_details.$component.is(':visible'))
 					this.edit_item_details_of(item_row);
-			}
+			// }
 
 			// this.save_draft_invoice();
 			// this.add_item();

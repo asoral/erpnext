@@ -256,6 +256,7 @@ class POSInvoice(SalesInvoice):
 				frappe.throw(_("Total payments amount can't be greater than {}").format(-invoice_total))
 
 	def validate_loyalty_transaction(self):
+		
 		if self.redeem_loyalty_points and (not self.loyalty_redemption_account or not self.loyalty_redemption_cost_center):
 			expense_account, cost_center = frappe.db.get_value('Loyalty Program', self.loyalty_program, ["expense_account", "cost_center"])
 			if not self.loyalty_redemption_account:
@@ -466,8 +467,6 @@ def get_stock_availability(item_code, warehouse):
 		is_stock_item = True
 		bin_qty = get_bin_qty(item_code, warehouse)
 		pos_sales_qty = get_pos_reserved_qty(item_code, warehouse)
-		print("9241***********************",item_code,warehouse)
-		print("jsdfbbskbvbsdbvik",bin_qty - pos_sales_qty)
 		return bin_qty - pos_sales_qty , is_stock_item
 	else:
 		if frappe.db.exists('Product Bundle', item_code):
