@@ -1,6 +1,7 @@
 from typing import KeysView
 from tomlkit import key
 import frappe
+from frappe.utils.data import today
 
 @frappe.whitelist()
 def row_wise_loyalty_point(name):
@@ -63,7 +64,7 @@ def row_wise_loyalty_point(name):
 	lpe.invoice=pos_in.name
 	lpe.loyalty_points=points
 	lpe.expiry_date=condition.to_date
-	lpe.posting_date=condition.from_date
+	lpe.posting_date=today()
 	lpe.save(ignore_permissions=True)
 	lpe.submit()
 	return True

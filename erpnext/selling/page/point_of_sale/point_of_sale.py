@@ -48,13 +48,14 @@ def search_by_term(search_term, warehouse, price_list):
 		item_info.update(
 			{
 				# "serial_no": serial_no,
-				# "batch_no": batch_no,
+				# "stock_uom": "Foot",
 				"barcode": barcode,
 				"price_list_rate": price_list_rate,
 				"currency": currency,
 				"actual_qty": item_stock_qty
 			}
 		)
+
 		return {"items": [item_info]}
 
 
@@ -123,6 +124,7 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 	)
 
 	if items_data:
+		# print("items_datAa******************((((((((((((((((((((99",items_data)
 		items = [d.item_code for d in items_data]
 		item_prices_data = frappe.get_all(
 			"Item Price",
@@ -159,6 +161,7 @@ def search_for_serial_or_batch_or_barcode_number(search_value):
 		"Item Barcode", {"barcode": search_value}, ["barcode", "parent as item_code"], as_dict=True
 	)
 	if barcode_data:
+		# print("&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^^^^^^^^^^barcode_data",barcode_data)
 		return barcode_data
 
 	# # search serial no

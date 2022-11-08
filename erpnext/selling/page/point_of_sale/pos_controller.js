@@ -937,7 +937,7 @@ erpnext.PointOfSale.Controller = class {
 
 				cart_item_clicked: (item) => {
 					const item_row = this.get_item_from_frm(item);
-					console.log("controller_item_details",item)
+					// console.log("controller_item_details",item_row)
 					this.item_details.toggle_item_details_section(item_row);
 					console.log('ttttttttttttttttttttt',this.frm)
 				},
@@ -1246,13 +1246,11 @@ erpnext.PointOfSale.Controller = class {
 		let item_row = undefined;
 		try {
 			let { field, value, item } = args;
-
-
-			
 			item_row = this.get_item_from_frm(item);
-			console.log("item_details**********************>>>>>>>>>>>>>>>..",item_row)
+			console.log("item_details**********************>>>>>>>>>>>>>>>..",item)
 			// item_row["uom"] = args.item["uom"]
 			const item_row_exists = !$.isEmptyObject(item_row);
+			console.log("item_row_exists***********&&&&&&&&&",$.isEmptyObject(item_row))
 
 			console.log(item)
 			console.log('args',args.item["uom"])
@@ -1274,36 +1272,41 @@ erpnext.PointOfSale.Controller = class {
 			if (from_selector)
 				value = flt(value);
 
-			// if (item_row_exists) {
-			// 	console.log("&&&&&&&&&&&&&&&&&&**************",from_selector)
-			// 	if (field === 'qty')
-			// 		value = flt(value);
-			// 		console.log("9242&&&&&&&&&&&&^^^^^^^^^^^^^^^^^ if condtition 1281",value)
+			if (item_row_exists) {
+				console.log("&&&&&&&&&&&&&&&&&&**************",from_selector)
+				if (field === 'qty')
+					value = flt(value);
+					console.log("9242&&&&&&&&&&&&^^^^^^^^^^^^^^^^^ if condtition 1281",value)
 				
 
-			// 	if (['qty', 'conversion_factor'].includes(field) && value > 0 && !this.allow_negative_stock) {
+				if (['qty', 'conversion_factor'].includes(field) && value > 0 && !this.allow_negative_stock) {
 					
-			// 		const qty_needed = field === 'qty' ? value * item_row.conversion_factor : item_row.qty * value;
-			// 		console.log("2nd if condition&&&&&&&&&&&&&&&&&&&&&7",value)
-			// 		await this.check_stock_availability(item_row, qty_needed, this.frm.doc.set_warehouse);
-			// 	}
+					const qty_needed = field === 'qty' ? value * item_row.conversion_factor : item_row.qty * value;
+					console.log("2nd if condition&&&&&&&&&&&&&&&&&&&&&7",value)
+					await this.check_stock_availability(item_row, qty_needed, this.frm.doc.set_warehouse);
+				}
 
-			// 	if (this.is_current_item_being_edited(item_row) || from_selector) {
-			// 		console.log("3rd if condition&&&&&&&&&&&&&&&&&&&&&7",item_row)
-			// 		await frappe.model.set_value(item_row.doctype, item_row.name, field, value);
-			// 		this.update_cart_html(item_row);
-			// 	}
+				if (this.is_current_item_being_edited(item_row) || from_selector) {
+					console.log("3rd if condition&&&&&&&&&&&&&&&&&&&&&7",item_row)
+					await frappe.model.set_value(item_row.doctype, item_row.name, field, value);
+					this.update_cart_html(item_row);
+				}
 
-			// } else {
+			} else {
+				console.log("else block nov 8 7&&&&&*********************")
 				if (!this.frm.doc.customer)
 					return this.raise_customer_selection_alert();
 
-				const { item_code, batch_no, serial_no, rate } = item;
+				const { item_code, batch_no, serial_no, rate , uom,barcode } = item;
+
+				console.log("else block nov 8 7&&&&&*********************",item)
 
 				if (!item_code)
 					return;
 
-				const new_item = { item_code, batch_no, rate, [field]: value };
+				const new_item = { item_code, batch_no, rate, uom,barcode,[field]: value };
+
+				
 
 				if (serial_no) {
 					await this.check_serial_no_availablilty(item_code, this.frm.doc.set_warehouse, serial_no);
@@ -1312,11 +1315,33 @@ erpnext.PointOfSale.Controller = class {
 
 				if (field === 'serial_no')
 					new_item['qty'] = value.split(`\n`).length || 0;
+				
+				
+					
 
 				item_row = this.frm.add_child('items', new_item);
+				console.log("item_row************((((((((((((((()))))))))))))))))))))",new_item)
+				console.log("item_row************((((((((((((((()))))))))))))))))))))",item_row)
+
+				// if(uom){
+				// 	console.log("uom change&&&&&&&&&&&&&&&&&&&&&&",uom ,args.item['uom'])
+				// 	// for(var key in item_row){
+				// 	// 	console.log("key&&&&&&&&&&&&&&*************8",key)
+				// 	// 	if(key == "uom"){
+				// 	// 		item_row[key] = args.item['uom']
+				// 	// 	}
+				// 	// }
+				// 	item_row['uom2'] = args.item['uom']
+				// 	console.log("item_row************((((((((((((((())))))))))))))))))))) changes",item_row)
+				// }
+
+				
+
 
 				if (field === 'qty' && value !== 0 && !this.allow_negative_stock)
 					await this.check_stock_availability(item_row, value, this.frm.doc.set_warehouse);
+				
+				
 
 				await this.trigger_new_item_events(item_row);
 
@@ -1327,7 +1352,7 @@ erpnext.PointOfSale.Controller = class {
 
 				if (this.check_serial_batch_selection_needed(item_row) && !this.item_details.$component.is(':visible'))
 					this.edit_item_details_of(item_row);
-			// }
+			}
 
 			// this.save_draft_invoice();
 			// this.add_item();
@@ -1358,13 +1383,16 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	get_item_from_frm({ name, item_code, batch_no, uom, rate }) {
+		console.log("9242*&&&*&*&*&*********************************",this.frm.doc.items.find(i => i.name == name))
 		let item_row = null;
 		if (name) {
-			console.log("9242*&&&*&*&*&*********************************",name)
+			
 			item_row = this.frm.doc.items.find(i => i.name == name);
+			console.log("%%%%%%%%%%%%%%%%%%%%^^^^^^^^^^^^^^^^^^^^^^^",item_row)
+
 			
 		} else {
-			console.log("%%%%%%%%%%%%%%%%%%%%^^^^^^^^^^^^^^^^^^^^^^^",)
+			
 			// if item is clicked twice from item selector
 			// then "item_code, batch_no, uom, rate" will help in getting the exact item
 			// to increase the qty by one
@@ -1376,10 +1404,11 @@ erpnext.PointOfSale.Controller = class {
 					&& (i.uom === uom)
 					&& (i.rate == rate)
 			);
+			console.log("9242*&&&*&*&*&*********************************before_return",item_row)
 			// console.log("9242*&&&*&*&*&**************33333333333 1367",this.doc.frm.doc.items)
 		}
 
-		console.log("9242*&&&*&*&*&*********************************before_return",item_row)
+		
 		return item_row || {};
 	}
 

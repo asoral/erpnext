@@ -170,6 +170,7 @@ erpnext.PointOfSale.ItemDetails = class {
 		this.$form_container.html('');
 
 		fields_to_display.forEach((fieldname, idx) => {
+			console.log("&&&&&&&&&&&&&&***************** fields to display",fieldname)
 			this.$form_container.append(
 				`<div class="${fieldname}-control" data-fieldname="${fieldname}"></div>`
 			)
@@ -184,7 +185,7 @@ erpnext.PointOfSale.ItemDetails = class {
 					...field_meta,
 					onchange: function() {
 						me.events.form_updated(me.current_item, fieldname, this.value);
-						console.log("9242 onchange item details******************",this.value)
+						// console.log("9242 onchange item details******************",this.value)
 					}
 				},
 				parent: this.$form_container.find(`.${fieldname}-control`),
@@ -200,10 +201,11 @@ erpnext.PointOfSale.ItemDetails = class {
 
 	get_form_fields(item) {
 		console.log("get_form_fields(********************************",item)
-		const fields = ['qty', 'uom', 'rate', 'conversion_factor', 'discount_percentage', 'warehouse', 'actual_qty', 'price_list_rate','barcode_uom','barcode'];
+		const fields = ['qty', 'uom', 'rate', 'conversion_factor', 'discount_percentage', 'warehouse', 'actual_qty', 'price_list_rate','barcode'];
 		if (item.has_serial_no) fields.push('serial_no');
 		if (item.has_batch_no) fields.push('batch_no')
-		
+		if (item.uom2) fields.push('uom2')
+		console.log("fields to display")
 		return fields;
 	}
 
@@ -308,7 +310,7 @@ erpnext.PointOfSale.ItemDetails = class {
 		
 
 		if (this.uom_control){
-			console.log("944646464646%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55",this)
+			// console.log("944646464646%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55",this)
 			this.uom_control.df.onchange = function() {
 				me.events.form_updated(me.current_item, 'uom', this.value);
 				const item_row = frappe.get_doc(me.doctype, me.name);

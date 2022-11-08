@@ -24,6 +24,7 @@ purchase_doctypes = ['Material Request', 'Supplier Quotation', 'Purchase Order',
 
 @frappe.whitelist()
 def get_item_details(args, doc=None, for_validate=False, overwrite_warehouse=True):
+	# print("&&&&&&&&&&&&&&&&&***************** args in main method",args)
 	"""
 		args = {
 			"item_code": "",
@@ -47,6 +48,11 @@ def get_item_details(args, doc=None, for_validate=False, overwrite_warehouse=Tru
 	"""
 
 	args = process_args(args)
+	# print("args*********************************8",args)
+	# if not args["barcode"]:
+	# 	args.update({
+
+	# 	})
 	for_validate = process_string_args(for_validate)
 	overwrite_warehouse = process_string_args(overwrite_warehouse)
 	item = frappe.get_cached_doc("Item", args.item_code)
@@ -242,8 +248,16 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 	:return: frappe._dict
 	"""
 
+
+	print("&&&&&&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^",item)
+	print("no Item&&&&&&&&&&&&&&&&&",args)
+
 	if not item:
+		print("no Item&&&&&&&&&&&&&&&&&")
 		item = frappe.get_doc("Item", args.get("item_code"))
+
+	
+	# print("stock get item details *********8",args.get("barcode"))
 
 	if item.variant_of:
 		item.update_template_tables()
@@ -273,7 +287,13 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 	#Set the UOM to the Default Sales UOM or Default Purchase UOM if configured in the Item Master
 	if not args.get('uom'):
 		if args.get('doctype') in sales_doctypes:
-			args.uom = item.sales_uom if item.sales_uom else item.stock_uom
+			barcode_uom = frappe.db.get_value("Item Barcode",{'barcode':args.get("barcode")},['posa_uom'])
+			print("barcode_uom&&&&&&&&&&&&&&&&&&&&&&&&",barcode_uom,args.get("barcode"))
+			if barcode_uom:
+				args.uom = barcode_uom
+			else:
+				args.uom = item.weight_uom if item.sales_uom else item.stock_uom
+			
 		elif (args.get('doctype') in ['Purchase Order', 'Purchase Receipt', 'Purchase Invoice']) or \
 			(args.get('doctype') == 'Material Request' and args.get('material_request_type') == 'Purchase'):
 			args.uom = item.purchase_uom if item.purchase_uom else item.stock_uom
@@ -365,7 +385,10 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 			})
 
 	child_doctype = args.doctype + ' Item'
+	print("child*******************",child_doctype)
 	meta = frappe.get_meta(child_doctype)
+	print("meta*******************",meta)
+
 	if meta.get_field("barcode"):
 		update_barcode_value(out)
 
@@ -416,6 +439,9 @@ def update_barcode_value(out):
 	# If item has one barcode then update the value of the barcode field
 	if barcode_data and len(barcode_data.get(out.item_code)) == 1:
 		out['barcode'] = barcode_data.get(out.item_code)[0]
+	# else:
+	# 	print("all barcodes &&&&&&&&&&&&&&*****************",barcode_data)
+	# 	out['barcode'] = """{0}""".format()
 
 def get_barcode_data(items_list):
 	# get itemwise batch no data
