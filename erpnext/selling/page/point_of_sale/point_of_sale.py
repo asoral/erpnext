@@ -170,6 +170,10 @@ def search_for_serial_or_batch_or_barcode_number(search_value,country):
 				if i["country"] == country:
 					print("&&&&&&&&&&&&&&&&&&&&&&&&***********************99999999900000000000000",i["barcode"],i["item_code"])
 					return {"barcode":i["barcode"],"item_code":i["item_code"]}
+		elif len(country_wise_barcode_data) == 1:
+			for i in country_wise_barcode_data:
+					return {"barcode":i.get("barcode"),"item_code":i.get("item_code")}
+
 	# if barcode_data:
 	# 	print("&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^^^^^^^^^^barcode_data",barcode_data)
 	# 	return barcode_data
