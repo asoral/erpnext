@@ -1231,7 +1231,7 @@ erpnext.PointOfSale.Payment = class {
 
 		frappe.ui.form.on('POS Invoice', 'paid_amount', (frm) => {
 			this.update_totals_section(frm.doc);
-			console.log("frm.doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",frm.doc)
+			// console.log("frm.doc&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7",frm.doc)
 
 			// need to re calculate cash shortcuts after discount is applied
 			const is_cash_shortcuts_invisible = !this.$payment_modes.find('.cash-shortcuts').is(':visible');

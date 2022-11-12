@@ -48,7 +48,7 @@ def get_item_details(args, doc=None, for_validate=False, overwrite_warehouse=Tru
 	"""
 
 	args = process_args(args)
-	# print("args*********************************8",args)
+	print("args*********************************8",args)
 	# if not args["barcode"]:
 	# 	args.update({
 
@@ -292,7 +292,7 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 			if barcode_uom:
 				args.uom = barcode_uom
 			else:
-				args.uom = item.weight_uom if item.sales_uom else item.stock_uom
+				args.uom = item.sales_uom if item.sales_uom else item.stock_uom
 			
 		elif (args.get('doctype') in ['Purchase Order', 'Purchase Receipt', 'Purchase Invoice']) or \
 			(args.get('doctype') == 'Material Request' and args.get('material_request_type') == 'Purchase'):
@@ -435,6 +435,9 @@ def get_item_warehouse(item, args, overwrite_warehouse, defaults={}):
 
 def update_barcode_value(out):
 	barcode_data = get_barcode_data([out])
+	print("out in update_barcode_value",out)
+
+	# print("uom of barcode 8******************************",out['barcode'])
 
 	# If item has one barcode then update the value of the barcode field
 	if barcode_data and len(barcode_data.get(out.item_code)) == 1:
@@ -444,14 +447,20 @@ def update_barcode_value(out):
 	# 	out['barcode'] = """{0}""".format()
 
 def get_barcode_data(items_list):
+	print("item list in get_item_details***************&&&&&&&&&&&&&&&&&&&",items_list)
 	# get itemwise batch no data
 	# exmaple: {'LED-GRE': [Batch001, Batch002]}
 	# where LED-GRE is item code, SN0001 is serial no and Pune is warehouse
 
 	itemwise_barcode = {}
 	for item in items_list:
+		# curr_comp = frappe.session.company
+		# country = frappe.get_doc("Company",curr_comp)
+		# print("current company ************&&&&&&&&&&&&&&&&&&&&&&&&&&&7",country.country)
+		
 		barcodes = frappe.db.sql("""
 			select barcode from `tabItem Barcode` where parent = %s
+
 		""", item.item_code, as_dict=1)
 
 		for barcode in barcodes:

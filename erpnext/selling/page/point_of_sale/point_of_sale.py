@@ -11,9 +11,9 @@ from erpnext.accounts.doctype.pos_invoice.pos_invoice import get_stock_availabil
 from erpnext.accounts.doctype.pos_profile.pos_profile import get_child_nodes, get_item_groups
 
 
-def search_by_term(search_term, warehouse, price_list):
+def search_by_term(search_term, warehouse, price_list,country):
 	
-	result = search_for_serial_or_batch_or_barcode_number(search_term) or {}
+	result = search_for_serial_or_batch_or_barcode_number(search_term,country) or {}
 
 	item_code = result.get("item_code") or search_term
 	# # print("item_code********************",item)
@@ -56,19 +56,20 @@ def search_by_term(search_term, warehouse, price_list):
 			}
 		)
 
+
 		return {"items": [item_info]}
 
 
 @frappe.whitelist()
 def get_items(start, page_length, price_list, item_group, pos_profile, search_term=""):
-	warehouse, hide_unavailable_items = frappe.db.get_value(
-		"POS Profile", pos_profile, ["warehouse", "hide_unavailable_items"]
+	warehouse, hide_unavailable_items,country = frappe.db.get_value(
+		"POS Profile", pos_profile, ["warehouse", "hide_unavailable_items","country"]
 	)
 
 	result = []
 
 	if search_term:
-		result = search_by_term(search_term, warehouse, price_list) or []
+		result = search_by_term(search_term, warehouse, price_list,country) or []
 		# print("result_call**************",result)
 		if result:
 			return result
@@ -124,7 +125,7 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 	)
 
 	if items_data:
-		# print("items_datAa******************((((((((((((((((((((99",items_data)
+		print("items_datAa******************((((((((((((((((((((99",items_data)
 		items = [d.item_code for d in items_data]
 		item_prices_data = frappe.get_all(
 			"Item Price",
@@ -155,14 +156,25 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 
 
 @frappe.whitelist()
-def search_for_serial_or_batch_or_barcode_number(search_value):
+def search_for_serial_or_batch_or_barcode_number(search_value,country):
 	# search barcode no
 	barcode_data = frappe.db.get_value(
 		"Item Barcode", {"barcode": search_value}, ["barcode", "parent as item_code"], as_dict=True
 	)
-	if barcode_data:
-		# print("&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^^^^^^^^^^barcode_data",barcode_data)
-		return barcode_data
+	country_wise_barcode_data = frappe.db.get_all("Item Barcode",{"barcode":search_value},["barcode", "parent as item_code","country"])
+	print("country_wise barcode data---------------",country_wise_barcode_data)
+	if country_wise_barcode_data:
+		if len(country_wise_barcode_data) > 1:
+			for i in country_wise_barcode_data:
+				print("i*****&&&&&&&&&&&",i["country"])
+				if i["country"] == country:
+					print("&&&&&&&&&&&&&&&&&&&&&&&&***********************99999999900000000000000",i["barcode"],i["item_code"])
+					return {"barcode":i["barcode"],"item_code":i["item_code"]}
+	# if barcode_data:
+	# 	print("&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^^^^^^^^^^barcode_data",barcode_data)
+	# 	return barcode_data
+	
+	
 
 	# # search serial no
 	# serial_no_data = frappe.db.get_value(

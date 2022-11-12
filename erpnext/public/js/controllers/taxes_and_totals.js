@@ -599,7 +599,7 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 	},
 
 	apply_discount_amount: function() {
-		console.log("&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^^^^^^6")
+		// console.log("&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^^^^^^6")
 		var me = this;
 		var distributed_amount = 0.0;
 		this.frm.doc.base_discount_amount = 0.0;
@@ -778,7 +778,7 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 	},
 
 	calculate_paid_amount: function() {
-		console.log("paid_amount")
+		// console.log("paid_amount")
 		var me = this;
 		var paid_amount = 0.0;
 		var base_paid_amount = 0.0;

@@ -1,7 +1,7 @@
 erpnext.PointOfSale.ItemCart = class {
 	constructor({ wrapper, events, settings }) {
 
-		console.log(" this is setting", settings)
+		//console.log(" this is setting", settings)
 		this.wrapper = wrapper;
 		this.events = events;
 		this.customer_info = undefined;
@@ -12,9 +12,9 @@ erpnext.PointOfSale.ItemCart = class {
 		this.allow_discount_change = settings.allow_discount_change;
 		this.init_component();
 
-		console.log(" this is setting", settings)
+		//console.log(" this is setting", settings)
 
-		console.log(" thisis Quantity allow rate", this.allow_rate_change)
+		//console.log(" thisis Quantity allow rate", this.allow_rate_change)
 	}
 
 	init_component() {
@@ -219,7 +219,7 @@ erpnext.PointOfSale.ItemCart = class {
 
 		// this.$component.on('click', '.add-discount-wrapper', () => {
 		// 	const can_edit_discount = this.$add_discount_elem.find('.edit-discount-btn').length;
-		// 	console.log("discount*********************************",can_edit_discount)
+		// 	//console.log("discount*********************************",can_edit_discount)
 
 		// 	if(!this.discount_field || can_edit_discount) this.show_discount_control();
 		// });
@@ -326,9 +326,9 @@ erpnext.PointOfSale.ItemCart = class {
 				get_query: () => query,
 				onchange: function() {
 					if (this.value) {
-						console.log("9242@@@@@@@@@@@@@@@@@@",this.value)
+						//console.log("9242@@@@@@@@@@@@@@@@@@",this.value)
 						const frm = me.events.get_frm();
-						console.log("84165151616",frm)
+						//console.log("84165151616",frm)
 						frappe.dom.freeze();
 						frappe.model.set_value(frm.doc.doctype, frm.doc.name, 'customer', this.value);
 						frm.script_manager.trigger('customer', frm.doc.doctype, frm.doc.name).then(() => {
@@ -535,7 +535,7 @@ erpnext.PointOfSale.ItemCart = class {
 	}
 
 	render_taxes(taxes) {
-		console.log("92420482",taxes.length)
+		//console.log("92420482",taxes.length)
 		if (taxes.length) {
 			const currency = this.events.get_frm().doc.currency;
 			const taxes_html = taxes.map(t => {
@@ -558,6 +558,7 @@ erpnext.PointOfSale.ItemCart = class {
 	}
 
 	get_item_from_frm(item) {
+		//console.log("item_update on click&&&&&&&&&&&*********",item)
 		const doc = this.events.get_frm().doc;
 		return doc.items.find(i => i.name == item.name);
 	}
@@ -567,7 +568,9 @@ erpnext.PointOfSale.ItemCart = class {
 
 		if (remove_item) {
 			$item && $item.next().remove() && $item.remove();
-		} else {
+		} 
+		else {
+			//console.log("item_update on click&&&&&&&&&&&********* other method")
 			const item_row = this.get_item_from_frm(item);
 			this.render_cart_item(item_row, $item);
 		}
@@ -715,7 +718,7 @@ erpnext.PointOfSale.ItemCart = class {
 	}
 
 	on_numpad_event($btn) {
-		console.log(" thisis Quantity allow rate", this.allow_rate_change)
+		//console.log(" thisis Quantity allow rate", this.allow_rate_change)
 		const current_action = $btn.attr('data-button-value');
 		const action_is_field_edit = ['qty', 'discount_percentage', 'rate'].includes(current_action);
 		const action_is_allowed = action_is_field_edit ? (
@@ -731,7 +734,7 @@ erpnext.PointOfSale.ItemCart = class {
 		if (action_is_field_edit) {
 			if (!action_is_allowed) {
 
-				console.log(" thisis Quantity allow rate", this.allow_rate_change)
+				//console.log(" thisis Quantity allow rate", this.allow_rate_change)
 				// let label = current_action == 'rate' ? 'Rate'.bold() : 'Discount'.bold() ;
 				// new code for GH customization
 				let label = ""
@@ -746,7 +749,7 @@ erpnext.PointOfSale.ItemCart = class {
 					}
 
 				// label = 
-				console.log(" this is label", label)
+				//console.log(" this is label", label)
 				const message = __('Editing {0} is not allowed as per POS Profile settings', [label]);
 				frappe.show_alert({
 					indicator: 'red',

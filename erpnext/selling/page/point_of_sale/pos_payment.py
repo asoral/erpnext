@@ -307,6 +307,26 @@ def update_cart_for_non_dynamic_items(barcode,pos_profile):
                 
                 return [items]
 
+
+@frappe.whitelist()
+def add_child(ct,data):
+    doc = frappe.get_doc("POS Invoice",ct)
+    if doc:
+        for i in doc.items:
+            i.item_code = data[0]
+            i.batch_no = data[1]
+            i.rate = data[2]
+            i.barcode = data[3]
+            i.qty = flt(data[4])
+            # doc.save()
+
+
+
+    
+
+
+
+
     
     
 

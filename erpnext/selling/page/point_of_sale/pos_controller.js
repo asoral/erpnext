@@ -43,7 +43,7 @@ erpnext.PointOfSale.Controller = class {
 					dialog.fields_dict.balance_details.df.data.some(d => {
 						if (d.idx == this.doc.idx) {
 							this.doc["button"] = d.idx
-							console.log("NNNNNNNNNNNNNNNNNNn",this.doc)
+							//console.log("NNNNNNNNNNNNNNNNNNn",this.doc)
 							d.opening_amount = this.value;
 							dialog.fields_dict.balance_details.grid.refresh();
 							return true;
@@ -60,14 +60,14 @@ erpnext.PointOfSale.Controller = class {
 					
 					
 			// 		dialog.fields_dict.balance_details.df.data.some(d => {
-			// 		console.log("NNNNNNNNNNNNNNNNNNn",this.doc)
+			// 		//console.log("NNNNNNNNNNNNNNNNNNn",this.doc)
 			// 		val[d.idx] = d.mode_of_payment
-			// 		console.log(val)
+			// 		//console.log(val)
 			// 		dialog.fields_dict.mop.set_value(d.idx);
 			// 		dialog.fields_dict.mop.refresh();
 					
 			// 		if (d.idx == val.idx){
-			// 			console.log(me)
+			// 			//console.log(me)
 			// 				var mop = d.idx
 			// 				const deno = {}
 			// 				frappe.db.get_doc("Mode of Payment", d.mode_of_payment).then(({ currency }) => {
@@ -77,7 +77,7 @@ erpnext.PointOfSale.Controller = class {
 			// 						});
 									
 			// 						for(var i in deno) {
-			// 							console.log(e)
+			// 							//console.log(e)
 			// 							var name1 = i
 			// 							var factor = deno[i]
 
@@ -139,11 +139,11 @@ erpnext.PointOfSale.Controller = class {
 			// 						let x = 0
 			// 						e.fields_dict.currency_deno.df.data.forEach(e => {
 			// 							st["total_amt"] += e.subtotal
-			// 							console.log("9242",st)
+			// 							//console.log("9242",st)
 			// 							e.subtotal ? x+=e.subtotal : 0
 										
 			// 						});
-			// 						console.log("x is: ", x)
+			// 						//console.log("x is: ", x)
 
 			// 						e.fields_dict.total_amount.set_value(x);
 			// 						e.fields_dict.total_amount.refresh();
@@ -287,13 +287,13 @@ erpnext.PointOfSale.Controller = class {
 						
 					dialog.fields_dict.mul_curr_denominations.df.data.forEach(e => {
 						st["total_amt"] += parseFloat(e.total_amount)
-						console.log("9242",st)
+						//console.log("9242",st)
 						parseFloat(e.total_amount) ? x+= parseFloat(e.total_amount) : 0.0
 						dialog.fields_dict.t_amount.set_value(x);
 						dialog.fields_dict.t_amount.refresh();
 						
 					});
-					console.log("x is: ", x)
+					//console.log("x is: ", x)
 
 				}
 				
@@ -349,14 +349,14 @@ erpnext.PointOfSale.Controller = class {
 			const fdict = {}
 			const d = {"mode_of_payment" : dialog.fields_dict.mop.get_value() }
 
-				console.log("before getdoc")
+				//console.log("before getdoc")
 				if(!d.mode_of_payment) return ;
 				frappe.db.get_doc("Mode of Payment", d.mode_of_payment).then(({ currency }) => {
 					
 					const comp = dialog.fields_dict.company.get_value();
-					console.log("after getdoc")
+					//console.log("after getdoc")
 					frappe.db.get_doc("Company",comp).then(({default_currency}) => {
-						console.log(default_currency)
+						//console.log(default_currency)
 						frappe.call({
 							method:"erpnext.setup.utils.get_exchange_rate",
 							args:{
@@ -366,11 +366,11 @@ erpnext.PointOfSale.Controller = class {
 							},
 							callback:function(r){
 								if(r.message){
-									console.log(r.message,r)
+									//console.log(r.message,r)
 									frappe.db.get_doc("Currency",currency).then(({denominations})=> {
 										denominations.forEach(g => {
 
-											console.log("*****************",g.name1,g.factor)
+											//console.log("*****************",g.name1,g.factor)
 											const name = g.name1
 											const factor  = g.factor
 											const mode_of_payment = d.mode_of_payment
@@ -380,16 +380,16 @@ erpnext.PointOfSale.Controller = class {
 										})
 										flist.forEach(m => {
 											
-											console.log("%%%%%%%%%%%",m)
+											//console.log("%%%%%%%%%%%",m)
 											dialog.fields_dict.mul_curr_denominations.df.data.push(m)
 											dialog.fields_dict.mul_curr_denominations.grid.refresh();
 											})
 									})
-									console.log("flist",flist)
+									//console.log("flist",flist)
 
 								}
 								else{
-									console.log("hiii")
+									//console.log("hiii")
 									
 									dialog.fields_dict.mul_curr_denominations.grid.refresh();
 								}
@@ -488,7 +488,7 @@ erpnext.PointOfSale.Controller = class {
 						const mpmt = dialog.fields_dict.mop.get_value()
 						const tamt = dialog.fields_dict.t_amount.get_value()
 
-						console.log("ct**********",ct)
+						//console.log("ct**********",ct)
 						if(!mul_curr[mpmt]){
 							mul_curr[mpmt] = parseFloat(tamt)
 							
@@ -504,7 +504,7 @@ erpnext.PointOfSale.Controller = class {
 								mcdt.push({"factor":ct[key].factor,"mode_of_payment":ct[key].mode_of_payment,"exchange_rate":ct[key].exchange_rate,"count":ct[key].count,"total_amount":ct[key].total_amount})
 							}
 							
-								console.log("Yesssssssssssssssssssssss")
+								//console.log("Yesssssssssssssssssssssss")
 								
 								
 								
@@ -513,7 +513,7 @@ erpnext.PointOfSale.Controller = class {
 							
 							
 						 }
-						 console.log("1st",mul_curr)
+						 //console.log("1st",mul_curr)
 
 						 for(var key2 in ct2) {
 							if(!mul_curr[ct2[key2].mode_of_payment]){
@@ -525,9 +525,9 @@ erpnext.PointOfSale.Controller = class {
 							
 							
 						 }
-						 console.log("2nd",mul_curr)
+						 //console.log("2nd",mul_curr)
 						
-						 console.log("mcdt",mcdt)
+						 //console.log("mcdt",mcdt)
 						 dialog.fields_dict.balance_details.df.data.length = 0
 						dialog.fields_dict.balance_details.grid.refresh();
 						dialog.fields_dict.mul_curr_denominations.df.data.length = 0
@@ -535,14 +535,14 @@ erpnext.PointOfSale.Controller = class {
 		
 		
 						for(var key3 in mul_curr) {
-							console.log("key213",key3)
+							//console.log("key213",key3)
 							var mode_of_payment = key3;
 							var opening_amount = parseFloat(mul_curr[key3])
 							dialog.fields_dict.balance_details.df.data.push({ mode_of_payment , opening_amount});
 							dialog.fields_dict.balance_details.grid.refresh();
 		
 						 }
-						console.log("key is",mul_curr)
+						//console.log("key is",mul_curr)
 
 						dialog.fields_dict.mcdt.set_value(mcdt);
 
@@ -557,9 +557,9 @@ erpnext.PointOfSale.Controller = class {
 			
 			
 			primary_action: async function({ company, pos_profile, balance_details ,mcdt}) {
-				console.log("mcdt is ::",company)
-				console.log("mcdt is ::",pos_profile)
-				console.log("mcdt is ::",mcdt)
+				//console.log("mcdt is ::",company)
+				//console.log("mcdt is ::",pos_profile)
+				//console.log("mcdt is ::",mcdt)
 				if (!balance_details.length) {
 					frappe.show_alert({
 						message: __("Please add Mode of payments and opening balance details."),
@@ -568,7 +568,7 @@ erpnext.PointOfSale.Controller = class {
 
 					return frappe.utils.play_sound("error");
 				}
-				console.log(balance_details.filter(d => d.mode_of_payment))
+				//console.log(balance_details.filter(d => d.mode_of_payment))
 
 				// filter balance details for empty rows
 				balance_details = balance_details.filter(d => d.mode_of_payment);
@@ -595,8 +595,8 @@ erpnext.PointOfSale.Controller = class {
 
 	async prepare_app_defaults(data) {
 		this.pos_opening = data.name;
-		console.log("qazwsxedcrfv",data.name)
-		console.log("qazwsxedcrfv",data)
+		//console.log("qazwsxedcrfv",data.name)
+		//console.log("qazwsxedcrfv",data)
 		this.company = data.company;
 		this.pos_profile = data.pos_profile;
 		this.pos_opening_time = data.period_start_date;
@@ -664,7 +664,7 @@ erpnext.PointOfSale.Controller = class {
 		// 		"pos_profile":pos
 		// 	}
 		// 	});
-		// 	console.log('clear the pole display')
+		// 	//console.log('clear the pole display')
 		// });
 
 		this.page.clear_menu();
@@ -705,14 +705,14 @@ erpnext.PointOfSale.Controller = class {
 		this.page.add_inner_button(('Open Cash Drawer'),()=>{
 			
 			// const me = this;
-			console.log("%%%%%%%%%%%%%%%%%%%%%%%",this.company)
+			//console.log("%%%%%%%%%%%%%%%%%%%%%%%",this.company)
 			this.print_format_printer_map = this.get_print_format_printer_map();
 			this.data = this.print_format_printer_map[this.frm.doctype] || [];
 		    // let printer_list = [];
 			f
 			frappe.ui.form.qz_get_printer_list().then((data) => {
-				console.log("printer object********************",data.length,data)
-				console.log("9242&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
+				//console.log("printer object********************",data.length,data)
+				//console.log("9242&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
 				if(data.length > 1 ){
 					data.forEach(printer => {
 						d.fields_dict.printer.df.options.push(printer)
@@ -720,7 +720,7 @@ erpnext.PointOfSale.Controller = class {
 					})
 				}
 				else if(data.length == 1){
-					console.log("8242455555511",d.fields_dict.printer.df.default)
+					//console.log("8242455555511",d.fields_dict.printer.df.default)
 					d.fields_dict.printer.set_value(data[0])
 					d.fields_dict.printer.refresh()
 				}
@@ -869,7 +869,7 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	save_draft_invoice() {
-		// console.log("make new invoice((((",this.make_new_invoice())
+		// //console.log("make new invoice((((",this.make_new_invoice())
 		if (!this.$components_wrapper.is(":visible")) return;
 
 		if (this.frm.doc.items.length == 0) {
@@ -888,7 +888,7 @@ erpnext.PointOfSale.Controller = class {
 			});
 			frappe.utils.play_sound("error");
 		}).then(() => {
-			console.log("make new invoice((((",this.make_new_invoice())
+			//console.log("make new invoice((((",this.make_new_invoice())
 			frappe.run_serially([
 				() => frappe.dom.freeze(),
 				() => this.make_new_invoice(),
@@ -908,7 +908,7 @@ erpnext.PointOfSale.Controller = class {
 		voucher.period_end_date = frappe.datetime.now_datetime();
 		voucher.posting_date = frappe.datetime.now_date();
 		frappe.set_route('Form', 'POS Closing Entry', voucher.name);
-		console.log('%%%%%%%%%%%%%%%%%%%%%%%5',voucher.user)
+		//console.log('%%%%%%%%%%%%%%%%%%%%%%%5',voucher.user)
 	}
 
 	init_item_selector() {
@@ -918,7 +918,7 @@ erpnext.PointOfSale.Controller = class {
 			settings: this.settings,
 			events: {
 				item_selected: args => this.on_cart_update(args),
-				// console.log()
+				// //console.log()
 
 				get_frm: () => this.frm || {}
 			}
@@ -937,9 +937,9 @@ erpnext.PointOfSale.Controller = class {
 
 				cart_item_clicked: (item) => {
 					const item_row = this.get_item_from_frm(item);
-					// console.log("controller_item_details",item_row)
+					console.log(" in controller init item cart ***************" ,item_row)
 					this.item_details.toggle_item_details_section(item_row);
-					console.log('ttttttttttttttttttttt',this.frm)
+					//console.log('ttttttttttttttttttttt',this.frm)
 				},
 				
 				numpad_event: (value, action) => this.update_item_field(value, action),
@@ -979,14 +979,14 @@ erpnext.PointOfSale.Controller = class {
 				get_frm: () => this.frm,
 
 				toggle_item_selector: (minimize) => {
-					console.log("init item selector *************888888889242",minimize)
+					//console.log("init item selector *************888888889242",minimize)
 					this.item_selector.resize_selector(minimize);
 					this.cart.toggle_numpad(minimize);
 				},
 
 				form_updated: (item, field, value) => {
 					const item_row = frappe.model.get_doc(item.doctype, item.name);
-					console.log("8*******************************8888 form_updated",item_row)
+					//console.log("8*******************************8888 form_updated",item_row)
 					if (item_row && item_row[field] != value) {
 						const args = {
 							field,
@@ -1097,7 +1097,7 @@ erpnext.PointOfSale.Controller = class {
 					frappe.db.get_doc('POS Invoice', name).then((doc) => {
 						this.order_summary.load_summary_of(doc);
 					});
-					console.log('EEEEEEEEEEEEEEEE',name)
+					//console.log('EEEEEEEEEEEEEEEE',name)
 				},
 				reset_summary: () => this.order_summary.toggle_summary_placeholder(true)
 			}
@@ -1165,7 +1165,7 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	make_new_invoice() {
-		// console.log("((((((((((((((((((((((((((((((((((",this.make_sales_invoice_frm())
+		// //console.log("((((((((((((((((((((((((((((((((((",this.make_sales_invoice_frm())
 		return frappe.run_serially([
 			() => frappe.dom.freeze(),
 			() => this.make_sales_invoice_frm(),
@@ -1204,7 +1204,7 @@ erpnext.PointOfSale.Controller = class {
 		const frm = _frm || new frappe.ui.form.Form(doctype, page, false);
 		const name = frappe.model.make_new_doc_and_get_name(doctype, true);
 		frm.refresh(name);
-		console.log("frm***************************8",frm)
+		//console.log("frm***************************8",frm)
 		return frm;
 	}
 
@@ -1241,72 +1241,46 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	async on_cart_update(args) {
-		let mylist = [];
 		frappe.dom.freeze();
 		let item_row = undefined;
 		try {
 			let { field, value, item } = args;
 			item_row = this.get_item_from_frm(item);
-			console.log("item_details**********************>>>>>>>>>>>>>>>..",item)
-			// item_row["uom"] = args.item["uom"]
+			console.log("in item controller on cart update8888888888888888",item)
 			const item_row_exists = !$.isEmptyObject(item_row);
-			console.log("item_row_exists***********&&&&&&&&&",$.isEmptyObject(item_row))
 
-			console.log(item)
-			console.log('args',args.item["uom"])
-			li.push({"item_name":item_row.item_name,
-					"amount":item_row.amount,
-					"qty":item_row.qty,
-					"item_code":item_row.item_code,
-					"rate":item_row.rate,
-					'income_account':item_row.income_account,
-					'uom':args.item["uom"],
-					'conversion_factor': item_row.conversion_factor
-				})
-			console.log('SSSSSSSSSSSSSSSSSSSss',args)
-			mylist.push(item.item_code,item.rate)
-			// console.log(m)
-
-
-			const from_selector = field === 'qty' && value === "+1";
+			const from_selector = field === 'qty' && value === "1";
 			if (from_selector)
 				value = flt(value);
+				// console.log("")
 
-			if (item_row_exists) {
-				console.log("&&&&&&&&&&&&&&&&&&**************",from_selector)
-				if (field === 'qty')
-					value = flt(value);
-					console.log("9242&&&&&&&&&&&&^^^^^^^^^^^^^^^^^ if condtition 1281",value)
-				
+			// if (item_row_exists) {
+			// 	//console.log("item row exists-----------------------",item_row)
+			// 	if (field === 'qty')
+			// 		value = flt(value);
 
-				if (['qty', 'conversion_factor'].includes(field) && value > 0 && !this.allow_negative_stock) {
-					
-					const qty_needed = field === 'qty' ? value * item_row.conversion_factor : item_row.qty * value;
-					console.log("2nd if condition&&&&&&&&&&&&&&&&&&&&&7",value)
-					await this.check_stock_availability(item_row, qty_needed, this.frm.doc.set_warehouse);
-				}
+			// 	if (['qty', 'conversion_factor'].includes(field) && value > 0 && !this.allow_negative_stock) {
+			// 		const qty_needed = field === 'qty' ? value * item_row.conversion_factor : item_row.qty * value;
+			// 		await this.check_stock_availability(item_row, qty_needed, this.frm.doc.set_warehouse);
+			// 	}
 
-				if (this.is_current_item_being_edited(item_row) || from_selector) {
-					console.log("3rd if condition&&&&&&&&&&&&&&&&&&&&&7",item_row)
-					await frappe.model.set_value(item_row.doctype, item_row.name, field, value);
-					this.update_cart_html(item_row);
-				}
+			// 	if (this.is_current_item_being_edited(item_row) || from_selector) {
+			// 		await frappe.model.set_value(item_row.doctype, item_row.name, field, value);
+			// 		this.update_cart_html(item_row);
+			// 	}
 
-			} else {
-				console.log("else block nov 8 7&&&&&*********************")
+			// } else {
+				//console.log("item row exists----------------------- not",item_row)
 				if (!this.frm.doc.customer)
 					return this.raise_customer_selection_alert();
 
-				const { item_code, batch_no, serial_no, rate , uom,barcode } = item;
-
-				console.log("else block nov 8 7&&&&&*********************",item)
+				const { item_code, batch_no, serial_no, rate , barcode } = item;
 
 				if (!item_code)
 					return;
 
-				const new_item = { item_code, batch_no, rate, uom,barcode,[field]: value };
-
-				
+				const new_item = { item_code, batch_no, rate, barcode,[field]: value };
+				console.log("new item",new_item)
 
 				if (serial_no) {
 					await this.check_serial_no_availablilty(item_code, this.frm.doc.set_warehouse, serial_no);
@@ -1315,33 +1289,24 @@ erpnext.PointOfSale.Controller = class {
 
 				if (field === 'serial_no')
 					new_item['qty'] = value.split(`\n`).length || 0;
-				
-				
-					
+				console.log("new_item qty check-------------",new_item['qty'])
+				item_row = this.frm.add_child('items',new_item);
+				// item_row.item_code = item_code
+				// item_row.batch_no = batch_no
+				// item_row.rate = rate
+				// item_row.barcode = barcode
 
-				item_row = this.frm.add_child('items', new_item);
-				console.log("item_row************((((((((((((((()))))))))))))))))))))",new_item)
-				console.log("item_row************((((((((((((((()))))))))))))))))))))",item_row)
-
-				// if(uom){
-				// 	console.log("uom change&&&&&&&&&&&&&&&&&&&&&&",uom ,args.item['uom'])
-				// 	// for(var key in item_row){
-				// 	// 	console.log("key&&&&&&&&&&&&&&*************8",key)
-				// 	// 	if(key == "uom"){
-				// 	// 		item_row[key] = args.item['uom']
-				// 	// 	}
-				// 	// }
-				// 	item_row['uom2'] = args.item['uom']
-				// 	console.log("item_row************((((((((((((((())))))))))))))))))))) changes",item_row)
-				// }
+				// item_row.qty = flt(value)
+				// this.frm.refresh_fields("items")
+				console.log("barcode value while adding***********&&&&&&&&&&&",barcode)
+				// this.frm.save()
 
 				
-
+				
+				// console.log("item_row",this.frm.docname)
 
 				if (field === 'qty' && value !== 0 && !this.allow_negative_stock)
 					await this.check_stock_availability(item_row, value, this.frm.doc.set_warehouse);
-				
-				
 
 				await this.trigger_new_item_events(item_row);
 
@@ -1352,21 +1317,10 @@ erpnext.PointOfSale.Controller = class {
 
 				if (this.check_serial_batch_selection_needed(item_row) && !this.item_details.$component.is(':visible'))
 					this.edit_item_details_of(item_row);
-			}
-
-			// this.save_draft_invoice();
-			// this.add_item();
-			console.log('###############')
-			// this.getItem(li);
-			// var func = this.myfunction(mylist);
-			// this.getItem(li);
-			// // var func = this.
-			this.myfunction(mylist);
-			
-
+			// }
 
 		} catch (error) {
-			console.log(error);
+			//console.log(error);
 		} finally {
 			frappe.dom.unfreeze();
 			return item_row;
@@ -1382,16 +1336,22 @@ erpnext.PointOfSale.Controller = class {
 		frappe.utils.play_sound("error");
 	}
 
-	get_item_from_frm({ name, item_code, batch_no, uom, rate }) {
-		console.log("9242*&&&*&*&*&*********************************",this.frm.doc.items.find(i => i.name == name))
-		let item_row = null;
-		if (name) {
+	get_item_from_frm({ name, item_code, batch_no, uom, rate ,barcode }) {
+		console.log("9242*&&&*&*&*&*********************************",{ name, item_code, batch_no, uom, rate ,barcode })
+		let item_row = this.frm.doc.items;
+		if (barcode) {
 			
-			item_row = this.frm.doc.items.find(i => i.name == name);
-			console.log("%%%%%%%%%%%%%%%%%%%%^^^^^^^^^^^^^^^^^^^^^^^",item_row)
+			item_row = this.frm.doc.items.find(i => barcode == i.barcode);
+			console.log("%%%%%%%%%%%%%%%%%%%%^^^^^^^^^^^^^^^^^^^^^^^",item_row,barcode)
 
 			
-		} else {
+		} else if(name)
+		{
+			console.log("else if condition 8888888888888888888888888888888",name)
+			item_row = this.frm.doc.items.find(i => i.name == name);
+		}
+		
+		else {
 			
 			// if item is clicked twice from item selector
 			// then "item_code, batch_no, uom, rate" will help in getting the exact item
@@ -1400,15 +1360,12 @@ erpnext.PointOfSale.Controller = class {
 
 			item_row = this.frm.doc.items.find(
 				i => i.item_code === item_code
-					&& (!has_batch_no || (has_batch_no && i.batch_no === batch_no))
-					&& (i.uom === uom)
-					&& (i.rate == rate)
 			);
 			console.log("9242*&&&*&*&*&*********************************before_return",item_row)
-			// console.log("9242*&&&*&*&*&**************33333333333 1367",this.doc.frm.doc.items)
+			// //console.log("9242*&&&*&*&*&**************33333333333 1367",this.doc.frm.doc.items)
 		}
 
-		
+		//console.log("item row0----------------------------------------------------",item_row)
 		return item_row || {};
 	}
 
@@ -1421,7 +1378,7 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	update_cart_html(item_row, remove_item) {
-		console.log("******************************************update_cart_html",this.frm)
+		//console.log("******************************************update_cart_html",this.frm)
 		this.cart.update_item_html(item_row, remove_item);
 		this.cart.update_totals_section(this.frm);
 	}
@@ -1442,8 +1399,10 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	async trigger_new_item_events(item_row) {
-		await this.frm.script_manager.trigger('item_code', item_row.doctype, item_row.name);
-		await this.frm.script_manager.trigger('qty', item_row.doctype, item_row.name);
+		await this.frm.script_manager.trigger('barcode', item_row.doctype, item_row.name);
+		// await this.frm.script_manager.trigger('item_code', item_row.doctype, item_row.name);
+		// await this.frm.script_manager.trigger('qty', item_row.doctype, item_row.name);
+		
 	}
 
 	async check_stock_availability(item_row, qty_needed, warehouse) {
@@ -1521,13 +1480,13 @@ erpnext.PointOfSale.Controller = class {
 
 		// new code Start for GH customization #PRE00715
 		let me = this
-		console.log("9242*********************8pp",me.company)
+		//console.log("9242*********************8pp",me.company)
 		let users = []
 
 		frappe.db.get_doc("Company",me.company).then(pos_sp => {
-			console.log("9242 in POS2***************************",pos_sp)
+			//console.log("9242 in POS2***************************",pos_sp)
 			for (var key in pos_sp.pos_profile_supervisor){
-				console.log("9242 in POS***************************",)
+				//console.log("9242 in POS***************************",)
 				users.push(pos_sp.pos_profile_supervisor[key]["user"])
 
 			}
@@ -1598,7 +1557,7 @@ erpnext.PointOfSale.Controller = class {
 		// new doc end
 
 		// frappe.dom.freeze();
-		// console.log(" this is item_details ", this.item_details)
+		// //console.log(" this is item_details ", this.item_details)
 		// const { doctype, name, current_item } = this.item_details;
 
 		// return frappe.model.set_value(doctype, name, 'qty', 0)
@@ -1608,14 +1567,14 @@ erpnext.PointOfSale.Controller = class {
 		// 		this.item_details.toggle_item_details_section(null);
 		// 		frappe.dom.unfreeze();
 		// 	})
-		// 	.catch(e => console.log(e));
+		// 	.catch(e => //console.log(e));
 	}
 
 	async save_and_checkout() {
 		if (this.frm.is_dirty()) {
 			// let me = this;
 			const doc = this.frm.doc
-			console.log("&&&&&&&&&&&&&&&&&&&*************** line 1581",this.frm.doc.items)
+			//console.log("&&&&&&&&&&&&&&&&&&&*************** line 1581",this.frm.doc.items)
 			frappe.call({
 				method:"grandhyper.update_pos_invoice.update_invoice",
 				args:{
@@ -1624,11 +1583,11 @@ erpnext.PointOfSale.Controller = class {
 				callback:function(r){
 					if (r.message){
 						
-						console.log("&&&&&&&&&&&&&&&&&&*********************",r.message)
-						console.log("&&&&&&&&&&&&&&&&&&*********************",doc.items.length)
+						//console.log("&&&&&&&&&&&&&&&&&&*********************",r.message)
+						//console.log("&&&&&&&&&&&&&&&&&&*********************",doc.items.length)
 						doc.items.length = 0
 						doc.items = r.message
-						console.log("***********************************************8",doc.items.length)
+						//console.log("***********************************************8",doc.items.length)
 
 						
 					}
@@ -1649,10 +1608,10 @@ erpnext.PointOfSale.Controller = class {
 
 	
 	myfunction(name){
-		console.log("9242*******************8980808080*",this.pos_profile)
+		//console.log("9242*******************8980808080*",this.pos_profile)
 		var b = this.pos_profile;
 		var a=this.cart.update_totals_section(this.frm)
-		console.log("9242*******************8980808080*",a)
+		//console.log("9242*******************8980808080*",a)
 		frappe.call({
 			method: "erpnext.selling.page.point_of_sale.pos.pole_display",
 			args:{
@@ -1689,13 +1648,13 @@ erpnext.PointOfSale.Controller = class {
 
 	// getScreenDetails(){
 	// 	const screenDetails = window.getScreenDetails();
-	// 	console.log(screenDetails)
-	// 	console.log(window.location)
+	// 	//console.log(screenDetails)
+	// 	//console.log(window.location)
 
 	// 	var url = window.location.href
 	// 	var arr = url.split("/");
 	// 	var result = arr[0] + "//" + arr[2] + '/' + 'app' + '/'  + 'pos-display-cart'
-	// 	console.log(result)
+	// 	//console.log(result)
 
 	// 	const popup = window.open(
 	// 		result,
@@ -1709,7 +1668,7 @@ erpnext.PointOfSale.Controller = class {
 
 	// getItem(data){
 	// 	var a=this.pos_profile
-	// 	console.log('QQQQQQQQQQQQ',data)
+	// 	//console.log('QQQQQQQQQQQQ',data)
 	// 	frappe.call({
 	// 		method: "grandhyper.grandhyper.doctype.temporary_cart.temporary_cart.item",
 	// 		args:{
@@ -1719,7 +1678,7 @@ erpnext.PointOfSale.Controller = class {
 	// 		},
 			
     //     });
-	// 	console.log('@@@@@@@@@@@current page',cur_page)
+	// 	//console.log('@@@@@@@@@@@current page',cur_page)
 	// 	};	
 
 	add_item(){
