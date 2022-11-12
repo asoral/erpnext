@@ -1251,7 +1251,7 @@ erpnext.PointOfSale.Controller = class {
 
 			const from_selector = field === 'qty' && value === "1";
 			if (from_selector)
-				value = flt(value);
+				value =  flt(value);
 				// console.log("")
 
 			// if (item_row_exists) {
@@ -1289,7 +1289,7 @@ erpnext.PointOfSale.Controller = class {
 
 				if (field === 'serial_no')
 					new_item['qty'] = value.split(`\n`).length || 0;
-				console.log("new_item qty check-------------",new_item['qty'])
+				console.log("new_item qty check-------------",new_item)
 				item_row = this.frm.add_child('items',new_item);
 				// item_row.item_code = item_code
 				// item_row.batch_no = batch_no
@@ -1298,7 +1298,8 @@ erpnext.PointOfSale.Controller = class {
 
 				// item_row.qty = flt(value)
 				// this.frm.refresh_fields("items")
-				console.log("barcode value while adding***********&&&&&&&&&&&",barcode)
+				console.log("barcode value while adding***********&&&&&&&&&&&",new_item)
+				console.log("barcode value while adding***********&&&&&&&&&&&",item_row)
 				// this.frm.save()
 
 				
@@ -1338,14 +1339,9 @@ erpnext.PointOfSale.Controller = class {
 
 	get_item_from_frm({ name, item_code, batch_no, uom, rate ,barcode }) {
 		console.log("9242*&&&*&*&*&*********************************",{ name, item_code, batch_no, uom, rate ,barcode })
-		let item_row = this.frm.doc.items;
-		if (barcode) {
+		let item_row = null;
 			
-			item_row = this.frm.doc.items.find(i => barcode == i.barcode);
-			console.log("%%%%%%%%%%%%%%%%%%%%^^^^^^^^^^^^^^^^^^^^^^^",item_row,barcode)
-
-			
-		} else if(name)
+		if(name)
 		{
 			console.log("else if condition 8888888888888888888888888888888",name)
 			item_row = this.frm.doc.items.find(i => i.name == name);
@@ -1378,7 +1374,7 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	update_cart_html(item_row, remove_item) {
-		//console.log("******************************************update_cart_html",this.frm)
+		console.log("******************************************update_cart_html",item_row)
 		this.cart.update_item_html(item_row, remove_item);
 		this.cart.update_totals_section(this.frm);
 	}
@@ -1399,9 +1395,17 @@ erpnext.PointOfSale.Controller = class {
 	}
 
 	async trigger_new_item_events(item_row) {
-		await this.frm.script_manager.trigger('barcode', item_row.doctype, item_row.name);
-		// await this.frm.script_manager.trigger('item_code', item_row.doctype, item_row.name);
-		// await this.frm.script_manager.trigger('qty', item_row.doctype, item_row.name);
+		if(item_row.barcode){
+			await this.frm.script_manager.trigger('barcode', item_row.doctype, item_row.name);
+
+		}
+		else{
+		await this.frm.script_manager.trigger('item_code', item_row.doctype, item_row.name);
+		await this.frm.script_manager.trigger('qty', item_row.doctype, item_row.name);
+
+		}
+		
+		
 		
 	}
 

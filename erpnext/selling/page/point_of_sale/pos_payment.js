@@ -893,6 +893,7 @@ erpnext.PointOfSale.Payment = class {
 									});
 									window.location.reload()
 								}
+								
 								// frappe.ui.form.qz_connect()
 								// .then(function () {
 								// 	var config = qz.configs.create("POS-80")

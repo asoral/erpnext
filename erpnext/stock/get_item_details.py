@@ -53,9 +53,34 @@ def get_item_details(args, doc=None, for_validate=False, overwrite_warehouse=Tru
 	# 	args.update({
 
 	# 	})
+	if args.company:
+		company = frappe.get_doc("Company",args.company)
+		# country = company.country
+	if args.barcode:
+		country_wise_barcode_data = frappe.db.get_all("Item Barcode",{"barcode":args.barcode},["barcode", "parent as item_code","country"])
+		print("country_wise barcode data---------------",country_wise_barcode_data)
+		if country_wise_barcode_data:
+			if len(country_wise_barcode_data) > 1:
+				for i in country_wise_barcode_data:
+					print("i*****&&&&&&&&&&&",i["country"])
+					if i["country"] == company.country:
+						print("&&&&&&&&&&&&&&&&&&&&&&&&***********************99999999900000000000000",i["barcode"],i["item_code"])
+						args.update({
+							"item_code":i["item_code"]
+						})
+			elif len(country_wise_barcode_data) == 1:
+				for i in country_wise_barcode_data:
+						args.update({
+							"item_code":i.get("item_code")
+						})
+
+		
+
+		
 	for_validate = process_string_args(for_validate)
 	overwrite_warehouse = process_string_args(overwrite_warehouse)
 	item = frappe.get_cached_doc("Item", args.item_code)
+	print("items**************************&&&&&&&&&&&&&&&&&&&&&",item)
 	validate_item_details(args, item)
 
 	out = get_basic_details(args, item, overwrite_warehouse)
@@ -187,12 +212,14 @@ def get_item_code(barcode=None, serial_no=None):
 		item_code = frappe.db.get_value("Item Barcode", {"barcode": barcode}, fieldname=["parent"])
 		if not item_code:
 			frappe.throw(_("No Item with Barcode {0}").format(barcode))
+		return item_code
+
 	elif serial_no:
 		item_code = frappe.db.get_value("Serial No", serial_no, "item_code")
 		if not item_code:
 			frappe.throw(_("No Item with Serial No {0}").format(serial_no))
 
-	return item_code
+		return item_code
 
 
 def validate_item_details(args, item):
@@ -290,6 +317,7 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 			barcode_uom = frappe.db.get_value("Item Barcode",{'barcode':args.get("barcode")},['posa_uom'])
 			print("barcode_uom&&&&&&&&&&&&&&&&&&&&&&&&",barcode_uom,args.get("barcode"))
 			if barcode_uom:
+
 				args.uom = barcode_uom
 			else:
 				args.uom = item.sales_uom if item.sales_uom else item.stock_uom

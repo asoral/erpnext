@@ -105,6 +105,7 @@ class Item(WebsiteGenerator):
 		self.update_bom_item_desc()
 		self.synced_with_hub = 0
 
+
 		self.validate_has_variants()
 		self.validate_attributes_in_variants()
 		self.validate_stock_exists_for_template_item()

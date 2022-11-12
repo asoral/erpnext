@@ -155,12 +155,7 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 	return {"items": result}
 
 
-@frappe.whitelist()
-def search_for_serial_or_batch_or_barcode_number(search_value,country):
-	# search barcode no
-	barcode_data = frappe.db.get_value(
-		"Item Barcode", {"barcode": search_value}, ["barcode", "parent as item_code"], as_dict=True
-	)
+def country_wise_barcode_data(search_value,country)
 	country_wise_barcode_data = frappe.db.get_all("Item Barcode",{"barcode":search_value},["barcode", "parent as item_code","country"])
 	print("country_wise barcode data---------------",country_wise_barcode_data)
 	if country_wise_barcode_data:
@@ -174,9 +169,17 @@ def search_for_serial_or_batch_or_barcode_number(search_value,country):
 			for i in country_wise_barcode_data:
 					return {"barcode":i.get("barcode"),"item_code":i.get("item_code")}
 
-	# if barcode_data:
+
+
+@frappe.whitelist()
+def search_for_serial_or_batch_or_barcode_number(search_value,country):
+	# search barcode no
+	barcode_data = country_wise_barcode_data(search_value,country)
+	
+
+	if barcode_data:
 	# 	print("&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^^^^^^^^^^barcode_data",barcode_data)
-	# 	return barcode_data
+		return barcode_data
 	
 	
 

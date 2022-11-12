@@ -148,7 +148,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				data-item-code="${escape(item.item_code)}" data-serial-no="${escape(serial_no)}"
 				data-batch-no="${escape(batch_no)}" data-uom="${escape(stock_uom)}"
 				data-rate="${escape(price_list_rate || 0)}"
-				data-barcode="${escape(barcode || 0)}"
+				data-barcode="${escape(barcode|| "")}"
 				title="${item.item_name}">
 
 				${get_item_image_html()}
@@ -210,7 +210,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				data-item-code="${escape(item.item_code)}" data-serial-no="${escape(serial_no)}"
 				data-batch-no="${escape(batch_no)}" data-uom="${escape(uom2)}"
 				data-rate="${escape(price_list_rate || 0)}"
-				data-barcode = "${escape(barcode || 0)}
+				data-barcode = "${escape(barcode)}
 				title="${item.item_name}">
 
 				${get_item_image_html()}
@@ -400,15 +400,30 @@ erpnext.PointOfSale.ItemSelector = class {
 			uom = uom === "undefined" ? undefined : uom;
 			rate = rate === "undefined" ? undefined : rate;
 			let qty = 1
-			barcode = barcode === "undefined" ? undefined : barcode;
+			// barcode = barcode === "undefined" ? undefined : barcode;
 
+			if(barcode){
+				console.log("with barcode&&&&&&&&&&&&&&&&&&&&&&&&",barcode)
+				me.events.item_selected({
+					field: 'qty',
+					value: "+1",
+					item: { item_code, batch_no, serial_no, rate  , uom ,barcode  }
+				
+				});
 
-			me.events.item_selected({
-				field: 'qty',
-				value: "+1",
-				item: { item_code, batch_no, serial_no, rate  , uom , barcode }
+			}
+			else{
+				console.log("without barcode&&&&&&&&&&&&&&&&&&&&&&&&")
+				me.events.item_selected({
+					field: 'qty',
+					value: "+1",
+					item: { item_code, batch_no, serial_no, rate  , uom   }
+				
+				});
+
+			}
+
 			
-			});
 
 			
 
