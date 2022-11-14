@@ -406,7 +406,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				console.log("with barcode&&&&&&&&&&&&&&&&&&&&&&&&",barcode)
 				me.events.item_selected({
 					field: 'qty',
-					value: "+1",
+					value: "1",
 					item: { item_code, batch_no, serial_no, rate  , uom ,barcode  }
 				
 				});
@@ -416,7 +416,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				console.log("without barcode&&&&&&&&&&&&&&&&&&&&&&&&")
 				me.events.item_selected({
 					field: 'qty',
-					value: "+1",
+					value: "1",
 					item: { item_code, batch_no, serial_no, rate  , uom   }
 				
 				});
