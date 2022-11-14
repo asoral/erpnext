@@ -884,26 +884,34 @@ erpnext.PointOfSale.Payment = class {
 								
 							},
 							callback:function(r){
-								if (r.message == "reload"){
+								if (r.message){
 									frappe.call({
 										method: "erpnext.selling.page.point_of_sale.pos.pole_clear",
 										args:{
 										"pos_profile":pos
 									}
 									});
-									window.location.reload()
+									
+																// window.location.reload()
 								}
 								
-								// frappe.ui.form.qz_connect()
-								// .then(function () {
-								// 	var config = qz.configs.create("POS-80")
-								// 	// window.location.reload()
-								// 	return qz.print(config, [r.message]);
-								// })
-								// .then(frappe.ui.form.qz_success)
-								// .catch(err => {
-								// 	frappe.ui.form.qz_fail(err);
-								// });
+								frappe.ui.form.qz_connect()
+								.then(function () {
+									console.log("r.message",typeof r.message)
+									var config = qz.configs.create("Epson-TM-BA-Thermal")
+									// window.location.reload()
+									var data = [{
+										type: 'pixel',
+										format: 'html',
+										flavor: 'plain', // or 'plain' if the data is raw HTML
+										data: r.message
+									 }];
+									return qz.print(config, data);
+								})
+								.then(frappe.ui.form.qz_success)
+								.catch(err => {
+									frappe.ui.form.qz_fail(err);
+								});
 
 								
 	
@@ -1033,6 +1041,10 @@ erpnext.PointOfSale.Payment = class {
 						if(currency.type != "Cash"){
 							d.set_df_property('txn_id','hidden','0')
 							d.set_df_property('txn_id','reqd','1')
+						}
+						else{
+							d.set_df_property('txn_id','hidden','1')
+							d.set_df_property('txn_id','reqd','0')
 						}
 						
 						
