@@ -155,7 +155,7 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 	return {"items": result}
 
 
-def country_wise_barcode_data(search_value,country)
+def country_wise_barcode_data(search_value,country=None):
 	country_wise_barcode_data = frappe.db.get_all("Item Barcode",{"barcode":search_value},["barcode", "parent as item_code","country"])
 	print("country_wise barcode data---------------",country_wise_barcode_data)
 	if country_wise_barcode_data:
