@@ -23,7 +23,7 @@ def row_wise_loyalty_point(name):
 				excluded_items.append(ex.get("item"))
 			if ex.get("item_group"):
 				parent_ig = frappe.get_doc("Item Group",ex.get("item_group")) 
-				child_ig = frappe.db.get_all("Item Groups",{'lft':[">",parent_ig.get("lft")],'rgt':['<',parent_ig.get("rgt")]},['name'])
+				child_ig = frappe.db.get_all("Item Group",{'lft':[">",parent_ig.get("lft")],'rgt':['<',parent_ig.get("rgt")]},['name'])
 				if child_ig:
 					for all in child_ig:
 						excluded_item_groups.append(all.name)
