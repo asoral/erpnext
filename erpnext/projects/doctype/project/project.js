@@ -158,3 +158,43 @@ function open_form(frm, doctype, child_doctype, parentfield) {
 	});
 
 }
+
+frappe.ui.form.on("Site",{
+	create_walkthough:function(frm,cdt,cdn){
+		let c = locals[cdt][cdn]
+		// let a = frm.add_child("site_walkthrough");
+		// console.log("JJJJJJJJJJJJJJJJJJJJJJJJJ",c)
+		// a.site_name = c.full_name
+		// a.walkthrough_id = r.message[0]
+		// a.walkthrough_name=r.message[1]
+		// cur_frm.refresh_field("site_walkthrough")
+	
+		frappe.call({
+			method:"reuzeit.reuzeit.doctype.walkthrough_details.walkthrough_details.create_data",
+			args:{
+				name:cur_frm.docname
+			},
+			callback:function(r){
+				// frappe.set_route("Form", "Walkthrough",)
+				// let a = frm.add_child("site_walkthrough");
+				// console.log("JJJJJJJJJJJJJJJJJJJJJJJJJ",c.full_name)
+				// a.site_name =c.full_name
+				// a.walkthrough_id = r.message[0]
+				// a.walkthrough_name=r.message[1]
+				// cur_frm.refresh_field("site_walkthrough")
+				frappe.new_doc('Walkthrough', {"project": cur_frm.docname,"posting_date":"13-11-2022"});
+				// console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!",p)
+				// frappe.new_doc({ 
+				// 	"doctype": "Walkthrough",
+				// 	"project": cur_frm.docname, 
+				// 	// "first_name": d.first_name, 
+				// 	// "last_name": d.last_name, 
+				// 	// "gender": d.gender, 
+				// 	// "email_id": d.email_id 
+				// });
+	
+			}
+		})
+
+	}
+})
