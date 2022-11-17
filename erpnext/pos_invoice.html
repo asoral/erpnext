@@ -1,0 +1,225 @@
+<html>
+    <head>
+        <style>
+            .amount_table{
+            border-bottom:1px solid;
+            font-size:12;
+           }
+           
+           .receipt_number{
+                border-bottom:1px solid;
+           }
+           .receipt_number1{
+                border-bottom:1px solid;
+                font-size:12;
+           }
+           .tax{
+                border-bottom:1px solid;
+           }
+           .thank_you{
+               border-bottom:1px solid;
+               font-size:12;
+           }
+           .terms{
+                border-bottom:1px solid;
+                font-size:12;
+           }
+           .offer{
+                font-size:10;
+                 
+           
+           }
+           .tax_table{
+                font-size:11;
+           }
+           
+           .barcode{
+             /*grid-area: barcode;*/
+             align-self: center;
+           }
+           
+           .offer1{
+               font-size:14;
+               border-top:1px solid;
+               font-style:italic;
+               overflow: visible; 
+                border-bottom:1px solid;
+           }
+        
+           .print-format table, .print-format tr, 
+            .print-format td, .print-format div, .print-format p {
+                line-height: 150%;
+                vertical-align: middle;
+            }
+            @media screen {
+                .print-format {
+                    width: 4in;
+                    padding: 0.25in;
+                    min-height: 8in;
+                }
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div align ='center'>
+            {% if letter_head %}
+            {{ letter_head }}
+            {% endif %}
+            <b>
+                <p>{{doc.group_company}}</p>
+                <p>VATIN#{{doc.company_trn}}</p>
+                <p>CR#1108111</p>
+                <p>(A Division Of Regency Group)</p>
+                <p>Tel:{{doc.company_phone}} Fax:{{doc.company_fax}}</p>
+                <p>جراند هايبرماركت&nbsp;</p>
+        <p>سلطنة عمان</p>
+        <p>س.ت. 1108111</p>
+        <p>شركة ريجنسي الدولية ش م م</p>
+        <p>فاتورة ضربية مبسطة</p>
+            </b>
+        </div>
+        
+        <div align='center'> 
+            <h2>
+                <b>SIMPLIFIED TAX INVOICE</b>
+            </h2>
+        </div>
+        
+        <div class="receipt_number">
+        <table>
+            <tbody>
+                <tr>
+                    <td style="height:10px; width:73px">
+                    <p><span style="font-size:15px"><span >Location:</span></span></p>
+                    <p><span style="font-size:15px"><span>Receipt:</span></span></p>
+                    <p><span style="font-size:15px"><span>Cashier:</span></span></p>
+                    </td>
+                    <td style="height:10px; width:517px">
+                    <p><span style="font-size:15px"><span>{{doc.location_id}}</span></span></p>
+                    <p><span style="font-size:15px"><span >{{doc.name}}</span></span></p>
+                    <p><span style="font-size:15px"><span >{{doc.owner}}</span></span></p>
+                    </td>
+                    <td style="height:10px; width:73px">
+                    <p><span style="font-size:15px"><span >Date:</span></span></p>
+                    <p><span style="font-size:15px"><span >Time:</span></span></p>
+                    <p><span style="font-size:15px"><span >POS:</span></span></p>
+                    </td>
+                    <td style="height:10px; width:517px">
+                    <p><span style="font-size:15px"><span >{{ doc.posting_date }}</span></span></p>
+                    <p><span style="font-size:15px"><span >{{doc.posting_time}}</span></span></p>
+                    <p><span style="font-size:15px"><span >{{doc.pos_profile}}</span></span></p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        
+        </div>
+        
+        <div class='tax'>
+            <table border='0'>
+            
+                <tr class='amount_table'>
+                    <td  borger='1'><b>{{ _("Description") }}</b></td>
+                    <td class="text-right"><b>{{ _("Qty") }}</b></td>
+                    <td class="text-right"><b>{{ _("Rate") }}</b></td>
+                    <td width="15%" class="text-right"><b>{{ _("Excl. VAT") }}</b></td>
+                    <td width="15%" class="text-right"><b>{{ _("VAT") }}</b></td>
+                    <td class="text-right"><b>{{ _("Total") }}</b></td> 
+                </tr>
+                {% for item in items %}
+                 <tr class='amount_table'>
+                        <td >{{item.item_name}}</td>
+                        <td align='right'>{{item.qty}}</td>
+                        <td align='right'>{{item.rate}}</td>
+                        <td align='right'>{{item.amount}}</td>
+                      {% set t_rate = frappe.db.get_value("Item Tax Template Detail", {"parent": item.item_tax_template}, ["tax_rate"])  %}
+                      {% if t_rate %}
+                      {% set gst = (item.amount*t_rate)/100 %}
+        
+                        <td align='right'>{{ frappe.format_value(gst, {'fieldtype': 'Currency', 'options': doc.currency}, doc) }}</td>
+                {% else %}
+                <td></td>
+                {% endif %}
+                {% if t_rate %}
+                          {% set total = item.amount+(item.amount*t_rate)/100 %}
+                        <td align='right'>{{ frappe.format_value(total, {'fieldtype': 'Currency', 'options': doc.currency}, doc) }}</td>
+                {% else %}
+                  <td align='right'>{{item.amount}}</td>
+                  {% endif %}
+                </tr>
+                
+                {% endfor %}
+            </table>
+            <div>
+                <table class="tax_table">
+                    <tr>
+                        <td class="text-right"><b>Tax ID</b></td>
+                        <td class="text-right"><b>Bef. VAT</b></td>
+                        <td class="text-right"><b>Tax Amt.</b></td>
+                        <td class="text-right"><b>Total</b></td>
+                        
+                    </tr>
+                    <tr>
+                        <td >{{'5%'}}</td>
+                        <td >{{doc.total}}</td>
+                        <td >{{doc.total_taxes_and_charges}}</td>
+                        <td >{{doc.grand_total}}</td>
+                    </tr>
+                </table>
+            </div>
+            
+        </div>
+        <br>
+        
+        <div align='center' class="thank_you">
+                <p>{{doc.invoice_barcode}}</p>
+                <p>THANK YOU FOR SHOPING WITH US</p>
+                <p>KEEP THE INVOICE FOR ANY EXCHANGE WITHIN 24 HRS</p>
+                <p>NO EXCHANGE ON ELECTRONIC AND LINGERIES</p>
+                <p>شكرًا لك على التسوق معنا</p>
+                <p>احتفظ بالفاتورة لأي عملية صرف في غضون 24 ساعة</p>
+                <p>لا يوجد تبادل في اللغات الإلكترونية واللغات</p>
+            
+            <br>
+        </div>
+        <br>
+        <div align='center' class='terms'>
+            
+                <p>Terms and conditions apply Grand Me cash back of this purchase will be credited to your grand me account with in 24 hours.</p>
+                <p>تطبق الشروط والأحكام ، ستتم إضافة المبالغ المستردة النقدية من Grand Me لعملية الشراء هذه إلى حساب Grand Me الخاص بك في غضون 24 ساعة.</p>
+            
+            <br>
+        </div>
+        <br>
+        <div align='center' class='offer'>
+                <p>To get our offers and promotions in your whatsapp,please save +9745851142 and send a 'Hi' </p>
+                <p>للحصول على عروضنا وعروضنا الترويجية في الواتساب الخاص بك ، يرجى حفظ +9745851142 وإرسال كلمة "مرحبًا"</p>
+            </div>
+        <br>
+        <div align='center' class='offer1'>
+            <b>
+            {% set comp = frappe.get_doc("POS Settings")  %}
+                {% for comp_f in comp.offers %}
+                {% if doc.company == comp_f.company %}
+        
+            {% if comp_f.offer %}
+          <p>{{comp_f.offer}}</p>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+            </b>
+        
+            <b>
+            {% set offer = frappe.db.get_value("POS Profile", {"name": doc.pos_profile} , ["offers"])  %}
+                {% if offer %}
+          <p>{{offer}}</p>
+                {% endif %}
+          
+            </b>
+        </div>
+    </body>
+    
+    
+</html>

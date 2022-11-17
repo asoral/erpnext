@@ -327,7 +327,9 @@ def get_pricing_rule_for_item(args, price_list_rate=0, doc=None, for_validate=Fa
 	pricing_rules = (
 		get_applied_pricing_rules(args.get("pricing_rules"))
 		if for_validate and args.get("pricing_rules")
+		
 		else get_pricing_rules(args, doc)
+		# print("nanc************")
 	)
 
 	if pricing_rules:
@@ -456,6 +458,7 @@ def apply_price_discount_rule(pricing_rule, item_details, args):
 
 		# TODO https://github.com/frappe/erpnext/pull/23636 solve this in some other way.
 		if pricing_rule_rate:
+			print("pricing_rule_rate",pricing_rule_rate)
 			is_blank_uom = pricing_rule.get("uom") != args.get("uom")
 			# Override already set price list rate (from item price)
 			# if pricing_rule_rate > 0
@@ -463,6 +466,7 @@ def apply_price_discount_rule(pricing_rule, item_details, args):
 				{
 					"price_list_rate": pricing_rule_rate
 					* (args.get("conversion_factor", 1) if is_blank_uom else 1),
+					
 				}
 			)
 		item_details.update({"discount_percentage": 0.0})
@@ -472,14 +476,20 @@ def apply_price_discount_rule(pricing_rule, item_details, args):
 			continue
 
 		field = frappe.scrub(apply_on)
-		if pricing_rule.apply_discount_on_rate and item_details.get("discount_percentage"):
+		# print("item_details********&&&&&&&&&&&&&&",item_details)
+		if pricing_rule.apply_discount_on_rate and item_details.get("discount_percentage") and pricing_rule.auto_apply == 1:
 			# Apply discount on discounted rate
+			
 			item_details[field] += (100 - item_details[field]) * (pricing_rule.get(field, 0) / 100)
 		else:
+			
 			if field not in item_details:
 				item_details.setdefault(field, 0)
+				# print("item_details********&&&&&&&&&&&&&&",pricing_rule.get(field, 0),args.get(field, 0))
+			if pricing_rule.auto_apply == 1:
+				item_details[field] += pricing_rule.get(field, 0) if pricing_rule else args.get(field, 0)
+				# print("item_details********&&&&&&&&&&&&&& after edit",args)
 
-			item_details[field] += pricing_rule.get(field, 0) if pricing_rule else args.get(field, 0)
 
 
 def remove_pricing_rule_for_item(pricing_rules, item_details, item_code=None, rate=None):

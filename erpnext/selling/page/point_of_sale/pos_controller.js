@@ -634,6 +634,7 @@ erpnext.PointOfSale.Controller = class {
 		this.prepare_menu();
 		this.make_new_invoice();
 		this.open_cash_drawer();
+		this.price_checker();
 	}
 
 	prepare_dom() {
@@ -858,6 +859,154 @@ erpnext.PointOfSale.Controller = class {
 		d.show();			
 		}).addClass("btn-warning").css({'color':'#FFFFFF','font-weight': 'bold','background-color':'#0096FF'})
 	}
+
+	
+
+
+
+	price_checker(){
+		this.page.add_inner_button(('Price Checker'),()=>{
+
+			frappe.db.get_doc("POS Profile",this.pos_profile).then(pp => {
+				if(pp.country){
+					d.fields_dict.country.set_value(pp.country)
+				}
+			})
+
+			
+			
+		const d = new frappe.ui.Dialog({
+			title: __("Price Checker"),
+			fields: [
+				{
+					label : "Barcode",
+					fieldname: "barcode",
+					fieldtype: "Data",
+					// onchange: () => fetch()
+				},
+				{
+					fieldtype: 'Section Break'
+				},
+
+				{
+					label: "Item Details",
+					fieldname: "item_details",
+					fieldtype: "HTML"
+				},
+				{
+					label: "Country",
+					fieldname: "country",
+					fieldtype: "Data",
+					hidden:1
+				}
+				
+				
+			],
+			primary_action(v) {
+				frappe.call({
+					method:"grandhyper.api.fetch_price",
+					args:{
+						"barcode":v.barcode,
+						"country":v.country
+					},
+					callback:function(r){
+						if(r.message){
+							let i = r.message
+							let item_code = ""
+							let item_name = ""
+							let rate = 0.0
+							let uom = ""
+							let country = ""
+							let currency = ""
+							console.log("i",i)
+							for (var key in i) {
+								item_code = i["item_code"]
+								item_name = i["item_name"]
+								rate = i["rate"]
+								uom = i["uom"]
+								currency = i["currency"]
+								
+								
+								
+								
+							}
+							const formatted_currency= format_currency( rate ,currency)
+							console.log("9242&&&&&&&&&&&&&**********",formatted_currency)
+							let strhtml = `
+							<head>
+							<style>
+							h1 {text-align: center;}
+							h3 {text-align: center;}
+							</style>
+							</head>
+							<h3> ${item_name} </h3>
+							<h3> 1 ${uom} </h3>
+							<h1> ${formatted_currency} </h1>`
+							$(d.fields_dict['item_details'].wrapper).html(strhtml)
+						}
+
+					}
+
+				})
+
+				// var data = d.get_values();
+				// frappe.call({
+				// 	method: "grandhyper.api.remove_authorize",
+					
+				// 	args: {
+				// 		"user": data.user,
+				// 		"password": data.password,
+				// 		"pos_profile": cur_frm.doc.pos_profile,
+				// 		'date_and_time':data.date_and_time,
+				// 		'pos_user':data.pos_user,
+				// 		"company":cur_frm.doc.company,
+				// 		'pos_profile':data.pos_profile,
+				// 		'reason':data.reason
+				// 	},
+				// 	callback:function(r){
+	
+				// 		if(r.message){
+
+
+				// 	// frappe.ui.form.qz_get_printer_list().then(
+				// 		frappe.ui.form.qz_connect()
+				// 			// frappe.utils.print(
+				// 			// 	'Supervisor Log',
+				// 			// 	r.message,
+				// 			// 	'Demo'
+				// 			// )
+				// 			.then(function () {
+
+				// 				var config = qz.configs.create(v.printer);
+				// 				var data =["Cash Drawer Open"]
+				// 				return qz.print(config,data);
+
+				// 			})
+				// 			.then(frappe.ui.form.qz_success)
+				// 			.catch(err => {
+				// 				frappe.ui.form.qz_fail(err);
+				// 			})
+				// 		}
+						
+				// 		else{
+				// 			frappe.throw('Please enter valid "Supervisor ID" and "Password."');
+							
+				// 		}
+
+					
+				// 	}
+				// });
+
+				// d.hide();
+			},
+			primary_action_label: __('Fetch Price')
+		});
+			
+		d.show();			
+		}).addClass("btn-warning").css({'color':'#FFFFFF','font-weight': 'bold','background-color':'#0096FF'})
+	}
+
+
 	open_form_view() {
 		frappe.model.sync(this.frm.doc);
 		frappe.set_route("Form", this.frm.doc.doctype, this.frm.doc.name);
@@ -1400,7 +1549,7 @@ erpnext.PointOfSale.Controller = class {
 
 		}
 		else{
-		await this.frm.script_manager.trigger('item_code', item_row.doctype, item_row.name);
+			await this.frm.script_manager.trigger('item_code', item_row.doctype, item_row.name);
 		await this.frm.script_manager.trigger('qty', item_row.doctype, item_row.name);
 
 		}

@@ -17,16 +17,17 @@ def row_wise_loyalty_point(name):
 	
 
 	if lp:
-		for ex in condition.exclusion_list:
-			if ex.get("item"):
+		if condition.include_exclusion_list == 1:
+			for ex in condition.exclusion_list:
+				if ex.get("item"):
 
-				excluded_items.append(ex.get("item"))
-			if ex.get("item_group"):
-				parent_ig = frappe.get_doc("Item Group",ex.get("item_group")) 
-				child_ig = frappe.db.get_all("Item Group",{'lft':[">",parent_ig.get("lft")],'rgt':['<',parent_ig.get("rgt")]},['name'])
-				if child_ig:
-					for all in child_ig:
-						excluded_item_groups.append(all.name)
+					excluded_items.append(ex.get("item"))
+				if ex.get("item_group"):
+					parent_ig = frappe.get_doc("Item Group",ex.get("item_group")) 
+					child_ig = frappe.db.get_all("Item Group",{'lft':[">",parent_ig.get("lft")],'rgt':['<',parent_ig.get("rgt")]},['name'])
+					if child_ig:
+						for all in child_ig:
+							excluded_item_groups.append(all.name)
 		print("child_ig***********************",excluded_item_groups)
 		for r in pos_in.get("items"):
 			for i in condition.detailed_item_groups:
@@ -50,11 +51,11 @@ def row_wise_loyalty_point(name):
 						point=int(r.amount/i.collection_factor)
 						points+=point		
 
-	for k in condition.pos_invoice_wise_loyalty_points:
-		if k.get("field_name") in pos_in.get():
-			if pos_in.get(k.field_name) >= k.minimum_total_spend:		
-				point1=int(pos_in.get(k.field_name)/k.collection_factor)
-				points+=point1
+	# for k in condition.pos_invoice_wise_loyalty_points:
+	# 	if k.get("field_name") in pos_in.get():
+	# 		if pos_in.get(k.field_name) >= k.minimum_total_spend:		
+	# 			point1=int(pos_in.get(k.field_name)/k.collection_factor)
+	# 			points+=point1
 
 
 	lpe=frappe.new_doc("Loyalty Point Entry")

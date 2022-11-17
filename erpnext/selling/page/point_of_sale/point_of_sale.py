@@ -72,6 +72,10 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 		result = search_by_term(search_term, warehouse, price_list,country) or []
 		# print("result_call**************",result)
 		if result:
+			result.update({
+				"hide_unavailable_items":hide_unavailable_items
+			})
+			print("hide unavailable items",hide_unavailable_items,result)
 			return result
 
 	if not frappe.db.exists("Item Group", item_group):
@@ -157,7 +161,7 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_te
 
 def country_wise_barcode_data(search_value,country=None):
 	country_wise_barcode_data = frappe.db.get_all("Item Barcode",{"barcode":search_value},["barcode", "parent as item_code","country"])
-	print("country_wise barcode data---------------",country_wise_barcode_data)
+	# print("country_wise barcode data---------------",country_wise_barcode_data)
 	if country_wise_barcode_data:
 		if len(country_wise_barcode_data) > 1:
 			for i in country_wise_barcode_data:
@@ -172,7 +176,7 @@ def country_wise_barcode_data(search_value,country=None):
 
 
 @frappe.whitelist()
-def search_for_serial_or_batch_or_barcode_number(search_value,country):
+def search_for_serial_or_batch_or_barcode_number(search_value,country=None):
 	# search barcode no
 	barcode_data = country_wise_barcode_data(search_value,country)
 	

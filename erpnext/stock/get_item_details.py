@@ -48,7 +48,7 @@ def get_item_details(args, doc=None, for_validate=False, overwrite_warehouse=Tru
 	"""
 
 	args = process_args(args)
-	print("args*********************************8",args)
+	# print("args*********************************8",args)
 	# if not args["barcode"]:
 	# 	args.update({
 
@@ -58,7 +58,7 @@ def get_item_details(args, doc=None, for_validate=False, overwrite_warehouse=Tru
 		# country = company.country
 	if args.barcode:
 		country_wise_barcode_data = frappe.db.get_all("Item Barcode",{"barcode":args.barcode},["barcode", "parent as item_code","country"])
-		print("country_wise barcode data---------------",country_wise_barcode_data)
+		# print("country_wise barcode data---------------",country_wise_barcode_data)
 		if country_wise_barcode_data:
 			if len(country_wise_barcode_data) > 1:
 				for i in country_wise_barcode_data:
@@ -80,7 +80,7 @@ def get_item_details(args, doc=None, for_validate=False, overwrite_warehouse=Tru
 	for_validate = process_string_args(for_validate)
 	overwrite_warehouse = process_string_args(overwrite_warehouse)
 	item = frappe.get_cached_doc("Item", args.item_code)
-	print("items**************************&&&&&&&&&&&&&&&&&&&&&",item)
+	# print("items**************************&&&&&&&&&&&&&&&&&&&&&",item)
 	validate_item_details(args, item)
 
 	out = get_basic_details(args, item, overwrite_warehouse)
@@ -276,11 +276,11 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 	"""
 
 
-	print("&&&&&&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^",item)
-	print("no Item&&&&&&&&&&&&&&&&&",args)
+	# print("&&&&&&&&&&&&&&&&&&&&&&^^^^^^^^^^^^^^^",item)
+	# print("no Item&&&&&&&&&&&&&&&&&",args)
 
 	if not item:
-		print("no Item&&&&&&&&&&&&&&&&&")
+		# print("no Item&&&&&&&&&&&&&&&&&")
 		item = frappe.get_doc("Item", args.get("item_code"))
 
 	
@@ -413,9 +413,9 @@ def get_basic_details(args, item, overwrite_warehouse=True):
 			})
 
 	child_doctype = args.doctype + ' Item'
-	print("child*******************",child_doctype)
+	# print("child*******************",child_doctype)
 	meta = frappe.get_meta(child_doctype)
-	print("meta*******************",meta)
+	# print("meta*******************",meta)
 
 	if meta.get_field("barcode"):
 		update_barcode_value(out)
@@ -475,7 +475,7 @@ def update_barcode_value(out):
 	# 	out['barcode'] = """{0}""".format()
 
 def get_barcode_data(items_list):
-	print("item list in get_item_details***************&&&&&&&&&&&&&&&&&&&",items_list)
+	# print("item list in get_item_details***************&&&&&&&&&&&&&&&&&&&",items_list)
 	# get itemwise batch no data
 	# exmaple: {'LED-GRE': [Batch001, Batch002]}
 	# where LED-GRE is item code, SN0001 is serial no and Pune is warehouse

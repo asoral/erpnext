@@ -68,6 +68,9 @@ def get_pricing_rules(doc, rules = {}):
 		'product_discount_slabs': product_discount_fields}.items():
 		if doc.get(child_doc):
 			new_doc.extend(_get_pricing_rules(doc, child_doc, fields, rules))
+			print("new_doc*************&&&&&&&&&&&&&&&77",new_doc)
+			print("doc*************&&&&&&&&&&&&&&&77",doc)
+			print("fields*************&&&&&&&&&&&&&&&77",fields)
 
 	return new_doc
 
@@ -83,7 +86,14 @@ def _get_pricing_rules(doc, child_doc, discount_fields, rules = {}):
 
 		pr.update(args)
 		for field in (other_fields + discount_fields):
-			pr.set(field, d.get(field))
+			#  Code Fix For Min & Max Amount Fields Not Updating in Respective Pricing Rules as the field names are different.
+			if field == "min_amt":
+				pr.set(field,d.get("min_amount"))
+			elif field == "max_amt":
+				pr.set(field,d.get("max_amount"))
+				
+			elif field not in ["min_amt","max_amt"]:
+				pr.set(field, d.get(field))
 
 		pr.promotional_scheme_id = d.name
 		pr.promotional_scheme = doc.name
@@ -103,6 +113,7 @@ def _get_pricing_rules(doc, child_doc, discount_fields, rules = {}):
 				})
 
 		new_doc.append(pr)
+
 
 	return new_doc
 

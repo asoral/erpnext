@@ -340,20 +340,47 @@ erpnext.PointOfSale.ItemSelector = class {
 		const me = this;
 		// //("me in bind events",me)
 		window.onScan = onScan;
+		
 		// //("Onscan in bind events",onScan)
+
+		
+
+
 
 		onScan.decodeKeyEvent = function (oEvent) {
 			var iCode = this._getNormalizedKeyNum(oEvent);
+			console.log("icode &&&&&&&***********************",oEvent , iCode)
+			
 			switch (true) {
 				case iCode >= 48 && iCode <= 90: // numbers and letters
 				case iCode >= 106 && iCode <= 111: // operations on numeric keypad (+, -, etc.)
 				case (iCode >= 160 && iCode <= 164) || iCode == 170: // ^ ! # $ *
 				case iCode >= 186 && iCode <= 194: // (; = , - . / `)
 				case iCode >= 219 && iCode <= 222: // ([ \ ] ')
-				case iCode == 32: // spacebar
+				case iCode == 32:
+				case iCode == 13:
+				
 					if (oEvent.key !== undefined && oEvent.key !== '') {
+						if(iCode == 13){
+							console.log("Enter Key Pressed in ONSCAN2",document)
+							// frappe.errprint("Enter")
+							this.setOptions(document,{
+								// console.log("Enter Key Pressed in ONSCAN2",document)
+								suffixKeyCodes:[9],
+								// reactToPaste: true,
+							})
+							console.log("Enter Key Pressed in ONSCAN3",document)
+
+						}
+						
 						return oEvent.key;
 					}
+
+					
+					
+
+					
+
 
 					var sDecoded = String.fromCharCode(iCode);
 					switch (oEvent.shiftKey) {
@@ -364,21 +391,111 @@ erpnext.PointOfSale.ItemSelector = class {
 				case iCode >= 96 && iCode <= 105: // numbers on numeric keypad
 					return 0 + (iCode - 96);
 			}
+
+			// if(iCode == "13" && oEvent.key == "Enter"){
+			// 	console.log("item decode event",this)
+			// 	this.simulate(document, [13]);
+				
+			// }
+
 			return '';
 		};
 
+		
+
+		
+
 		onScan.attachTo(document, {
-			onScan: (sScancode) => {
+			// suffixKeyCodes:[13],
+			// timeBeforeScanTest:700,
+			// 
+			// reactToKeydown:true,
+			
+			
+			// reactToPaste:true,
+
+			onScan: (sScancode,qty) => {
 
 				if (this.search_field && this.$component.is(':visible')) {
 					this.search_field.set_focus();
 					this.set_search_value(sScancode);
 					// this.set_search2_value(sScancode)
 					this.barcode_scanned = true;
-					("barcode",sScancode)
+					// this.auto_add_item = 1
+					console.log("barcode",sScancode,qty)
+					// this.search_field.keyup(function(event) {
+					// 	if (event.keyCode === 13) {
+					// 		console.log("Enter Key Pressed")
+					// 		$("13").click();
+					// 	}
+					// });
+					
 				}
-			}
+
+			
+
+				
+			},
+
+			onKeyDetect: (iKeyCode,oEvent) => {
+				if(iKeyCode == "13"){
+					console.log("oevent",this)
+					return onScan.decodeKeyEvent(oEvent)
+
+				}
+				else{
+					console.log("oevent else",oEvent)
+				}
+			},
+
+			// keyCodeMapper: function(oEvent) {
+			// 	// Look for special keycodes or other event properties specific to
+			// 	// your scanner
+			// 	if (oEvent.which == 13) {
+			// 		return oEvent.key
+			// 	}
+			// 	// Fall back to the default decoder in all other cases
+			// 	return onScan.decodeKeyEvent(oEvent);
+			// 	},
+
+			
+
+			
+			
+			// scanButtonKeyCode:true
+			
+			
+			// {{console.log()}}
+			// onScan.
+			
+			
+
+
+
+			// onPaste: (sPasted,oEvent) => {
+			// 	console.log("9242************************************",sPasted,oEvent)
+			// }
+			
+			// 
+			// console.log()
+
+
+			
+
+
+			
+			
+
+
 		});
+		// onScan.simulate(document, [13]);
+		onScan.setOptions(document,{
+			suffixKeyCodes:[13]
+			// onkeydown
+
+		}),
+
+		
 
 		this.$component.on('click', '.item-wrapper', function(){
 
@@ -743,7 +860,8 @@ erpnext.PointOfSale.ItemSelector = class {
 				this.$items_container.find(".item-wrapper").click();
 				frappe.utils.play_sound("submit");
 				this.set_search_value('');
-			} else if (this.items.length == 0 && this.barcode_scanned) {
+			}
+			 else if (this.items.length == 0) {
 				//("scanned",this.barcode_scanned)
 				// only show alert of barcode is scanned and enter is pressed
 				frappe.show_alert({
@@ -781,26 +899,27 @@ erpnext.PointOfSale.ItemSelector = class {
 			.then(({ message }) => {
 				//console.log("message&&&&&&&&&&&&&&**************** 5:08 ",message)
 				// eslint-disable-next-line no-unused-vars
-				const { items, serial_no, batch_no, barcode } = message;
+				const { items, serial_no, batch_no, barcode , hide_unavailable_items } = message;
 				//("itema&&&&&&&&&&&&&&&&&&&&&&&&&7",items)
 				// if (search_term && !barcode) {
 				// 	this.search_index[search_term] = items;
 				// }
 
-				if(items.length == 0){
-					this.items = items;
+				// if(items.length == 0 && items.hide_unavailable_items != 1 ){
+				// 	console.log("hide unavailable items &&&&&&&&&********",items.hide_unavailable_items)
+				// 	this.items = items;
 					
-					this.render_item_list(items);
+				// 	this.render_item_list(items);
 
-					frappe.show_alert({
-						message: __("No items found. Scan barcode again."),
-						indicator: 'orange'
-					});
-					frappe.utils.play_sound("error");
-					this.barcode_scanned = false;
-					this.set_search_value('');
+				// 	frappe.show_alert({
+				// 		message: __("No items found. Scan barcode again."),
+				// 		indicator: 'orange'
+				// 	});
+				// 	frappe.utils.play_sound("error");
+				// 	this.barcode_scanned = false;
+				// 	this.set_search_value('');
 
-				}
+				// }
 				this.items = items;
 				//console.log("items_filter***************",items)
 				this.render_item_list(items);
