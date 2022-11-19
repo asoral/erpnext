@@ -180,17 +180,36 @@ erpnext.PointOfSale.ItemDetails = class {
 			fieldname === 'discount_percentage' ? (field_meta.label = __('Discount (%)')) : '';
 			const me = this;
 
-			this[`${fieldname}_control`] = frappe.ui.form.make_control({
-				df: {
-					...field_meta,
-					onchange: function() {
-						me.events.form_updated(me.current_item, fieldname, this.value);
-						// //console.log("9242 onchange item details******************",this.value)
-					}
-				},
-				parent: this.$form_container.find(`.${fieldname}-control`),
-				render_input: true,
-			})
+			if(fieldname === 'uom' || fieldname === 'conversion_factor' || fieldname === 'barcode'  ){
+				field_meta.read_only = 1
+				this[`${fieldname}_control`] = frappe.ui.form.make_control({
+					df: {
+						...field_meta,
+						onchange: function() {
+							me.events.form_updated(me.current_item, fieldname, this.value);
+							// //console.log("9242 onchange item details******************",this.value)
+						}
+					},
+					parent: this.$form_container.find(`.${fieldname}-control`),
+					render_input: true,
+				})
+			}
+			else{
+
+				this[`${fieldname}_control`] = frappe.ui.form.make_control({
+					df: {
+						...field_meta,
+						onchange: function() {
+							me.events.form_updated(me.current_item, fieldname, this.value);
+							// //console.log("9242 onchange item details******************",this.value)
+						}
+					},
+					parent: this.$form_container.find(`.${fieldname}-control`),
+					render_input: true,
+				})
+
+			}
+			
 			this[`${fieldname}_control`].set_value(item[fieldname]);
 		});
 
@@ -204,7 +223,6 @@ erpnext.PointOfSale.ItemDetails = class {
 		const fields = ['qty', 'uom', 'rate', 'conversion_factor', 'discount_percentage', 'warehouse', 'actual_qty', 'price_list_rate','barcode'];
 		if (item.has_serial_no) fields.push('serial_no');
 		if (item.has_batch_no) fields.push('batch_no')
-		if (item.uom2) fields.push('uom2')
 		//console.log("fields to display")
 		return fields;
 	}
@@ -241,6 +259,14 @@ erpnext.PointOfSale.ItemDetails = class {
 			this.rate_control.refresh();
 		}
 
+		if(this.conversion_factor_control){
+			this.conversion_factor_control.df.read_only = 1;
+		}
+
+		if(this.barcode_control){
+			this.barcode_control.df.read_only = 1;
+		}
+
 		if (this.discount_percentage_control && !this.allow_discount_change) {
 			this.discount_percentage_control.df.read_only = 1;
 			this.discount_percentage_control.refresh();
@@ -252,7 +278,7 @@ erpnext.PointOfSale.ItemDetails = class {
 		}
 
 		if (this.warehouse_control) {
-			this.warehouse_control.df.reqd = 1;
+			this.warehouse_control.df.read_only = 1;
 			this.warehouse_control.df.onchange = function() {
 				if (this.value) {
 					me.events.form_updated(me.current_item, 'warehouse', this.value).then(() => {
@@ -310,13 +336,15 @@ erpnext.PointOfSale.ItemDetails = class {
 		
 
 		if (this.uom_control){
+			this.uom_control.df.read_only = 1
+			this.uom_control.df.refresh()
 			// //console.log("944646464646%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55",this)
-			this.uom_control.df.onchange = function() {
-				me.events.form_updated(me.current_item, 'uom', this.value);
-				const item_row = frappe.get_doc(me.doctype, me.name);
-				me.conversion_factor_control.df.read_only = (item_row.stock_uom == this.value);
-				me.conversion_factor_control.refresh();
-			}
+			// this.uom_control.df.onchange = function() {
+			// 	me.events.form_updated(me.current_item, 'uom', this.value);
+			// 	const item_row = frappe.get_doc(me.doctype, me.name);
+			// 	me.conversion_factor_control.df.read_only = (item_row.stock_uom == this.value);
+			// 	me.conversion_factor_control.refresh();
+			// }
 		}
 
 		frappe.model.on("POS Invoice Item", "*", (fieldname, value, item_row) => {
