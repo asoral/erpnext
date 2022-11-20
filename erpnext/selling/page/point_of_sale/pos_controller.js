@@ -652,6 +652,7 @@ erpnext.PointOfSale.Controller = class {
 		this.init_payments();
 		this.init_recent_order_list();
 		this.init_order_summary();
+		// this.add_item();
 		// this.getScreenDetails();
 	}
 
@@ -1069,7 +1070,9 @@ erpnext.PointOfSale.Controller = class {
 				item_selected: args => this.on_cart_update(args),
 				// //console.log()
 
-				get_frm: () => this.frm || {}
+				get_frm: () => this.frm || {},
+
+				add_item: () => this.add_item()
 			}
 			
 		})
@@ -1755,7 +1758,37 @@ erpnext.PointOfSale.Controller = class {
 				this.cart.toggle_checkout_btn(true);
 			}, 300); // wait for save to finish
 		} else {
-			this.payment.checkout();
+			// this.payment.checkout()
+			frappe.call({
+				method:"grandhyper.update_pos_invoice.update_invoice",
+				args:{
+					"items":this.frm.doc.items
+				},
+				callback:function(r){
+					if (r.message){
+						
+						//console.log("&&&&&&&&&&&&&&&&&&*********************",r.message)
+						//console.log("&&&&&&&&&&&&&&&&&&*********************",doc.items.length)
+						doc.items.length = 0
+						doc.items = r.message
+						
+						
+						//console.log("***********************************************8",doc.items.length)
+
+						
+					}
+				}
+			})
+			let save_error = false;
+			await this.frm.save(null, null, null, () => save_error = true);
+			// only move to payment section if save is successful
+			!save_error && this.payment.checkout();
+			// show checkout button on error
+			save_error && setTimeout(() => {
+				this.cart.toggle_checkout_btn(true);
+			}, 300); // wait for save to finish
+			
+			
 		}
 	}
 

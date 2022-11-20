@@ -527,6 +527,7 @@ erpnext.PointOfSale.ItemSelector = class {
 					item: { item_code, batch_no, serial_no, rate  , uom ,barcode  }
 				
 				});
+				me.events.add_item()
 
 			}
 			else{
@@ -1090,6 +1091,7 @@ erpnext.PointOfSale.ItemSelector = class {
 	add_filtered_item_to_cart(){
 		this.$items_container.find(".item-wrapper").click();
 		this.set_search_value('');
+		
 	}
 
 	add_plu_item_to_cart(){

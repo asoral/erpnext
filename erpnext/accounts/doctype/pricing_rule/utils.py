@@ -687,6 +687,8 @@ def get_pricing_rule_items(pr_doc):
 		apply_on = frappe.scrub(pr_doc.apply_rule_on_other)
 		apply_on_data.append(pr_doc.get("other_" + apply_on))
 
+		
+
 	return list(set(apply_on_data))
 
 

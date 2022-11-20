@@ -476,7 +476,7 @@ def apply_price_discount_rule(pricing_rule, item_details, args):
 			continue
 
 		field = frappe.scrub(apply_on)
-		# print("item_details********&&&&&&&&&&&&&&",item_details)
+		print("item_details********&&&&&&&&&&&&&&",item_details)
 		if pricing_rule.apply_discount_on_rate and item_details.get("discount_percentage") and pricing_rule.auto_apply == 1:
 			# Apply discount on discounted rate
 			
@@ -485,10 +485,10 @@ def apply_price_discount_rule(pricing_rule, item_details, args):
 			
 			if field not in item_details:
 				item_details.setdefault(field, 0)
-				# print("item_details********&&&&&&&&&&&&&&",pricing_rule.get(field, 0),args.get(field, 0))
+				print("item_details********&&&&&&&&&&&&&&",pricing_rule.get(field, 0),args.get(field, 0))
 			if pricing_rule.auto_apply == 1:
 				item_details[field] += pricing_rule.get(field, 0) if pricing_rule else args.get(field, 0)
-				# print("item_details********&&&&&&&&&&&&&& after edit",args)
+				print("item_details********&&&&&&&&&&&&&& after edit",args)
 
 
 
