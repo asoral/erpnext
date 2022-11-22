@@ -368,9 +368,11 @@ def get_pricing_rule_for_item(args, price_list_rate=0, doc=None, for_validate=Fa
 			if pricing_rule.coupon_code_based == 1 and args.coupon_code == None:
 				return item_details
 
+			
 			if not pricing_rule.validate_applied_rule:
+				
 				if pricing_rule.price_or_product_discount == "Price":
-					apply_price_discount_rule(pricing_rule, item_details, args)
+						apply_price_discount_rule(pricing_rule, item_details, args)
 				else:
 					get_product_discount_rule(pricing_rule, item_details, args, doc)
 
@@ -438,6 +440,8 @@ def get_pricing_rule_details(args, pricing_rule):
 
 
 def apply_price_discount_rule(pricing_rule, item_details, args):
+	count = 0
+
 	item_details.pricing_rule_for = pricing_rule.rate_or_discount
 
 	if (
@@ -471,24 +475,26 @@ def apply_price_discount_rule(pricing_rule, item_details, args):
 			)
 		item_details.update({"discount_percentage": 0.0})
 
+	
 	for apply_on in ["Discount Amount", "Discount Percentage"]:
 		if pricing_rule.rate_or_discount != apply_on:
 			continue
-
+		
+		
 		field = frappe.scrub(apply_on)
-		print("item_details********&&&&&&&&&&&&&&",item_details)
+		print("item_details********&&&&&&&&&&&&&&",field)
 		if pricing_rule.apply_discount_on_rate and item_details.get("discount_percentage") and pricing_rule.auto_apply == 1:
+			print("item_details********&&&&&&&&&&&&&& if condition",item_details)
 			# Apply discount on discounted rate
 			
 			item_details[field] += (100 - item_details[field]) * (pricing_rule.get(field, 0) / 100)
 		else:
 			
-			if field not in item_details:
+			if field not in item_details and count != pricing_rule.get("apply_discount_on_qty"):
 				item_details.setdefault(field, 0)
-				print("item_details********&&&&&&&&&&&&&&",pricing_rule.get(field, 0),args.get(field, 0))
-			if pricing_rule.auto_apply == 1:
+			
 				item_details[field] += pricing_rule.get(field, 0) if pricing_rule else args.get(field, 0)
-				print("item_details********&&&&&&&&&&&&&& after edit",args)
+				
 
 
 

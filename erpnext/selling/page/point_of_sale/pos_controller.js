@@ -1098,7 +1098,10 @@ erpnext.PointOfSale.Controller = class {
 
 				checkout: () => this.save_and_checkout(),
 
-				edit_cart: () => this.payment.edit_cart(),
+				edit_cart: () => {this.payment.edit_cart()
+					this.frm.doc["additional_discount_percentage"] =  0
+					this.frm.doc["discount_amount"] = 0.0
+				},
 
 				customer_details_updated: (details) => {
 					this.customer_details = details;
@@ -1750,19 +1753,11 @@ erpnext.PointOfSale.Controller = class {
 				}
 			})
 			let save_error = false;
-			await this.frm.save(null, null, null, () => save_error = true);
-			// only move to payment section if save is successful
-			!save_error && this.payment.checkout();
-			// show checkout button on error
-			save_error && setTimeout(() => {
-				this.cart.toggle_checkout_btn(true);
-			}, 300); // wait for save to finish
-		} else {
-			// this.payment.checkout()
+
 			frappe.call({
-				method:"grandhyper.update_pos_invoice.update_invoice",
+				method:"grandhyper.grandhyper.doctype.pos_offers.pos_offers.gt_discount",
 				args:{
-					"items":this.frm.doc.items
+					"pos_invoice":this.frm.doc
 				},
 				callback:function(r){
 					if (r.message){
@@ -1771,15 +1766,15 @@ erpnext.PointOfSale.Controller = class {
 						//console.log("&&&&&&&&&&&&&&&&&&*********************",doc.items.length)
 						doc.items.length = 0
 						doc.items = r.message
-						
-						
 						//console.log("***********************************************8",doc.items.length)
 
 						
 					}
 				}
 			})
-			let save_error = false;
+
+
+
 			await this.frm.save(null, null, null, () => save_error = true);
 			// only move to payment section if save is successful
 			!save_error && this.payment.checkout();
@@ -1787,6 +1782,36 @@ erpnext.PointOfSale.Controller = class {
 			save_error && setTimeout(() => {
 				this.cart.toggle_checkout_btn(true);
 			}, 300); // wait for save to finish
+		} else {
+			this.payment.checkout()
+			// frappe.call({
+			// 	method:"grandhyper.update_pos_invoice.update_invoice",
+			// 	args:{
+			// 		"items":this.frm.doc.items
+			// 	},
+			// 	callback:function(r){
+			// 		if (r.message){
+						
+			// 			//console.log("&&&&&&&&&&&&&&&&&&*********************",r.message)
+			// 			//console.log("&&&&&&&&&&&&&&&&&&*********************",doc.items.length)
+			// 			doc.items.length = 0
+			// 			doc.items = r.message
+						
+						
+			// 			//console.log("***********************************************8",doc.items.length)
+
+						
+			// 		}
+			// 	}
+			// })
+			// let save_error = false;
+			// await this.frm.save(null, null, null, () => save_error = true);
+			// // only move to payment section if save is successful
+			// !save_error && this.payment.checkout();
+			// // show checkout button on error
+			// save_error && setTimeout(() => {
+			// 	this.cart.toggle_checkout_btn(true);
+			// }, 300); // wait for save to finish
 			
 			
 		}

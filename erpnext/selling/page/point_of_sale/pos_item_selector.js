@@ -527,7 +527,7 @@ erpnext.PointOfSale.ItemSelector = class {
 					item: { item_code, batch_no, serial_no, rate  , uom ,barcode  }
 				
 				});
-				me.events.add_item()
+				// me.events.add_item()
 
 			}
 			else{

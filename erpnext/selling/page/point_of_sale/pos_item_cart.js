@@ -217,12 +217,12 @@ erpnext.PointOfSale.ItemCart = class {
 			this.toggle_checkout_btn(true);
 		});
 
-		// this.$component.on('click', '.add-discount-wrapper', () => {
-		// 	const can_edit_discount = this.$add_discount_elem.find('.edit-discount-btn').length;
-		// 	//console.log("discount*********************************",can_edit_discount)
+		this.$component.on('click', '.add-discount-wrapper', () => {
+			const can_edit_discount = this.$add_discount_elem.find('.edit-discount-btn').length;
+			//console.log("discount*********************************",can_edit_discount)
 
-		// 	if(!this.discount_field || can_edit_discount) this.show_discount_control();
-		// });
+			if(!this.discount_field || can_edit_discount) this.show_discount_control();
+		});
 
 		frappe.ui.form.on("POS Invoice", "paid_amount", frm => {
 			// called when discount is applied
@@ -398,6 +398,7 @@ erpnext.PointOfSale.ItemCart = class {
 				input_class: 'input-xs',
 				onchange: function() {
 					if (flt(this.value) != 0) {
+						console.log("additional_discount_percentage",this.value)
 						frappe.model.set_value(frm.doc.doctype, frm.doc.name, 'additional_discount_percentage', flt(this.value));
 						me.hide_discount_control(this.value);
 					} else {
