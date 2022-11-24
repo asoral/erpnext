@@ -64,6 +64,7 @@ erpnext.PointOfSale.ItemDetails = class {
 
 
 	async toggle_item_details_section(item) {
+		console.log("pos item selector")
 		const current_item_changed = !this.compare_with_current_item(item);
 
 		// if item is null or highlighted cart item is clicked twice
@@ -153,8 +154,9 @@ erpnext.PointOfSale.ItemDetails = class {
 	}
 
 	render_discount_dom(item) {
-		//console.log("cnjsdncndsjnckdnskckdsd",item)
+		
 		if (item.discount_percentage) {
+			console.log("discount applied on item &&&&&&&&&*******************8",item,item.discount_percentage)
 			this.$dicount_section.html(
 				`<div class="item-rate">${format_currency(item.price_list_rate, this.currency)}</div>
 				<div class="item-discount">${item.discount_percentage}% off</div>`
@@ -337,7 +339,6 @@ erpnext.PointOfSale.ItemDetails = class {
 
 		if (this.uom_control){
 			this.uom_control.df.read_only = 1
-			this.uom_control.df.refresh()
 			// //console.log("944646464646%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55",this)
 			// this.uom_control.df.onchange = function() {
 			// 	me.events.form_updated(me.current_item, 'uom', this.value);

@@ -1099,8 +1099,22 @@ erpnext.PointOfSale.Controller = class {
 				checkout: () => this.save_and_checkout(),
 
 				edit_cart: () => {this.payment.edit_cart()
-					this.frm.doc["additional_discount_percentage"] =  0
+					console.log(" in controller init item cart ***************" ,this.frm.doc)
+					this.frm.doc["additional_discount_percentage"] = 0
 					this.frm.doc["discount_amount"] = 0.0
+					this.frm.doc["pos_offers_details"] = []
+					let prev_rate = 0.0
+					for (let x in this.frm.doc.items) {
+						
+						this.frm.doc.items[x]["discount_percentage"] = 0
+						this.frm.doc.items[x]["discount_amount"] = 0
+						this.frm.doc.items[x]["is_free_item"] = 0
+						this.frm.doc.items[x]["rate"] = this.frm.doc.items[x]["price_list_rate"]
+						 
+					  }
+
+					this.cart.update_totals_section(this.frm);
+					
 				},
 
 				customer_details_updated: (details) => {
@@ -1746,6 +1760,7 @@ erpnext.PointOfSale.Controller = class {
 						//console.log("&&&&&&&&&&&&&&&&&&*********************",doc.items.length)
 						doc.items.length = 0
 						doc.items = r.message
+
 						//console.log("***********************************************8",doc.items.length)
 
 						
@@ -1772,6 +1787,8 @@ erpnext.PointOfSale.Controller = class {
 					}
 				}
 			})
+
+			this.cart.update_totals_section(this.frm)
 
 
 

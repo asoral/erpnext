@@ -274,15 +274,15 @@ erpnext.PointOfSale.ItemCart = class {
 				this.$component.find(".edit-cart-btn").click();
 			}
 		});
-		// this.$component.find(".add-discount-wrapper").attr("title", `${ctrl_label}+D`);
-		// frappe.ui.keys.add_shortcut({
-		// 	shortcut: "ctrl+d",
-		// 	action: () => this.$component.find(".add-discount-wrapper").click(),
-		// 	condition: () => this.$add_discount_elem.is(":visible"),
-		// 	description: __("Add Order Discount"),
-		// 	ignore_inputs: true,
-		// 	page: cur_page.page.page
-		// });
+		this.$component.find(".add-discount-wrapper").attr("title", `${ctrl_label}+D`);
+		frappe.ui.keys.add_shortcut({
+			shortcut: "ctrl+d",
+			action: () => this.$component.find(".add-discount-wrapper").click(),
+			condition: () => this.$add_discount_elem.is(":visible"),
+			description: __("Add Order Discount"),
+			ignore_inputs: true,
+			page: cur_page.page.page
+		});
 		frappe.ui.keys.on("escape", () => {
 			const item_cart_visible = this.$component.is(":visible");
 			if (item_cart_visible && this.discount_field && this.discount_field.parent.is(":visible")) {
@@ -426,6 +426,7 @@ erpnext.PointOfSale.ItemCart = class {
 				`<div class="add-discount-field"></div>`
 			);
 		} else {
+			console.log("discount applied on cart&&&&&&&&&***********",discount)
 			this.$add_discount_elem.css({
 				'border': '1px dashed var(--dark-green-500)',
 				'padding': 'var(--padding-sm) var(--padding-md)'
@@ -702,7 +703,7 @@ erpnext.PointOfSale.ItemCart = class {
 				'background-color': 'var(--blue-500)'
 			});
 		} else {
-			this.$add_discount_elem.css('display', 'none');
+			this.$add_discount_elem.css('display', 'flex');
 			this.$cart_container.find('.checkout-btn').css({
 				'background-color': 'var(--blue-200)'
 			});
