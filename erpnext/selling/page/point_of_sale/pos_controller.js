@@ -635,6 +635,7 @@ erpnext.PointOfSale.Controller = class {
 		this.make_new_invoice();
 		this.open_cash_drawer();
 		this.price_checker();
+		this.add_items()
 	}
 
 	prepare_dom() {
@@ -1004,6 +1005,288 @@ erpnext.PointOfSale.Controller = class {
 		});
 			
 		d.show();			
+		}).addClass("btn-warning").css({'color':'#FFFFFF','font-weight': 'bold','background-color':'#0096FF'})
+	}
+
+	add_items(){
+		let me = this
+		this.page.add_inner_button(('Add Items'),()=>{
+
+			const 
+			table_fields = [
+
+				{
+					fieldname: "item_code", fieldtype: "Link",
+					in_list_view: 1, label: "Item",reqd: 0,
+					options:"Item"
+					 
+					
+				},
+			
+				
+				{
+					fieldname: "qty", fieldtype: "Float",
+					in_list_view: 1, label: "Quantity",reqd: 0,
+					 
+					
+				},
+
+				{
+					fieldname: "uom", fieldtype: "Data",
+					in_list_view: 1, label: "UOM",reqd: 0,
+					 
+					
+				},
+				{
+					
+					fieldname: "rate", fieldtype: "Float",
+					in_list_view: 1, label: "Rate",reqd: 0,
+					hidden:0
+						
+				},
+				{
+					
+					fieldname: "batch_no", fieldtype: "Data",
+					in_list_view: 0, label: "Batch No",reqd: 0,
+					
+					
+						
+				},
+				{
+					fieldname: "serial_no", fieldtype: "Data",
+					in_list_view: 1, label: "Serial No",reqd: 0
+					 
+					
+				},
+				
+
+				{
+					fieldname: "barcode", fieldtype: "Data",
+					in_list_view: 1, label: "Barcode",reqd: 0
+					 
+					
+				},
+
+			]
+
+			frappe.db.get_doc("POS Profile",this.pos_profile).then(pp => {
+				if(pp.country){
+					d.fields_dict.country.set_value(pp.country)
+				}
+			})
+
+			
+			
+		const d = new frappe.ui.Dialog({
+			title: __("Item Details"),
+			fields: [
+				{
+					label : "Barcode",
+					fieldname: "barcode",
+					fieldtype: "Data",
+					// onchange: () => fetch()
+				},
+
+				{
+					fieldtype: 'Section Break'
+				},
+
+				{
+					label: "Item Details",
+					fieldname: "item_details",
+					fieldtype: "HTML"
+				},
+
+
+
+
+				{
+					fieldtype: 'Section Break'
+				},
+
+				{
+					fieldname: "item_cart",
+					fieldtype: "Table",
+					label: "Item Cart",
+					cannot_add_rows: false,
+					in_place_edit: true,
+					reqd: 0,
+					data: [],
+					fields: table_fields,
+					hidden:1
+
+				},
+
+				
+				{
+					label: "Country",
+					fieldname: "country",
+					fieldtype: "Data",
+					hidden:1
+				},
+				{
+					label: "Weighable Barcode Details",
+					fieldname: "bcd_details",
+					fieldtype: "Data",
+					hidden:1
+
+				}
+				
+				
+			],
+			primary_action(v) {
+				frappe.call({
+					method:"grandhyper.api.fetch_item",
+					args:{
+						"barcode":v.barcode,
+						"country":v.country
+					},
+					callback:function(r){
+						if(r.message){
+							let i = r.message
+							let batch_no = ""
+							let serial_no = ""
+							let barcode = ""
+							let qty = 0.0
+							let item_code = ""
+							let item_name = ""
+							let rate = 0.0
+							let uom = ""
+							let country = ""
+							let currency = ""
+							console.log("item-details^^^^^^^^^^^^^^^^^^^",i)
+							for (var key in i) {
+								item_code = i["item_code"]
+								item_name = i["item_name"]
+								rate = i["rate"]
+								uom = i["uom"]
+								currency = i["currency"]
+								barcode = i["barcode"]
+								qty = i["qty"]
+								console.log("qty--------------------",i["qty"])
+								
+								
+								
+								
+								
+								
+							}
+
+							d.fields_dict.item_cart.df.data.push({item_code,qty,uom,rate,serial_no,batch_no,barcode})
+							d.fields_dict.item_cart.refresh();
+
+							me.on_cart_update(args)
+							
+
+
+							d.fields_dict.barcode.set_value("")
+
+							let item = {}
+					let args = {}
+					let items = []
+					if(d.fields_dict.item_cart.df.data){
+						items = d.fields_dict.item_cart.df.data
+
+					}
+					items.forEach(m => {
+						console.log("m777777777777777777",this)
+						item["item_code"] = m["item_code"]
+						item["batch_no"] = m["batch_no"]
+						item["serial_no"] = m["serial_no"]
+						item["rate"] = m["rate"]
+						item["uom"] = m["uom"]
+						item["barcode"] = m["barcode"]
+						args["field"] = "qty",
+						args["value"] = m['qty']
+						args["item"] = item
+						me.on_cart_update(args)
+						
+
+
+						
+					})
+					items.length = 0
+					d.fields_dict.item_cart.refresh();
+
+							console.log("qty-----------------------",qty)
+							const formatted_currency= format_currency( rate ,currency)
+							console.log("9242&&&&&&&&&&&&&**********",formatted_currency)
+							let strhtml = `
+							<head>
+							<style>
+							h1 {text-align: center;}
+							h3 {text-align: center;}
+							</style>
+							</head>
+							<h3> ${item_name} </h3>
+							<h3> 1 ${uom} </h3>
+							<h1> ${formatted_currency} </h1>`
+							$(d.fields_dict['item_details'].wrapper).html(strhtml)
+
+						}
+
+					}
+
+				})
+
+				// var data = d.get_values();
+				// frappe.call({
+				// 	method: "grandhyper.api.remove_authorize",
+					
+				// 	args: {
+				// 		"user": data.user,
+				// 		"password": data.password,
+				// 		"pos_profile": cur_frm.doc.pos_profile,
+				// 		'date_and_time':data.date_and_time,
+				// 		'pos_user':data.pos_user,
+				// 		"company":cur_frm.doc.company,
+				// 		'pos_profile':data.pos_profile,
+				// 		'reason':data.reason
+				// 	},
+				// 	callback:function(r){
+	
+				// 		if(r.message){
+
+
+				// 	// frappe.ui.form.qz_get_printer_list().then(
+				// 		frappe.ui.form.qz_connect()
+				// 			// frappe.utils.print(
+				// 			// 	'Supervisor Log',
+				// 			// 	r.message,
+				// 			// 	'Demo'
+				// 			// )
+				// 			.then(function () {
+
+				// 				var config = qz.configs.create(v.printer);
+				// 				var data =["Cash Drawer Open"]
+				// 				return qz.print(config,data);
+
+				// 			})
+				// 			.then(frappe.ui.form.qz_success)
+				// 			.catch(err => {
+				// 				frappe.ui.form.qz_fail(err);
+				// 			})
+				// 		}
+						
+				// 		else{
+				// 			frappe.throw('Please enter valid "Supervisor ID" and "Password."');
+							
+				// 		}
+
+					
+				// 	}
+				// });
+
+				// d.hide();
+			},
+			primary_action_label: __('Search'),
+			
+
+			
+		});
+		
+		d.show();	
+		d.$wrapper.find('.modal-dialog').css("width", "800px");		
 		}).addClass("btn-warning").css({'color':'#FFFFFF','font-weight': 'bold','background-color':'#0096FF'})
 	}
 
