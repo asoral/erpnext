@@ -631,7 +631,7 @@ erpnext.PointOfSale.Controller = class {
 	make_app() {
 		this.prepare_dom();
 		this.prepare_components();
-		this.prepare_menu();
+		// this.prepare_menu();
 		this.make_new_invoice();
 		this.open_cash_drawer();
 		this.price_checker();
@@ -932,6 +932,8 @@ erpnext.PointOfSale.Controller = class {
 								
 								
 							}
+							d.fields_dict.barcode.set_value("")
+							d.fields_dict.barcode.$input.focus();
 							const formatted_currency= format_currency( rate ,currency)
 							console.log("9242&&&&&&&&&&&&&**********",formatted_currency)
 							let strhtml = `

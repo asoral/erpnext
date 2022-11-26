@@ -396,6 +396,7 @@ erpnext.PointOfSale.ItemCart = class {
 				fieldtype: 'Data',
 				placeholder: ( discount ? discount + '%' :  __('Enter discount percentage.') ),
 				input_class: 'input-xs',
+				hidden:1,
 				onchange: function() {
 					if (flt(this.value) != 0) {
 						console.log("additional_discount_percentage",this.value)

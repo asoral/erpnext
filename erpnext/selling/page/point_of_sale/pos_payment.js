@@ -505,7 +505,7 @@ erpnext.PointOfSale.Payment = class {
 					reqd: 0,
 					data: [],
 					fields: table_fields,
-					hidden:1
+					hidden:0
 
 				},
 					{
