@@ -912,7 +912,7 @@ erpnext.PointOfSale.Controller = class {
 						"country":v.country
 					},
 					callback:function(r){
-						if(r.message){
+						if(r.message != "Not Found"){
 							let i = r.message
 							let item_code = ""
 							let item_name = ""
@@ -946,6 +946,18 @@ erpnext.PointOfSale.Controller = class {
 							<h1> ${formatted_currency} </h1>`
 							$(d.fields_dict['item_details'].wrapper).html(strhtml)
 						}
+
+						else{
+							frappe.show_alert({
+								message: __("No Item Found"),
+								indicator:'red'
+							});
+							frappe.utils.play_sound("error");
+							d.fields_dict.barcode.set_value("")
+							d.fields_dict.barcode.$input.focus();
+						}
+
+
 
 					}
 
@@ -1135,99 +1147,124 @@ erpnext.PointOfSale.Controller = class {
 				
 			],
 			primary_action(v) {
-				frappe.call({
-					method:"grandhyper.api.fetch_item",
-					args:{
-						"barcode":v.barcode,
-						"country":v.country
-					},
-					callback:function(r){
-						if(r.message){
-							let i = r.message
-							let batch_no = ""
-							let serial_no = ""
-							let barcode = ""
-							let qty = 0.0
-							let item_code = ""
-							let item_name = ""
-							let rate = 0.0
-							let uom = ""
-							let country = ""
-							let currency = ""
-							console.log("item-details^^^^^^^^^^^^^^^^^^^",i)
-							for (var key in i) {
-								item_code = i["item_code"]
-								item_name = i["item_name"]
-								rate = i["rate"]
-								uom = i["uom"]
-								currency = i["currency"]
-								barcode = i["barcode"]
-								qty = i["qty"]
-								console.log("qty--------------------",i["qty"])
-								
-								
-								
-								
-								
-								
-							}
-
-							d.fields_dict.item_cart.df.data.push({item_code,qty,uom,rate,serial_no,batch_no,barcode})
-							d.fields_dict.item_cart.refresh();
-
-							me.on_cart_update(args)
+				if(v.barcode){
+					frappe.call({
+						method:"grandhyper.api.fetch_item",
+						args:{
 							
+							"country":v.country,
+							"barcode":v.barcode
+						},
+						callback:function(r){
+							if(r.message != "Not Found"){
+								let i = r.message
+								let batch_no = ""
+								let serial_no = ""
+								let barcode = ""
+								let qty = 0.0
+								let item_code = ""
+								let item_name = ""
+								let rate = 0.0
+								let uom = ""
+								let country = ""
+								let currency = ""
+								console.log("item-details^^^^^^^^^^^^^^^^^^^",i)
+								for (var key in i) {
+									item_code = i["item_code"]
+									item_name = i["item_name"]
+									rate = i["rate"]
+									uom = i["uom"]
+									currency = i["currency"]
+									barcode = i["barcode"]
+									qty = i["qty"]
+									console.log("qty--------------------",i["qty"])
+									
+									
+									
+									
+									
+									
+								}
+	
+								d.fields_dict.item_cart.df.data.push({item_code,qty,uom,rate,serial_no,batch_no,barcode})
+								d.fields_dict.item_cart.refresh();
+	
+								me.on_cart_update(args)
+								
+	
+	
+								d.fields_dict.barcode.set_value("")
+	
+								let item = {}
+								let args = {}
+								let items = []
+								if(d.fields_dict.item_cart.df.data){
+									items = d.fields_dict.item_cart.df.data
+			
+								}
+								items.forEach(m => {
+									console.log("m777777777777777777",this)
+									item["item_code"] = m["item_code"]
+									item["batch_no"] = m["batch_no"]
+									item["serial_no"] = m["serial_no"]
+									item["rate"] = m["rate"]
+									item["uom"] = m["uom"]
+									item["barcode"] = m["barcode"]
+									args["field"] = "qty",
+									args["value"] = m['qty']
+									args["item"] = item
+									me.on_cart_update(args)
+									
+			
+			
+									
+								})
+								items.length = 0
+								d.fields_dict.item_cart.refresh();
+			
+										console.log("qty-----------------------",qty)
+										const formatted_currency= format_currency( rate ,currency)
+										console.log("9242&&&&&&&&&&&&&**********",formatted_currency)
+										let strhtml = `
+										<head>
+										<style>
+										h1 {text-align: center;}
+										h3 {text-align: center;}
+										</style>
+										</head>
+										<h3> ${item_name} </h3>
+										<h3> 1 ${uom} </h3>
+										<h1> ${formatted_currency} </h1>`
+										$(d.fields_dict['item_details'].wrapper).html(strhtml)
+			
+									}
+							else{
 
+								frappe.show_alert({
+									message: __("No Item Found For This Barcode"),
+									indicator:'red'
+								});
+								frappe.utils.play_sound("error");
+								d.fields_dict.barcode.set_value("")
+								d.fields_dict.barcode.$input.focus();
 
-							d.fields_dict.barcode.set_value("")
-
-							let item = {}
-					let args = {}
-					let items = []
-					if(d.fields_dict.item_cart.df.data){
-						items = d.fields_dict.item_cart.df.data
-
-					}
-					items.forEach(m => {
-						console.log("m777777777777777777",this)
-						item["item_code"] = m["item_code"]
-						item["batch_no"] = m["batch_no"]
-						item["serial_no"] = m["serial_no"]
-						item["rate"] = m["rate"]
-						item["uom"] = m["uom"]
-						item["barcode"] = m["barcode"]
-						args["field"] = "qty",
-						args["value"] = m['qty']
-						args["item"] = item
-						me.on_cart_update(args)
-						
-
-
-						
-					})
-					items.length = 0
-					d.fields_dict.item_cart.refresh();
-
-							console.log("qty-----------------------",qty)
-							const formatted_currency= format_currency( rate ,currency)
-							console.log("9242&&&&&&&&&&&&&**********",formatted_currency)
-							let strhtml = `
-							<head>
-							<style>
-							h1 {text-align: center;}
-							h3 {text-align: center;}
-							</style>
-							</head>
-							<h3> ${item_name} </h3>
-							<h3> 1 ${uom} </h3>
-							<h1> ${formatted_currency} </h1>`
-							$(d.fields_dict['item_details'].wrapper).html(strhtml)
-
+							}
+	
 						}
+	
+					})
+				}
+				else{
 
-					}
-
-				})
+					frappe.show_alert({
+						message: __("Please Enter Barcode"),
+						indicator:'red'
+					});
+					frappe.utils.play_sound("error");
+					d.fields_dict.barcode.set_value("")
+					d.fields_dict.barcode.$input.focus();
+				}
+				
 
 				// var data = d.get_values();
 				// frappe.call({

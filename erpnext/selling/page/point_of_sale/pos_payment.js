@@ -1040,11 +1040,13 @@ erpnext.PointOfSale.Payment = class {
 					frappe.db.get_doc("Mode of Payment", p.mode_of_payment).then(( currency ) => {
 						if(currency.type == "Cash"){
 							console.log(" Mode Cash")
-							d.set_df_property('txn_id','hidden','1')
-							d.set_df_property('txn_id','reqd','0')
+							d.set_df_property('txn_id','hidden',1)
+							d.set_df_property('txn_id','reqd',0)
 						}
 						else if(currency.type != "Cash"){
 							console.log(" Mode not Cash")
+							d.set_df_property('txn_id','hidden',0)
+							d.set_df_property('txn_id','reqd',1)
 							
 						}
 						

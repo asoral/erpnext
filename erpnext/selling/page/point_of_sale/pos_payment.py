@@ -216,7 +216,7 @@ def update_pos_invoice(values,inv,paid_amount,change_amount):
 
 @frappe.whitelist()
 def update_cart(ic,barcode,ip,pos_profile):
-    print(ip)
+    print("ic--------------------------------------",ic)
     res = list(ip)
     res.insert(3,'.')
     res = ''.join(res)

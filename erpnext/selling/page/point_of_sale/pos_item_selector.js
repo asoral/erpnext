@@ -167,7 +167,7 @@ erpnext.PointOfSale.ItemSelector = class {
 	get_plu_item_html(item) {
 		const me = this;
 		// eslint-disable-next-line no-unused-vars
-		const { item_image, serial_no, batch_no, barcode, actual_qty, uom2, price_list_rate } = item;
+		const { item_image, serial_no, batch_no, barcode, actual_qty, uom, price_list_rate } = item;
 		// //("**********************888item in get_itemhtml",item)
 		const precision = flt(price_list_rate, 2) % 1 != 0 ? 2 : 0;
 		let indicator_color;
@@ -208,7 +208,7 @@ erpnext.PointOfSale.ItemSelector = class {
 		return (
 			`<div class="plu-item-wrapper"
 				data-item-code="${escape(item.item_code)}" data-serial-no="${escape(serial_no)}"
-				data-batch-no="${escape(batch_no)}" data-uom="${escape(uom2)}"
+				data-batch-no="${escape(batch_no)}" data-uom="${escape(uom)}"
 				data-rate="${escape(price_list_rate || 0)}"
 				data-barcode = "${escape(barcode)}
 				title="${item.item_name}">
@@ -1029,7 +1029,7 @@ erpnext.PointOfSale.ItemSelector = class {
 					if(p.wtable == search_term.substring(0,2)){
 						let ic = search_term.substring(2,7)
 						let ip = search_term.substring(7,12)
-						//("ic**********************",ic)
+						console.log("ic**********************",ic)
 						frappe.call({
 							method: "erpnext.selling.page.point_of_sale.pos_payment.update_cart",
 							args: {"ic":ic,"barcode":search_term,"ip":ip,"pos_profile":this.pos_profile},
@@ -1053,6 +1053,7 @@ erpnext.PointOfSale.ItemSelector = class {
 								me.set_search_value('');
 								}
 								else{
+									console.log("Else Block during Weighable0---------------------")
 
 									frappe.show_alert({
 										message: __("No items found. Scan barcode again."),
