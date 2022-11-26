@@ -892,26 +892,26 @@ erpnext.PointOfSale.Payment = class {
 									}
 									});
 									
-																// window.location.reload()
+									window.location.reload()
 								}
 								
-								frappe.ui.form.qz_connect()
-								.then(function () {
-									console.log("r.message",typeof r.message)
-									var config = qz.configs.create("Epson-TM-BA-Thermal")
-									// window.location.reload()
-									var data = [{
-										type: 'pixel',
-										format: 'html',
-										flavor: 'plain', // or 'plain' if the data is raw HTML
-										data: r.message
-									 }];
-									return qz.print(config, data);
-								})
-								.then(frappe.ui.form.qz_success)
-								.catch(err => {
-									frappe.ui.form.qz_fail(err);
-								});
+								// frappe.ui.form.qz_connect()
+								// .then(function () {
+								// 	console.log("r.message",typeof r.message)
+								// 	var config = qz.configs.create("Epson-TM-BA-Thermal")
+								// 	// window.location.reload()
+								// 	var data = [{
+								// 		type: 'pixel',
+								// 		format: 'html',
+								// 		flavor: 'plain', // or 'plain' if the data is raw HTML
+								// 		data: r.message
+								// 	 }];
+								// 	return qz.print(config, data);
+								// })
+								// .then(frappe.ui.form.qz_success)
+								// .catch(err => {
+								// 	frappe.ui.form.qz_fail(err);
+								// });
 
 								
 	
@@ -1045,8 +1045,7 @@ erpnext.PointOfSale.Payment = class {
 						}
 						else if(currency.type != "Cash"){
 							console.log(" Mode not Cash")
-							d.set_df_property('txn_id','hidden','0')
-							d.set_df_property('txn_id','reqd','1')
+							
 						}
 						
 						
