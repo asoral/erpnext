@@ -712,23 +712,29 @@ erpnext.PointOfSale.Controller = class {
 			this.print_format_printer_map = this.get_print_format_printer_map();
 			this.data = this.print_format_printer_map[this.frm.doctype] || [];
 		    // let printer_list = [];
-			f
-			frappe.ui.form.qz_get_printer_list().then((data) => {
-				//console.log("printer object********************",data.length,data)
-				//console.log("9242&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
-				if(data.length > 1 ){
-					data.forEach(printer => {
-						d.fields_dict.printer.df.options.push(printer)
-						d.fields_dict.printer.refresh()
-					})
-				}
-				else if(data.length == 1){
-					//console.log("8242455555511",d.fields_dict.printer.df.default)
-					d.fields_dict.printer.set_value(data[0])
-					d.fields_dict.printer.refresh()
-				}
+			// f
+			// frappe.ui.form.qz_get_printer_list().then((data) => {
+			// 	//console.log("printer object********************",data.length,data)
+			// 	//console.log("9242&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
+			// 	if(data.length > 1 ){
+			// 		data.forEach(printer => {
+			// 			d.fields_dict.printer.df.options.push(printer)
+			// 			d.fields_dict.printer.refresh()
+			// 		})
+			// 	}
+			// 	else if(data.length == 1){
+			// 		//console.log("8242455555511",d.fields_dict.printer.df.default)
+			// 		d.fields_dict.printer.set_value(data[0])
+			// 		d.fields_dict.printer.refresh()
+			// 	}
 				
 	
+			// })
+			frappe.db.get_doc("POS Profile",this.pos_profile).then(dp => {
+				if(dp.default_printer){
+					d.fields_dict.printer.set_value(dp.default_printer)
+					d.fields_dict.printer.refresh()
+				}
 			})
 		const d = new frappe.ui.Dialog({
 			title: __("Supervisor Authorization"),
@@ -824,7 +830,9 @@ erpnext.PointOfSale.Controller = class {
 							.then(function () {
 
 								var config = qz.configs.create(v.printer);
-								var data =["Cash Drawer Open"]
+								var data = [
+									'\x10' + '\x14' + '\x01' + '\x00' + '\x05' //Generate Pulse to kick-out cash drawer
+								];
 								return qz.print(config,data);
 
 							})
@@ -905,65 +913,81 @@ erpnext.PointOfSale.Controller = class {
 				
 			],
 			primary_action(v) {
-				frappe.call({
-					method:"grandhyper.api.fetch_price",
-					args:{
-						"barcode":v.barcode,
-						"country":v.country
-					},
-					callback:function(r){
-						if(r.message != "Not Found"){
-							let i = r.message
-							let item_code = ""
-							let item_name = ""
-							let rate = 0.0
-							let uom = ""
-							let country = ""
-							let currency = ""
-							console.log("i",i)
-							for (var key in i) {
-								item_code = i["item_code"]
-								item_name = i["item_name"]
-								rate = i["rate"]
-								uom = i["uom"]
-								currency = i["currency"]
-								
-								
-								
-								
+				if(v.barcode){
+					frappe.call({
+						method:"grandhyper.api.fetch_price",
+						args:{
+							
+							"country":v.country,
+							"barcode":v.barcode
+						},
+						callback:function(r){
+							if(r.message != "Not Found"){
+								console.log("r.message----------------------",r.message)
+								let i = r.message
+								let item_code = ""
+								let item_name = ""
+								let rate = 0.0
+								let uom = ""
+								let country = ""
+								let currency = ""
+								console.log("i",i)
+								for (var key in i) {
+									item_code = i["item_code"]
+									item_name = i["item_name"]
+									rate = i["rate"]
+									uom = i["uom"]
+									currency = i["currency"]
+									
+									
+									
+									
+								}
+								d.fields_dict.barcode.set_value("")
+								d.fields_dict.barcode.$input.focus();
+								const formatted_currency= format_currency( rate ,currency)
+								console.log("9242&&&&&&&&&&&&&**********",formatted_currency)
+								let strhtml = `
+								<head>
+								<style>
+								h1 {text-align: center;}
+								h3 {text-align: center;}
+								</style>
+								</head>
+								<h3> ${item_name} </h3>
+								<h3> 1 ${uom} </h3>
+								<h1> ${formatted_currency} </h1>`
+								$(d.fields_dict['item_details'].wrapper).html(strhtml)
 							}
-							d.fields_dict.barcode.set_value("")
-							d.fields_dict.barcode.$input.focus();
-							const formatted_currency= format_currency( rate ,currency)
-							console.log("9242&&&&&&&&&&&&&**********",formatted_currency)
-							let strhtml = `
-							<head>
-							<style>
-							h1 {text-align: center;}
-							h3 {text-align: center;}
-							</style>
-							</head>
-							<h3> ${item_name} </h3>
-							<h3> 1 ${uom} </h3>
-							<h1> ${formatted_currency} </h1>`
-							$(d.fields_dict['item_details'].wrapper).html(strhtml)
+	
+							else{
+								frappe.show_alert({
+									message: __("No Item Found"),
+									indicator:'red'
+								});
+								frappe.utils.play_sound("error");
+								d.fields_dict.barcode.set_value("")
+								d.fields_dict.barcode.$input.focus();
+							}
+	
+	
+	
 						}
+	
+					})
+				}
+				else{
 
-						else{
-							frappe.show_alert({
-								message: __("No Item Found"),
-								indicator:'red'
-							});
-							frappe.utils.play_sound("error");
-							d.fields_dict.barcode.set_value("")
-							d.fields_dict.barcode.$input.focus();
-						}
+					frappe.show_alert({
+						message: __("Please Enter Barcode"),
+						indicator:'red'
+					});
+					frappe.utils.play_sound("error");
+					d.fields_dict.barcode.set_value("")
+					d.fields_dict.barcode.$input.focus();
 
-
-
-					}
-
-				})
+				}
+				
 
 				// var data = d.get_values();
 				// frappe.call({

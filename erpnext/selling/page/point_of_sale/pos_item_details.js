@@ -280,6 +280,9 @@ erpnext.PointOfSale.ItemDetails = class {
 		}
 
 		if (this.warehouse_control) {
+			console.log("warehouse control---------------",this.warehouse_control.df)
+			this.warehouse_control.df.fieldtype = "Data"
+			this.warehouse_control.df.options = ""
 			this.warehouse_control.df.read_only = 1;
 			this.warehouse_control.df.onchange = function() {
 				if (this.value) {
@@ -338,6 +341,8 @@ erpnext.PointOfSale.ItemDetails = class {
 		
 
 		if (this.uom_control){
+			this.uom_control.df.fieldtype = "Data"
+			this.uom_control.df.options = ""
 			this.uom_control.df.read_only = 1
 			// //console.log("944646464646%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55",this)
 			// this.uom_control.df.onchange = function() {

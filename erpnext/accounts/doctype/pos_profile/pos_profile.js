@@ -15,6 +15,18 @@ frappe.ui.form.on("POS Profile", "onload", function(frm) {
 	erpnext.queries.setup_queries(frm, "Warehouse", function() {
 		return erpnext.queries.warehouse(frm.doc);
 	});
+
+	frappe.ui.form.qz_get_printer_list().then((data) => {
+		
+		
+	
+	frm.set_df_property("default_printer","options",data)
+	frm.refresh_field("default_printer")
+			
+		
+		
+
+	})
 });
 
 frappe.ui.form.on('POS Profile', {
