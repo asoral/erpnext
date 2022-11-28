@@ -957,7 +957,10 @@ erpnext.PointOfSale.Controller = class {
 								<h3> ${item_name} </h3>
 								<h3> 1 ${uom} </h3>
 								<h1> ${formatted_currency} </h1>`
-								$(d.fields_dict['item_details'].wrapper).html(strhtml)
+								$(d.fields_dict['item_details'].wrapper).html(strhtml).then(
+									setTimeout($(d.fields_dict['item_details'].wrapper).html(""),1000)
+									
+								)
 							}
 	
 							else{
