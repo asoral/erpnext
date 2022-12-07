@@ -28,6 +28,7 @@
   "customers",
   "preferences",
   "orientation",
+  "include_break",
   "include_ageing",
   "ageing_based_on",
   "section_break_14",
@@ -291,6 +292,12 @@
    "fieldname": "show_net_values_in_party_account",
    "fieldtype": "Check",
    "label": "Show Net Values In Party Account"
+  },
+  {
+   "default": "1",
+   "fieldname": "include_break",
+   "fieldtype": "Check",
+   "label": "Page Break After Each SoA"
   }
  ],
  "links": [],
@@ -327,5 +334,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

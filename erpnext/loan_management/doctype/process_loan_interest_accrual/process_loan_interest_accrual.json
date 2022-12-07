@@ -54,7 +54,7 @@
    "fieldtype": "Select",
    "hidden": 1,
    "label": "Accrual Type",
-   "options": "Regular\nRepayment\nDisbursement",
+   "options": "Regular\nRepayment\nDisbursement\nCredit Adjustment\nDebit Adjustment\nRefund",
    "read_only": 1
   }
  ],
@@ -65,6 +65,7 @@
  "modified_by": "Administrator",
  "module": "Loan Management",
  "name": "Process Loan Interest Accrual",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -98,5 +99,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }
