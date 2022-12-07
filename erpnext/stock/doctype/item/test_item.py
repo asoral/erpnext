@@ -30,7 +30,7 @@ test_ignore = ["BOM"]
 test_dependencies = ["Warehouse", "Item Group", "Item Tax Template", "Brand", "Item Attribute"]
 
 
-def make_item(item_code=None, properties=None):
+def make_item(item_code=None, properties=None, uoms=None):
 	if not item_code:
 		item_code = frappe.generate_hash(length=16)
 
@@ -54,6 +54,11 @@ def make_item(item_code=None, properties=None):
 		for item_default in [doc for doc in item.get("item_defaults") if not doc.default_warehouse]:
 			item_default.default_warehouse = "_Test Warehouse - _TC"
 			item_default.company = "_Test Company"
+
+	if uoms:
+		for uom in uoms:
+			item.append("uoms", uom)
+
 	item.insert()
 
 	return item
@@ -712,6 +717,7 @@ def create_item(
 	item_code,
 	is_stock_item=1,
 	valuation_rate=0,
+	stock_uom="Nos",
 	warehouse="_Test Warehouse - _TC",
 	is_customer_provided_item=None,
 	customer=None,
@@ -727,6 +733,7 @@ def create_item(
 		item.item_name = item_code
 		item.description = item_code
 		item.item_group = "All Item Groups"
+		item.stock_uom = stock_uom
 		item.is_stock_item = is_stock_item
 		item.is_fixed_asset = is_fixed_asset
 		item.asset_category = asset_category
