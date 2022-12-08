@@ -957,10 +957,7 @@ erpnext.PointOfSale.Controller = class {
 								<h3> ${item_name} </h3>
 								<h3> 1 ${uom} </h3>
 								<h1> ${formatted_currency} </h1>`
-								$(d.fields_dict['item_details'].wrapper).html(strhtml).then(
-									setTimeout($(d.fields_dict['item_details'].wrapper).html(""),1000)
-									
-								)
+								$(d.fields_dict['item_details'].wrapper).html(strhtml)
 							}
 	
 							else{
@@ -1108,6 +1105,13 @@ erpnext.PointOfSale.Controller = class {
 					
 				},
 
+				{
+					fieldname: "barcode_arabic", fieldtype: "Data",
+					in_list_view: 1, label: "Barcode Arab",reqd: 0
+					 
+					
+				},
+
 			]
 
 			frappe.db.get_doc("POS Profile",this.pos_profile).then(pp => {
@@ -1197,6 +1201,7 @@ erpnext.PointOfSale.Controller = class {
 								let uom = ""
 								let country = ""
 								let currency = ""
+								let barcode_arabic = ""
 								console.log("item-details^^^^^^^^^^^^^^^^^^^",i)
 								for (var key in i) {
 									item_code = i["item_code"]
@@ -1206,6 +1211,7 @@ erpnext.PointOfSale.Controller = class {
 									currency = i["currency"]
 									barcode = i["barcode"]
 									qty = i["qty"]
+									barcode_arabic = i["desc_arab"]
 									console.log("qty--------------------",i["qty"])
 									
 									
@@ -1215,10 +1221,10 @@ erpnext.PointOfSale.Controller = class {
 									
 								}
 	
-								d.fields_dict.item_cart.df.data.push({item_code,qty,uom,rate,serial_no,batch_no,barcode})
+								d.fields_dict.item_cart.df.data.push({item_code,qty,uom,rate,serial_no,batch_no,barcode,barcode_arabic})
 								d.fields_dict.item_cart.refresh();
 	
-								me.on_cart_update(args)
+								// me.on_cart_update(args)
 								
 	
 	
@@ -1239,6 +1245,7 @@ erpnext.PointOfSale.Controller = class {
 									item["rate"] = m["rate"]
 									item["uom"] = m["uom"]
 									item["barcode"] = m["barcode"]
+									item["barcode_arabic"] = m["barcode_arabic"]
 									args["field"] = "qty",
 									args["value"] = m['qty']
 									args["item"] = item
@@ -1248,6 +1255,7 @@ erpnext.PointOfSale.Controller = class {
 			
 									
 								})
+								console.log("items------------------------------",item)
 								items.length = 0
 								d.fields_dict.item_cart.refresh();
 			
@@ -1792,12 +1800,12 @@ erpnext.PointOfSale.Controller = class {
 				if (!this.frm.doc.customer)
 					return this.raise_customer_selection_alert();
 
-				const { item_code, batch_no, serial_no, rate , barcode } = item;
+				const { item_code, batch_no, serial_no, rate , barcode,barcode_arabic } = item;
 
 				if (!item_code)
 					return;
 
-				const new_item = { item_code, batch_no, rate, barcode,[field]: value };
+				const new_item = { item_code, batch_no, rate, barcode,barcode_arabic,[field]: value };
 				console.log("new item",new_item)
 
 				if (serial_no) {
@@ -1855,8 +1863,8 @@ erpnext.PointOfSale.Controller = class {
 		frappe.utils.play_sound("error");
 	}
 
-	get_item_from_frm({ name, item_code, batch_no, uom, rate ,barcode }) {
-		console.log("9242*&&&*&*&*&*********************************",{ name, item_code, batch_no, uom, rate ,barcode })
+	get_item_from_frm({ name, item_code, batch_no, uom, rate ,barcode,barcode_arabic}) {
+		// console.log("9242*&&&*&*&*&*********************************",{ name, item_code, batch_no, uom, rate ,barcode })
 		let item_row = null;
 			
 		if(name)

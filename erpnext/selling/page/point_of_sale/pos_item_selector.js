@@ -103,7 +103,7 @@ erpnext.PointOfSale.ItemSelector = class {
 		const me = this;
 
 		// eslint-disable-next-line no-unused-vars
-		const { item_image, serial_no, batch_no,  actual_qty, stock_uom, price_list_rate,barcode } = item;
+		const { item_image, serial_no, batch_no,  actual_qty, stock_uom, price_list_rate,barcode,desc_arab } = item;
 		// //console.log("barcode in html section &&&&&&&&&&&&*88888888888888888888",barcode)
 		
 		
@@ -149,6 +149,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				data-batch-no="${escape(batch_no)}" data-uom="${escape(stock_uom)}"
 				data-rate="${escape(price_list_rate || 0)}"
 				data-barcode="${escape(barcode|| "")}"
+				data-barcode_arabic="${escape(desc_arab||"")}"
 				title="${item.item_name}">
 
 				${get_item_image_html()}
@@ -507,7 +508,8 @@ erpnext.PointOfSale.ItemSelector = class {
 			let batch_no = unescape($item.attr('data-batch-no'));
 			let serial_no = unescape($item.attr('data-serial-no'));
 			let barcode = unescape($item.attr('data-barcode'));
-			// //console.log("barcode in item-wrapper",barcode)
+			let barcode_arabic = unescape($item.attr('data-barcode_arabic'))
+			console.log("barcode in item-wrapper--------",barcode_arabic)
 			let uom = unescape($item.attr('data-uom'));
 			//console.log("uom in item-wrapper",uom)
 			// //console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&77",uom)
@@ -526,7 +528,7 @@ erpnext.PointOfSale.ItemSelector = class {
 				me.events.item_selected({
 					field: 'qty',
 					value: "1",
-					item: { item_code, batch_no, serial_no, rate  , uom ,barcode  }
+					item: { item_code, batch_no, serial_no, rate  , uom ,barcode,barcode_arabic }
 				
 				});
 				// me.events.add_item()

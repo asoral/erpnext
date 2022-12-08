@@ -346,14 +346,23 @@ erpnext.PointOfSale.Payment = class {
 			
 
 			
-
+			var payments = {}
 			const doc = this.events.get_frm().doc;
-			console.log("doc*********************************8 16/10",doc.company)
+			const pos = doc.pos_profile
+			frappe.db.get_doc("POS Profile",pos).then(pmt => {
+				if(pmt.payments){
+					payments = pmt.payments
+				}
+				else{
+					frappe.msgprint("No Payment Method Found in POS Profile")
+				}
+			})
 			const paid_amount = doc.paid_amount;
 			const items = doc.items;
-			const payments = doc.payments;
+			
+			console.log("doc*********************************8 16/10",payments)
 			const gt = doc.grand_total;
-			const pos = doc.pos_profile
+			
 			let def_curr = ""
 			frappe.db.get_doc("Company",doc.company).then(comp => {
 				def_curr = comp.default_currency
@@ -546,7 +555,7 @@ erpnext.PointOfSale.Payment = class {
 							 console.log("ct^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^66",d.fields_dict.amtp.get_value())
 
 							 const doc = this.events.get_frm().doc;
-							 const payments = doc.payments
+							//  const payments = doc.payments
 
 							 
 
@@ -906,117 +915,131 @@ erpnext.PointOfSale.Payment = class {
 											var config = qz.configs.create(dp.default_printer, {encoding: 'IBM864'});  // *Epson T88 models with correct firmware.  Toggles Big5 with Hong Kong extensions.
                                             // {encoding: 'GBK'});   // Fuken POS90 ships with GB18030, but 'GBK' is required
 
-											var printData = [
-												'\x1B' + '\x40',   // ESC @ - init command, necessary for proper byte interpretation
-												'\x1B' + '\x74' + '\x25', // Setup "codepage 37", which is Epson's IBM864
-												'جراند هايبرماركت', '\n',
-												'سلطنة عمان' ,'\n',
-												// UTF-8 RTL text
-												'\x1B' + '\x69'          // cut paper
-											 ];
+											// 
+											// var printData = [
+											// 	'\x1B' + '\x40',   // ESC @ - init command, necessary for proper byte interpretation
+											// 	'\x1B' + '\x74' + '\x25', // Setup "codepage 37", which is Epson's IBM864
+											// 	'لكن لا بد أن أوضح لك أن كل هذه الأفكار', '\n', // UTF-8 RTL text
+											// 	'\x1B' + '\x69'          // cut paper
+											//  ];
 
-											qz.print(config, printData);
+											// qz.print(config, printData);
 											// console.log("r.message",typeof r.message)
-											// var config = qz.configs.create(dp.default_printer,{encoding: "IBM864"})
-											// var data = [
-											// 	'\x1B' + '\x40', //init
-											// 	'\x1B' + '\x61' + '\x31', //center align
-											// 	doc.company + '\x0A',
-											// 	'\x1B' + '\x61' + '\x31',
-											// 	doc.group_company + '\x0A',
-											// 	'\x1B' + '\x61' + '\x31',
-											// 	'VATIN#' + doc.company_trn + '\x0A',
-											// 	'\x1B' + '\x61' + '\x31',
-											// 	doc.registration_details + '\x0A',
-											// 	'\x1B' + '\x61' + '\x31',
-											// 	'(A Division of Regency Group)' + '\x0A',
-											// 	'\x1B' + '\x61' + '\x31',
-											// 	'Tel:' + doc.company_phone+  '\x09' +       'Fax:'+doc.company_phone + '\x0A',
-											// 	'\x1B' + '\x45' + '\x0D', //bold on
-											// 	'SIMPLIFIED TAX INVOICE' + '\x0A',
-											// 	'\x1B' + '\x45' + '\x0A', //bold off
+											var config = qz.configs.create(dp.default_printer,{encoding: "IBM864"})
+											var data = [
+												'\x1B' + '\x40', //init
+												'\x1B' + '\x61' + '\x31', //center align
+												doc.company + '\x0A',
+												'\x1B' + '\x61' + '\x31',
+												doc.group_company + '\x0A',
+												'\x1B' + '\x61' + '\x31',
+												'VATIN#' + doc.company_trn + '\x0A',
+												'\x1B' + '\x61' + '\x31',
+												doc.registration_details + '\x0A',
+												'\x1B' + '\x61' + '\x31',
+												'(A Division of Regency Group)' + '\x0A',
+												'\x1B' + '\x61' + '\x31',
+												'Tel:' + doc.company_phone+  '\x09' +       'Fax:'+doc.company_phone + '\x0A',
+												'\x1B' + '\x45' + '\x0D', //bold on
+												'SIMPLIFIED TAX INVOICE' + '\x0A',
+												'\x1B' + '\x45' + '\x0A', //bold off
 												
-											// 	'================================' +'\x0A',
-											// 	'\x1B' + '\x61' + '\x30',
-											// 	'Location:' + doc.location_id +'\x09'+'\x09'+'POS: ' + doc.pos_profile + '\x0A',
-											// 	'\x1B' + '\x61' + '\x30',
-											// 	'Receipt No: ' + doc.name   +'\x09' + 'Date:' + moment(doc.posting_date).format("DD-MM-YYYY") + '\x0A',
-											// 	'\x1B' + '\x61' + '\x30',
-											// 	'Cashier: ' + doc.owner    +'\x09' +'Time: ' + moment(frappe.datetime.now_datetime()).format("HH:mm:ss") + '\x0A' + '\x0A',
+												'================================' +'\x0A',
+												'\x1B' + '\x61' + '\x30',
+												'Location:' + doc.location_id +'\x09'+'\x09'+'POS: ' + doc.pos_profile + '\x0A',
+												'\x1B' + '\x61' + '\x30',
+												'Receipt No: ' + doc.name   +'\x09' + 'Date:' + moment(doc.posting_date).format("DD-MM-YYYY") + '\x0A',
+												'\x1B' + '\x61' + '\x30',
+												'Cashier: ' + doc.owner    +'\x09' +'Time: ' + moment(frappe.datetime.now_datetime()).format("HH:mm:ss") + '\x0A' + '\x0A',
 
-											// 	'\x1B' + '\x61' + '\x31',
-											// 	'================================' +'\x0A',
-											// 	'\x1B' + '\x61' + '\x30', // left align
-											// 	'\x1B' + '\x45' + '\x0D',
-											// 	'Description                                Amount' + '\x0A',
-											// 	'\x1B' + '\x45' + '\x0A' //bold off
-											// ];
-											// doc.items.forEach(function(row){
-											// 	var item = row.item_name
-											// 	var rate = row.rate
-											// 	var amount = row.amount
-											// 	var qty = row.qty
-											// 	var ilength = item.length;
-											// 	var ret = [];
-											// 	//Put in for loop in case item length > 30
-											// 	for(var i=0; i<ilength; i=i+42){
-											// 		ret.push(item.substring(i, i+42) + "\x0A");
-											// 	}
-												
-											// 	//For quantity
-											// 	var qty_rate =  rate.toString() + "x " + qty.toString();
-											// 	var qlength = qty_rate.length;
-											// 	for(var i=0; i<(30-qlength); i++){
-											// 		qty_rate = qty_rate + " ";
-											// 	}
-												
-											// 	//Add amount at end of qty-rate line
-											// 	var alength = amount.toString().length;
-											// 	for(var i=0; i<(11-alength); i++){
-											// 		qty_rate = qty_rate + " ";
-											// 	}
-											// 	qty_rate = qty_rate  + amount.toString();
-											// 	ret.push(qty_rate + "\x0A");
-												
-												
-											// 	data.push.apply(data, ret)
-												
-											// });
-											// data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
-											// 	"================================" +  "\x0A" ])
+												'\x1B' + '\x61' + '\x31',
+												'================================' +'\x0A',
+												'\x1B' + '\x61' + '\x30', // left align
+												'\x1B' + '\x45' + '\x0D',
+												'Description                                Amount' + '\x0A',
+												'\x1B' + '\x45' + '\x0A' //bold off
+											];
+											doc.items.forEach(function(row){
+												var item = row.item_name
+												var desc_arab = row.barcode_arabic
+												var rate = row.rate
+												var amount = row.amount
+												var barcode = row.barcode
+												var qty = row.qty
+												var ilength = item.length;
+												var ret = [];
+												var arab_data = [
+													'\x1B' + '\x40',   // ESC @ - init command, necessary for proper byte interpretation
+													'\x1B' + '\x74' + '\x25', // Setup "codepage 37", which is Epson's IBM864
+													desc_arab.substring(i, i+25), '\n',
+													// UTF-8 RTL text
+													// cut paper
+												 ];
+												//Put in for loop in case item length > 30
+												for(var i=0; i<ilength; i=i+25){
+													
 
-											// data.push.apply(data,['Total Qty:' +doc.total_qty + '\x09' +    'Grand Total:' + doc.grand_total + '\x0A' ])
+													ret.push(item.substring(i, i+25)  + '\x09'  + arab_data + "\x0A");
+												}
+												
+												//For quantity
+												var bcode = barcode.toString()
+												var qty_rate =  rate.toString() + "x " + qty.toString();
+												var qlength = qty_rate.length;
+												for(var i=0; i<(30-qlength); i++){
+													qty_rate = qty_rate + " ";
+												}
+												
+												//Add amount at end of qty-rate line
+												var alength = amount.toString().length;
+												for(var i=0; i<(11-alength); i++){
+													qty_rate = qty_rate + " ";
+												}
+												qty_rate = qty_rate  + amount.toString();
+												ret.push(bcode + "\x0A")
+												ret.push(qty_rate + "\x0A");
+												
+												
+												data.push.apply(data, ret)
+												
+											});
+											data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
+												"================================" +  "\x0A" ])
 
-											// data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
-											// 	"================================" +  "\x0A" ])
+											data.push.apply(data,['Total Qty:' +doc.total_qty + '\x09' +    'Grand Total:' + doc.grand_total + '\x0A' ])
+
+											data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
+												"================================" +  "\x0A" ])
+											let pymt = doc.payments
+											console.log("payment methods----------------------",doc.payments)
+
+											pymt.forEach(function(row){
+												console.log("payment methods----------------------",row)
+												var mop = row.mode_of_payment
+												var amt = row.amount_paid_currency
+												
+												var ret = ['Paid(' + mop + ')' + '\x09' + row.base_amount + '\x0A'];
+												//Put in for loop in case item length > 30
+												
+												
+												
+												
+												data.push.apply(data, ret)
+												
+											});
+											data.push.apply(data,['Change'+ '\x09' + doc.change_amount + '\x0A' ])
+											data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
+												"================================" +  "\x0A" ])
+											data.push.apply(data,['Tax Id'  + '\x09'  +    'Bef.VAT'  + '\x09'  +  'Tax Amt'  + '\x09'+   'Total' + '\x0A' ])
+											data.push.apply(data,["5%" + '\x09'  +  doc.total + '\x09'  +  doc.total_taxes_and_charges + '\x09' +  doc.grand_total +  "\x0A" ])
+											data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
+												"================================" +  "\x0A" ])
+											
 											
 
-											// doc.payments.forEach(function(row){
-											// 	var mop = row.mode_of_payment
-											// 	var amt = row.amount_paid_currency
-												
-											// 	var ret = ['Paid(' + mop + ')' + '\x09' + row.base_amount + '\x0A'];
-											// 	//Put in for loop in case item length > 30
-												
-												
-												
-												
-											// 	data.push.apply(data, ret)
-												
-											// });
-											// data.push.apply(data,['Change'+ '\x09' + doc.change_amount + '\x0A' ])
-											// data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
-											// 	"================================" +  "\x0A" ])
-											// data.push.apply(data,['Tax Id'  + '\x09'  +    'Bef.VAT'  + '\x09'  +  'Tax Amt'  + '\x09'+   'Total' + '\x0A' ])
-											// data.push.apply(data,["5%" + '\x09'  +  doc.total + '\x09'  +  doc.total_taxes_and_charges + '\x09' +  doc.grand_total +  "\x0A" ])
-											// data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
-											// 	"================================" +  "\x0A" ])
-											
-											// data.push.apply(data,['\x1B' + '\x69'])
 
-
-											// console.log("data----------------------",data)
-											// return qz.print(config, data);
+											console.log("data----------------------",data)
+											return qz.print(config, data);
 											
 										}
 										
@@ -1327,39 +1350,40 @@ erpnext.PointOfSale.Payment = class {
 
 
 
-			payments.forEach(m => {
-				frappe.db.get_doc("POS Invoice",m.parent).then(p => {
-					frappe.db.get_doc("POS Profile",p.pos_profile).then(g => {
-						g.payments.forEach(pymts => {
-						d.fields_dict.mop.df.options.push(pymts.mode_of_payment)
-						if(pymts.default == 1){
-							console.log("jjjjjjjjjjjjjjjjjhhhhhhhhhhhhhjjjjjjjsquidgame",pymts.mode_of_payment)
-							d.fields_dict.mop.set_value(pymts.mode_of_payment)
-							
-						}
-						console.log("9242*********************")
-						d.fields_dict.mop.refresh();
-						let base_amount = 0.0
-						let amount = 0.0
-						let mode_of_payment = pymts.mode_of_payment
-						d.fields_dict.payment_details.df.data.push({base_amount,mode_of_payment,amount})
-						d.fields_dict.payment_details.refresh();
+			
+			
 
-						})
-						
-
-					})
-
+			frappe.db.get_doc("POS Profile",pos).then(g => {
+				g.payments.forEach(pymts => {
+				d.fields_dict.mop.df.options.push(pymts.mode_of_payment)
+				if(pymts.default == 1){
+					console.log("jjjjjjjjjjjjjjjjjhhhhhhhhhhhhhjjjjjjjsquidgame",pymts.mode_of_payment)
+					d.fields_dict.mop.set_value(pymts.mode_of_payment)
+					
+				}
+				console.log("9242*********************")
+				d.fields_dict.mop.refresh();
+				let base_amount = 0.0
+				let amount = 0.0
+				let mode_of_payment = pymts.mode_of_payment
+				d.fields_dict.payment_details.df.data.push({base_amount,mode_of_payment,amount})
+				d.fields_dict.payment_details.refresh();
 
 				})
-
 				
 
-				
-				
-				
-				
 			})
+
+
+			
+
+				
+
+				
+				
+				
+				
+			
 
 			
 			
