@@ -984,7 +984,7 @@ erpnext.PointOfSale.Payment = class {
 												
 												//For quantity
 												var bcode = barcode.toString()
-												var qty_rate =  rate.toString() + "x " + qty.toString();
+												var qty_rate =  rate.toString() + "x" + qty.toString();
 												var qlength = qty_rate.length;
 												for(var i=0; i<(30-qlength); i++){
 													qty_rate = qty_rate + " ";
@@ -1010,23 +1010,25 @@ erpnext.PointOfSale.Payment = class {
 
 											data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
 												"================================" +  "\x0A" ])
-											let pymt = doc.payments
-											console.log("payment methods----------------------",doc.payments)
-
-											pymt.forEach(function(row){
-												console.log("payment methods----------------------",row)
-												var mop = row.mode_of_payment
-												var amt = row.amount_paid_currency
-												
-												var ret = ['Paid(' + mop + ')' + '\x09' + row.base_amount + '\x0A'];
-												//Put in for loop in case item length > 30
-												
-												
-												
-												
-												data.push.apply(data, ret)
-												
-											});
+											
+											console.log("payment methods----------------------",doc.name)
+											frappe.db.get_doc("POS Invoice",doc.name).then(doc => {
+												console.log("payments------------",doc.payments)
+												let pymt = doc.payments
+												pymt.forEach(function(row){
+													console.log("payment methods----------------------",row)
+													var mop = row.mode_of_payment
+													var amt = row.amount
+													if(amt > 0.0){
+													var ret = ['Paid(' + mop + ')' + '\x09' + amt + '\x0A'];
+													data.push.apply(data, ret)
+													}
+													
+													
+												});
+											})
+											
+											
 											data.push.apply(data,['Change'+ '\x09' + doc.change_amount + '\x0A' ])
 											data.push.apply(data,[ '\x1B' + '\x61' + '\x31',
 												"================================" +  "\x0A" ])
