@@ -1026,7 +1026,7 @@ erpnext.PointOfSale.Payment = class {
 													
 													
 												});
-											})
+											
 											
 											
 											data.push.apply(data,['Change'+ '\x09' + doc.change_amount + '\x0A' ])
@@ -1042,6 +1042,8 @@ erpnext.PointOfSale.Payment = class {
 
 											console.log("data----------------------",data)
 											return qz.print(config, data);
+
+										})
 											
 										}
 										
