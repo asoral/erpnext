@@ -203,9 +203,9 @@ class Analytics(object):
 			value_field = "total_qty as value_field"
 
 		if self.filters.tree_type == 'Customer Group':
-			entity_field = 'customer_group'
+			entity_field = 'customer_group as entity'
 		else:
-			entity_field = "territory"
+			entity_field = "territory as entity"
 
 		if self.filters.sales_person:
 			self.entries =frappe.db.sql("""
