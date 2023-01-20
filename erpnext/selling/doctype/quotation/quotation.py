@@ -34,6 +34,10 @@ class Quotation(SellingController):
 		from erpnext.stock.doctype.packed_item.packed_item import make_packing_list
 
 		make_packing_list(self)
+		
+	def before_submit(self):
+		if len(self.taxes)==0:
+			frappe.throw("Taxes Not Define In Tax Table")
 
 	def validate_valid_till(self):
 		if self.valid_till and getdate(self.valid_till) < getdate(self.transaction_date):

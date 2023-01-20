@@ -48,8 +48,6 @@ class SalesOrder(SellingController):
 	def __init__(self, *args, **kwargs):
 		super(SalesOrder, self).__init__(*args, **kwargs)
 
-	# def before_save(self):
-		# self.get_commision()
 
 	# start Of Cutom Code For Button Update Party Balance
 	args = {
@@ -110,6 +108,10 @@ class SalesOrder(SellingController):
 			
 		return self.data1
 
+	def before_submit(self):
+		if len(self.taxes)==0:
+			frappe.throw("Taxes Not Define In Tax Table")
+			
 	def get_party_total(self, args):
 		self.party_total = frappe._dict()
 

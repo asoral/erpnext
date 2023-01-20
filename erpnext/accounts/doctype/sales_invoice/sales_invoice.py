@@ -337,6 +337,9 @@ class SalesInvoice(SellingController):
 
 		self.process_common_party_accounting()
 
+	def before_submit(self):
+		if len(self.taxes)==0:
+			frappe.throw("Taxes Not Define In Tax Table")
 
 	def validate_pos_return(self):
 		if self.is_consolidated:
