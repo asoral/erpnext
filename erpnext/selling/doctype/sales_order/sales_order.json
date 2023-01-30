@@ -15,8 +15,6 @@
   "naming_series",
   "customer",
   "customer_name",
-  "_party_balance",
-  "update_party_balance",
   "order_type",
   "skip_delivery_note",
   "column_break1",
@@ -1516,17 +1514,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "_party_balance",
-   "fieldtype": "Currency",
-   "label": "Party Balance",
-   "read_only": 1
-  },
-  {
-   "fieldname": "update_party_balance",
-   "fieldtype": "Button",
-   "label": "Update Party Balance"
-  },
-  {
    "fieldname": "transporter",
    "fieldtype": "Link",
    "label": "Transporter",
@@ -1597,7 +1584,7 @@
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-08-25 22:36:28.038105",
+ "modified": "2022-10-06 21:12:25.812443",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

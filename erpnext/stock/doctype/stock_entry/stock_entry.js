@@ -176,7 +176,7 @@ frappe.ui.form.on('Stock Entry', {
 	},
 
 	get_intercompany_item: function (frm, cdt, cdn) {
-		if(frm.doc.stock_entry_type=="Material_Receipt"){
+		if(frm.doc.stock_entry_type=="Material Receipt"){
 		frm.clear_table('items');
 		frappe.call({
 			method: "erpnext.stock.doctype.stock_entry.stock_entry.referance_challan",

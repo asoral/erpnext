@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 
+from erpnext.hr.doctype.leave_allocation.leave_allocation import get_unused_leaves
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -145,7 +146,7 @@ class LeaveEncashment(Document):
 
 		valid_leave_balance = allocation.total_leaves_allocated - allocation.carry_forwarded_leaves_count \
 							 - abs(
-			get_unused_leaves(self.employee, self.leave_type, allocation.from_date, self.encashment_date))
+		get_unused_leaves(self.employee, self.leave_type, allocation.from_date, self.encashment_date))
 
 		# if self.leave_balance:
 		# 	print("-----allocation.total_leaves_allocated", allocation.total_leaves_allocated, "-----carrry",allocation.carry_forwarded_leaves_count)

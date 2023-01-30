@@ -134,7 +134,7 @@ def execute(filters=None):
 
 	else:
 		get_data_when_not_grouped_by_invoice(gross_profit_data, filters, group_wise_columns, data)
-
+	print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",data)
 	return columns, data
 
 

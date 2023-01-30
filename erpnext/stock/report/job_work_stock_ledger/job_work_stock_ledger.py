@@ -62,29 +62,34 @@ def execute(filters=None):
 		data.append(sle)
 		if include_uom:
 			conversion_factors.append(item_detail.conversion_factor)
-	ref_challan = ""
-	ref_date=""
-	customer_challan_number=""
-	customer_challan_date=""
-	work_order=""
+
+	challan_number=""
+	challan_date=""
+	invoice_no=""
+	s_date=""
 	for d in data:
 		stock_e=""
+		db=""
+		date=""
 		if d.get("batch_no"):
-			stock_e = frappe.db.sql("""
-								Select se.reference_challan,se.reference_challan_date,se.posting_date,se.customer_challan_number,se.customer_challan_date from `tabStock Entry` se 
-								join `tabStock Entry Detail` sed on sed.parent = se.name 
-								where se.stock_entry_type = "Material Receipt"
-								and sed.batch_no = '{0}' and se.company='{1}'
-								""".format(d.get("batch_no"),filters.get("company")), as_dict=1)
+			stock_e = frappe.get_doc("Batch",d.get("batch_no"))
+			si=frappe.db.get_all("Sales Invoice Item",{"batch_no":d.get("batch_no")},["parent"])
+			for i in si:
+				if i.parent:
+					db=frappe.db.get_value("Sales Invoice",{"company":"Kroslink Polymers Pvt Ltd","name":i.parent},["name"])
+					date=frappe.db.get_value("Sales Invoice",{"company":"Kroslink Polymers Pvt Ltd","name":i.parent},["posting_date"])
+
 		if stock_e:
-			ref_challan = (stock_e[0].get('reference_challan'))
-			ref_date=(stock_e[0].get('reference_challan_date'))
-			customer_challan_number=(stock_e[0].get('customer_challan_number'))
-			customer_challan_date=(stock_e[0].get('customer_challan_date'))
-		d['ref_challan'] = ref_challan
-		d["ref_date"]=ref_date
-		d["customer_challan_number"]=customer_challan_number
-		d["customer_challan_date"]=customer_challan_date
+			challan_number=stock_e.reference_no
+			challan_date=stock_e.challan_date
+		if si:
+			frappe.get_doc
+			invoice_no=db
+			s_date=date
+		d["sales_invoice_date"]=s_date
+		d["sales_invoice"]=invoice_no
+		d['challan_number'] = challan_number
+		d["challan_date"]= challan_date
 		
 
 	update_included_uom_in_report(columns, data, include_uom, conversion_factors)
@@ -131,29 +136,20 @@ def get_columns():
 		{"label": _("Date"), "fieldname": "date", "fieldtype": "Datetime", "width": 150},
 		{"label": _("Item"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 100},
 		{"label": _("Item Name"), "fieldname": "item_name", "width": 100},
+		{"label": _("Batch"), "fieldname": "batch_no", "fieldtype": "Link", "options": "Batch", "width": 100},
 		{"label": _("Stock UOM"), "fieldname": "stock_uom", "fieldtype": "Link", "options": "UOM", "width": 90},
 		{"label": _("In Qty"), "fieldname": "in_qty", "fieldtype": "Float", "width": 80, "convertible": "qty"},
 		{"label": _("Out Qty"), "fieldname": "out_qty", "fieldtype": "Float", "width": 80, "convertible": "qty"},
 		{"label": _("Balance Qty"), "fieldname": "qty_after_transaction", "fieldtype": "Float", "width": 100, "convertible": "qty"},
 		{"label": _("Voucher #"), "fieldname": "voucher_no", "fieldtype": "Dynamic Link", "options": "voucher_type", "width": 150},
 		{"label": _("Warehouse"), "fieldname": "warehouse", "fieldtype": "Link", "options": "Warehouse", "width": 150},
-		{"label": _("Item Group"), "fieldname": "item_group", "fieldtype": "Link", "options": "Item Group", "width": 100},
-		{"label": _("Brand"), "fieldname": "brand", "fieldtype": "Link", "options": "Brand", "width": 100},
-		{"label": _("Description"), "fieldname": "description", "width": 200},
-		{"label": _("Incoming Rate"), "fieldname": "incoming_rate", "fieldtype": "Currency", "width": 110, "options": "Company:company:default_currency", "convertible": "rate"},
-		{"label": _("Valuation Rate"), "fieldname": "valuation_rate", "fieldtype": "Currency", "width": 110, "options": "Company:company:default_currency", "convertible": "rate"},
-		{"label": _("Balance Value"), "fieldname": "stock_value", "fieldtype": "Currency", "width": 110, "options": "Company:company:default_currency"},
 		{"label": _("Voucher Type"), "fieldname": "voucher_type", "width": 110},
-		{"label": _("Voucher #"), "fieldname": "voucher_no", "fieldtype": "Dynamic Link", "options": "voucher_type", "width": 100},
-		{"label": _("Batch"), "fieldname": "batch_no", "fieldtype": "Link", "options": "Batch", "width": 100},
-		{"label": _("Refrence Challan"), "fieldname": "ref_challan", "fieldtype": "Link", "options": "Stock Entry", "width": 100},
-		{"label": _("Refrence Date"), "fieldname": "ref_date", "fieldtype": "Date", "width": 100},
-		{"label": _("Customer Challan Number"), "fieldname": "customer_challan_number", "fieldtype": "Data", "width": 150},
-		{"label": _("Customer Challan Date"), "fieldname": "customer_challan_date", "fieldtype": "Date", "width": 150},
+		{"label": _("Challan Number"), "fieldname": "challan_number", "fieldtype": "Data", "width": 150},
+		{"label": _("Challan Date"), "fieldname": "challan_date", "fieldtype": "Date", "width": 150},
+		{"label": _("Sales Invoice"), "fieldname": "sales_invoice", "fieldtype": "Link", "options": "Sales Invoice", "width": 100},
+		{"label": _("Sales Invoice Date"), "fieldname": "sales_invoice_date", "fieldtype": "Date","width": 100},
+
 		{"label": _("Work Order"), "fieldname": "work_order", "fieldtype": "Link", "options": "Work Order", "width": 100},
-		{"label": _("Serial No"), "fieldname": "serial_no", "fieldtype": "Link", "options": "Serial No", "width": 100},
-		{"label": _("Balance Serial No"), "fieldname": "balance_serial_no", "width": 100},
-		{"label": _("Project"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 100},
 		{"label": _("Company"), "fieldname": "company", "fieldtype": "Link", "options": "Company", "width": 110}
 	]
 

@@ -202,13 +202,13 @@ class Analytics(object):
 			value_field = "total_qty as value_field"
 
 		if self.filters.tree_type == 'Customer Group':
-			entity_field = 'customer_group'
+			entity_field = 'customer_group as entity'
 		else:
-			entity_field = "territory"
+			entity_field = "territory as entity"
 
 		if self.filters.sales_person:
 			self.entries =frappe.db.sql("""
-				select  s.{entity_field} as entity_field ,s.{value_field}, s.{date_field}
+				select  s.{entity_field} ,s.{value_field}, s.{date_field}
 				from `tab{doctype}` s join `tabSales Team` st on st.parent=s.name
 				where s.docstatus = 1 and s.company = %s and st.sales_person = %s
 				and s.{date_field} between %s and %s

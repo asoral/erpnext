@@ -103,8 +103,7 @@
   "rgt",
   "old_parent",
   "upi_section",
-  "upi_id",
-  "upi_qr_code_image"
+  "section_break_28"
  ],
  "fields": [
   {
@@ -714,20 +713,9 @@
    "options": "Account"
   },
   {
-   "fieldname": "upi_qr_code_image",
-   "fieldtype": "Attach Image",
-   "label": "UPI QR Code Image"
-  },
-  {
    "fieldname": "upi_section",
    "fieldtype": "Section Break",
    "label": "UPI Details"
-  },
-  {
-   "fieldname": "upi_id",
-   "fieldtype": "Data",
-   "label": " UPI ID",
-   "translatable": 1
   },
   {
    "collapsible": 1,
@@ -766,7 +754,7 @@
  "image_field": "company_logo",
  "is_tree": 1,
  "links": [],
- "modified": "2022-01-25 10:33:16.826067",
+ "modified": "2022-10-06 21:14:37.095347",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Company",
@@ -826,6 +814,5 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "ASC",
- "states": [],
  "track_changes": 1
 }

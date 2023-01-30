@@ -29,9 +29,9 @@
   "column_break_20",
   "total_picked_weight",
   "amended_from",
-  "transaction_date",
-  "delivery_note_done",
-  "related_delivery_planning"
+  "related_delivery_planning",
+  "print_settings_section",
+  "group_same_items"
  ],
  "fields": [
   {
@@ -187,19 +187,6 @@
    "label": "Planned RM Weight"
   },
   {
-   "fieldname": "transaction_date",
-   "fieldtype": "Date",
-   "hidden": 1,
-   "label": "Transaction Date"
-  },
-  {
-   "default": "0",
-   "fieldname": "delivery_note_done",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": " Delivery Note done"
-  },
-  {
    "default": "0",
    "fieldname": "manual_picking",
    "fieldtype": "Check",
@@ -222,11 +209,10 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-04-21 07:56:40.646473",
+ "modified": "2022-10-06 21:25:30.983065",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Pick List",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -292,6 +278,5 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
  "track_changes": 1
 }

@@ -1,0 +1,22 @@
+{
+ "creation": "2022-12-30 12:02:47.837458",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{\"tree_type\":\"Customer\",\"doc_type\":\"Sales Invoice\",\"value_quantity\":\"Quantity\",\"from_date\":\"2022-04-01\",\"to_date\":\"2023-03-31\",\"company\":\"Arofine Polymers Private Limited\",\"range\":\"Monthly\",\"sales_person\":\"Ganeswar Nayak\"}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "GSN Total",
+ "modified": "2022-12-30 12:02:47.912323",
+ "modified_by": "chaitanya@arofines.in",
+ "module": "Selling",
+ "name": "GSN Total",
+ "owner": "chaitanya@arofines.in",
+ "report_field": "total",
+ "report_function": "Sum",
+ "report_name": "Sales Analytics Sales Partner(Sales Person)",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "type": "Report"
+}

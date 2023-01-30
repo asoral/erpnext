@@ -1630,7 +1630,7 @@ def get_data(name,company):
 																										Select se.reference_challan, se.posting_date from `tabStock Entry` se 
 																										join `tabStock Entry Detail` sed on sed.parent = se.name 
 																										where se.stock_entry_type = "Material Receipt"
-																										and sed.batch_no = '{0}' and and se.company="Kroslink Polymers Pvt Ltd"
+																										and sed.batch_no = '{0}' and  se.company="Kroslink Polymers Pvt Ltd"
 																										""".format(se3.get("batch_no")), as_dict=1)
 																					print("******************************************************",stock_e)
 																				if len(stock_e)> 0:

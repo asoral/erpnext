@@ -715,7 +715,7 @@ class WorkOrder(Document):
 				)
 
 			row.db_update()
-
+		job_card_doc.submit()
 	def set_operation_start_end_time(self, idx, row):
 		"""Set start and end time for given operation. If first operation, set start as
 		`planned_start_date`, else add time diff to end time of earlier operation."""
@@ -1594,6 +1594,7 @@ def create_job_card(work_order, row, enable_capacity_planning=False, auto_create
 			"wip_warehouse": work_order.wip_warehouse,
 			"hour_rate": row.get("hour_rate"),
 			"serial_no": row.get("serial_no"),
+			"total_completed_qty":row.job_card_qty or work_order.get("qty", 0)
 		}
 	)
 
