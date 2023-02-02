@@ -117,11 +117,14 @@ frappe.ui.form.on('Material Request', {
 					target: frm.doc,
 					
 					setters: {
-						bom_no: frm.doc.bom_no || undefined,
-						company: frm.doc.company || undefined
+						item_name: frm.doc.item_name || undefined,
+						status: "Not Started",
+						qty: frm.doc.qty || undefined,
 					},
 					get_query_filters: {
-						docstatus: 0,
+						docstatus: 1,
+						status : ["in",["Not Started"]]
+
 					}
 				})
 			},
@@ -150,11 +153,13 @@ frappe.ui.form.on('Material Request', {
 					target: frm.doc,
 					
 					setters: {
-						bom_no: frm.doc.bom_no || undefined,
-						company: frm.doc.company || undefined
+						item_name: frm.doc.item_name || undefined,
+						status: "Not Started",
+						qty: frm.doc.qty || undefined,
 					},
 					get_query_filters: {
 						docstatus: 1,
+						status : ["in",["Not Started"]]
 					}
 				})
 			},

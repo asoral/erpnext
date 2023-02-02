@@ -354,7 +354,12 @@ class MaterialRequest(BuyingController):
 					"item_to_manufacture": wo_doc.get('production_item'),
 					"qty_to_manufacture": wo_doc.get("qty")
 				})
-
+		for i in self.items:
+			for j in self.work_order_detail:
+				if i.item_code==j.item_code:
+					doc=frappe.get_doc("Item",i.item_code)
+					if doc.staging_multiple>0:
+						i.qty=doc.staging_multiple*j.qty
 
 	def update_requested_qty_in_production_plan(self):
 		production_plans = []
@@ -863,7 +868,7 @@ def make_material_request(source_name, target_doc=None, ignore_permissions=False
 		if is_staging_enabled:
 			staging_warhouse = frappe.get_value("Staging Details",{'company':company},'staging_material_request_warehouse')
 			if staging_warhouse:
-				projected_qty = frappe.get_value('Bin', {'warehouse':staging_warhouse,'item_code':itm.item_code},'projected_qty')
+				projected_qty = frappe.get_value('Bin', {'warehouse':staging_warhouse,'item_code':itm.item_code},'actual_qty')
 				if projected_qty:
 					print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.")
 					print(projected_qty,qty)
@@ -876,6 +881,7 @@ def make_material_request(source_name, target_doc=None, ignore_permissions=False
 						if result_qty > 0:
 							#qty = result_qty
 							target.qty = result_qty
+							target.required_qty=qty
 						else:
 							target.qty = 0
 					elif item.allowed_in_wo_staging == "Yes" and item.staging_multiple > 0 \
@@ -887,6 +893,7 @@ def make_material_request(source_name, target_doc=None, ignore_permissions=False
 						result_qty = (qty - projected_qty)
 						qty = result_qty
 						target.qty = result_qty
+						target.required_qty=qty
 					elif item.allowed_in_wo_staging == "Yes" and not item.staging_multiple > 0 \
 						and projected_qty > qty :
 						qty = 0
@@ -896,6 +903,7 @@ def make_material_request(source_name, target_doc=None, ignore_permissions=False
 			if qty < 0:
 				qty = 0
 			target.qty = qty
+			target.required_qty=result_qty
 		uom = frappe.get_value("Item",{'item_code':itm.get('item_code')},'stock_uom')
 		target.uom = uom
 
