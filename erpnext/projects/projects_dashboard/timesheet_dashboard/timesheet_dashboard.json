@@ -1,0 +1,61 @@
+{
+ "cards": [
+  {
+   "card": "Timesheet Dashboard"
+  },
+  {
+   "card": "Manoj's Timesheet"
+  },
+  {
+   "card": "Vedant's Timesheet"
+  },
+  {
+   "card": "Ajay's Timesheet"
+  },
+  {
+   "card": "Mamta's Timesheet"
+  },
+  {
+   "card": "Timesheet Dashboard"
+  },
+  {
+   "card": "Manoj's Timesheet"
+  },
+  {
+   "card": "Vedant's Timesheet"
+  },
+  {
+   "card": "Ajay's Timesheet"
+  },
+  {
+   "card": "Mamta's Timesheet"
+  },
+  {
+   "card": "Mamta's Timesheet"
+  },
+  {
+   "card": "Mamta's Timesheet"
+  },
+  {
+   "card": "Mamta's Timesheet"
+  }
+ ],
+ "charts": [
+  {
+   "chart": "Timesheet Dashboard",
+   "width": "Half"
+  }
+ ],
+ "creation": "2022-11-16 21:38:53.952479",
+ "dashboard_name": "Timesheet Dashboard",
+ "docstatus": 0,
+ "doctype": "Dashboard",
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "modified": "2022-11-16 22:03:55.677457",
+ "modified_by": "mzaparde@dexciss.com",
+ "module": "Projects",
+ "name": "Timesheet Dashboard",
+ "owner": "mzaparde@dexciss.com"
+}

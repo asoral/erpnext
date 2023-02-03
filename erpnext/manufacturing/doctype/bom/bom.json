@@ -310,8 +310,7 @@
    "fieldname": "raw_material_cost",
    "fieldtype": "Currency",
    "label": "Raw Material Cost",
-   "options": "currency",
-   "read_only": 1
+   "options": "currency"
   },
   {
    "fieldname": "scrap_material_cost",
@@ -338,8 +337,7 @@
    "fieldtype": "Currency",
    "label": "Raw Material Cost (Company Currency)",
    "options": "Company:company:default_currency",
-   "print_hide": 1,
-   "read_only": 1
+   "print_hide": 1
   },
   {
    "fieldname": "base_scrap_material_cost",
@@ -584,7 +582,7 @@
  "image_field": "image",
  "is_submittable": 1,
  "links": [],
- "modified": "2022-01-30 21:27:54.727298",
+ "modified": "2023-01-21 12:34:25.116633",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "BOM",
@@ -621,6 +619,5 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
  "track_changes": 1
 }

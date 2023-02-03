@@ -1,5 +1,12 @@
 {
- "cards": [],
+ "cards": [
+  {
+   "card": "To do Mithil-1"
+  },
+  {
+   "card": "Projects"
+  }
+ ],
  "charts": [
   {
    "chart": "Project Summary",
@@ -13,8 +20,8 @@
  "idx": 0,
  "is_default": 0,
  "is_standard": 1,
- "modified": "2020-07-22 17:17:03.780625",
- "modified_by": "Administrator",
+ "modified": "2022-12-13 11:30:05.220802",
+ "modified_by": "pmis@dexciss.com",
  "module": "Projects",
  "name": "Project",
  "owner": "Administrator"

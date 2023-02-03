@@ -1,0 +1,22 @@
+{
+ "creation": "2022-08-08 14:30:55.588118",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{\"from_date\":\"2022-07-09\",\"to_date\":\"2022-08-09\"}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "ITEM WISE HSN",
+ "modified": "2022-08-09 18:19:35.126132",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "ITEM WISE HSN",
+ "owner": "kalpana.adusumilli05@gmail.com",
+ "report_field": "stock_qty",
+ "report_function": "Sum",
+ "report_name": "Item-wise Sales Register",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "type": "Report"
+}

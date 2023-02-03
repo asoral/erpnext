@@ -1,0 +1,22 @@
+{
+ "creation": "2022-12-24 09:17:39.001731",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{\"customer\":\"BURHAN STORE LLC\",\"item\":\"45896\"}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "Sum of Selling_rate",
+ "modified": "2022-12-24 09:17:39.119391",
+ "modified_by": "demo@midland.com",
+ "module": "Selling",
+ "name": "Sum of Selling_rate",
+ "owner": "demo@midland.com",
+ "report_field": "selling_rate",
+ "report_function": "Sum",
+ "report_name": "Customer-wise Item Price",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "type": "Report"
+}

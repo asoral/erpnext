@@ -1,0 +1,33 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "doc.dexciss_status==\"Customer Verification Pending\"",
+ "creation": "2022-05-08 14:34:33.951370",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Issue",
+ "enabled": 0,
+ "event": "Value Change",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Test email for auto email",
+ "modified": "2022-05-08 14:55:24.135033",
+ "modified_by": "mzaparde@dexciss.com",
+ "module": "Support",
+ "name": "Email Customer Verification Pending",
+ "owner": "mzaparde@dexciss.com",
+ "recipients": [
+  {
+   "cc": "mzaparde@dexciss.com",
+   "receiver_by_document_field": "customer_email",
+   "receiver_by_role": ""
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender": "Notifications",
+ "sender_email": "notifications@dexciss.com",
+ "subject": "{{ doc.name }} Email Customer Verification Pending",
+ "value_changed": "email_reminder_sent"
+}

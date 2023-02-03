@@ -1,0 +1,32 @@
+{
+ "attach_print": 0,
+ "attachment": 0,
+ "channel": "Email",
+ "creation": "2022-12-09 15:32:54.640106",
+ "date_changed": "due_date",
+ "days_in_advance": 1,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Sales Invoice",
+ "enabled": 0,
+ "event": "Days After",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p><p><h5>Dear Customer,\n\n<p><p>Hope this email finds you in good health & spirit!\n\n<p><p>This is payment reminder for {{ doc.sales_invoice_type }}{{ doc.name }} which was raised for {{ doc.remarks }}\n\n<p><p>Our records shows, the invoice is already due on {{doc.due_date }}. please take appropriate measures in order to carry out this payment.\n\n<p><p>Invoice details are:\n<p>Invoice Type:{{ doc.sales_invoice_type }}\n<p>Invoice No:{{ doc.name }}\n<p>Posting Date:{{ doc.posting_date }}\n<p>Outstanding Amount:{{ doc.outstanding_amount }}\n\n<p><p>This is system generated email and If you already , please ignore this mail if the payment have been carred out after this mail was sent.\n\n<p><p><h5>Please have a look and let us know if any questions. Thanks!</h5>\n\n<p>Best Regards,\n<p>Manojkumar Zaparde,\n<p>Accounting Manager,\n<p>Dexciss Technology Pvt Ltd",
+ "modified": "2023-01-13 13:18:19.424566",
+ "modified_by": "mzaparde@dexciss.com",
+ "module": "Accounts",
+ "name": "Payment reminder against-{{ doc.sales_invoice_type }}-{{ doc.due_date }}",
+ "owner": "mzaparde@dexciss.com",
+ "recipients": [
+  {
+   "cc": "mzaparde@dexciss.com\nsjain@dexciss.com\nasoral@dexciss.com",
+   "receiver_by_document_field": "contact_email"
+  }
+ ],
+ "send_system_notification": 1,
+ "send_to_all_assignees": 0,
+ "sender": "Notifications",
+ "sender_email": "notifications@dexciss.com",
+ "subject": "Payment reminder against-{{ doc.sales_invoice_type }}-{{ doc.name }}-{{ doc.due_date }}"
+}

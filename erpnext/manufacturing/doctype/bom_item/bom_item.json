@@ -345,13 +345,12 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-07-28 10:20:51.559010",
+ "modified": "2023-01-21 12:32:36.665940",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "BOM Item",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+ "sort_order": "DESC"
 }

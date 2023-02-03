@@ -15,8 +15,6 @@
   "naming_series",
   "customer",
   "customer_name",
-  "_party_balance",
-  "update_party_balance",
   "order_type",
   "skip_delivery_note",
   "column_break1",
@@ -25,11 +23,9 @@
   "transaction_date",
   "delivery_date",
   "po_no",
-  "order_warehouse_rule_number",
   "po_date",
   "tax_id",
   "accounting_dimensions_section",
-  "cost_center",
   "dimension_col_break",
   "project",
   "contact_info",
@@ -155,7 +151,9 @@
   "to_date",
   "column_break_108",
   "auto_repeat",
-  "update_auto_repeat_reference"
+  "update_auto_repeat_reference",
+  "column_break_62",
+  "section_break_64"
  ],
  "fields": [
   {
@@ -1505,36 +1503,14 @@
    "fieldname": "disable_rounded_total",
    "fieldtype": "Check",
    "label": "Disable Rounded Total"
-  }, 
+  },
   {
    "fieldname": "column_break_62",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "cost_center",
-   "fieldtype": "Link",
-   "label": "Cost Center",
-   "options": "Cost Center"
-  },
-  {
    "fieldname": "section_break_64",
    "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "_party_balance",
-   "fieldtype": "Currency",
-   "label": "Party Balance",
-   "read_only": 1
-  },
-  {
-   "fieldname": "update_party_balance",
-   "fieldtype": "Button",
-   "label": "Update Party Balance"
-  },
-  {
-   "fieldname": "order_warehouse_rule_number",
-   "fieldtype": "Read Only",
-   "label": "Order Warehouse Rule Number"
   },
   {
    "fieldname": "transporter",
@@ -1607,11 +1583,10 @@
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-09-16 17:43:57.007441",
+ "modified": "2022-12-09 10:33:49.278758",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -1681,7 +1656,6 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
  "timeline_field": "customer",
  "title_field": "customer_name",
  "track_changes": 1,

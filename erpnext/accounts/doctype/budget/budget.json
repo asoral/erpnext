@@ -27,7 +27,8 @@
   "action_if_annual_budget_exceeded",
   "action_if_accumulated_monthly_budget_exceeded",
   "section_break_21",
-  "accounts"
+  "accounts",
+  "budget_break_up"
  ],
  "fields": [
   {
@@ -190,12 +191,18 @@
    "label": "Budget Accounts",
    "options": "Budget Account",
    "reqd": 1
+  },
+  {
+   "fieldname": "budget_break_up",
+   "fieldtype": "Table",
+   "label": "Budget Break Up",
+   "options": "Budget break up"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2020-10-06 15:13:54.055854",
+ "modified": "2023-01-12 10:07:33.712837",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Budget",

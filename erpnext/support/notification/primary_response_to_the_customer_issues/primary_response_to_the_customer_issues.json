@@ -1,0 +1,33 @@
+{
+ "attach_print": 0,
+ "attachment": 0,
+ "channel": "Email",
+ "condition": "",
+ "creation": "2022-11-03 16:00:02.640030",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Issue",
+ "enabled": 0,
+ "event": "New",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Dear Customer {{ doc.customer }},\nThank you for connecting with us, we have just received your issue. It looks like you are facing issue {{ doc.subject }} .\nWe will start working on your issue ASAP and you can track the issue status on our portal. Issue (dexciss.com)\n\nPlease go through the provided details:\n\nProject ID : {{ doc.project }}\nProject Name : {{ doc.project_name }}\nIssue ID : {{ doc.name }}\nIssue Name : {{ doc.subject }}\n\nDescription : \n{{ doc.description }}\n\n\nFor any concern, please feel free to reply to this mail.\n\n\nThanks,\nSupport Team,\nDexciss Technology Pvt Ltd",
+ "modified": "2022-11-03 16:06:47.653542",
+ "modified_by": "mzaparde@dexciss.com",
+ "module": "Support",
+ "name": "Primary response to the customer issues",
+ "owner": "mzaparde@dexciss.com",
+ "recipients": [
+  {
+   "cc": "mzaparde@dexciss.com\nsjain@dexciss.com\nanjogdand@dexciss.com\nasoral@dexciss.com",
+   "receiver_by_document_field": "customer_email",
+   "receiver_by_role": ""
+  }
+ ],
+ "send_system_notification": 1,
+ "send_to_all_assignees": 0,
+ "sender": "Notifications",
+ "sender_email": "notifications@dexciss.com",
+ "subject": "Thanks for connecting with us, it looks like are you facing issue- {{ doc.subject }}"
+}

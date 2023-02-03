@@ -1,0 +1,32 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "doc.workflow_state==\"Solution Draft\"",
+ "creation": "2022-03-17 17:25:55.311800",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Issue",
+ "enabled": 0,
+ "event": "Value Change",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Hi Team,\nNew Issue is raised and it is solution draft mode,Please write solution and Estimated cost for the same.\nIssue details:\nIssue Id: {{ doc.name }}\nIssue Name: {{ doc.subject }}\nProject ID: {{ doc.project_name }}\nDescription : {{ doc.description }}\n\n\nRegards,\nDexciss Technology Pvt Ltd",
+ "modified": "2022-03-18 19:58:46.548542",
+ "modified_by": "pmis@dexciss.com",
+ "module": "Support",
+ "name": "Action Needed on Issue",
+ "owner": "pmis@dexciss.com",
+ "recipients": [
+  {
+   "cc": "",
+   "receiver_by_role": "Project Co-ordinator"
+  }
+ ],
+ "send_system_notification": 1,
+ "send_to_all_assignees": 1,
+ "sender": "Notifications",
+ "sender_email": "notifications@dexciss.com",
+ "subject": "Action Needed on Issue",
+ "value_changed": "workflow_state"
+}

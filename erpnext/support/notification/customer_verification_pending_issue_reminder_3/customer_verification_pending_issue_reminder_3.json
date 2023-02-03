@@ -1,0 +1,33 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "doc.dexciss_status==\"Customer Verification Pending\"",
+ "creation": "2022-05-08 15:09:58.622099",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Issue",
+ "enabled": 0,
+ "event": "Value Change",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Dear Customer<h5>{{ doc.customer }},</h5>\n\n<p><p>This is <h5>third and last email reminder</h5> for Ticket/Issue <h5>{{ doc.subject }}</h5> and after that we will close this issue.The current status of issue in our ERP is Customer Verification Pending. Testing is done from our end and solution is written under Resolution Details section. Please verify from your end and do reply to this mail as \"Closed the Issue\" OR If something is pending related to this Ticket/Issue from Dexciss side, please do reply with what is \"Pending\". We will fix it and again connect with you.\n\n\n<p><p><h5>Please go through the following details:</h5>\n\n\n<p>Project ID: {{ doc.project }}\n<p>Project Name : {{ doc.project_name }}\n<p>Issue ID : {{ doc.name }}\n<p>Issue Name : {{ doc.subject }}\n\n\n<p><p>\n<h5>Description :</h5>\n<p>{{ doc.description }}\n\n\n<p><p>\n<h5>Resolution Details:</h5>\n<p>{{ doc.resolution_details }}\n\n\n<p><p><p>If you have any concerns please connect with us through notifications@dexciss.com</h5>\n\n<p>Regards,\n<p>Team Implementation,\n<p>Dexciss Technology Pvt.Ltd.",
+ "modified": "2022-05-09 15:29:00.704295",
+ "modified_by": "mzaparde@dexciss.com",
+ "module": "Support",
+ "name": "Customer verification pending-Issue Reminder 3",
+ "owner": "mzaparde@dexciss.com",
+ "recipients": [
+  {
+   "cc": "mzaparde@dexciss.com\ndmahajan@dexciss.com",
+   "receiver_by_document_field": "customer_email",
+   "receiver_by_role": ""
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender": "Notifications",
+ "sender_email": "notifications@dexciss.com",
+ "subject": "{{ doc.subject }} -3rd email reminder",
+ "value_changed": "email_reminder_sent"
+}

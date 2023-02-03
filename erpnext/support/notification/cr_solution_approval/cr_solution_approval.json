@@ -1,0 +1,35 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "doc.dexciss_status==\"In Progress\"",
+ "creation": "2022-01-17 16:11:20.301743",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Issue",
+ "enabled": 0,
+ "event": "Method",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Dear Team {{ customer }},\n\nSending a request for solution approval of the Customisation Request, As this is not part of standard ERPNext functionality. We have written the proposed solution in the description section. Once you approve the solution, we will send the Estimated cost for the same. Looking forward to your response.\nPlease go through the following details:\n\nProject ID : {{ project }}\nProject Name : {{ project_name }}\nIssue ID : {{ name }}\nCR Name : {{ subject }}\nEstimated Hours : {{ estimated_hours/3600 }}\n\nDescription : \n{{ description }}\n\nThanks,\nTeam Implementation,\nDexciss Technology Pvt Ltd",
+ "method": "''email_reminder\"",
+ "modified": "2022-05-08 14:31:27.220799",
+ "modified_by": "mzaparde@dexciss.com",
+ "module": "Support",
+ "name": "CR-Solution Approval",
+ "owner": "pmis@dexciss.com",
+ "recipients": [
+  {
+   "cc": "mzaparde@dexciss.com",
+   "receiver_by_document_field": "owner",
+   "receiver_by_role": "System Configurator"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender": "Notifications",
+ "sender_email": "notifications@dexciss.com",
+ "set_property_after_alert": "",
+ "subject": "{{ issue }} CR-Solution Approval",
+ "value_changed": "status"
+}
