@@ -12,7 +12,8 @@
   "item_code",
   "item_name",
   "qty",
-  "qty_to_manufacture"
+  "qty_to_manufacture",
+  "actual_qty"
  ],
  "fields": [
   {
@@ -65,12 +66,19 @@
    "fieldname": "item_name",
    "fieldtype": "Read Only",
    "label": "Item Name"
+  },
+  {
+   "fieldname": "actual_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Actual Qty",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-11-09 13:02:19.188512",
+ "modified": "2023-02-28 15:16:08.441995",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Material Request Work Order",

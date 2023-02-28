@@ -128,8 +128,10 @@ class MaterialRequest(BuyingController):
 		if self.manufacturing_staging == 1:
 			c = {}
 			for d in self.items:
+
 				c.setdefault(d.get('item_code'), []).append(d.get('qty'))
 				result = [{'item_code': k, 'qty': v} for k,v in c.items()]
+				print(result)
 			data_set = []
 			for res in result:
 				d = {}
@@ -153,8 +155,11 @@ class MaterialRequest(BuyingController):
 						d['valuation_rate'] = bin_data.get('valuation_rate')
 					for r in res.get('qty'):
 						qty_sum +=r
+					staging_warhouse = frappe.get_value("Staging Details",{'company':self.company},'staging_material_request_warehouse')
+					projected_qty = frappe.get_value('Bin', {'warehouse':staging_warhouse,'item_code':res.get('item_code')},'actual_qty')
 					if(item_detail.get('staging_multiple') > 0):
-						round_up_qty = (math.ceil(qty_sum/item_detail.get('staging_multiple'))) * item_detail.get('staging_multiple')
+						qty_sum=qty_sum-flt(projected_qty)
+						round_up_qty = (math.ceil(qty_sum/item_detail.get('staging_multiple')))*item_detail.get('staging_multiple')
 						d['qty'] = round_up_qty
 					else:
 						d['qty'] = qty_sum
@@ -344,6 +349,8 @@ class MaterialRequest(BuyingController):
 		for item in self.items:
 			if item.get('qty') > 0 and item.get('work_order'):
 				wo_doc = frappe.get_doc("Work Order",item.get('work_order'))
+				staging_warhouse = frappe.get_value("Staging Details",{'company':self.company},'staging_material_request_warehouse')
+				projected_qty = frappe.get_value('Bin', {'warehouse':staging_warhouse,'item_code':item.get('item_code')},'actual_qty')
 				self.append("work_order_detail",{
 					"company": wo_doc.get('company'),
 					"bom": wo_doc.get('bom_no'),
@@ -352,9 +359,15 @@ class MaterialRequest(BuyingController):
 					"item_name": item.get('item_name'),
 					"qty": item.get('qty'),
 					"item_to_manufacture": wo_doc.get('production_item'),
-					"qty_to_manufacture": wo_doc.get("qty")
+					"qty_to_manufacture": wo_doc.get("qty"),
+					"actual_qty": projected_qty
 				})
-
+		# for i in self.items:
+		# 	for j in self.work_order_detail:
+		# 		if i.item_code==j.item_code:
+		# 			doc=frappe.get_doc("Item",i.item_code)
+		# 			if doc.staging_multiple>0:
+		# 				i.qty=doc.staging_multiple*j.qty
 
 	def update_requested_qty_in_production_plan(self):
 		production_plans = []
@@ -863,7 +876,7 @@ def make_material_request(source_name, target_doc=None, ignore_permissions=False
 		if is_staging_enabled:
 			staging_warhouse = frappe.get_value("Staging Details",{'company':company},'staging_material_request_warehouse')
 			if staging_warhouse:
-				projected_qty = frappe.get_value('Bin', {'warehouse':staging_warhouse,'item_code':itm.item_code},'projected_qty')
+				projected_qty = frappe.get_value('Bin', {'warehouse':staging_warhouse,'item_code':itm.item_code},'actual_qty')
 				if projected_qty:
 					print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.")
 					print(projected_qty,qty)
@@ -872,10 +885,11 @@ def make_material_request(source_name, target_doc=None, ignore_permissions=False
 						target.qty = 0
 					elif item.allowed_in_wo_staging == "Yes" and item.staging_multiple > 0 \
 						and projected_qty < qty:
-						result_qty = math.ceil((qty - projected_qty)/item.staging_multiple)
+						result_qty = math.ceil((qty))
 						if result_qty > 0:
 							#qty = result_qty
 							target.qty = result_qty
+							target.required_qty=result_qty
 						else:
 							target.qty = 0
 					elif item.allowed_in_wo_staging == "Yes" and item.staging_multiple > 0 \
@@ -884,9 +898,10 @@ def make_material_request(source_name, target_doc=None, ignore_permissions=False
 						target.qty = 0
 					elif item.allowed_in_wo_staging == "Yes" and not item.staging_multiple > 0 \
 						and projected_qty < qty :
-						result_qty = (qty - projected_qty)
+						result_qty = (qty)
 						qty = result_qty
 						target.qty = result_qty
+						target.required_qty=qty
 					elif item.allowed_in_wo_staging == "Yes" and not item.staging_multiple > 0 \
 						and projected_qty > qty :
 						qty = 0
@@ -896,6 +911,7 @@ def make_material_request(source_name, target_doc=None, ignore_permissions=False
 			if qty < 0:
 				qty = 0
 			target.qty = qty
+			target.required_qty=result_qty
 		uom = frappe.get_value("Item",{'item_code':itm.get('item_code')},'stock_uom')
 		target.uom = uom
 

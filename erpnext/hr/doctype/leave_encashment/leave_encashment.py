@@ -201,7 +201,7 @@ class LeaveEncashment(Document):
 			args = frappe._dict(
 				leaves=self.encashable_days, from_date=to_date, to_date=to_date, is_carry_forward=0
 			)
-			create_leave_ledger_entry(self, args, submit)
+			# create_leave_ledger_entry(self, args, submit)
 
 
 def create_leave_encashment(leave_allocation):
