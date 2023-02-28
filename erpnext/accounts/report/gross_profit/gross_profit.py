@@ -3,7 +3,8 @@
 
 
 import frappe
-from frappe import _, scrub
+from frappe import _, qb, scrub
+from frappe.query_builder import Order
 from frappe.utils import cint, flt
 
 from erpnext.controllers.queries import get_match_cond
@@ -134,7 +135,7 @@ def execute(filters=None):
 
 	else:
 		get_data_when_not_grouped_by_invoice(gross_profit_data, filters, group_wise_columns, data)
-	print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",data)
+
 	return columns, data
 
 
@@ -367,6 +368,7 @@ class GrossProfitGenerator(object):
 		self.average_buying_rate = {}
 		self.filters = frappe._dict(filters)
 		self.load_invoice_items()
+		self.get_delivery_notes()
 
 		if filters.group_by == "Invoice":
 			self.group_items_by_invoice()
@@ -535,6 +537,22 @@ class GrossProfitGenerator(object):
 
 		return flt(buying_amount, self.currency_precision)
 
+	def calculate_buying_amount_from_sle(self, row, my_sle, parenttype, parent, item_row, item_code):
+		for i, sle in enumerate(my_sle):
+			# find the stock valution rate from stock ledger entry
+			if (
+				sle.voucher_type == parenttype
+				and parent == sle.voucher_no
+				and sle.voucher_detail_no == item_row
+			):
+				previous_stock_value = len(my_sle) > i + 1 and flt(my_sle[i + 1].stock_value) or 0.0
+
+				if previous_stock_value:
+					return abs(previous_stock_value - flt(sle.stock_value)) * flt(row.qty) / abs(flt(sle.qty))
+				else:
+					return flt(row.qty) * self.get_average_buying_rate(row, item_code)
+		return 0.0
+
 	def get_buying_amount(self, row, item_code):
 		# IMP NOTE
 		# stock_ledger_entries should already be filtered by item_code and warehouse and
@@ -551,23 +569,51 @@ class GrossProfitGenerator(object):
 				if row.dn_detail:
 					parenttype, parent = "Delivery Note", row.delivery_note
 
-				for i, sle in enumerate(my_sle):
-					# find the stock valution rate from stock ledger entry
-					if (
-						sle.voucher_type == parenttype
-						and parent == sle.voucher_no
-						and sle.voucher_detail_no == row.item_row
-					):
-						previous_stock_value = len(my_sle) > i + 1 and flt(my_sle[i + 1].stock_value) or 0.0
-
-						if previous_stock_value:
-							return (previous_stock_value - flt(sle.stock_value)) * flt(row.qty) / abs(flt(sle.qty))
-						else:
-							return flt(row.qty) * self.get_average_buying_rate(row, item_code)
+				return self.calculate_buying_amount_from_sle(
+					row, my_sle, parenttype, parent, row.item_row, item_code
+				)
+			elif self.delivery_notes.get((row.parent, row.item_code), None):
+				#  check if Invoice has delivery notes
+				dn = self.delivery_notes.get((row.parent, row.item_code))
+				parenttype, parent, item_row, warehouse = (
+					"Delivery Note",
+					dn["delivery_note"],
+					dn["item_row"],
+					dn["warehouse"],
+				)
+				my_sle = self.sle.get((item_code, warehouse))
+				return self.calculate_buying_amount_from_sle(
+					row, my_sle, parenttype, parent, item_row, item_code
+				)
+			elif row.sales_order and row.so_detail:
+				incoming_amount = self.get_buying_amount_from_so_dn(row.sales_order, row.so_detail, item_code)
+				if incoming_amount:
+					return incoming_amount
 			else:
 				return flt(row.qty) * self.get_average_buying_rate(row, item_code)
 
-		return 0.0
+		return flt(row.qty) * self.get_average_buying_rate(row, item_code)
+
+	def get_buying_amount_from_so_dn(self, sales_order, so_detail, item_code):
+		from frappe.query_builder.functions import Sum
+
+		delivery_note = frappe.qb.DocType("Delivery Note")
+		delivery_note_item = frappe.qb.DocType("Delivery Note Item")
+
+		query = (
+			frappe.qb.from_(delivery_note)
+			.inner_join(delivery_note_item)
+			.on(delivery_note.name == delivery_note_item.parent)
+			.select(Sum(delivery_note_item.incoming_rate * delivery_note_item.stock_qty))
+			.where(delivery_note.docstatus == 1)
+			.where(delivery_note_item.item_code == item_code)
+			.where(delivery_note_item.against_sales_order == sales_order)
+			.where(delivery_note_item.so_detail == so_detail)
+			.groupby(delivery_note_item.item_code)
+		)
+
+		incoming_amount = query.run()
+		return flt(incoming_amount[0][0]) if incoming_amount else 0
 
 	def get_average_buying_rate(self, row, item_code):
 		args = row
@@ -644,7 +690,8 @@ class GrossProfitGenerator(object):
 				`tabSales Invoice`.territory, `tabSales Invoice Item`.item_code,
 				`tabSales Invoice Item`.item_name, `tabSales Invoice Item`.description,
 				`tabSales Invoice Item`.warehouse, `tabSales Invoice Item`.item_group,
-				`tabSales Invoice Item`.brand, `tabSales Invoice Item`.dn_detail,
+				`tabSales Invoice Item`.brand, `tabSales Invoice Item`.so_detail,
+				`tabSales Invoice Item`.sales_order, `tabSales Invoice Item`.dn_detail,
 				`tabSales Invoice Item`.delivery_note, `tabSales Invoice Item`.stock_qty as qty,
 				`tabSales Invoice Item`.base_net_rate, `tabSales Invoice Item`.base_net_amount,
 				`tabSales Invoice Item`.name as "item_row", `tabSales Invoice`.is_return,
@@ -666,6 +713,29 @@ class GrossProfitGenerator(object):
 			self.filters,
 			as_dict=1,
 		)
+
+	def get_delivery_notes(self):
+		self.delivery_notes = frappe._dict({})
+		if self.si_list:
+			invoices = [x.parent for x in self.si_list]
+			dni = qb.DocType("Delivery Note Item")
+			delivery_notes = (
+				qb.from_(dni)
+				.select(
+					dni.against_sales_invoice.as_("sales_invoice"),
+					dni.item_code,
+					dni.warehouse,
+					dni.parent.as_("delivery_note"),
+					dni.name.as_("item_row"),
+				)
+				.where((dni.docstatus == 1) & (dni.against_sales_invoice.isin(invoices)))
+				.groupby(dni.against_sales_invoice, dni.item_code)
+				.orderby(dni.creation, order=Order.desc)
+				.run(as_dict=True)
+			)
+
+			for entry in delivery_notes:
+				self.delivery_notes[(entry.sales_invoice, entry.item_code)] = entry
 
 	def group_items_by_invoice(self):
 		"""
