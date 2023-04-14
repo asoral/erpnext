@@ -6,7 +6,7 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, get_link_to_form, getdate, nowdate
 from six import iteritems
-from erpnext.erpnext.accounts.doctype.loyalty_program_collection.row_wise_loyalty import row_wise_loyalty_point
+from erpnext.accounts.doctype.loyalty_program_collection.row_wise_loyalty import row_wise_loyalty_point
 
 
 from erpnext.accounts.doctype.loyalty_program.loyalty_program import validate_loyalty_points
