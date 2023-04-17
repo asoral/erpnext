@@ -895,16 +895,16 @@ erpnext.PointOfSale.Payment = class {
 								
 							},
 							callback:function(r){
-								if (r.message){
-									frappe.call({
-										method: "erpnext.selling.page.point_of_sale.pos.pole_clear",
-										args:{
-										"pos_profile":pos
-									}
-									});
+// 								if (r.message){
+// 									frappe.call({
+// 										method: "erpnext.selling.page.point_of_sale.pos.pole_clear",
+// 										args:{
+// 										"pos_profile":pos
+// 									}
+// 									});
 									
 									
-								}
+// 								}
 
 								
 								frappe.ui.form.qz_connect()
