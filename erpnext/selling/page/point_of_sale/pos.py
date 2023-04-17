@@ -1,4 +1,4 @@
-import serial
+# import serial
 import os
 from time import sleep
 import click
@@ -68,23 +68,23 @@ def pole_display(item,amount,pos_profile):
         
         print('jjjjjjjjjjjjj')
 
-@frappe.whitelist()
-def pole_clear(pos_profile):
-    print('iiiiiiiiiiiiiiiiiiiii',pos_profile)
-    terminal_profile = frappe.get_value('POS Profile',pos_profile,'terminal_display')
-    port_d = frappe.db.sql("""select port_display from  `tabPOS Profile` where name = "ORW" """,as_dict=1)
-    print('iiiiiiiiiiiiiiiiiiiii',type(port_d))
-    if port_d and terminal_profile:
-        s = serial.Serial()
-        s.port = port_d[0]["port_display"]
-        s.baudrate = 9600
-        s.open()
-        a=""
-        if len(a)<40:
-            b=40-len(a)
-            for i in range(1,b+1):
-                a+=" "
-        s.write(a.encode())   
+# @frappe.whitelist()
+# def pole_clear(pos_profile):
+#     print('iiiiiiiiiiiiiiiiiiiii',pos_profile)
+#     terminal_profile = frappe.get_value('POS Profile',pos_profile,'terminal_display')
+#     port_d = frappe.db.sql("""select port_display from  `tabPOS Profile` where name = "ORW" """,as_dict=1)
+#     print('iiiiiiiiiiiiiiiiiiiii',type(port_d))
+#     if port_d and terminal_profile:
+#         s = serial.Serial()
+#         s.port = port_d[0]["port_display"]
+#         s.baudrate = 9600
+#         s.open()
+#         a=""
+#         if len(a)<40:
+#             b=40-len(a)
+#             for i in range(1,b+1):
+#                 a+=" "
+#         s.write(a.encode())   
    
 @frappe.whitelist()
 def check(grand_total,pos_profile):
