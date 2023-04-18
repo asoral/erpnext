@@ -1439,7 +1439,9 @@ erpnext.PointOfSale.Payment = class {
 					frappe.dom.unfreeze();
 					message = __("Payment of {0} received successfully.", [format_currency(amount, doc.currency, 0)]);
 					this.events.submit_invoice();
-					cur_frm.reload_doc();
+					me.events.new_order();
+					window.location.reload()
+// 					cur_frm.reload_doc();
 
 				} else {
 					message = __("Payment of {0} received successfully. Waiting for other requests to complete...", [format_currency(amount, doc.currency, 0)]);
