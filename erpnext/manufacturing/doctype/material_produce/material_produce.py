@@ -242,7 +242,7 @@ class MaterialProduce(Document):
                     batch_no = None
                     batch = frappe.get_doc("Batch Settings")
                     if line.get('has_batch_no'):
-                        batch_name = res.batch_no if batch.is_finish_batch_series == "Manual" else make_autoname(line.get('batch'))
+                        batch_name = line.get('batch') if batch.is_finish_batch_series == "Manual" else make_autoname(line.get('batch'))
                         batch_no = frappe.get_doc(dict(
                             doctype='Batch',
                             batch_id=batch_name,
