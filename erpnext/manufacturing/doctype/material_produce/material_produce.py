@@ -242,14 +242,15 @@ class MaterialProduce(Document):
                     batch_no = None
                     batch = frappe.get_doc("Batch Settings")
                     if line.get('has_batch_no'):
-                        batch_name = line.get('batch') if batch.is_finish_batch_series == "Manual" else make_autoname(line.get('batch'))
-                        batch_no = frappe.get_doc(dict(
-                            doctype='Batch',
-                            batch_id=batch_name,
-                            item=line.get('item_code'),
-                            supplier=getattr(self, 'supplier', None),
-                            reference_doctype=self.doctype,
-                            reference_name=self.name)).insert().name
+                        batch_no = line.get('batch') if batch.is_finish_batch_series == "Manual" else make_autoname(line.get('batch'))
+                        if batch.is_finish_batch_series == "Manual":
+                            batch_no = frappe.get_doc(dict(
+                                doctype='Batch',
+                                batch_id=batch_no,
+                                item=line.get('item_code'),
+                                supplier=getattr(self, 'supplier', None),
+                                reference_doctype=self.doctype,
+                                reference_name=self.name)).insert().name
                     expense_account, cost_center = frappe.db.get_values("Company", self.company, ["default_expense_account", "cost_center"])[0]
                     item_expense_account, item_cost_center = frappe.db.get_value("Item Default",
                                             {'parent': line.get('item_code'),'company': self.company},["expense_account","buying_cost_center"])
