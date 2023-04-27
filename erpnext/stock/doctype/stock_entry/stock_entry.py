@@ -1309,7 +1309,9 @@ class StockEntry(StockController):
 			and ret.get("has_batch_no")
 			and not args.get("batch_no")
 		):
-			args.batch_no = get_batch_no(args["item_code"], args["s_warehouse"], args["qty"])
+			args.batch_no = get_batch_no(args["item_code"], args["s_warehouse"], args["qty"]).get(
+				"batch_no", None
+			)
 
 		if (
 			self.purpose == "Send to Subcontractor" and self.get("purchase_order") and args.get("item_code")
@@ -2274,11 +2276,11 @@ class StockEntry(StockController):
 
 		return sorted(list(set(get_serial_nos(self.pro_doc.serial_no)) - set(used_serial_nos)))
 
-	def set_missing_values(self):
+	def set_missing_values(self, raise_error_if_no_rate=True):
 		"Updates rate and availability of all the items of mapped doc."
 		self.set_transfer_qty()
 		self.set_actual_qty()
-		self.calculate_rate_and_amount()
+		self.calculate_rate_and_amount(raise_error_if_no_rate=raise_error_if_no_rate)
 
 
 @frappe.whitelist()
@@ -2512,7 +2514,7 @@ def get_uom_details(item_code, uom, qty):
 
 	if not conversion_factor:
 		frappe.msgprint(
-			_("UOM coversion factor required for UOM: {0} in Item: {1}").format(uom, item_code)
+			_("UOM conversion factor required for UOM: {0} in Item: {1}").format(uom, item_code)
 		)
 		ret = {"uom": ""}
 	else:
