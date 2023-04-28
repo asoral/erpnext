@@ -281,7 +281,7 @@ def round_off_debit_credit(gl_map):
 	if gl_map[0]["voucher_type"] in ("Journal Entry", "Payment Entry"):
 		allowance = 5.0 / (10**precision)
 	else:
-		allowance = 0.5
+		allowance = 0.6
 
 	if abs(debit_credit_diff) > allowance:
 		frappe.throw(
