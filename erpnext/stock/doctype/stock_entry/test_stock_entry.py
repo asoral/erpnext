@@ -5,7 +5,7 @@
 import frappe
 from frappe.permissions import add_user_permission, remove_user_permission
 from frappe.tests.utils import FrappeTestCase, change_settings
-from frappe.utils import add_days, flt, nowdate, nowtime, today
+from frappe.utils import add_days, flt, now, nowdate, nowtime, today
 from six import iteritems
 
 from erpnext.accounts.doctype.account.test_account import get_inventory_account
@@ -1570,6 +1570,48 @@ class TestStockEntry(FrappeTestCase):
 		)
 
 		self.assertRaises(BatchExpiredError, se.save)
+
+	def test_negative_stock_reco(self):
+		from erpnext.controllers.stock_controller import BatchExpiredError
+		from erpnext.stock.doctype.batch.test_batch import make_new_batch
+
+		frappe.db.set_single_value("Stock Settings", "allow_negative_stock", 0)
+
+		item_code = "Test Negative Item - 001"
+		item_doc = create_item(item_code=item_code, is_stock_item=1, valuation_rate=10)
+
+		make_stock_entry(
+			item_code=item_code,
+			posting_date=add_days(today(), -3),
+			posting_time="00:00:00",
+			purpose="Material Receipt",
+			qty=10,
+			to_warehouse="_Test Warehouse - _TC",
+			do_not_save=True,
+		)
+
+		make_stock_entry(
+			item_code=item_code,
+			posting_date=today(),
+			posting_time="00:00:00",
+			purpose="Material Receipt",
+			qty=8,
+			from_warehouse="_Test Warehouse - _TC",
+			do_not_save=True,
+		)
+
+		sr_doc = create_stock_reconciliation(
+			purpose="Stock Reconciliation",
+			posting_date=add_days(today(), -3),
+			posting_time="00:00:00",
+			item_code=item_code,
+			warehouse="_Test Warehouse - _TC",
+			valuation_rate=10,
+			qty=7,
+			do_not_submit=True,
+		)
+
+		self.assertRaises(frappe.ValidationError, sr_doc.submit)
 
 
 def make_serialized_item(**args):
