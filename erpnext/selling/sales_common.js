@@ -42,6 +42,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		me.frm.set_query('shipping_address_name', erpnext.queries.address_query);
 		me.frm.set_query('dispatch_address_name', erpnext.queries.dispatch_address_query);
 
+		erpnext.accounts.dimensions.setup_dimension_filters(me.frm, me.frm.doctype);
 
 		if(this.frm.fields_dict.selling_price_list) {
 			this.frm.set_query("selling_price_list", function() {
@@ -63,7 +64,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 			this.frm.set_query("item_code", "items", function() {
 				return {
 					query: "erpnext.controllers.queries.item_query",
-					filters: {'is_sales_item': 1, 'customer': cur_frm.doc.customer}
+					filters: {'is_sales_item': 1, 'customer': cur_frm.doc.customer, 'has_variants': 0}
 				}
 			});
 		}
@@ -255,18 +256,14 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 	calculate_commission: function() {
 		if(this.frm.doc.commission_based_on_target_lines==0){
 		this.frm.add_fetch("sales_partner", "commission_rate", "commission_rate");
-		if(this.frm.fields_dict.commission_rate) {
-			if(this.frm.doc.commission_rate > 100) {
-				var msg = __(frappe.meta.get_label(this.frm.doc.doctype, "commission_rate", this.frm.doc.name)) +
-					" " + __("cannot be greater than 100");
-				frappe.msgprint(msg);
-				throw msg;
-			}
-			this.frm.doc.total_commission = flt(this.frm.doc.base_net_total * this.frm.doc.commission_rate / 100.0,
-				precision("total_commission"));
-
-			}
 			
+		if (!this.frm.fields_dict.commission_rate) return;
+
+		if (this.frm.doc.commission_rate > 100) {
+			this.frm.set_value("commission_rate", 100);
+			frappe.throw(`${__(frappe.meta.get_label(
+				this.frm.doc.doctype, "commission_rate", this.frm.doc.name
+			))} ${__("cannot be greater than 100")}`);
 		}
 
 		this.frm.doc.amount_eligible_for_commission = this.frm.doc.items.reduce(
@@ -279,6 +276,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		);
 
 		refresh_field(["amount_eligible_for_commission", "total_commission"]);
+		}
 	},
 
 	calculate_contribution: function() {
@@ -424,9 +422,14 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 			args: args,
 			callback: function(r) {
 				if(r.message) {
-					frappe.model.set_value(doc.doctype, doc.name, 'batch_no', r.message);
-				} else {
-				    frappe.model.set_value(doc.doctype, doc.name, 'batch_no', r.message);
+					if (r.message.batch_no != null) {
+						frappe.model.set_value(doc.doctype, doc.name, 'batch_no', r.message.batch_no);
+					} else if (r.message.msg_print) {
+						frappe.show_alert({
+							message: r.message.msg_print,
+							indicator:'orange'
+						}, 5);
+					}
 				}
 			}
 		});

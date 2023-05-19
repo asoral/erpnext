@@ -3,8 +3,10 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
+import json
 import frappe
 from frappe.model.document import Document
+from frappe.utils.data import nowdate
 
 class AdditionalItem(Document):
 	def after_save(self):
@@ -95,11 +97,12 @@ class AdditionalItem(Document):
 					'amount': amt
 
 				})
+				doc.flags.ignore_validate_update_after_submit = True
 				doc.save(ignore_permissions= True)
 
 @frappe.whitelist()
 def get_item_data(item,wo):
-	wo_source_warehouse = frappe.db.get_value("Work Order", {'name':wo}, ['rm_store_warehouse'])
+	wo_source_warehouse = frappe.db.get_value("Work Order", {'name':wo}, ['source_warehouse'])
 	item_stock = frappe.db.get_value("Bin", {"warehouse": wo_source_warehouse,"item_code":item},['actual_qty'])
 	q = """select item_name,weight_uom,weight_per_unit from `tabItem` where item_code='{0}'""".format(item)
 

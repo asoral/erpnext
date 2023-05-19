@@ -71,8 +71,6 @@ frappe.ui.form.on('Maintenance Visit', {
 			frm.set_value({ mntc_date: frappe.datetime.get_today() });
 		}
 	},
-	
-	
 	customer: function (frm) {
 		erpnext.utils.get_party_details(frm);
 	},

@@ -2,7 +2,18 @@
 // License: GNU General Public License v3. See license.txt
 
 frappe.ui.form.on("Item Price", {
-	onload: function (frm) {
+	setup(frm) {
+		frm.set_query("item_code", function() {
+			return {
+				filters: {
+					"disabled": 0,
+					"has_variants": 0
+				}
+			};
+		});
+	},
+
+	onload(frm) {
 		// Fetch price list details
 		frm.add_fetch("price_list", "buying", "buying");
 		frm.add_fetch("price_list", "selling", "selling");
@@ -23,32 +34,6 @@ frappe.ui.form.on("Item Price", {
 				}
 			};
 		});
-	},
-	valid_from: function(frm){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.valid_from
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("valid_fromnepal",resp.message)
-				}
-			}
-		})
-	},
-	valid_upto: function(frm){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.valid_upto
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("valid_uptonepal",resp.message)
-				}
-			}
-		})
 	},
 	before_save : function(frm){
 		if(frm.is_dirty()){

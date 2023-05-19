@@ -65,9 +65,10 @@ frappe.ui.form.on('Employee Advance', {
 			);
 		}
 
-		if (frm.doc.docstatus === 1 &&
-			(flt(frm.doc.claimed_amount) < flt(frm.doc.paid_amount) && flt(frm.doc.paid_amount) != flt(frm.doc.return_amount))) {
-
+		if (
+			frm.doc.docstatus === 1
+			&& (flt(frm.doc.claimed_amount) < flt(frm.doc.paid_amount) - flt(frm.doc.return_amount))
+		) {
 			if (frm.doc.repay_unclaimed_amount_from_salary == 0 && frappe.model.can_create("Journal Entry")) {
 				frm.add_custom_button(__("Return"), function() {
 					frm.trigger('make_return_entry');
@@ -79,19 +80,6 @@ frappe.ui.form.on('Employee Advance', {
 			}
 		}
 	},
-	// posting_date: function (frm) {
-	// 	frappe.call({
-	// 		method: "erpnext.nepali_date.get_converted_date",
-	// 		args: {
-	// 			date: frm.doc.posting_date
-	// 		},
-	// 		callback: function (resp) {
-	// 			if (resp.message) {
-	// 				cur_frm.set_value("posting_date_nepal", resp.message)
-	// 			}
-	// 		}
-	// 	})
-	// },
 
 	make_deduction_via_additional_salary: function(frm) {
 		frappe.call({
@@ -182,19 +170,6 @@ frappe.ui.form.on('Employee Advance', {
 				frm.set_value("pending_amount", r.message);
 			}
 		});
-	},
-	posting_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.posting_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("posting_date_nepal", resp.message)
-				}
-			}
-		})
 	},
 
 	get_employee_currency: function(frm) {

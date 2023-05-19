@@ -80,21 +80,6 @@ frappe.ui.form.on('Pick List', {
 		}
 		
 	},
-	// transaction_date: function(doc){
-	// 	frappe.call({
-	// 		method:"erpnext.nepali_date.get_converted_date",
-	// 		args: {
-	// 			date:doc.transaction_date
-	// 		},
-	// 		callback: function(resp){
-	// 			if(resp.message){
-	// 				cur_frm.set_value("transaction_date_nepal",resp.message)
-	// 			}
-	// 		}	
-	// 	})
-	// 	set_transaction_date(this.doc)
-		
-	// },
 	onload_post_render: (frm) => {
 
 		if(frm.doc.purpose === "Material Transfer"){
@@ -195,19 +180,6 @@ frappe.ui.form.on('Pick List', {
 				get_query_filters: get_query_filters
 			});
 		});
-	},
-	transaction_date: function(frm, doc){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date:frm.doc.transaction_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("transaction_date_nepal",resp.message)
-				}
-			}	
-		})
 	},
 	
 });

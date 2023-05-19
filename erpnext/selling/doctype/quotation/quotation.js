@@ -20,6 +20,20 @@ frappe.ui.form.on('Quotation', {
 
 		frm.set_df_property('packed_items', 'cannot_add_rows', true);
 		frm.set_df_property('packed_items', 'cannot_delete_rows', true);
+
+		frm.set_query('company_address', function(doc) {
+			if(!doc.company) {
+				frappe.throw(__('Please set Company'));
+			}
+
+			return {
+				query: 'frappe.contacts.doctype.address.address.address_query',
+				filters: {
+					link_doctype: 'Company',
+					link_name: doc.company
+				}
+			};
+		});
 	},
 
 	refresh: function(frm) {
@@ -70,11 +84,16 @@ erpnext.selling.QuotationController = erpnext.selling.SellingController.extend({
 			}
 		}
 
-		if(doc.docstatus == 1 && doc.status!=='Lost') {
-			if(!doc.valid_till || frappe.datetime.get_diff(doc.valid_till, frappe.datetime.get_today()) >= 0) {
-				cur_frm.add_custom_button(__('Sales Order'),
-					cur_frm.cscript['Make Sales Order'], __('Create'));
-			}
+		if (doc.docstatus == 1 && !["Lost", "Ordered"].includes(doc.status)) {
+			if (frappe.boot.sysdefaults.allow_sales_order_creation_for_expired_quotation
+				|| (!doc.valid_till)
+				|| frappe.datetime.get_diff(doc.valid_till, frappe.datetime.get_today()) >= 0) {
+					this.frm.add_custom_button(
+						__("Sales Order"),
+						this.frm.cscript["Make Sales Order"],
+						__("Create")
+					);
+				}
 
 			if(doc.status!=="Ordered") {
 				this.frm.add_custom_button(__('Set as Lost'), () => {
@@ -126,33 +145,6 @@ erpnext.selling.QuotationController = erpnext.selling.SellingController.extend({
 
 	},
 	
-	valid_till: function(frm){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.valid_till
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("valid_till_nepal",resp.message)
-				}
-			}
-		})
-	},
-	transaction_date: function(frm){
-		console.log("$$$$$$$$")
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.transaction_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("date_nepal",resp.message)
-				}
-			}
-		})
-	},
 
 	set_dynamic_field_label: function(){
 		if (this.frm.doc.quotation_to == "Customer")

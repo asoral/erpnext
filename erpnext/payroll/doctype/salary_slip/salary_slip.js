@@ -46,11 +46,11 @@ frappe.ui.form.on("Salary Slip", {
 			};
 		});
 	},
+
 	start_date: function(frm) {
 		if (frm.doc.start_date) {
 			frm.trigger("set_end_date");
 		}
-		
 	},
 
 	end_date: function(frm) {

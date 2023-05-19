@@ -171,7 +171,7 @@ frappe.ui.form.on("Expense Claim", {
 					['docstatus', '=', 1],
 					['employee', '=', frm.doc.employee],
 					['paid_amount', '>', 0],
-					['status', '!=', 'Claimed']
+					['status', 'not in', ['Claimed', 'Returned', 'Partly Claimed and Returned']]
 				]
 			};
 		});
@@ -254,40 +254,15 @@ frappe.ui.form.on("Expense Claim", {
 			}, __("View"));
 		}
 
-		if (frm.doc.docstatus===1 && !cint(frm.doc.is_paid) && cint(frm.doc.grand_total) > 0
-				&& (cint(frm.doc.total_amount_reimbursed) < cint(frm.doc.total_sanctioned_amount))
-				&& frappe.model.can_create("Payment Entry")) {
+		if (
+			frm.doc.docstatus === 1
+			&& frm.doc.status !== "Paid"
+			&& frappe.model.can_create("Payment Entry")
+		) {
 			frm.add_custom_button(__('Payment'),
 				function() { frm.events.make_payment_entry(frm); }, __('Create'));
 		}
 	},
-	posting_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.posting_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("posting_date_nepal", resp.message)
-				}
-			}
-		})
-	},
-	clearance_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.clearance_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("clearance_date_nepal", resp.message)
-				}
-			}
-		})
-	},
-
 
 	calculate_grand_total: function(frm) {
 		var grand_total = flt(frm.doc.total_sanctioned_amount) + flt(frm.doc.total_taxes_and_charges) - flt(frm.doc.total_advance_amount);

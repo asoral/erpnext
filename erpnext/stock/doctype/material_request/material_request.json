@@ -17,9 +17,7 @@
   "status",
   "column_break_2",
   "transaction_date",
-  "transaction_datenepali",
   "schedule_date",
-  "required_bynepali",
   "company",
   "amended_from",
   "warehouse_section",
@@ -340,25 +338,13 @@
    "fieldtype": "Table",
    "label": "Work Order Detail",
    "options": "Material Request Work Order"
-  },
-  {
-   "fieldname": "transaction_datenepali",
-   "fieldtype": "Data",
-   "label": "Transaction Date(Nepali)",
-   "read_only": 1
-  },
-  {
-   "fieldname": "required_bynepali",
-   "fieldtype": "Data",
-   "label": "Required By(Nepali)",
-   "read_only": 1
   }
  ],
  "icon": "fa fa-ticket",
  "idx": 70,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-08-17 20:16:12.737743",
+ "modified": "2022-01-07 17:32:44.035430",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",

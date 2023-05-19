@@ -7,6 +7,12 @@ frappe.ui.form.on('Blanket Order', {
 	},
 
 	setup: function(frm) {
+		frm.custom_make_buttons = {
+			'Purchase Order': 'Purchase Order',
+			'Sales Order': 'Sales Order',
+			'Quotation': 'Quotation',
+		};
+
 		frm.add_fetch("customer", "customer_name", "customer_name");
 		frm.add_fetch("supplier", "supplier_name", "supplier_name");
 	},
@@ -58,34 +64,6 @@ frappe.ui.form.on('Blanket Order', {
 				frm.set_value("terms", r.message);
 			}
 		});
-	},
-
-	from_date: function(frm){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.from_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("from_date_nepali",resp.message)
-				}
-			}
-		})
-	},
-
-	to_date: function(frm){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.to_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("to_date_nepali",resp.message)
-				}
-			}
-		})
 	},
 
 	set_tc_name_filter: function(frm) {

@@ -16,15 +16,11 @@
   "party_name",
   "customer_name",
   "party_balance",
-  "cost_center",
   "column_break1",
   "amended_from",
   "company",
-  "company_address",
   "transaction_date",
-  "date_nepal",
   "valid_till",
-  "valid_till_nepal",
   "order_type",
   "contact_section",
   "customer_address",
@@ -40,7 +36,6 @@
   "company_address_display",
   "customer_group",
   "territory",
-  "company_address_display",
   "currency_and_price_list",
   "currency",
   "conversion_rate",
@@ -232,6 +227,7 @@
    "width": "150px"
   },
   {
+   "default": "Today",
    "fieldname": "transaction_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -336,7 +332,7 @@
    "show_seconds": 1
   },
   {
-   "depends_on": "eval:doc.quotaion_to=='Customer' && doc.party_name",
+   "depends_on": "eval:doc.quotation_to=='Customer' && doc.party_name",
    "fieldname": "col_break98",
    "fieldtype": "Column Break",
    "show_days": 1,
@@ -362,7 +358,7 @@
    "show_seconds": 1
   },
   {
-   "depends_on": "eval:doc.quotaion_to=='Customer' && doc.party_name",
+   "depends_on": "eval:doc.quotation_to=='Customer' && doc.party_name",
    "fieldname": "customer_group",
    "fieldtype": "Link",
    "hidden": 1,
@@ -466,7 +462,6 @@
    "fieldname": "ignore_pricing_rule",
    "fieldtype": "Check",
    "label": "Ignore Pricing Rule",
-   "no_copy": 1,
    "permlevel": 1,
    "print_hide": 1,
    "show_days": 1,
@@ -1092,7 +1087,7 @@
    "no_copy": 1,
    "oldfieldname": "status",
    "oldfieldtype": "Select",
-   "options": "Draft\nOpen\nReplied\nOrdered\nLost\nCancelled\nExpired",
+   "options": "Draft\nOpen\nReplied\nPartially Ordered\nOrdered\nLost\nCancelled\nExpired",
    "print_hide": 1,
    "read_only": 1,
    "reqd": 1,
@@ -1140,28 +1135,10 @@
    "show_seconds": 1
   },
   {
-   "fieldname": "cost_center",
-   "fieldtype": "Link",
-   "label": "Cost Center",
-   "options": "Cost Center"
-  },
-  {
-   "fieldname": "company_address",
-   "fieldtype": "Link",
-   "label": "Company Address",
-   "options": "Address"
-  },
-  {
+   
    "fieldname": "party_balance",
    "fieldtype": "Currency",
    "label": "Party Balance",
-   "read_only": 1
-  },
-  {
-   "fieldname": "company_address_display",
-   "fieldtype": "Small Text",
-   "hidden": 1,
-   "label": "Company Address Display",
    "read_only": 1
   },
   {
@@ -1218,7 +1195,7 @@
  "idx": 82,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-03-23 16:49:36.297403",
+ "modified": "2022-09-16 17:44:43.221804",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

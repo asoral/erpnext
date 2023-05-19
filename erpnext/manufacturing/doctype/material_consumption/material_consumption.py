@@ -148,8 +148,9 @@ class MaterialConsumption(Document):
                             se_item.batch_no = line.get('batch_no')
                             se_item.expense_account = item_expense_account or expense_account
                             #se_item.cost_center = item_cost_center or cost_center
-                            se_item.cost_center = get_wo_doc.rm_cost_center
-
+                           
+                            se_item.cost_center = get_wo_doc.rm_cost_center or cost_center
+            
                             # in stock uom
                             se_item.conversion_factor = 1.00
 
@@ -305,11 +306,7 @@ def get_available_qty_data(line_id, company, item_code, warehouse, has_batch_no=
                 warehouse_lst.append(w.get('name'))
             query = """select sle.item_code, warehouse, sle.company, sle.stock_uom, batch_no, sum(sle.actual_qty) as balance_qty 
                     from `tabStock Ledger Entry` sle force index (posting_sort_index) 
-<<<<<<< HEAD
-                    where sle.docstatus < 2 and is_cancelled = 0 and sle.batch_no is not null
-=======
                     where sle.docstatus < 2 and is_cancelled = 0 and sle.batch_no is not null 
->>>>>>> c9b61db484
                     and company = '{0}' and sle.item_code = '{1}'""".format(company, item_code)
             if len(warehouse_lst) > 1:
                 query += " and warehouse in {0}".format(tuple(warehouse_lst))

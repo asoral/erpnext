@@ -26,49 +26,6 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 			};
 		});
 	},
-	company: function() {
-		erpnext.accounts.dimensions.update_dimension(this.frm, this.frm.doctype);
-	},
-	// from_date: function(doc){
-	// 	console.log(">>>>>>>>>>>")
-	// 	frappe.call({
-	// 		method:"erpnext.nepali_date.get_converted_date",
-	// 		args: {
-	// 			date: doc.from_date
-	// 		},
-	// 		callback: function(resp){
-	// 			if(resp.message){
-	// 				cur_frm.set_value("from_datenepali",resp.message)
-	// 			}
-	// 		}	
-	// 	})
-	// },
-	// to_date: function(doc){
-	// 	frappe.call({
-	// 		method:"erpnext.nepali_date.get_converted_date",
-	// 		args: {
-	// 			date: doc.to_date
-	// 		},
-	// 		callback: function(resp){
-	// 			if(resp.message){
-	// 				cur_frm.set_value("to_datenepali",resp.message)
-	// 			}
-	// 		}	
-	// 	})
-	// },
-	bill_date: function(doc){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: doc.bill_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("supplier_invoice_datenepali",resp.message)
-				}
-			}	
-		})
-	},
 
 	due_date: function(doc){
 		frappe.call({
@@ -128,7 +85,7 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 		this._super();
 
 		// Ignore linked advances
-		this.frm.ignore_doctypes_on_cancel_all = ['Journal Entry', 'Payment Entry'];
+		this.frm.ignore_doctypes_on_cancel_all = ['Journal Entry', 'Payment Entry', 'Purchase Invoice'];
 
 		if(!this.frm.doc.__islocal) {
 			// show credit_to in print format
@@ -142,8 +99,6 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 		if (this.frm.doc.supplier && this.frm.doc.__islocal) {
 			this.frm.trigger('supplier');
 		}
-
-		erpnext.accounts.dimensions.setup_dimension_filters(this.frm, this.frm.doctype);
 	},
 
 	refresh: function(doc) {
@@ -180,8 +135,12 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 		}
 
 		if(doc.docstatus == 1 && doc.outstanding_amount != 0
-			&& !(doc.is_return && doc.return_against)) {
-			this.frm.add_custom_button(__('Payment'), this.make_payment_entry, __('Create'));
+			&& !(doc.is_return && doc.return_against) && !doc.on_hold) {
+			this.frm.add_custom_button(
+				__('Payment'),
+				() => this.make_payment_entry(),
+				__('Create')
+			);
 			cur_frm.page.set_inner_btn_group_as_primary(__('Create'));
 		}
 
@@ -258,7 +217,7 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 
 		this.frm.set_df_property("tax_withholding_category", "hidden", doc.apply_tds ? 0 : 1);
 	},
-	
+
 	unblock_invoice: function() {
 		const me = this;
 		frappe.call({
@@ -275,7 +234,7 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 	change_release_date: function() {
 		this.make_dialog_and_set_release_date();
 	},
-	
+
 	can_change_release_date: function(date) {
 		const diff = frappe.datetime.get_diff(date, frappe.datetime.nowdate());
 		if (diff < 0) {
@@ -366,22 +325,8 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 			'method': 'erpnext.accounts.doctype.purchase_invoice.purchase_invoice.change_release_date',
 			'args': data,
 			'callback': (r) => this.frm.reload_doc()
-		});	
+		});
 	},
-	release_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.release_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("release_date_nepal", resp.message)
-				}
-			}
-		})
-	},
-	
 
 	supplier: function() {
 		var me = this;
@@ -652,7 +597,7 @@ frappe.ui.form.on("Purchase Invoice", {
 	},
 
 	add_custom_buttons: function(frm) {
-		if (frm.doc.per_received < 100) {
+		if (frm.doc.docstatus == 1 && frm.doc.per_received < 100) {
 			frm.add_custom_button(__('Purchase Receipt'), () => {
 				frm.events.make_purchase_receipt(frm);
 			}, __('Create'));
@@ -682,6 +627,10 @@ frappe.ui.form.on("Purchase Invoice", {
 		erpnext.queries.setup_queries(frm, "Warehouse", function() {
 			return erpnext.queries.warehouse(frm.doc);
 		});
+
+		if (frm.is_new()) {
+			frm.clear_table("tax_withheld_vouchers");
+		}
 	},
 
 	is_subcontracted: function(frm) {

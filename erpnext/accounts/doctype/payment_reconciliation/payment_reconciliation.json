@@ -178,6 +178,12 @@
    "label": "Maximum Invoice Amount"
   },
   {
+   "fieldname": "limit",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "limit"
+  },
+  {
    "fieldname": "column_break_11",
    "fieldtype": "Column Break"
   },

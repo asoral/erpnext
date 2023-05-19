@@ -70,11 +70,15 @@ class Bin(Document):
 			(self.item_code, self.warehouse),
 		)[0][0]
 
+		if frappe.db.field_exists("Stock Entry", "is_return"):
+			qty_field = "CASE WHEN se.is_return = 1 THEN (transfer_qty * -1) ELSE transfer_qty END"
+		else:
+			qty_field = "transfer_qty"
+
 		# Get Transferred Entries
-		materials_transferred = frappe.db.sql(
-			"""
-			select
-				ifnull(sum(CASE WHEN se.is_return = 1 THEN (transfer_qty * -1) ELSE transfer_qty END),0)
+		materials_transferred = (
+			frappe.db.sql(
+				f"""select sum({qty_field})
 			from
 				`tabStock Entry` se, `tabStock Entry Detail` sed, `tabPurchase Order` po
 			where
@@ -89,8 +93,10 @@ class Bin(Document):
 				and po.status != 'Closed'
 				and po.per_received < 100
 		""",
-			{"item": self.item_code},
-		)[0][0]
+				{"item": self.item_code},
+			)[0][0]
+			or 0.0
+		)
 
 		if reserved_qty_for_sub_contract > materials_transferred:
 			reserved_qty_for_sub_contract = reserved_qty_for_sub_contract - materials_transferred
@@ -144,12 +150,17 @@ def update_qty(bin_name, args):
 		last_sle_qty = (
 			frappe.qb.from_(sle)
 			.select(sle.qty_after_transaction)
-			.where((sle.item_code == args.get("item_code")) & (sle.warehouse == args.get("warehouse")))
+			.where(
+				(sle.item_code == args.get("item_code"))
+				& (sle.warehouse == args.get("warehouse"))
+				& (sle.is_cancelled == 0)
+			)
 			.orderby(CombineDatetime(sle.posting_date, sle.posting_time), order=Order.desc)
 			.orderby(sle.creation, order=Order.desc)
 			.run()
 		)
 
+		actual_qty = 0.0
 		if last_sle_qty:
 			actual_qty = last_sle_qty[0][0]
 
