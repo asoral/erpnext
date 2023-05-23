@@ -42,18 +42,11 @@ frappe.ui.form.on('Salary Structure Assignment', {
 		});
 	},
 
-	from_date: function(frm){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.from_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("from_date_nepali",resp.message)
-				}
-			}
-		})
+	refresh: function(frm) {
+		if(frm.doc.__onload){
+			frm.unhide_earnings_and_taxation_section = frm.doc.__onload.earning_and_deduction_entries_does_not_exists;
+			frm.trigger("set_earnings_and_taxation_section_visibility");
+		}
 	},
 
 	employee: function(frm) {
@@ -73,6 +66,8 @@ frappe.ui.form.on('Salary Structure Assignment', {
 					}
 				}
 			});
+
+			frm.trigger("valiadte_joining_date_and_salary_slips");
 		}
 		else{
 			frm.set_value("company", null);
@@ -85,5 +80,33 @@ frappe.ui.form.on('Salary Structure Assignment', {
 				frm.set_value("payroll_payable_account", r.default_payroll_payable_account);
 			});
 		}
-	}
+	},
+
+	valiadte_joining_date_and_salary_slips: function(frm) {
+		frappe.call({
+			method: "earning_and_deduction_entries_does_not_exists",
+			doc: frm.doc,
+			callback: function(data) {
+				let earning_and_deduction_entries_does_not_exists = data.message;
+				frm.unhide_earnings_and_taxation_section = earning_and_deduction_entries_does_not_exists;
+				frm.trigger("set_earnings_and_taxation_section_visibility");
+			}
+		});
+	},
+
+	set_earnings_and_taxation_section_visibility: function(frm) {
+		if(frm.unhide_earnings_and_taxation_section){
+			frm.set_df_property('earnings_and_taxation_section', 'hidden', 0);
+		}
+		else{
+			frm.set_df_property('earnings_and_taxation_section', 'hidden', 1);
+		}
+	},
+
+	from_date: function(frm) {
+		if (frm.doc.from_date) {
+			frm.trigger("valiadte_joining_date_and_salary_slips" );
+		}
+	},
+
 });

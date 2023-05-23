@@ -44,7 +44,10 @@ frappe.ui.form.on("Purchase Order", {
 			return erpnext.queries.warehouse(frm.doc);
 		});
 
-		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
+		// On cancel and amending a purchase order with advance payment, reset advance paid amount
+		if (frm.is_new()) {
+			frm.set_value("advance_paid", 0)
+		}
 	},
 
 	apply_tds: function(frm) {
@@ -58,7 +61,6 @@ frappe.ui.form.on("Purchase Order", {
 	refresh: function(frm) {
 		frm.trigger('get_materials_from_supplier');
 	},
-
 	get_materials_from_supplier: function(frm) {
 		let po_details = [];
 
@@ -100,36 +102,7 @@ frappe.ui.form.on("Purchase Order Item", {
 			}
 		}
 	},
-	schedule_date: function (frm,cdt,cdn) {
-		var child = locals[cdt][cdn];
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date:child.schedule_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					frappe.model.set_value(cdt,cdn,"required_by_nepali",resp.message)
-					
-				}
-			}
-		})
-	},
-	expected_delivery_date: function (frm,cdt,cdn) {
-		var child = locals[cdt][cdn];
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date:child.expected_delivery_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					frappe.model.set_value(cdt,cdn,"expected_delivery_date_nepal",resp.message)
-					
-				}
-			}
-		})
-	}
+
 });
 
 erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend({
@@ -219,11 +192,15 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 						cur_frm.add_custom_button(__('Purchase Invoice'),
 							this.make_purchase_invoice, __('Create'));
 
-					if(flt(doc.per_billed)==0 && doc.status != "Delivered") {
-						cur_frm.add_custom_button(__('Payment'), cur_frm.cscript.make_payment_entry, __('Create'));
+					if(flt(doc.per_billed) < 100 && doc.status != "Delivered") {
+						this.frm.add_custom_button(
+							__('Payment'),
+							() => this.make_payment_entry(),
+							__('Create')
+						);
 					}
 
-					if(flt(doc.per_billed)==0) {
+					if(flt(doc.per_billed) < 100) {
 						this.frm.add_custom_button(__('Payment Request'),
 							function() { me.make_payment_request() }, __('Create'));
 					}
@@ -472,7 +449,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 						company: me.frm.doc.company
 					},
 					allow_child_item_selection: true,
-					child_fielname: "items",
+					child_fieldname: "items",
 					child_columns: ["item_code", "qty"]
 				})
 			}, __("Get Items From"));
@@ -536,7 +513,7 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 								d.qty = d.qty  - my_qty;
 								me.frm.doc.items[i].stock_qty = my_qty * me.frm.doc.items[i].conversion_factor;
 								me.frm.doc.items[i].qty = my_qty;
-
+								
 								frappe.msgprint("Assigning " + d.mr_name + " to " + d.item_code + " (row " + me.frm.doc.items[i].idx + ")");
 								if (qty > 0) {
 									frappe.msgprint("Splitting " + qty + " units of " + d.item_code);
@@ -557,11 +534,27 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 						});
 						i++;
 					}
+					var count = 0
+					$.each(cur_frm.doc.items, (idx, row) => {
+						if(row.material_request){
+							count = count + 1						
+						}
+					});
+					if (count > 0){
+						cur_frm.set_value("material_request_check", 1)
+						cur_frm.refresh_field("material_request_check")
+						cur_frm.set_value("material_request_check", 0)
+						cur_frm.refresh_field("material_request_check")
+						// cur_frm.save()
+					}
+					
 					refresh_field("items");
 				}
 			});
 		}, __("Tools"));
 	},
+
+	
 
 	tc_name: function() {
 		this.get_terms();
@@ -631,21 +624,6 @@ erpnext.buying.PurchaseOrderController = erpnext.buying.BuyingController.extend(
 
 	items_on_form_rendered: function() {
 		set_schedule_date(this.frm);
-	},
-	
-	
-	to_date: function(doc){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: doc.to_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("to_date_nepali",resp.message)
-				}
-			}
-		})
 	},
 	
 });

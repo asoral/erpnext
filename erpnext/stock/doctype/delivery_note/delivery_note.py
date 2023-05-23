@@ -86,6 +86,9 @@ class DeliveryNote(SellingController):
 				]
 			)
 
+	# def before_save(self):
+	# 	self.get_commision()
+
 	def before_print(self, settings=None):
 		def toggle_print_hide(meta, fieldname):
 			df = meta.get_field(fieldname)
@@ -126,6 +129,7 @@ class DeliveryNote(SellingController):
 	def validate(self):
 		self.validate_posting_time()
 		super(DeliveryNote, self).validate()
+		self.get_commision()
 		self.set_status()
 		self.so_required()
 		self.validate_proj_cust()
@@ -369,6 +373,7 @@ class DeliveryNote(SellingController):
 				ps.cancel()
 			frappe.msgprint(_("Packing Slip(s) cancelled"))
 
+
 	def update_status(self, status):
 		self.set_status(update=True, status=status)
 		self.notify_update()
@@ -387,20 +392,22 @@ class DeliveryNote(SellingController):
 			dn_doc.update_billing_percentage(update_modified=update_modified)
 
 		self.load_from_db()
-		
+
+
 	@frappe.whitelist()
 	def get_commision(self):
 		tot=[]
 		if self.sales_partner:
 			doc=frappe.get_doc("Sales Partner",self.sales_partner)
-			if self.commission_based_on_target_lines==1: 
+			if self.commission_based_on_target_lines==1:
 				for i in self.items:
 					for j in doc.item_target_details:
 						if i.item_code==j.item_code:
-							if j.commision_formula:
-								data=eval(j.commision_formula)
-								tot.append(data)
-								self.total_commission=sum(tot)	 
+							if self.customer_name==j.customer_name:
+								if j.commision_formula:
+									data=eval(j.commision_formula)
+									tot.append(data)
+				self.total_commission=sum(tot)
 
 	def make_return_invoice(self):
 		try:
@@ -867,6 +874,9 @@ def make_inter_company_transaction(doctype, source_name, target_doc=None):
 			update_address(target_doc, "supplier_address", "address_display", source_doc.company_address)
 			update_address(
 				target_doc, "shipping_address", "shipping_address_display", source_doc.customer_address
+			)
+			update_address(
+				target_doc, "billing_address", "billing_address_display", source_doc.customer_address
 			)
 
 			update_taxes(

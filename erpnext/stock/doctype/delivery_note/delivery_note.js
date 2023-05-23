@@ -77,22 +77,8 @@ frappe.ui.form.on("Delivery Note", {
 			}
 		});
 
-		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
-
 		frm.set_df_property('packed_items', 'cannot_add_rows', true);
 		frm.set_df_property('packed_items', 'cannot_delete_rows', true);
-	},
-
-	before_save:function(frm){
-		frm.call({
-			method:"get_commision",
-			doc:frm.doc,
-			callback: function(r)
-			{
-				
-				frm.refresh_field("total_commission")
-			}
-		});
 	},
 
 	print_without_amount: function(frm) {
@@ -111,12 +97,12 @@ frappe.ui.form.on("Delivery Note", {
 		}
 
 		if (frm.doc.docstatus == 1 && !frm.doc.inter_company_reference) {
-			let internal = me.frm.doc.is_internal_customer;
+			let internal = frm.doc.is_internal_customer;
 			if (internal) {
-				let button_label = (me.frm.doc.company === me.frm.doc.represents_company) ? "Internal Purchase Receipt" :
+				let button_label = (frm.doc.company === frm.doc.represents_company) ? "Internal Purchase Receipt" :
 					"Inter Company Purchase Receipt";
 
-				me.frm.add_custom_button(button_label, function() {
+				frm.add_custom_button(__(button_label), function() {
 					frappe.model.open_mapped_doc({
 						method: 'erpnext.stock.doctype.delivery_note.delivery_note.make_inter_company_purchase_receipt',
 						frm: frm,
@@ -125,19 +111,9 @@ frappe.ui.form.on("Delivery Note", {
 			}
 		}
 
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.lr_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("transport_receipt_date_nepali",resp.message)
-				}
-			}	
-		})
+
 	},
-	
+
 });
 
 frappe.ui.form.on("Delivery Note Item", {
@@ -260,49 +236,6 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 			}, __('Create'))
 		}
 	},
-
-	posting_date: function(doc){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: doc.posting_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("date_nepali",resp.message)
-				}
-			}	
-		})
-		set_posting_date(this.frm);
-	},
-	po_date: function(doc){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: doc.po_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("customer_purchase_order_date_nepali",resp.message)
-				}
-			}	
-		})
-	},
-	lr_date: function(doc){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: doc.lr_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("transport_receipt_date_nepali",resp.message)
-				}
-			}	
-		})
-	},
-
-
 	make_shipment: function() {
 		frappe.model.open_mapped_doc({
 			method: "erpnext.stock.doctype.delivery_note.delivery_note.make_shipment",

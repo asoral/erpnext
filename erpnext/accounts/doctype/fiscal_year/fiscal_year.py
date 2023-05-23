@@ -5,8 +5,8 @@
 import frappe
 from dateutil.relativedelta import relativedelta
 import datetime
-import nepali_datetime
 from datetime import timedelta
+from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, add_years, cstr, getdate
 
@@ -16,9 +16,6 @@ class FiscalYearIncorrectDate(frappe.ValidationError):
 
 
 class FiscalYear(Document):
-	def before_save(self):
-		self.set('nepali_date_table', [])
-		self.handle_nepali_calendar()
 	@frappe.whitelist()
 	def set_as_default(self):
 		frappe.db.set_value("Global Defaults", None, "current_fiscal_year", self.name)
@@ -29,11 +26,7 @@ class FiscalYear(Document):
 		# clear cache
 		frappe.clear_cache()
 
-		frappe.msgprint(
-			frappe._(
-				"{0} is now the default Fiscal Year. Please refresh your browser for the change to take effect."
-			).format(self.name)
-		)
+		frappe.msgprint(frappe._("{0} is now the default Fiscal Year. Please refresh your browser for the change to take effect.").format(self.name))
 
 	def validate(self):
 		self.validate_dates()
@@ -191,5 +184,6 @@ def auto_create_fiscal_year():
 
 
 def get_from_and_to_date(fiscal_year):
-	fields = ["year_start_date as from_date", "year_end_date as to_date"]
-	return frappe.db.get_value("Fiscal Year", fiscal_year, fields, as_dict=1)
+	fields = ["year_start_date", "year_end_date"]
+	cached_results = frappe.get_cached_value("Fiscal Year", fiscal_year, fields, as_dict=1)
+	return dict(from_date=cached_results.year_start_date, to_date=cached_results.year_end_date)

@@ -88,6 +88,10 @@
   "purchase_receipt_item",
   "delivery_note_item",
   "putaway_rule",
+  "is_subcontracted",
+  "challan_number_issues_by_job_worker",
+  "challan_date_issues_by_job_worker",
+  "nature_of_job_work_done",
   "section_break_45",
   "allow_zero_valuation_rate",
   "bom",
@@ -738,6 +742,7 @@
    "oldfieldname": "valuation_rate",
    "oldfieldtype": "Currency",
    "options": "Company:company:default_currency",
+   "precision": "6",
    "print_hide": 1,
    "print_width": "80px",
    "read_only": 1,
@@ -786,10 +791,8 @@
   {
    "fieldname": "expense_account",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Expense Account",
-   "options": "Account",
-   "read_only": 1
+   "options": "Account"
   },
   {
    "fieldname": "accounting_dimensions_section",
@@ -976,6 +979,32 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.is_subcontracted",
+   "fieldname": "challan_number_issues_by_job_worker",
+   "fieldtype": "Link",
+   "label": "Challan Number Issues by Job Worker",
+   "options": "Sales Invoice Item"
+  },
+  {
+   "depends_on": "eval:doc.is_subcontracted",
+   "fieldname": "challan_date_issues_by_job_worker",
+   "fieldtype": "Date",
+   "label": "Challan Date Issues by Job Worker"
+  },
+  {
+   "fetch_from": "purchase_order.is_subcontracted",
+   "fieldname": "is_subcontracted",
+   "fieldtype": "Data",
+   "label": "Supply Raw Materials",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.is_subcontracted",
+   "fieldname": "nature_of_job_work_done",
+   "fieldtype": "Data",
+   "label": "Nature of Job Work Done"
+  },
+  {
    "fieldname": "provisional_expense_account",
    "fieldtype": "Link",
    "label": "Provisional Expense Account",
@@ -994,15 +1023,13 @@
  "idx": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-04-11 13:07:32.061402",
+ "modified": "2022-10-12 03:37:59.516609",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Purchase Receipt Item",
- "naming_rule": "Random",
  "owner": "Administrator",
  "permissions": [],
  "quick_entry": 1,
  "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+ "sort_order": "DESC"
 }

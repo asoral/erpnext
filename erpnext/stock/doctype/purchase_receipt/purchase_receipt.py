@@ -21,6 +21,122 @@ form_grid_templates = {"items": "templates/form_grid/item_grid.html"}
 
 
 class PurchaseReceipt(BuyingController):
+
+	# New Code for Kroslink TASK TASK-2022-00015, Field challan_number_issues_by_job_worker
+
+	@frappe.whitelist()
+	def on_get_items_button(self, po):
+
+
+		
+		# s_company = frappe.db.get_value("Supplier", self.supplier, )
+		print(" this is on get items click", frappe.get_doc("Purchase Receipt", "MAT-PRE-2022-00022-1").get_signature())
+		count = 0
+		# 1st get item_code , challan_number_issues_by_job_worker (name of soi) 
+		pr_items = frappe.db.get_all("Purchase Receipt Item", {"parent": self.name}, ['item_code', 'challan_number_issues_by_job_worker', 'purchase_order'])
+		print(" got item at 1", pr_items)
+
+		for i in pr_items:
+			sub_com = frappe.get_doc("Stock Entry",{ "purchase_order" : i.purchase_order, "stock_entry_type" : "Send to Subcontractor"})
+			print(" sub com", sub_com.name)
+			# 2nd Getting Batch no from SOIorder
+			if i.challan_number_issues_by_job_worker:
+				soi_item = frappe.db.get_value("Sales Invoice Item", i.challan_number_issues_by_job_worker, ['item_code', 'batch_no', 'sales_order'], as_dict= 1)
+				# 3rd From Sales invoice to Sales Order and Sales Order to Work Order
+				# Send Type 
+				print("soi  details 2", soi_item)
+				if soi_item:
+					soi_so = frappe.db.get_value("Work Order", { "sales_order": soi_item.get('sales_order'),
+					"production_item": soi_item.get("item_code"), "company": self.represents_company },["name"])
+
+					print("soi so 3", soi_so)
+					# 4 WOrkorder to Stock Entrt of Above Work Order and Get its name 
+					if soi_so: 
+						se_wo_man = frappe.get_all("Stock Entry", {"work_order" :soi_so, "stock_entry_type": "Manufacture"}, ["name"])
+						
+						# from Stock Entry Get Stock Items with above item and batch no matching above and get its parent
+						print(" this se_wo_name 4", se_wo_man)
+						if se_wo_man:
+							for won in se_wo_man:
+								print("5 in for ", won)
+							
+								# se_man = frappe.get_all("Stock Entry Detail", {"parent" :won }, ["item_code", "batch_no", "parent"])
+
+								se_man = frappe.get_doc("Stock Entry", won)
+								for i in  se_man.items:
+
+									print(" 6 SE MAN", i)
+									if i.item_code == soi_item.get("item_code") and i.batch_no == soi_item.get("batch_no"):
+
+										se_mat_con = frappe.get_doc("Stock Entry", {'work_order': soi_so, 'stock_entry_type': 'Material Consumption for Manufacture'})
+										print(" 7 this is new se of com for man", se_mat_con.name)
+										if se_mat_con:
+											print("8 se mat com", se_mat_con)
+											se_mat_con_entry = frappe.db.get_all("Stock Entry Detail", {"parent" : se_mat_con.name}, 
+											["item_code", "item_name", "description", "qty", "stock_uom", "conversion_factor", "basic_rate", "amount"])
+											# print("9 se mat com", se_mat_con_entry)
+											if se_mat_con_entry:
+												for sei in se_mat_con_entry:
+													print(' 10 sei', sei)	
+													self.append("supplied_items",{
+													"main_item_code" : sei.item_code,	
+													"rm_item_code" : sei.item_code,
+													"stock_uom" : sei.stock_uom,
+													"required_qty" : sei.qty,
+													"qty_to_be_consumed" : sei.qty,
+													"rate" : sei.basic_rate,
+													"amount" : sei.amount,
+													"item_name" : sei.item_name,
+													"description" : sei.description,
+													 "reference_challan" : sub_com.name
+													})
+													count = count + 1
+
+		if count > 1:
+			return True	
+					
+	@frappe.whitelist()
+	def to_button_hide(self, po):
+		a = frappe.get_value("Puchase Order", po, "is_subcontracted")
+		s = frappe.get_value("Supplier", self.supplier, "is_internal_supplier")
+		if a == "Yes" and s == 1:
+			return True
+
+	@frappe.whitelist()
+	def on_challan_date(self, item):
+		print("THi i new deu daye")
+		due_date = frappe.db.sql("""
+								Select si.due_date, soi.new_name from `tabSales Invoice Item` soi , `tabSales Invoice` si
+								Where soi.parent = si.name and soi.name = '{0}'	""".format(item), as_dict = 1)
+
+		return due_date
+
+	# New Code for Kroslink TASK TASK-2022-00015, Field challan_number_issues_by_job_worker
+	@frappe.whitelist()
+	def on_challan_number(self, item_code):
+		print("this is Inside on_challan_number")
+		new_company = frappe.get_value("Supplier", self.supplier, 'represents_company')
+
+		new_code = (frappe.get_value("Item", item_code, "intercompany_item") or item_code)
+
+		print(" new cm , new code", new_company, new_code)
+		soi = frappe.db.sql("""
+			select soi.name, si.name as si_name from `tabSales Invoice Item` soi , `tabSales Invoice` si
+				Where soi.parent = si.name
+				AND si.docstatus = 1
+				AND soi.item_code = "{0}"
+				AND si.company = "{1}"
+				AND si.represents_company = "{2}"
+		""".format(new_code, new_company, self.company), as_dict = 1)
+		new_soi = []
+		for s in soi:
+			new_soi.append(s["name"])
+			print(s)
+		print("soi", soi, new_soi)
+
+		
+		return soi
+
 	def __init__(self, *args, **kwargs):
 		super(PurchaseReceipt, self).__init__(*args, **kwargs)
 		self.status_updater = [
@@ -103,6 +219,8 @@ class PurchaseReceipt(BuyingController):
 		if self.get("items") and self.apply_putaway_rule and not self.get("is_return"):
 			apply_putaway_rule(self.doctype, self.get("items"), self.company)
 
+
+
 	def validate(self):
 		self.validate_posting_time()
 		super(PurchaseReceipt, self).validate()
@@ -111,6 +229,19 @@ class PurchaseReceipt(BuyingController):
 			self.make_batches("warehouse")
 		else:
 			self.set_status()
+
+		if self._action == "save":
+			for row in self.supplied_items:
+				if row.qty_to_be_consumed:
+					if row.consumed_qty > 0 and row.qty_to_be_consumed <= 0 and self.is_new():
+						row.qty_to_be_consumed = row.consumed_qty
+				elif not row.qty_to_be_consumed and self.is_new():
+					if row.consumed_qty > 0:
+						row.qty_to_be_consumed = row.consumed_qty
+				if row.qty_to_be_consumed:
+					if row.consumed_qty != row.qty_to_be_consumed and row.loss_qty != 0:
+						row.consumed_qty = row.qty_to_be_consumed + row.loss_qty
+
 
 		self.po_required()
 		self.validate_with_previous_doc()
@@ -127,6 +258,15 @@ class PurchaseReceipt(BuyingController):
 		self.reset_default_field_value("set_warehouse", "items", "warehouse")
 		self.reset_default_field_value("rejected_warehouse", "items", "rejected_warehouse")
 		self.reset_default_field_value("set_from_warehouse", "items", "from_warehouse")
+		self.validate_challan_number_issue_by_job_worker()
+
+	def validate_challan_number_issue_by_job_worker(self):
+		for row in self.items:
+			print("row.nature_of_job_work_done -------------",row.nature_of_job_work_done )
+			str_nature = row.nature_of_job_work_done
+			# if row.is_subcontracted == "Yes" and not row.challan_number_issues_by_job_worker and not row.challan_date_issues_by_job_worker and not str_nature:
+			# 		frappe.throw("Challan Number Issues by Job Worker, Challan Date Issues by Job Worker"
+			# 					 "and Nature of Job Work Done Is Mandatory at row "+str(row.idx))
 
 	def validate_cwip_accounts(self):
 		for item in self.get("items"):
@@ -367,6 +507,24 @@ class PurchaseReceipt(BuyingController):
 						if credit_currency == self.company_currency
 						else flt(d.net_amount, d.precision("net_amount"))
 					)
+
+					outgoing_amount = d.base_net_amount
+					if self.is_internal_transfer() and d.valuation_rate:
+						outgoing_amount = abs(
+							frappe.db.get_value(
+								"Stock Ledger Entry",
+								{
+									"voucher_type": "Purchase Receipt",
+									"voucher_no": self.name,
+									"voucher_detail_no": d.name,
+									"warehouse": d.from_warehouse,
+									"is_cancelled": 0,
+								},
+								"stock_value_difference",
+							)
+						)
+						credit_amount = outgoing_amount
+
 					if credit_amount:
 						account = warehouse_account[d.from_warehouse]["account"] if d.from_warehouse else stock_rbnb
 
@@ -374,7 +532,7 @@ class PurchaseReceipt(BuyingController):
 							gl_entries=gl_entries,
 							account=account,
 							cost_center=d.cost_center,
-							debit=-1 * flt(d.base_net_amount, d.precision("base_net_amount")),
+							debit=-1 * flt(outgoing_amount, d.precision("base_net_amount")),
 							credit=0.0,
 							remarks=remarks,
 							against_account=warehouse_account_name,
@@ -423,14 +581,14 @@ class PurchaseReceipt(BuyingController):
 
 					# divisional loss adjustment
 					valuation_amount_as_per_doc = (
-						flt(d.base_net_amount, d.precision("base_net_amount"))
+						flt(outgoing_amount, d.precision("base_net_amount"))
 						+ flt(d.landed_cost_voucher_amount)
 						+ flt(d.rm_supp_cost)
 						+ flt(d.item_tax_amount)
 					)
 
 					divisional_loss = flt(
-						valuation_amount_as_per_doc - stock_value_diff, d.precision("base_net_amount")
+						valuation_amount_as_per_doc - flt(stock_value_diff), d.precision("base_net_amount")
 					)
 
 					if divisional_loss:
@@ -468,6 +626,7 @@ class PurchaseReceipt(BuyingController):
 				and not d.is_fixed_asset
 				and flt(d.qty)
 				and provisional_accounting_for_non_stock_items
+				and d.get("provisional_expense_account")
 			):
 				self.add_provisional_gl_entry(
 					d, gl_entries, self.posting_date, d.get("provisional_expense_account")
@@ -824,7 +983,7 @@ def update_billing_percentage(pr_doc, update_modified=True):
 	# Update Billing % based on pending accepted qty
 	total_amount, total_billed_amount = 0, 0
 	for item in pr_doc.items:
-		return_data = frappe.db.get_list(
+		return_data = frappe.get_all(
 			"Purchase Receipt",
 			fields=["sum(abs(`tabPurchase Receipt Item`.qty)) as qty"],
 			filters=[
@@ -993,6 +1152,7 @@ def make_stock_entry(source_name, target_doc=None):
 	def set_missing_values(source, target):
 		target.stock_entry_type = "Material Transfer"
 		target.purpose = "Material Transfer"
+		target.set_missing_values()
 
 	doclist = get_mapped_doc(
 		"Purchase Receipt",
@@ -1056,13 +1216,25 @@ def get_item_account_wise_additional_cost(purchase_document):
 						account.expense_account, {"amount": 0.0, "base_amount": 0.0}
 					)
 
-					item_account_wise_cost[(item.item_code, item.purchase_receipt_item)][account.expense_account][
-						"amount"
-					] += (account.amount * item.get(based_on_field) / total_item_cost)
+					if total_item_cost > 0:
+						item_account_wise_cost[(item.item_code, item.purchase_receipt_item)][
+							account.expense_account
+						]["amount"] += (
+							account.amount * item.get(based_on_field) / total_item_cost
+						)
 
-					item_account_wise_cost[(item.item_code, item.purchase_receipt_item)][account.expense_account][
-						"base_amount"
-					] += (account.base_amount * item.get(based_on_field) / total_item_cost)
+						item_account_wise_cost[(item.item_code, item.purchase_receipt_item)][
+							account.expense_account
+						]["base_amount"] += (
+							account.base_amount * item.get(based_on_field) / total_item_cost
+						)
+					else:
+						item_account_wise_cost[(item.item_code, item.purchase_receipt_item)][
+							account.expense_account
+						]["amount"] += item.applicable_charges
+						item_account_wise_cost[(item.item_code, item.purchase_receipt_item)][
+							account.expense_account
+						]["base_amount"] += item.applicable_charges
 
 	return item_account_wise_cost
 

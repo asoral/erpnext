@@ -134,22 +134,11 @@ frappe.ui.form.on('Material Request', {
 	},
 
 	refresh: function(frm) {
+		frm.events.make_custom_buttons(frm);
 		var d = frm.doc.work_order_detail
 		if(d.length > 0){
 			frm.set_df_property("items",'read_only',1)
 		}
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.transaction_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("transaction_datenepali",resp.message)
-				}
-			}	
-		})
-		frm.events.make_custom_buttons(frm);
 		frm.toggle_reqd('customer', frm.doc.material_request_type=="Customer Provided");
 
 		if (frm.doc.docstatus===0 && frm.doc.manufacturing_staging === 1) {
@@ -173,19 +162,7 @@ frappe.ui.form.on('Material Request', {
 		}
 
 	},
-	schedule_date: function(frm){
-		frappe.call({
-			method:"erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.schedule_date
-			},
-			callback: function(resp){
-				if(resp.message){
-					cur_frm.set_value("required_bynepali",resp.message)
-				}
-			}	
-		})
-	},
+
 	set_from_warehouse: function(frm) {
 		if (frm.doc.material_request_type == "Material Transfer"
 			&& frm.doc.set_from_warehouse) {
@@ -468,12 +445,10 @@ frappe.ui.form.on('Material Request', {
 
 frappe.ui.form.on("Material Request Item", {
 	qty: function (frm, doctype, name) {
-		var d = locals[doctype][name];
-		if (flt(d.qty) < flt(d.min_order_qty)) {
+		const item = locals[doctype][name];
+		if (flt(item.qty) < flt(item.min_order_qty)) {
 			frappe.msgprint(__("Warning: Material Requested Qty is less than Minimum Order Qty"));
 		}
-
-		const item = locals[doctype][name];
 		frm.events.get_item_data(frm, item, false);
 	},
 

@@ -11,7 +11,6 @@
   "naming_series",
   "title",
   "disable",
-  "customer_pricing_rule_id",
   "apply_on",
   "price_or_product_discount",
   "warehouse",
@@ -56,9 +55,7 @@
   "is_recursive",
   "section_break_23",
   "valid_from",
-  "valid_fromnepal",
   "valid_upto",
-  "valid_uptonepal",
   "col_break1",
   "company",
   "currency",
@@ -576,30 +573,11 @@
    "label": "Is Recursive"
   },
   {
-   "fieldname": "customer_pricing_rule_id",
-   "fieldtype": "Link",
-   "label": "Customer Pricing Rule Id",
-   "options": "Customer Pricing Rule",
-   "read_only": 1
-  },
-  {
    "default": "PRLE-.####",
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Naming Series",
    "options": "PRLE-.####"
-  },
-  {
-   "fieldname": "valid_fromnepal",
-   "fieldtype": "Data",
-   "label": "Valid From(Nepal)",
-   "read_only": 1
-  },
-  {
-   "fieldname": "valid_uptonepal",
-   "fieldtype": "Data",
-   "label": "Valid Upto(Nepal)",
-   "read_only": 1
   }
  ],
  "icon": "fa fa-gift",

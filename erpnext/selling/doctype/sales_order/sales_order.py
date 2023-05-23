@@ -4,13 +4,15 @@
 from __future__ import unicode_literals
 import json
 from datetime import datetime
+from erpnext.accounts.party import get_partywise_advanced_payment_amount
 import frappe
 import frappe.utils
-from frappe import _
+from frappe import _, qb
 from frappe.contacts.doctype.address.address import get_company_address
 from frappe.desk.notifications import clear_doctype_notifications
 from frappe.model.mapper import get_mapped_doc
 from frappe.model.utils import get_fetch_values
+from frappe.query_builder.functions import Sum
 from frappe.utils import add_days, cint, cstr, flt, get_link_to_form, getdate, nowdate, strip_html
 from six import string_types
 
@@ -19,14 +21,25 @@ from erpnext.accounts.doctype.sales_invoice.sales_invoice import (
 	update_linked_doc,
 	validate_inter_company_party,
 )
+from erpnext.accounts.party import get_party_account
 from erpnext.controllers.selling_controller import SellingController
+from erpnext.manufacturing.doctype.blanket_order.blanket_order import (
+	validate_against_blanket_order,
+)
 from erpnext.manufacturing.doctype.production_plan.production_plan import (
 	get_items_for_material_requests,
 )
 from erpnext.selling.doctype.customer.customer import check_credit_limit
 from erpnext.setup.doctype.item_group.item_group import get_item_group_defaults
 from erpnext.stock.doctype.item.item import get_item_defaults
+from erpnext.stock.get_item_details import get_default_bom
 from erpnext.stock.stock_balance import get_reserved_qty, update_bin_qty
+
+from erpnext.accounts.report.accounts_receivable.accounts_receivable import ReceivablePayableReport
+from six import iteritems
+from frappe import _, scrub
+
+
 
 form_grid_templates = {"items": "templates/form_grid/item_grid.html"}
 
@@ -39,8 +52,113 @@ class SalesOrder(SellingController):
 	def __init__(self, *args, **kwargs):
 		super(SalesOrder, self).__init__(*args, **kwargs)
 
+	# def before_save(self):
+		# self.get_commision()
+
+	# start Of Cutom Code For Button Update Party Balance
+	args = {
+		"party_type": "Customer",
+		"naming_by": ["Selling Settings", "cust_master_name"],
+	}
+	filters1 = {}
+	party_type = "Customer"
+
+	@frappe.whitelist()
+	def on_update_party_balance(self):
+		self.filters1['company'] =  self.company
+		self.filters1['report_date'] =  self.transaction_date
+		self.filters1['ageing_based_on'] = "Due Date"
+		self.filters1['range1'] = 30
+		self.filters1['range2'] = 60
+		self.filters1['range3'] = 90
+		self.filters1['range4'] = 120
+		self.filters1['customer'] = self.customer	
+		self.show_future_payments = 0
+		entry  = self.get_data1(self.args)
+	
+		return entry
+
+		#  Accounts receivable summary 
+	def get_data1(self, args):
+		self.data1 = []
+		
+		self.party_naming_by = frappe.db.get_value(self.args.get("naming_by")[0], None, self.args.get("naming_by")[1])
+
+		self.receivables = ReceivablePayableReport(self.filters1).run(args)[1]
+
+		self.get_party_total(args)
+
+		party_advance_amount = get_partywise_advanced_payment_amount(self.party_type,
+			self.transaction_date, self.show_future_payments, self.company) or {}
+		
+		for party, party_dict in iteritems(self.party_total):
+			if party_dict.outstanding == 0:
+				continue
+
+			row = frappe._dict()
+
+			row.party = party
+			if self.party_naming_by == "Naming Series":
+				row.party_name = frappe.get_cached_value(self.party_type, party, scrub(self.party_type) + "_name")
+
+			row.update(party_dict)
+
+			# Advance against party
+			row.advance = party_advance_amount.get(party, 0)
+
+			# In AR/AP, advance shown in paid columns,
+			# but in summary report advance shown in separate column
+			row.paid -= row.advance
+
+			self.data1.append(row)
+			
+		return self.data1
+
+	def get_party_total(self, args):
+		self.party_total = frappe._dict()
+
+		for d in self.receivables:
+			self.init_party_total(d)
+
+			# Add all amount columns
+			for k in list(self.party_total[d.party]):
+				if k not in ["currency", "sales_person"]:
+
+					self.party_total[d.party][k] += d.get(k, 0.0)
+
+			# set territory, customer_group, sales person etc
+			# self.set_party_details(d)
+
+	def init_party_total(self, row):
+		self.party_total.setdefault(row.party, frappe._dict({
+			"invoiced": 0.0,
+			"paid": 0.0,
+			"credit_note": 0.0,
+			"outstanding": 0.0,
+			"range1": 0.0,
+			"range2": 0.0,
+			"range3": 0.0,
+			"range4": 0.0,
+			"range5": 0.0,
+			"total_due": 0.0,
+			"sales_person": []
+		}))		
+
+	def set_party_details(self, row):
+		self.party_total[row.party].currency = row.currency
+
+		for key in ('territory', 'customer_group', 'supplier_group'):
+			if row.get(key):
+				self.party_total[row.party][key] = row.get(key)
+
+		if row.sales_person:
+			self.party_total[row.party].sales_person.append(row.sales_person)
+
+	# End of Update Party Balance
+
 	def validate(self):
 		super(SalesOrder, self).validate()
+		self.get_commision()
 		self.validate_delivery_date()
 		self.validate_proj_cust()
 		self.validate_po()
@@ -50,6 +168,9 @@ class SalesOrder(SellingController):
 		self.validate_warehouse()
 		self.validate_drop_ship()
 		self.validate_serial_no_based_delivery()
+		
+		validate_inter_company_party(self.doctype, self.customer, self.company, self.inter_company_order_reference)
+		validate_against_blanket_order(self)
 		validate_inter_company_party(
 			self.doctype, self.customer, self.company, self.inter_company_order_reference
 		)
@@ -484,14 +605,17 @@ class SalesOrder(SellingController):
 		tot=[]
 		if self.sales_partner:
 			doc=frappe.get_doc("Sales Partner",self.sales_partner)
-			if self.commission_based_on_target_lines==1: 
+			if self.commission_based_on_target_lines==1:
 				for i in self.items:
 					for j in doc.item_target_details:
 						if i.item_code==j.item_code:
-							if j.commision_formula:
-								data=eval(j.commision_formula)
-								tot.append(data)
-								self.total_commission=sum(tot)			
+							if self.customer_name==j.customer_name:
+								if j.commision_formula:
+									data=eval(j.commision_formula)
+									tot.append(data)
+				self.total_commission=sum(tot)
+				# frappe.set_value("Sales Order",self.name, "total_commission",sum(tot))
+
 
 	@frappe.whitelist()
 	def get_work_order_items(self, for_raw_material_request=0):
@@ -507,8 +631,9 @@ class SalesOrder(SellingController):
 
 		for table in [self.items, self.packed_items]:
 			for i in table:
-				bom = get_default_bom_item(i.item_code)
+				bom = get_default_bom(i.item_code)
 				stock_qty = i.qty if i.doctype == "Packed Item" else i.stock_qty
+
 				if not for_raw_material_request:
 					total_work_order_qty = flt(
 						frappe.db.sql(
@@ -522,32 +647,19 @@ class SalesOrder(SellingController):
 					pending_qty = stock_qty
 
 				if pending_qty and i.item_code not in product_bundle_parents:
-					if bom:
-						items.append(
-							dict(
-								name=i.name,
-								item_code=i.item_code,
-								description=i.description,
-								bom=bom,
-								warehouse=i.warehouse,
-								pending_qty=pending_qty,
-								required_qty=pending_qty if for_raw_material_request else 0,
-								sales_order_item=i.name,
-							)
+					items.append(
+						dict(
+							name=i.name,
+							item_code=i.item_code,
+							description=i.description,
+							bom=bom or "",
+							warehouse=i.warehouse,
+							pending_qty=pending_qty,
+							required_qty=pending_qty if for_raw_material_request else 0,
+							sales_order_item=i.name,
 						)
-					else:
-						items.append(
-							dict(
-								name=i.name,
-								item_code=i.item_code,
-								description=i.description,
-								bom="",
-								warehouse=i.warehouse,
-								pending_qty=pending_qty,
-								required_qty=pending_qty if for_raw_material_request else 0,
-								sales_order_item=i.name,
-							)
-						)
+					)
+
 		return items
 
 	def on_recurring(self, reference_doc, auto_repeat_doc):
@@ -822,6 +934,8 @@ def make_sales_invoice(source_name, target_doc=None, ignore_permissions=False):
 		if source.loyalty_points and source.order_type == "Shopping Cart":
 			target.redeem_loyalty_points = 1
 
+		target.debit_to = get_party_account("Customer", source.customer, source.company)
+
 	def update_item(source, target, source_parent):
 		target.amount = flt(source.amount) - flt(source.billed_amt)
 		target.base_amount = target.amount * flt(source_parent.conversion_rate)
@@ -975,6 +1089,9 @@ def get_events(start, end, filters=None):
 @frappe.whitelist()
 def make_purchase_order_for_default_supplier(source_name, selected_items=None, target_doc=None):
 	"""Creates Purchase Order for each Supplier. Returns a list of doc objects."""
+
+	from erpnext.setup.utils import get_exchange_rate
+
 	if not selected_items:
 		return
 
@@ -983,10 +1100,20 @@ def make_purchase_order_for_default_supplier(source_name, selected_items=None, t
 
 	def set_missing_values(source, target):
 		target.supplier = supplier
+		target.currency = frappe.db.get_value(
+			"Supplier", filters={"name": supplier}, fieldname=["default_currency"]
+		)
+		company_currency = frappe.db.get_value(
+			"Company", filters={"name": target.company}, fieldname=["default_currency"]
+		)
+
+		target.conversion_rate = get_exchange_rate(target.currency, company_currency, args="for_buying")
+
 		target.apply_discount_on = ""
 		target.additional_discount_percentage = 0.0
 		target.discount_amount = 0.0
 		target.inter_company_order_reference = ""
+		target.shipping_rule = ""
 
 		default_price_list = frappe.get_value("Supplier", supplier, "default_price_list")
 		if default_price_list:
@@ -1099,14 +1226,30 @@ def make_purchase_order(source_name, selected_items=None, target_doc=None):
 	]
 	items_to_map = list(set(items_to_map))
 
+	def is_drop_ship_order(target):
+		drop_ship = True
+		for item in target.items:
+			if not item.delivered_by_supplier:
+				drop_ship = False
+				break
+
+		return drop_ship
+
 	def set_missing_values(source, target):
 		target.supplier = ""
 		target.apply_discount_on = ""
 		target.additional_discount_percentage = 0.0
 		target.discount_amount = 0.0
 		target.inter_company_order_reference = ""
-		target.customer = ""
-		target.customer_name = ""
+		target.shipping_rule = ""
+
+		if is_drop_ship_order(target):
+			target.customer = source.customer
+			target.customer_name = source.customer_name
+			target.shipping_address = source.shipping_address_name
+		else:
+			target.customer = target.customer_name = target.shipping_address = None
+
 		target.run_method("set_missing_values")
 		target.run_method("calculate_taxes_and_totals")
 
@@ -1249,13 +1392,6 @@ def make_work_orders(items, sales_order, company, project=None):
 def update_status(status, name):
 	so = frappe.get_doc("Sales Order", name)
 	so.update_status(status)
-
-
-def get_default_bom_item(item_code):
-	bom = frappe.get_all("BOM", dict(item=item_code, is_active=True), order_by="is_default desc")
-	bom = bom[0].name if bom else None
-
-	return bom
 
 
 @frappe.whitelist()
@@ -1430,3 +1566,58 @@ def update_produced_qty_in_so_item(sales_order, sales_order_item):
 		return
 
 	frappe.db.set_value("Sales Order Item", sales_order_item, "produced_qty", total_produced_qty)
+
+
+@frappe.whitelist()
+def get_work_order_items(sales_order, for_raw_material_request=0):
+	"""Returns items with BOM that already do not have a linked work order"""
+	if sales_order:
+		so = frappe.get_doc("Sales Order", sales_order)
+
+		wo = qb.DocType("Work Order")
+
+		items = []
+		item_codes = [i.item_code for i in so.items]
+		product_bundle_parents = [
+			pb.new_item_code
+			for pb in frappe.get_all(
+				"Product Bundle", {"new_item_code": ["in", item_codes]}, ["new_item_code"]
+			)
+		]
+
+		for table in [so.items, so.packed_items]:
+			for i in table:
+				bom = get_default_bom(i.item_code)
+				stock_qty = i.qty if i.doctype == "Packed Item" else i.stock_qty
+
+				if not for_raw_material_request:
+					total_work_order_qty = flt(
+						qb.from_(wo)
+						.select(Sum(wo.qty))
+						.where(
+							(wo.production_item == i.item_code)
+							& (wo.sales_order == so.name)
+							& (wo.sales_order_item == i.name)
+							& (wo.docstatus.lt(2))
+						)
+						.run()[0][0]
+					)
+					pending_qty = stock_qty - total_work_order_qty
+				else:
+					pending_qty = stock_qty
+
+				if pending_qty and i.item_code not in product_bundle_parents:
+					items.append(
+						dict(
+							name=i.name,
+							item_code=i.item_code,
+							description=i.description,
+							bom=bom or "",
+							warehouse=i.warehouse,
+							pending_qty=pending_qty,
+							required_qty=pending_qty if for_raw_material_request else 0,
+							sales_order_item=i.name,
+						)
+					)
+
+		return items

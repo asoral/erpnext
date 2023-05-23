@@ -59,22 +59,12 @@ frappe.ui.form.on('Loan', {
 		})
 
 	},
-	posting_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.posting_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("posting_date_nepal", resp.message)
-				}
-			}
-		})
-	},
-
 
 	refresh: function (frm) {
+		if (frm.doc.repayment_schedule_type == "Pro-rated calendar months") {
+			frm.set_df_property("repayment_start_date", "label", "Interest Calculation Start Date");
+		}
+
 		if (frm.doc.docstatus == 1) {
 			if (["Disbursed", "Partially Disbursed"].includes(frm.doc.status) && (!frm.doc.repay_from_salary)) {
 				frm.add_custom_button(__('Request Loan Closure'), function() {
@@ -107,11 +97,24 @@ frappe.ui.form.on('Loan', {
 					frm.trigger("make_loan_refund");
 				},__('Create'));
 			}
+
+			if (frm.doc.status == "Loan Closure Requested" && frm.doc.is_term_loan && !frm.doc.is_secured_loan) {
+				frm.add_custom_button(__('Close Loan'), function() {
+					frm.trigger("close_unsecured_term_loan");
+				},__('Status'));
+			}
 		}
 		frm.trigger("toggle_fields");
 	},
 
-	
+	repayment_schedule_type: function(frm) {
+		if (frm.doc.repayment_schedule_type == "Pro-rated calendar months") {
+			frm.set_df_property("repayment_start_date", "label", "Interest Calculation Start Date");
+		} else {
+			frm.set_df_property("repayment_start_date", "label", "Repayment Start Date");
+		}
+	},
+
 	loan_type: function(frm) {
 		frm.toggle_reqd("repayment_method", frm.doc.is_term_loan);
 		frm.toggle_display("repayment_method", frm.doc.is_term_loan);
@@ -185,6 +188,18 @@ frappe.ui.form.on('Loan', {
 					let doc = frappe.model.sync(r.message)[0];
 					frappe.set_route("Form", doc.doctype, doc.name);
 				}
+			}
+		})
+	},
+
+	close_unsecured_term_loan: function(frm) {
+		frappe.call({
+			args: {
+				"loan": frm.doc.name
+			},
+			method: "erpnext.loan_management.doctype.loan.loan.close_unsecured_term_loan",
+			callback: function () {
+				frm.refresh();
 			}
 		})
 	},

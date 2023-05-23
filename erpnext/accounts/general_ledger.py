@@ -29,6 +29,7 @@ def make_gl_entries(
 	if gl_map:
 		if not cancel:
 			validate_accounting_period(gl_map)
+			validate_disabled_accounts(gl_map)
 			gl_map = process_gl_map(gl_map, merge_entries)
 			if gl_map and len(gl_map) > 1:
 				save_entries(gl_map, adv_adj, update_outstanding, from_repost)
@@ -41,6 +42,26 @@ def make_gl_entries(
 				)
 		else:
 			make_reverse_gl_entries(gl_map, adv_adj=adv_adj, update_outstanding=update_outstanding)
+
+
+def validate_disabled_accounts(gl_map):
+	accounts = [d.account for d in gl_map if d.account]
+
+	Account = frappe.qb.DocType("Account")
+
+	disabled_accounts = (
+		frappe.qb.from_(Account)
+		.where(Account.name.isin(accounts) & Account.disabled == 1)
+		.select(Account.name, Account.disabled)
+	).run(as_dict=True)
+
+	if disabled_accounts:
+		account_list = "<br>"
+		account_list += ", ".join([frappe.bold(d.name) for d in disabled_accounts])
+		frappe.throw(
+			_("Cannot create accounting entries against disabled accounts: {0}").format(account_list),
+			title=_("Disabled Account Selected"),
+		)
 
 
 def validate_accounting_period(gl_map):
@@ -127,6 +148,7 @@ def update_net_values(entry):
 def merge_similar_entries(gl_map, precision=None):
 	merged_gl_map = []
 	accounting_dimensions = get_accounting_dimensions()
+
 	for entry in gl_map:
 		# if there is already an entry in this account then just add it
 		# to that entry
@@ -208,9 +230,10 @@ def make_entry(args, adv_adj, update_outstanding, from_repost=False):
 	gle.flags.from_repost = from_repost
 	gle.flags.adv_adj = adv_adj
 	gle.flags.update_outstanding = update_outstanding or "Yes"
+	gle.flags.notify_update = False
 	gle.submit()
 
-	if not from_repost:
+	if not from_repost and gle.voucher_type != "Period Closing Voucher":
 		validate_expense_against_budget(args)
 
 
@@ -275,20 +298,22 @@ def make_round_off_gle(gl_map, debit_credit_diff, precision):
 	round_off_account, round_off_cost_center = get_round_off_account_and_cost_center(
 		gl_map[0].company, gl_map[0].voucher_type, gl_map[0].voucher_no
 	)
-	round_off_account_exists = False
 	round_off_gle = frappe._dict()
-	for d in gl_map:
-		if d.account == round_off_account:
-			round_off_gle = d
-			if d.debit:
-				debit_credit_diff -= flt(d.debit)
-			else:
-				debit_credit_diff += flt(d.credit)
-			round_off_account_exists = True
+	round_off_account_exists = False
 
-	if round_off_account_exists and abs(debit_credit_diff) < (1.0 / (10**precision)):
-		gl_map.remove(round_off_gle)
-		return
+	if gl_map[0].voucher_type != "Period Closing Voucher":
+		for d in gl_map:
+			if d.account == round_off_account:
+				round_off_gle = d
+				if d.debit:
+					debit_credit_diff -= flt(d.debit) - flt(d.credit)
+				else:
+					debit_credit_diff += flt(d.credit)
+				round_off_account_exists = True
+
+		if round_off_account_exists and abs(debit_credit_diff) < (1.0 / (10**precision)):
+			gl_map.remove(round_off_gle)
+			return
 
 	if not round_off_gle:
 		for k in ["voucher_type", "voucher_no", "company", "posting_date", "remarks"]:
@@ -311,7 +336,6 @@ def make_round_off_gle(gl_map, debit_credit_diff, precision):
 	)
 
 	update_accounting_dimensions(round_off_gle)
-
 	if not round_off_account_exists:
 		gl_map.append(round_off_gle)
 

@@ -61,32 +61,6 @@ frappe.ui.form.on("Project", {
 		}
 		frm.events.set_buttons(frm);
 	},
-	expected_start_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.expected_start_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("expected_start_date_nepal", resp.message)
-				}
-			}
-		})
-	},
-	expected_end_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.expected_end_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("expected_end_date_nepal", resp.message)
-				}
-			}
-		})
-	},
 
 	set_buttons: function(frm) {
 		if (!frm.is_new()) {
@@ -160,6 +134,7 @@ function open_form(frm, doctype, child_doctype, parentfield) {
 		new_child_doc.parentfield = parentfield;
 		new_child_doc.parenttype = doctype;
 		new_doc[parentfield] = [new_child_doc];
+		new_doc.project = frm.doc.name;
 
 		frappe.ui.form.make_quick_entry(doctype, null, null, new_doc);
 	});

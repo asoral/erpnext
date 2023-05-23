@@ -47,9 +47,9 @@ frappe.ui.form.on('Asset Value Adjustment', {
 	set_current_asset_value: function(frm) {
 		if (frm.doc.asset) {
 			frm.call({
-				method: "erpnext.assets.doctype.asset_value_adjustment.asset_value_adjustment.get_current_asset_value",
+				method: "erpnext.assets.doctype.asset.asset.get_asset_value_after_depreciation",
 				args: {
-					asset: frm.doc.asset,
+					asset_name: frm.doc.asset,
 					finance_book: frm.doc.finance_book
 				},
 				callback: function(r) {
@@ -59,18 +59,5 @@ frappe.ui.form.on('Asset Value Adjustment', {
 				}
 			});
 		}
-	},
-	date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.doc.date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("date_nepal", resp.message)
-				}
-			}
-		})
-	},
+	}
 });

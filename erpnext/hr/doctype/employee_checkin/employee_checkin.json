@@ -12,7 +12,6 @@
   "shift",
   "column_break_4",
   "time",
-  "time_nepal",
   "device_id",
   "skip_auto_attendance",
   "attendance",
@@ -27,7 +26,8 @@
    "fieldtype": "Link",
    "label": "Employee",
    "options": "Employee",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fetch_from": "employee.employee_name",
@@ -49,7 +49,8 @@
    "fieldtype": "Link",
    "label": "Shift",
    "options": "Shift Type",
-   "read_only": 1
+   "read_only": 1,
+   "search_index": 1
   },
   {
    "fieldname": "column_break_4",
@@ -105,15 +106,10 @@
    "fieldtype": "Datetime",
    "hidden": 1,
    "label": "Shift Actual End"
-  },
-  {
-   "fieldname": "time_nepal",
-   "fieldtype": "Read Only",
-   "label": "Time (Nepal)"
   }
  ],
  "links": [],
- "modified": "2021-09-17 13:01:05.086394",
+ "modified": "2022-07-19 15:38:41.767539",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee Checkin",

@@ -23,104 +23,13 @@ erpnext.hr.EmployeeController = frappe.ui.form.Controller.extend({
 		erpnext.toggle_naming_series();
 	},
 
-	date_of_birth: function () {
+	date_of_birth: function() {
 		return cur_frm.call({
 			method: "get_retirement_date",
 			args: {
 				date_of_birth: this.frm.doc.date_of_birth
 			}
 		});
-
-	},
-	date_of_birth: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.date_of_birth
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("date_of_birth_nepal", resp.message)
-				}
-			}
-		})
-
-
-	},
-	date_of_joining: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.date_of_joining
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("date_of_joining_nepal", resp.message)
-				}
-			}
-		})
-
-
-	},
-	scheduled_confirmation_date: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.scheduled_confirmation_date
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("offer_date_nepal", resp.message)
-				}
-			}
-		})
-
-
-	},
-	date_of_retirement: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.date_of_retirement
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("date_of_retirement_nepal", resp.message)
-				}
-			}
-		})
-
-
-	},
-	date_of_issue: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.date_of_issue
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("date_of_issue_nepal", resp.message)
-				}
-			}
-		})
-
-
-	},
-	date_of_issue: function (frm) {
-		frappe.call({
-			method: "erpnext.nepali_date.get_converted_date",
-			args: {
-				date: frm.date_of_issue
-			},
-			callback: function (resp) {
-				if (resp.message) {
-					cur_frm.set_value("date_of_issue_nepal", resp.message)
-				}
-			}
-		})
-
-
 	},
 
 	valid_upto: function (frm) {
@@ -289,4 +198,8 @@ frappe.tour['Employee'] = [
 		title: "Leave Approver",
 		description: __("Select  Leave Approver for an employee. The user one who will look after his/her Leave application")
 	},
+<<<<<<< HEAD
 ];
+=======
+];
+>>>>>>> 6e4c2f55ce74c03ff8f61b4b20530c13f3b57e35
