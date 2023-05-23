@@ -1,0 +1,156 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2021-11-30 16:55:53.102066",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "defective_spare_part",
+  "defective_spare_part_hp",
+  "product_description",
+  "defective_part_serial",
+  "defective_part_serial_hp",
+  "defective_part_ct_no",
+  "product_no",
+  "part_no",
+  "column_break_9",
+  "event",
+  "defective_part_replaced",
+  "defective_part_need_to_be_replaced",
+  "replaced_part",
+  "replaced_part_hp",
+  "replaced_part_description",
+  "replaced_part_serial",
+  "replaced_part_serial_hp",
+  "replaced_part_ct_no",
+  "product_no_hp",
+  "part_no_hp"
+ ],
+ "fields": [
+  {
+   "fieldname": "defective_spare_part",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Defective Spare Part",
+   "options": "Item"
+  },
+  {
+   "fieldname": "defective_spare_part_hp",
+   "fieldtype": "Data",
+   "label": "Defective Spare Part HP"
+  },
+  {
+   "fieldname": "product_description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Product Description",
+   "width": "2"
+  },
+  {
+   "fieldname": "defective_part_serial",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Defective Part Serial",
+   "options": "Serial No"
+  },
+  {
+   "fieldname": "defective_part_serial_hp",
+   "fieldtype": "Data",
+   "label": "Defective Part Serial HP"
+  },
+  {
+   "fieldname": "defective_part_ct_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Defective Part CT No"
+  },
+  {
+   "fieldname": "product_no",
+   "fieldtype": "Data",
+   "label": "Product No"
+  },
+  {
+   "fieldname": "part_no",
+   "fieldtype": "Data",
+   "label": "Part No"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Event No",
+   "width": "2"
+  },
+  {
+   "default": "0",
+   "fieldname": "defective_part_replaced",
+   "fieldtype": "Check",
+   "label": "Defective Part Replaced"
+  },
+  {
+   "default": "0",
+   "fieldname": "defective_part_need_to_be_replaced",
+   "fieldtype": "Check",
+   "label": "Defective Part Need to be replaced"
+  },
+  {
+   "fieldname": "replaced_part",
+   "fieldtype": "Link",
+   "label": "Replaced Part",
+   "options": "Item"
+  },
+  {
+   "fieldname": "replaced_part_hp",
+   "fieldtype": "Data",
+   "label": "Replaced Part HP"
+  },
+  {
+   "fieldname": "replaced_part_description",
+   "fieldtype": "Small Text",
+   "label": "Replaced Part Description"
+  },
+  {
+   "fieldname": "replaced_part_serial",
+   "fieldtype": "Link",
+   "label": "Replaced Part Serial",
+   "options": "Serial No"
+  },
+  {
+   "fieldname": "replaced_part_serial_hp",
+   "fieldtype": "Data",
+   "label": "Replaced Part Serial HP"
+  },
+  {
+   "fieldname": "replaced_part_ct_no",
+   "fieldtype": "Data",
+   "label": "Replaced Part CT No"
+  },
+  {
+   "fieldname": "product_no_hp",
+   "fieldtype": "Data",
+   "label": "Product No HP"
+  },
+  {
+   "fieldname": "part_no_hp",
+   "fieldtype": "Data",
+   "label": "Part No HP"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-11-04 14:20:48.666799",
+ "modified_by": "Administrator",
+ "module": "Support",
+ "name": "Spare Part Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

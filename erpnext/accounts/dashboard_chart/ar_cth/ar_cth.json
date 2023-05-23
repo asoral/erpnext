@@ -1,0 +1,36 @@
+{
+ "chart_name": "AR-CTH",
+ "chart_type": "Report",
+ "creation": "2022-11-21 10:50:34.977823",
+ "custom_options": "{\"x_field\": \"party\", \"chart_type\": \"Bar\", \"y_axis_fields\": [{\"idx\": 1, \"__islocal\": true, \"name\": \"row 1\", \"y_field\": \"total_due\", \"color\": \"#449CF0\"}, {\"idx\": 2, \"__islocal\": true, \"name\": \"row 2\", \"y_field\": \"range5\", \"color\": \"#CB2929\"}], \"y_fields\": [\"total_due\", \"range5\"], \"colors\": [\"#449CF0\", \"#CB2929\"]}",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "filters_json": "{\"company\":\"CAS Trading House Pvt Ltd\",\"report_date\":\"2022-11-21\",\"ageing_based_on\":\"Due Date\",\"range1\":30,\"range2\":60,\"range3\":90,\"range4\":120}",
+ "group_by_type": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "modified": "2022-11-21 10:50:35.105224",
+ "modified_by": "nitesh@cas.com.np",
+ "module": "Accounts",
+ "name": "AR-CTH",
+ "number_of_groups": 0,
+ "owner": "nitesh@cas.com.np",
+ "report_name": "Accounts Receivable Summary",
+ "time_interval": "Yearly",
+ "timeseries": 0,
+ "timespan": "Last Year",
+ "type": "Bar",
+ "use_report_chart": 0,
+ "x_field": "party",
+ "y_axis": [
+  {
+   "color": "#449CF0",
+   "y_field": "total_due"
+  },
+  {
+   "color": "#CB2929",
+   "y_field": "range5"
+  }
+ ]
+}

@@ -1,0 +1,644 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "LOS-.####",
+ "creation": "2022-12-08 12:39:46.433382",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "workflow_state",
+  "approval_chain_section",
+  "first_approver",
+  "third_approver",
+  "fifth_approver",
+  "column_break_4",
+  "second_approver",
+  "fourth_approver",
+  "lead_information_section",
+  "application_date",
+  "client_name",
+  "mobile_no",
+  "client_account_no",
+  "product_type",
+  "column_break_7",
+  "client_type",
+  "email",
+  "client_code",
+  "segment",
+  "loan_amount",
+  "personal_detail_section",
+  "applicationguarantor_details",
+  "net_worth_details",
+  "land_and_buildings",
+  "movable_assets",
+  "share_and_debenture",
+  "others",
+  "total_assets",
+  "column_break_21",
+  "other_loan",
+  "other_liability",
+  "total_liabilities",
+  "net_worth",
+  "income_expenses",
+  "salary_income",
+  "business_income",
+  "rental_income",
+  "profession_income",
+  "agro_income",
+  "total_income",
+  "column_break_33",
+  "household_expenses",
+  "rental_expenses",
+  "transportation_expenses",
+  "other_bank_emi",
+  "taxmiscelleneous_expenses",
+  "total_expenses",
+  "net_disposable_income",
+  "remarks",
+  "limit_summary_facility_utilz",
+  "limit_summary_and_facility_utilz",
+  "security_details_section",
+  "security_details",
+  "cicl_section",
+  "cicl",
+  "total_amount",
+  "remarks1",
+  "waiver_section",
+  "waiver",
+  "amended_from",
+  "valuation_detail_section",
+  "name_of_valuator1",
+  "email_address",
+  "date_valuation",
+  "column_break_85",
+  "visit_date",
+  "inspected_byfunctional_title_and_name",
+  "noted_byfunctional_title_and_name",
+  "remarks2",
+  "valuation_details_section",
+  "data_91",
+  "email_valuator",
+  "valuation_date",
+  "column_break_94",
+  "visit_date1",
+  "inspected_by1",
+  "noted_by1",
+  "remarks5",
+  "disbursement_section",
+  "approved_amount",
+  "already_disbursed_amount",
+  "untilized_amount",
+  "column_break_103",
+  "interest_rate",
+  "requested_amount",
+  "available_amount",
+  "loan_account_number"
+ ],
+ "fields": [
+  {
+   "allow_on_submit": 1,
+   "collapsible_depends_on": "eval:frappe.user_roles.includes(\"CICL\")",
+   "fieldname": "lead_information_section",
+   "fieldtype": "Section Break",
+   "label": "Lead Information",
+   "read_only_depends_on": "eval:frappe.user_roles.includes(\"CICL\");"
+  },
+  {
+   "default": "Today",
+   "fieldname": "application_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Application Date"
+  },
+  {
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Client Name"
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Mobile No.",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "client_account_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Client Account No."
+  },
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Select",
+   "label": "Product Type",
+   "options": "Auto Loan\nHome Loan\nEducation Loan"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Individual",
+   "fieldname": "client_type",
+   "fieldtype": "Select",
+   "label": "Client Type",
+   "options": "Individual\nInstitution"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "client_code",
+   "fieldtype": "Data",
+   "label": "Client Code"
+  },
+  {
+   "fieldname": "segment",
+   "fieldtype": "Select",
+   "label": "Segment",
+   "options": "Retail\nSME"
+  },
+  {
+   "fieldname": "loan_amount",
+   "fieldtype": "Float",
+   "label": "Loan Amount"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "personal_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Personal Detail"
+  },
+  {
+   "fieldname": "applicationguarantor_details",
+   "fieldtype": "Table",
+   "label": "Application/Guarantor Details",
+   "options": "Application Guarantor Details"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "net_worth_details",
+   "fieldtype": "Section Break",
+   "label": "Net-worth Details"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "land_and_buildings",
+   "fieldtype": "Currency",
+   "label": "Land and Buildings",
+   "read_only_depends_on": "eval:frappe.user_roles.includes(\"CICL\");"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "movable_assets",
+   "fieldtype": "Currency",
+   "label": "Movable Assets"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "share_and_debenture",
+   "fieldtype": "Currency",
+   "label": "Share and Debenture",
+   "read_only_depends_on": "eval:frappe.user_roles.includes(\"CICL\");"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "others",
+   "fieldtype": "Currency",
+   "label": "Others"
+  },
+  {
+   "fieldname": "total_assets",
+   "fieldtype": "Currency",
+   "label": "Total Assets",
+   "read_only": 1,
+   "read_only_depends_on": "eval:frappe.user_roles.includes(\"CICL\");"
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "other_loan",
+   "fieldtype": "Currency",
+   "label": "Other Loan"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "other_liability",
+   "fieldtype": "Currency",
+   "label": "Other Liability"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "total_liabilities",
+   "fieldtype": "Currency",
+   "label": "Total Liabilities",
+   "read_only": 1
+  },
+  {
+   "default": "0.00",
+   "fieldname": "net_worth",
+   "fieldtype": "Currency",
+   "label": "Net Worth",
+   "read_only": 1,
+   "read_only_depends_on": "eval:frappe.user_roles.includes(\"CICL\");"
+  },
+  {
+   "collapsible": 1,
+   "default": "0.00",
+   "fieldname": "income_expenses",
+   "fieldtype": "Section Break",
+   "label": "Monthly Income/Expenses"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "salary_income",
+   "fieldtype": "Currency",
+   "label": "Salary Income",
+   "read_only_depends_on": "eval:frappe.user_roles.includes(\"CICL\");"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "business_income",
+   "fieldtype": "Currency",
+   "label": "Business Income"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "rental_income",
+   "fieldtype": "Currency",
+   "label": "Rental Income"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "profession_income",
+   "fieldtype": "Currency",
+   "label": "Profession Income",
+   "read_only_depends_on": "eval:frappe.user_roles.includes(\"CICL\");"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "agro_income",
+   "fieldtype": "Currency",
+   "label": "Agro Income"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "total_income",
+   "fieldtype": "Currency",
+   "label": "Total Income"
+  },
+  {
+   "fieldname": "column_break_33",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "household_expenses",
+   "fieldtype": "Currency",
+   "label": "Household Expenses"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "rental_expenses",
+   "fieldtype": "Currency",
+   "label": "Rental Expenses"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "transportation_expenses",
+   "fieldtype": "Currency",
+   "label": "Transportation Expenses"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "other_bank_emi",
+   "fieldtype": "Currency",
+   "label": "Other Bank EMI"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "taxmiscelleneous_expenses",
+   "fieldtype": "Currency",
+   "label": "Tax/Miscelleneous Expenses"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "total_expenses",
+   "fieldtype": "Currency",
+   "label": "Total Expenses"
+  },
+  {
+   "default": "0.00",
+   "fieldname": "net_disposable_income",
+   "fieldtype": "Currency",
+   "label": "Net Disposable Income"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "limit_summary_facility_utilz",
+   "fieldtype": "Section Break",
+   "label": "Limit Summary and Facility Utilz"
+  },
+  {
+   "fieldname": "limit_summary_and_facility_utilz",
+   "fieldtype": "Table",
+   "label": "Limit Summary and Facility Utilz",
+   "options": "Limit Summary and Facility Utilz"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "security_details_section",
+   "fieldtype": "Section Break",
+   "label": "Security Details"
+  },
+  {
+   "fieldname": "security_details",
+   "fieldtype": "Table",
+   "label": "Security Details",
+   "options": "Security Details"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "cicl_section",
+   "fieldtype": "Section Break",
+   "label": "CICL"
+  },
+  {
+   "fieldname": "cicl",
+   "fieldtype": "Table",
+   "label": "CICL",
+   "options": "CICL Table"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "remarks1",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "waiver_section",
+   "fieldtype": "Section Break",
+   "label": "Waiver"
+  },
+  {
+   "fieldname": "waiver",
+   "fieldtype": "Table",
+   "label": "Waiver",
+   "options": "Waiver"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "LOS",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "valuation_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Valuation Detail"
+  },
+  {
+   "fieldname": "name_of_valuator1",
+   "fieldtype": "Data",
+   "label": "Name of Valuator"
+  },
+  {
+   "fieldname": "email_address",
+   "fieldtype": "Data",
+   "label": "Valuator Email Address",
+   "options": "Email"
+  },
+  {
+   "fieldname": "date_valuation",
+   "fieldtype": "Date",
+   "label": "Date of Valuation"
+  },
+  {
+   "fieldname": "column_break_85",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "visit_date",
+   "fieldtype": "Date",
+   "label": "Visit Date"
+  },
+  {
+   "fieldname": "inspected_byfunctional_title_and_name",
+   "fieldtype": "Data",
+   "label": "Inspected By(Functional Title and name)"
+  },
+  {
+   "fieldname": "noted_byfunctional_title_and_name",
+   "fieldtype": "Data",
+   "label": "Noted By(Functional Title and Name)"
+  },
+  {
+   "fieldname": "remarks2",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "valuation_details_section",
+   "fieldtype": "Section Break",
+   "label": "Valuation Details"
+  },
+  {
+   "fieldname": "data_91",
+   "fieldtype": "Select",
+   "label": "Name of Valuator",
+   "options": "ABC Consultancy\nXYZ consultancy"
+  },
+  {
+   "default": "nirajregmi13@gmail.com",
+   "fieldname": "email_valuator",
+   "fieldtype": "Data",
+   "label": "Valuator Email Address",
+   "options": "Email"
+  },
+  {
+   "fieldname": "valuation_date",
+   "fieldtype": "Date",
+   "label": "Date of Valuation"
+  },
+  {
+   "fieldname": "column_break_94",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "visit_date1",
+   "fieldtype": "Date",
+   "label": "Visit Date"
+  },
+  {
+   "fieldname": "inspected_by1",
+   "fieldtype": "Data",
+   "label": "Inspected By"
+  },
+  {
+   "fieldname": "noted_by1",
+   "fieldtype": "Data",
+   "label": "Noted By"
+  },
+  {
+   "fieldname": "remarks5",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "disbursement_section",
+   "fieldtype": "Section Break",
+   "label": "Disbursement"
+  },
+  {
+   "fieldname": "approved_amount",
+   "fieldtype": "Currency",
+   "label": "Approved Amount"
+  },
+  {
+   "fieldname": "already_disbursed_amount",
+   "fieldtype": "Currency",
+   "label": "Already Disbursed Amount"
+  },
+  {
+   "fieldname": "untilized_amount",
+   "fieldtype": "Currency",
+   "label": "Untilized Amount"
+  },
+  {
+   "fieldname": "column_break_103",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "interest_rate",
+   "fieldtype": "Float",
+   "label": "Interest Rate"
+  },
+  {
+   "fieldname": "requested_amount",
+   "fieldtype": "Currency",
+   "label": "Requested Amount"
+  },
+  {
+   "fieldname": "available_amount",
+   "fieldtype": "Currency",
+   "label": "Available Amount"
+  },
+  {
+   "fieldname": "loan_account_number",
+   "fieldtype": "Data",
+   "label": "Loan Account Number"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "LOS",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status"
+  },
+  {
+   "fieldname": "approval_chain_section",
+   "fieldtype": "Section Break",
+   "label": "Approval Chain"
+  },
+  {
+   "fieldname": "first_approver",
+   "fieldtype": "Select",
+   "label": "1st Approver",
+   "options": "\nBM\nArea Manager\nProvince Head"
+  },
+  {
+   "depends_on": "eval:doc.first_approver != \"\"",
+   "fieldname": "second_approver",
+   "fieldtype": "Select",
+   "label": "2nd Approver",
+   "options": "\nBM\nArea Manager\nProvince Head"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.second_approver != \"\"",
+   "fieldname": "third_approver",
+   "fieldtype": "Select",
+   "label": "3rd Approver",
+   "options": "\nBM\nArea Manager\nProvince Head"
+  },
+  {
+   "fieldname": "fourth_approver",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "4th Approver",
+   "options": "\nRM\nCICL\nBM\nProvince Head\nCEO"
+  },
+  {
+   "fieldname": "fifth_approver",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "5th Approver",
+   "options": "\nRM\nCICL\nBM\nProvince Head\nCEO"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2022-12-23 14:08:09.261122",
+ "modified_by": "Administrator",
+ "module": "Loan Management",
+ "name": "LOS",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

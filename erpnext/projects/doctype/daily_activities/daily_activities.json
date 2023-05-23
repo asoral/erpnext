@@ -1,0 +1,48 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-01-19 11:26:39.559769",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "daily_activities_section",
+  "child_table"
+ ],
+ "fields": [
+  {
+   "fieldname": "daily_activities_section",
+   "fieldtype": "Section Break",
+   "label": "Daily Activities"
+  },
+  {
+   "fieldname": "child_table",
+   "fieldtype": "Table",
+   "label": "Child Table",
+   "options": "Daily Activities List"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-01-19 12:06:41.673397",
+ "modified_by": "Administrator",
+ "module": "Projects",
+ "name": "Daily Activities",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

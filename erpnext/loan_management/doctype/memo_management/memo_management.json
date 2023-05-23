@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-12-18 10:42:28.770685",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "reveiwerapprover_section",
+  "first_reveiwerapprover",
+  "third_reveiwerapprover",
+  "fifth_reveiwerapprover",
+  "column_break_5",
+  "second_reveiwerapprover",
+  "fourth_reveiwerapprover",
+  "reveiw_section",
+  "table_9"
+ ],
+ "fields": [
+  {
+   "fieldname": "reveiwerapprover_section",
+   "fieldtype": "Section Break",
+   "label": "Reveiwer/Approver"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reveiw_section",
+   "fieldtype": "Section Break",
+   "label": "Reveiw"
+  },
+  {
+   "fieldname": "table_9",
+   "fieldtype": "Table",
+   "options": "Reveiw List"
+  },
+  {
+   "fieldname": "first_reveiwerapprover",
+   "fieldtype": "Select",
+   "label": "1st Reveiwer/Approver",
+   "options": "\nBM\nCEO"
+  },
+  {
+   "depends_on": "eval:doc.second_reveiwerapprover != \"\"",
+   "fieldname": "third_reveiwerapprover",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "3rd Reveiwer/Approver",
+   "options": "\nBM\nArea Manager\nProvince Head"
+  },
+  {
+   "fieldname": "fifth_reveiwerapprover",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "5th Reveiwer/Approver",
+   "options": "\nBM\nArea Manager\nProvince Head\nRisk Department\nDCEO\nCEO"
+  },
+  {
+   "depends_on": "eval:doc.first_reveiwerapprover != \"\"",
+   "fieldname": "second_reveiwerapprover",
+   "fieldtype": "Select",
+   "label": "2nd Reveiwer/Approver",
+   "options": "\nBM\nCEO"
+  },
+  {
+   "fieldname": "fourth_reveiwerapprover",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "4th Reveiwer/Approver",
+   "options": "\nBM\nArea Manager\nProvince Head\nRisk Department\nDCEO\nCEO"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-12-23 13:36:18.599019",
+ "modified_by": "Administrator",
+ "module": "Loan Management",
+ "name": "MEMO Management",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
