@@ -197,9 +197,5 @@ frappe.tour['Employee'] = [
 		fieldname: "leave_approver",
 		title: "Leave Approver",
 		description: __("Select  Leave Approver for an employee. The user one who will look after his/her Leave application")
-	},
-<<<<<<< HEAD
+	}
 ];
-=======
-];
->>>>>>> 6e4c2f55ce74c03ff8f61b4b20530c13f3b57e35
