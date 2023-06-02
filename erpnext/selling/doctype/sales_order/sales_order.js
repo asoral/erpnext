@@ -123,6 +123,11 @@ frappe.ui.form.on("Sales Order", {
 			return query;
 		});
 
+		// On cancel and amending a sales order with advance payment, reset advance paid amount
+		if (frm.is_new()) {
+			frm.set_value("advance_paid", 0)
+		}
+
 		frm.ignore_doctypes_on_cancel_all = ['Purchase Order'];
 	},
 	before_save:function(frm){
@@ -331,7 +336,7 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 					}
 				}
 				// payment request
-				if(flt(doc.per_billed)<100) {
+				if(flt(doc.per_billed, precision('per_billed', doc)) < 100 + frappe.boot.sysdefaults.over_billing_allowance) {
 					this.frm.add_custom_button(__('Payment Request'), () => this.make_payment_request(), __('Create'));
 					this.frm.add_custom_button(__('Payment'), () => this.make_payment_entry(), __('Create'));
 				}
@@ -376,9 +381,12 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 
 	make_work_order() {
 		var me = this;
-		this.frm.call({
-			doc: this.frm.doc,
-			method: 'get_work_order_items',
+		me.frm.call({
+			method: "erpnext.selling.doctype.sales_order.sales_order.get_work_order_items",
+			args: {
+				sales_order: this.frm.docname,
+			},
+			freeze: true,
 			callback: function(r) {
 				if(!r.message) {
 					frappe.msgprint({
@@ -388,14 +396,7 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 					});
 					return;
 				}
-				else if(!r.message) {
-					frappe.msgprint({
-						title: __('Work Order not created'),
-						message: __('Work Order already created for all items with BOM'),
-						indicator: 'orange'
-					});
-					return;
-				} else {
+				else {
 					const fields = [{
 						label: 'Items',
 						fieldtype: 'Table',
@@ -496,9 +497,9 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 	make_raw_material_request: function() {
 		var me = this;
 		this.frm.call({
-			doc: this.frm.doc,
-			method: 'get_work_order_items',
+			method: "erpnext.selling.doctype.sales_order.sales_order.get_work_order_items",
 			args: {
+				sales_order: this.frm.docname,
 				for_raw_material_request: 1
 			},
 			callback: function(r) {
@@ -517,6 +518,7 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 	},
 
 	make_raw_material_request_dialog: function(r) {
+		var me = this;
 		var fields = [
 			{fieldtype:'Check', fieldname:'include_exploded_items',
 				label: __('Include Exploded Items')},

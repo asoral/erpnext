@@ -94,6 +94,8 @@
   "section_break_51",
   "taxes_and_charges",
   "taxes",
+  "tax_withheld_vouchers_section",
+  "tax_withheld_vouchers",
   "sec_tax_breakup",
   "other_charges_calculation",
   "totals",
@@ -525,7 +527,6 @@
    "fieldname": "ignore_pricing_rule",
    "fieldtype": "Check",
    "label": "Ignore Pricing Rule",
-   "no_copy": 1,
    "permlevel": 1,
    "print_hide": 1
   },
@@ -1512,19 +1513,32 @@
    "mandatory_depends_on": "eval: doc.is_import_services == 1"
   },
   {
-    "fieldname": "advance_tax",
-    "fieldtype": "Table",
-    "hidden": 1,
-    "label": "Advance Tax",
-    "options": "Advance Tax",
-    "read_only": 1
+   "fieldname": "advance_tax",
+   "fieldtype": "Table",
+   "hidden": 1,
+   "label": "Advance Tax",
+   "options": "Advance Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_withheld_vouchers_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Withheld Vouchers"
+  },
+  {
+   "fieldname": "tax_withheld_vouchers",
+   "fieldtype": "Table",
+   "label": "Tax Withheld Vouchers",
+   "no_copy": 1,
+   "options": "Tax Withheld Vouchers",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-file-text",
  "idx": 204,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-07-04 16:52:42.039434",
+ "modified": "2022-10-07 14:19:14.214157",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Purchase Invoice",
@@ -1583,6 +1597,7 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "timeline_field": "supplier",
  "title_field": "title",
  "track_changes": 1
