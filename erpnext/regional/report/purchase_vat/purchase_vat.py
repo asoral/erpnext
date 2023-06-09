@@ -252,7 +252,7 @@ def get_data(filters):
 
 		ELSE 0	
 		END as taxable_import,
-
+		CASE
 		WHEN pi.country != "Nepal" and pi.exempted_from_tax = 0
 		and pii.is_fixed_asset = 0 and pi.is_import_services = 1
 		THEN
