@@ -594,7 +594,7 @@ def create_dn_wo_so(pick_list):
 		},
 	}
 	map_pl_locations(pick_list, item_table_mapper_without_so, delivery_note)
-	delivery_note.insert(ignore_mandatory=True)
+	# delivery_note.insert(ignore_mandatory=True)
 
 	return delivery_note
 
@@ -623,9 +623,9 @@ def create_dn_with_so(sales_dict, pick_list):
 			for so in sales_dict[customer]:
 				map_pl_locations(pick_list, item_table_mapper, delivery_note, so)
 			delivery_note.flags.ignore_mandatory = True
-			delivery_note.insert()
+			# delivery_note.insert()
 			update_packed_item_details(pick_list, delivery_note)
-			delivery_note.save()
+			# delivery_note.save()
 
 	return delivery_note
 
