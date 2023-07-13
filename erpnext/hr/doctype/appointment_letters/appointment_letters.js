@@ -1,7 +1,7 @@
 // Copyright (c) 2019, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('Appointment Letter', {
+frappe.ui.form.on('Appointment Letters', {
 	appointment_letter_template: function(frm){
 		if (frm.doc.appointment_letter_template){
 			frappe.call({

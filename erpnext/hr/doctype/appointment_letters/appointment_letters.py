@@ -6,12 +6,12 @@ import frappe
 from frappe.model.document import Document
 
 
-class AppointmentLetter(Document):
+class AppointmentLetters(Document):
 	pass
 
 
 @frappe.whitelist()
-def get_appointment_letter_details(template):
+def get_appointment_letters_details(template):
 	body = []
 	intro = frappe.get_list(
 		"Appointment Letter Template",

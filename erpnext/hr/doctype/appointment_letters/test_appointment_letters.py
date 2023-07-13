@@ -5,5 +5,5 @@
 import unittest
 
 
-class TestAppointmentLetter(unittest.TestCase):
+class TestAppointmentLetters(unittest.TestCase):
 	pass
