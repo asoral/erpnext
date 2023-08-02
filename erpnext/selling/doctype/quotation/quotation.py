@@ -191,14 +191,18 @@ def get_list_context(context=None):
 
 
 @frappe.whitelist()
-def make_sales_order(source_name, target_doc=None):
-	quotation = frappe.db.get_value(
-		"Quotation", source_name, ["transaction_date", "valid_till"], as_dict=1
-	)
-	if quotation.valid_till and (
-		quotation.valid_till < quotation.transaction_date or quotation.valid_till < getdate(nowdate())
+def make_sales_order(source_name: str, target_doc=None):
+	if not frappe.db.get_singles_value(
+		"Selling Settings", "allow_sales_order_creation_for_expired_quotation"
 	):
-		frappe.throw(_("Validity period of this quotation has ended."))
+		quotation = frappe.db.get_value(
+			"Quotation", source_name, ["transaction_date", "valid_till"], as_dict=1
+		)
+		if quotation.valid_till and (
+			quotation.valid_till < quotation.transaction_date or quotation.valid_till < getdate(nowdate())
+		):
+			frappe.throw(_("Validity period of this quotation has ended."))
+
 	return _make_sales_order(source_name, target_doc)
 
 
@@ -265,7 +269,7 @@ def _make_sales_order(source_name, target_doc=None, ignore_permissions=False):
 
 def set_expired_status():
 	# filter out submitted non expired quotations whose validity has been ended
-	cond = "qo.docstatus = 1 and qo.status != 'Expired' and qo.valid_till < %s"
+	cond = "qo.docstatus = 1 and qo.status NOT IN ('Expired', 'Lost') and qo.valid_till < %s"
 	# check if those QUO have SO against it
 	so_against_quo = """
 		SELECT

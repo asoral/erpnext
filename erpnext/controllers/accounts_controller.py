@@ -5,7 +5,7 @@
 import json
 
 import frappe
-from frappe import _, throw
+from frappe import _, bold, throw
 from frappe.model.workflow import get_workflow_name, is_transition_condition_satisfied
 from frappe.query_builder.functions import Sum
 from frappe.utils import (
@@ -152,6 +152,7 @@ class AccountsController(TransactionBase):
 		self.validate_inter_company_reference()
 
 		self.disable_pricing_rule_on_internal_transfer()
+		self.disable_tax_included_prices_for_internal_transfer()
 		self.set_incoming_rate()
 
 		if self.meta.get_field("currency"):
@@ -255,8 +256,8 @@ class AccountsController(TransactionBase):
 		self.validate_payment_schedule_dates()
 		self.set_due_date()
 		self.set_payment_schedule()
-		self.validate_payment_schedule_amount()
 		if not self.get("ignore_default_payment_terms_template"):
+			self.validate_payment_schedule_amount()
 			self.validate_due_date()
 		self.validate_advance_entries()
 
@@ -382,10 +383,19 @@ class AccountsController(TransactionBase):
 				self.get("inter_company_reference")
 				or self.get("inter_company_invoice_reference")
 				or self.get("inter_company_order_reference")
-			):
+			) and not self.get("is_return"):
 				msg = _("Internal Sale or Delivery Reference missing.")
 				msg += _("Please create purchase from internal sale or delivery document itself")
 				frappe.throw(msg, title=_("Internal Sales Reference Missing"))
+
+			label = "Delivery Note Item" if self.doctype == "Purchase Receipt" else "Sales Invoice Item"
+
+			field = frappe.scrub(label)
+
+			for row in self.get("items"):
+				if not row.get(field):
+					msg = f"At Row {row.idx}: The field {bold(label)} is mandatory for internal transfer"
+					frappe.throw(_(msg), title=_("Internal Transfer Reference Missing"))
 
 	def disable_pricing_rule_on_internal_transfer(self):
 		if not self.get("ignore_pricing_rule") and self.is_internal_transfer():
@@ -394,6 +404,20 @@ class AccountsController(TransactionBase):
 				_("Disabled pricing rules since this {} is an internal transfer").format(self.doctype),
 				alert=1,
 			)
+
+	def disable_tax_included_prices_for_internal_transfer(self):
+		if self.is_internal_transfer():
+			tax_updated = False
+			for tax in self.get("taxes"):
+				if tax.get("included_in_print_rate"):
+					tax.included_in_print_rate = 0
+					tax_updated = True
+
+			if tax_updated:
+				frappe.msgprint(
+					_("Disabled tax included prices since this {} is an internal transfer").format(self.doctype),
+					alert=1,
+				)
 
 	def validate_due_date(self):
 		if self.get("is_pos"):
@@ -558,7 +582,12 @@ class AccountsController(TransactionBase):
 					if bool(uom) != bool(stock_uom):  # xor
 						item.stock_uom = item.uom = uom or stock_uom
 
-					item.conversion_factor = get_uom_conv_factor(item.get("uom"), item.get("stock_uom"))
+					# UOM cannot be zero so substitute as 1
+					item.conversion_factor = (
+						get_uom_conv_factor(item.get("uom"), item.get("stock_uom"))
+						or item.get("conversion_factor")
+						or 1
+					)
 
 			if self.doctype == "Purchase Invoice":
 				self.set_expense_account(for_validate)
@@ -862,6 +891,9 @@ class AccountsController(TransactionBase):
 
 		return is_inclusive
 
+	def should_show_taxes_as_table_in_print(self):
+		return cint(frappe.db.get_single_value("Accounts Settings", "show_taxes_as_table_in_print"))
+
 	def validate_advance_entries(self):
 		order_field = "sales_order" if self.doctype == "Sales Invoice" else "purchase_order"
 		order_list = list(set(d.get(order_field) for d in self.get("items") if d.get(order_field)))
@@ -1105,17 +1137,17 @@ class AccountsController(TransactionBase):
 			frappe.db.get_single_value("Accounts Settings", "enable_discount_accounting")
 		)
 
+		if self.doctype == "Purchase Invoice":
+			dr_or_cr = "credit"
+			rev_dr_cr = "debit"
+			supplier_or_customer = self.supplier
+
+		else:
+			dr_or_cr = "debit"
+			rev_dr_cr = "credit"
+			supplier_or_customer = self.customer
+
 		if enable_discount_accounting:
-			if self.doctype == "Purchase Invoice":
-				dr_or_cr = "credit"
-				rev_dr_cr = "debit"
-				supplier_or_customer = self.supplier
-
-			else:
-				dr_or_cr = "debit"
-				rev_dr_cr = "credit"
-				supplier_or_customer = self.customer
-
 			for item in self.get("items"):
 				if item.get("discount_amount") and item.get("discount_account"):
 					discount_amount = item.discount_amount * item.qty
@@ -1169,18 +1201,22 @@ class AccountsController(TransactionBase):
 						)
 					)
 
-			if self.get("discount_amount") and self.get("additional_discount_account"):
-				gl_entries.append(
-					self.get_gl_dict(
-						{
-							"account": self.additional_discount_account,
-							"against": supplier_or_customer,
-							dr_or_cr: self.discount_amount,
-							"cost_center": self.cost_center,
-						},
-						item=self,
-					)
+		if (
+			(enable_discount_accounting or self.get("is_cash_or_non_trade_discount"))
+			and self.get("additional_discount_account")
+			and self.get("discount_amount")
+		):
+			gl_entries.append(
+				self.get_gl_dict(
+					{
+						"account": self.additional_discount_account,
+						"against": supplier_or_customer,
+						dr_or_cr: self.discount_amount,
+						"cost_center": self.cost_center,
+					},
+					item=self,
 				)
+			)
 
 	def validate_multiple_billing(self, ref_dt, item_ref_dn, based_on, parentfield):
 		from erpnext.controllers.status_updater import get_allowance_for
@@ -1553,6 +1589,7 @@ class AccountsController(TransactionBase):
 
 		base_grand_total = self.get("base_rounded_total") or self.base_grand_total
 		grand_total = self.get("rounded_total") or self.grand_total
+		automatically_fetch_payment_terms = 0
 
 		if self.doctype in ("Sales Invoice", "Purchase Invoice"):
 			base_grand_total = base_grand_total - flt(self.base_write_off_amount)
@@ -1598,19 +1635,23 @@ class AccountsController(TransactionBase):
 				)
 				self.append("payment_schedule", data)
 
-		for d in self.get("payment_schedule"):
-			if d.invoice_portion:
-				d.payment_amount = flt(
-					grand_total * flt(d.invoice_portion / 100), d.precision("payment_amount")
-				)
-				d.base_payment_amount = flt(
-					base_grand_total * flt(d.invoice_portion / 100), d.precision("base_payment_amount")
-				)
-				d.outstanding = d.payment_amount
-			elif not d.invoice_portion:
-				d.base_payment_amount = flt(
-					d.payment_amount * self.get("conversion_rate"), d.precision("base_payment_amount")
-				)
+		if not (
+			automatically_fetch_payment_terms
+			and self.linked_order_has_payment_terms(po_or_so, fieldname, doctype)
+		):
+			for d in self.get("payment_schedule"):
+				if d.invoice_portion:
+					d.payment_amount = flt(
+						grand_total * flt(d.invoice_portion / 100), d.precision("payment_amount")
+					)
+					d.base_payment_amount = flt(
+						base_grand_total * flt(d.invoice_portion / 100), d.precision("base_payment_amount")
+					)
+					d.outstanding = d.payment_amount
+				elif not d.invoice_portion:
+					d.base_payment_amount = flt(
+						d.payment_amount * self.get("conversion_rate"), d.precision("base_payment_amount")
+					)
 
 	def get_order_details(self):
 		if self.doctype == "Sales Invoice":
@@ -1663,6 +1704,10 @@ class AccountsController(TransactionBase):
 				"invoice_portion": schedule.invoice_portion,
 				"mode_of_payment": schedule.mode_of_payment,
 				"description": schedule.description,
+				"payment_amount": schedule.payment_amount,
+				"base_payment_amount": schedule.base_payment_amount,
+				"outstanding": schedule.outstanding,
+				"paid_amount": schedule.paid_amount,
 			}
 
 			if schedule.discount_type == "Percentage":

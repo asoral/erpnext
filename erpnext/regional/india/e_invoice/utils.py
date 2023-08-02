@@ -71,7 +71,11 @@ def validate_eligibility(doc):
 
 	# if export invoice, then taxes can be empty
 	# invoice can only be ineligible if no taxes applied and is not an export invoice
-	no_taxes_applied = not doc.get("taxes") and not doc.get("gst_category") == "Overseas"
+	no_taxes_applied = (
+		not doc.get("taxes")
+		and not doc.get("gst_category") == "Overseas"
+		and not doc.get("gst_category") == "SEZ"
+	)
 	has_non_gst_item = any(d for d in doc.get("items", []) if d.get("is_non_gst"))
 
 	if (
@@ -265,6 +269,10 @@ def get_overseas_address_details(address_name):
 def get_item_list(invoice):
 	item_list = []
 
+	hide_discount_in_einvoice = cint(
+		frappe.db.get_single_value("E Invoice Settings", "dont_show_discounts_in_e_invoice")
+	)
+
 	for d in invoice.items:
 		einvoice_item_schema = read_json("einv_item_template")
 		item = frappe._dict({})
@@ -276,17 +284,12 @@ def get_item_list(invoice):
 		item.qty = abs(item.qty)
 		item_qty = item.qty
 
-		item.discount_amount = abs(item.discount_amount)
 		item.taxable_value = abs(item.taxable_value)
 
 		if invoice.get("is_return") or invoice.get("is_debit_note"):
 			item_qty = item_qty or 1
 
-		hide_discount_in_einvoice = cint(
-			frappe.db.get_single_value("E Invoice Settings", "dont_show_discounts_in_e_invoice")
-		)
-
-		if hide_discount_in_einvoice:
+		if hide_discount_in_einvoice or invoice.is_internal_customer or item.discount_amount < 0:
 			item.unit_rate = item.taxable_value / item_qty
 			item.gross_amount = item.taxable_value
 			item.discount_amount = 0
@@ -895,6 +898,7 @@ class GSPConnector:
 		return self.e_invoice_settings.auth_token
 
 	def make_request(self, request_type, url, headers=None, data=None):
+		res = None
 		try:
 			if request_type == "post":
 				res = make_post_request(url, headers=headers, data=data)

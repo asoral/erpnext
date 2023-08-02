@@ -810,7 +810,7 @@ def get_held_invoices(party_type, party):
 
 	if party_type == "Supplier":
 		held_invoices = frappe.db.sql(
-			"select name from `tabPurchase Invoice` where release_date IS NOT NULL and release_date > CURDATE()",
+			"select name from `tabPurchase Invoice` where on_hold = 1 and release_date IS NOT NULL and release_date > CURDATE()",
 			as_dict=1,
 		)
 		held_invoices = set(d["name"] for d in held_invoices)
@@ -818,7 +818,29 @@ def get_held_invoices(party_type, party):
 	return held_invoices
 
 
-def get_outstanding_invoices(party_type, party, account, condition=None, filters=None):
+def remove_return_pos_invoices(party_type, party, invoice_list):
+	if invoice_list:
+
+		if party_type == "Customer":
+			sinv = frappe.qb.DocType("Sales Invoice")
+			return_pos = (
+				frappe.qb.from_(sinv)
+				.select(sinv.name)
+				.where((sinv.is_pos == 1) & (sinv.docstatus == 1) & (sinv.is_return == 1))
+				.run()
+			)
+
+			if return_pos:
+				return_pos = [x[0] for x in return_pos]
+			else:
+				return invoice_list
+
+			invoice_list = [x for x in invoice_list if x.voucher_no not in return_pos]
+
+	return invoice_list
+
+
+def get_outstanding_invoices(party_type, party, account, company, condition=None, filters=None):
 	outstanding_invoices = []
 	precision = frappe.get_precision("Sales Invoice", "outstanding_amount") or 2
 
@@ -868,61 +890,75 @@ def get_outstanding_invoices(party_type, party, account, condition=None, filters
 		as_dict=True,
 	)
 
-	payment_entries = frappe.db.sql(
-		"""
-		select against_voucher_type, against_voucher,
-			ifnull(sum({payment_dr_or_cr}), 0) as payment_amount
-		from `tabGL Entry`
-		where party_type = %(party_type)s and party = %(party)s
-			and account = %(account)s
-			and {payment_dr_or_cr} > 0
-			and against_voucher is not null and against_voucher != ''
-			and is_cancelled=0
-		group by against_voucher_type, against_voucher
-	""".format(
-			payment_dr_or_cr=payment_dr_or_cr
-		),
-		{"party_type": party_type, "party": party, "account": account},
-		as_dict=True,
-	)
+	invoice_list = remove_return_pos_invoices(party_type, party, invoice_list)
 
-	pe_map = frappe._dict()
-	for d in payment_entries:
-		pe_map.setdefault((d.against_voucher_type, d.against_voucher), d.payment_amount)
+	if invoice_list:
+		invoices = [d.voucher_no for d in invoice_list]
+		payment_entries = frappe.db.sql(
+			"""
+			select against_voucher_type, against_voucher,
+				ifnull(sum({payment_dr_or_cr}), 0) as payment_amount
+			from `tabGL Entry`
+			where
+				company = %(company)s
+				and party_type = %(party_type)s and party = %(party)s
+				and account = %(account)s
+				and {payment_dr_or_cr} > 0
+				and ifnull(against_voucher, '') != ''
+				and is_cancelled=0
+				and against_voucher in %(invoices)s
+			group by against_voucher_type, against_voucher
+		""".format(
+				payment_dr_or_cr=payment_dr_or_cr,
+			),
+			{
+				"company": company,
+				"party_type": party_type,
+				"party": party,
+				"account": account,
+				"invoices": invoices,
+			},
+			as_dict=True,
+		)
 
-	for d in invoice_list:
-		payment_amount = pe_map.get((d.voucher_type, d.voucher_no), 0)
-		outstanding_amount = flt(d.invoice_amount - payment_amount, precision)
-		if outstanding_amount > 0.5 / (10**precision):
-			if (
-				filters
-				and filters.get("outstanding_amt_greater_than")
-				and not (
-					outstanding_amount >= filters.get("outstanding_amt_greater_than")
-					and outstanding_amount <= filters.get("outstanding_amt_less_than")
-				)
-			):
-				continue
+		pe_map = frappe._dict()
+		for d in payment_entries:
+			pe_map.setdefault((d.against_voucher_type, d.against_voucher), d.payment_amount)
 
-			if not d.voucher_type == "Purchase Invoice" or d.voucher_no not in held_invoices:
-				outstanding_invoices.append(
-					frappe._dict(
-						{
-							"voucher_no": d.voucher_no,
-							"voucher_type": d.voucher_type,
-							"posting_date": d.posting_date,
-							"invoice_amount": flt(d.invoice_amount),
-							"payment_amount": payment_amount,
-							"outstanding_amount": outstanding_amount,
-							"due_date": d.due_date,
-							"currency": d.currency,
-						}
+		for d in invoice_list:
+			payment_amount = pe_map.get((d.voucher_type, d.voucher_no), 0)
+			outstanding_amount = flt(d.invoice_amount - payment_amount, precision)
+			if outstanding_amount > 0.5 / (10**precision):
+				if (
+					filters
+					and filters.get("outstanding_amt_greater_than")
+					and not (
+						outstanding_amount >= filters.get("outstanding_amt_greater_than")
+						and outstanding_amount <= filters.get("outstanding_amt_less_than")
 					)
-				)
+				):
+					continue
 
-	outstanding_invoices = sorted(
-		outstanding_invoices, key=lambda k: k["due_date"] or getdate(nowdate())
-	)
+				if not d.voucher_type == "Purchase Invoice" or d.voucher_no not in held_invoices:
+					outstanding_invoices.append(
+						frappe._dict(
+							{
+								"voucher_no": d.voucher_no,
+								"voucher_type": d.voucher_type,
+								"posting_date": d.posting_date,
+								"invoice_amount": flt(d.invoice_amount),
+								"payment_amount": payment_amount,
+								"outstanding_amount": outstanding_amount,
+								"due_date": d.due_date,
+								"currency": d.currency,
+							}
+						)
+					)
+
+		outstanding_invoices = sorted(
+			outstanding_invoices, key=lambda k: k["due_date"] or getdate(nowdate())
+		)
+
 	return outstanding_invoices
 
 

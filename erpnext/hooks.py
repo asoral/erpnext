@@ -29,6 +29,10 @@ doctype_js = {
 
 override_doctype_class = {"Address": "erpnext.accounts.custom.address.ERPNextAddress"}
 
+override_whitelisted_methods = {
+	"frappe.www.contact.send_message": "erpnext.templates.utils.send_message"
+}
+
 welcome_email = "erpnext.setup.utils.welcome_email"
 
 # setup wizard
@@ -334,8 +338,6 @@ has_website_permission = {
 	"Patient": "erpnext.healthcare.web_form.personal_details.personal_details.has_website_permission",
 }
 
-dump_report_map = "erpnext.startup.report_data_map.data_map"
-
 before_tests = "erpnext.setup.utils.before_tests"
 
 standard_queries = {
@@ -478,7 +480,6 @@ scheduler_events = {
 	],
 	"hourly": [
 		"erpnext.hr.doctype.daily_work_summary_group.daily_work_summary_group.trigger_emails",
-		"erpnext.accounts.doctype.subscription.subscription.process_all",
 		"erpnext.erpnext_integrations.doctype.amazon_mws_settings.amazon_mws_settings.schedule_get_order_details",
 		"erpnext.erpnext_integrations.doctype.plaid_settings.plaid_settings.automatic_synchronization",
 		"erpnext.projects.doctype.project.project.hourly_reminder",
@@ -487,6 +488,7 @@ scheduler_events = {
 		"erpnext.erpnext_integrations.connectors.shopify_connection.sync_old_orders",
 	],
 	"hourly_long": [
+		"erpnext.accounts.doctype.subscription.subscription.process_all",
 		"erpnext.stock.doctype.repost_item_valuation.repost_item_valuation.repost_entries",
 		"erpnext.hr.doctype.shift_type.shift_type.process_auto_attendance_for_all_shifts",
 	],
@@ -590,6 +592,7 @@ accounting_dimension_doctypes = [
 	"Shipping Rule",
 	"Landed Cost Item",
 	"Asset Value Adjustment",
+	"Asset Repair",
 	"Loyalty Program",
 	"Fee Schedule",
 	"Fee Structure",

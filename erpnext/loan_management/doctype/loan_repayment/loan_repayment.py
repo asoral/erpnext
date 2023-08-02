@@ -102,7 +102,7 @@ class LoanRepayment(AccountsController):
 		if flt(self.total_interest_paid, precision) > flt(self.interest_payable, precision):
 			if not self.is_term_loan:
 				# get last loan interest accrual date
-				last_accrual_date = get_last_accrual_date(self.against_loan)
+				last_accrual_date = get_last_accrual_date(self.against_loan, self.posting_date)
 
 				# get posting date upto which interest has to be accrued
 				per_day_interest = get_per_day_interest(
@@ -150,6 +150,9 @@ class LoanRepayment(AccountsController):
 				"status",
 				"is_secured_loan",
 				"total_payment",
+				"debit_adjustment_amount",
+				"credit_adjustment_amount",
+				"refund_amount",
 				"loan_amount",
 				"disbursed_amount",
 				"total_interest_payable",
@@ -399,7 +402,7 @@ class LoanRepayment(AccountsController):
 			remarks = "Repayment against loan " + self.against_loan
 
 		if self.reference_number:
-			remarks += "with reference no. {}".format(self.reference_number)
+			remarks += " with reference no. {}".format(self.reference_number)
 
 		if self.repay_from_salary:
 			payment_account = self.payroll_payable_account
@@ -517,6 +520,8 @@ def get_accrued_interest_entries(against_loan, posting_date=None):
 	if not posting_date:
 		posting_date = getdate()
 
+	precision = cint(frappe.db.get_default("currency_precision")) or 2
+
 	unpaid_accrued_entries = frappe.db.sql(
 		"""
 			SELECT name, posting_date, interest_amount - paid_interest_amount as interest_amount,
@@ -536,6 +541,13 @@ def get_accrued_interest_entries(against_loan, posting_date=None):
 		(against_loan, posting_date),
 		as_dict=1,
 	)
+
+	# Skip entries with zero interest amount & payable principal amount
+	unpaid_accrued_entries = [
+		d
+		for d in unpaid_accrued_entries
+		if flt(d.interest_amount, precision) > 0 or flt(d.payable_principal_amount, precision) > 0
+	]
 
 	return unpaid_accrued_entries
 
@@ -565,8 +577,8 @@ def regenerate_repayment_schedule(loan, cancel=0):
 	loan_doc = frappe.get_doc("Loan", loan)
 	next_accrual_date = None
 	accrued_entries = 0
-	last_repayment_amount = 0
-	last_balance_amount = 0
+	last_repayment_amount = None
+	last_balance_amount = None
 
 	for term in reversed(loan_doc.get("repayment_schedule")):
 		if not term.is_accrued:
@@ -574,9 +586,9 @@ def regenerate_repayment_schedule(loan, cancel=0):
 			loan_doc.remove(term)
 		else:
 			accrued_entries += 1
-			if not last_repayment_amount:
+			if last_repayment_amount is None:
 				last_repayment_amount = term.total_payment
-			if not last_balance_amount:
+			if last_balance_amount is None:
 				last_balance_amount = term.balance_loan_amount
 
 	loan_doc.save()
@@ -712,7 +724,7 @@ def get_amounts(amounts, against_loan, posting_date):
 	if due_date:
 		pending_days = date_diff(posting_date, due_date) + 1
 	else:
-		last_accrual_date = get_last_accrual_date(against_loan_doc.name)
+		last_accrual_date = get_last_accrual_date(against_loan_doc.name, posting_date)
 		pending_days = date_diff(posting_date, last_accrual_date) + 1
 
 	if pending_days > 0:
@@ -731,6 +743,7 @@ def get_amounts(amounts, against_loan, posting_date):
 	)
 	amounts["pending_accrual_entries"] = pending_accrual_entries
 	amounts["unaccrued_interest"] = flt(unaccrued_interest, precision)
+	amounts["written_off_amount"] = flt(against_loan_doc.written_off_amount, precision)
 
 	if final_due_date:
 		amounts["due_date"] = final_due_date

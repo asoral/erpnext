@@ -17,6 +17,10 @@ from frappe.utils import (
 )
 from six import string_types
 
+from erpnext.assets.doctype.asset.asset import (
+	get_straight_line_or_manual_depr_amount,
+	get_wdv_or_dd_depr_amount,
+)
 from erpnext.controllers.accounts_controller import get_taxes_and_charges
 from erpnext.controllers.taxes_and_totals import get_itemised_tax, get_itemised_taxable_amount
 from erpnext.hr.utils import get_salary_assignments
@@ -257,9 +261,16 @@ def get_regional_address_details(party_details, doctype, company):
 
 	update_party_details(party_details, doctype)
 
+	customer_gst_category = frappe.get_value(
+		"Customer", party_details.customer, ["gst_category", "export_type"]
+	)
+
 	party_details.place_of_supply = get_place_of_supply(party_details, doctype)
 
-	if is_internal_transfer(party_details, doctype):
+	if is_internal_transfer(party_details, doctype) or customer_gst_category == (
+		"SEZ",
+		"Without Payment of Tax",
+	):
 		party_details.taxes_and_charges = ""
 		party_details.taxes = []
 		return party_details
@@ -580,7 +591,7 @@ def get_ewb_data(dt, dn):
 
 		if dt == "Delivery Note":
 			data.subSupplyType = 1
-		elif doc.gst_category in ["Registered Regular", "SEZ"]:
+		elif doc.gst_category in ["Unregistered", "Registered Regular", "SEZ"]:
 			data.subSupplyType = 1
 		elif doc.gst_category in ["Overseas", "Deemed Export"]:
 			data.subSupplyType = 3
@@ -602,6 +613,10 @@ def get_ewb_data(dt, dn):
 		shipping_address = frappe.get_doc("Address", doc.shipping_address_name)
 
 		data = get_address_details(data, doc, company_address, billing_address, dispatch_address)
+
+		if is_intrastate_transfer_eway_bill(data):
+			data.docType = "CHL"
+			data.subSupplyType = 8
 
 		data.itemList = []
 		data.totalValue = doc.total
@@ -643,6 +658,10 @@ def get_ewb_data(dt, dn):
 	data = {"version": "1.0.0421", "billLists": ewaybills}
 
 	return data
+
+
+def is_intrastate_transfer_eway_bill(data):
+	return data.fromGstin == data.toGstin
 
 
 @frappe.whitelist()
@@ -968,8 +987,6 @@ def validate_reverse_charge_transaction(doc, method):
 
 			frappe.throw(msg)
 
-		doc.eligibility_for_itc = "ITC on Reverse Charge"
-
 
 def update_itc_availed_fields(doc, method):
 	country = frappe.get_cached_value("Company", doc.company, "country")
@@ -1086,20 +1103,16 @@ def update_taxable_values(doc, method):
 		doc.get("items")[item_count - 1].taxable_value += diff
 
 
-def get_depreciation_amount(asset, depreciable_value, row):
+def get_depreciation_amount(
+	asset,
+	depreciable_value,
+	row,
+	schedule_idx=0,
+	prev_depreciation_amount=0,
+	has_wdv_or_dd_non_yearly_pro_rata=False,
+):
 	if row.depreciation_method in ("Straight Line", "Manual"):
-		# if the Depreciation Schedule is being prepared for the first time
-		if not asset.flags.increase_in_asset_life:
-			depreciation_amount = (
-				flt(asset.gross_purchase_amount) - flt(row.expected_value_after_useful_life)
-			) / flt(row.total_number_of_depreciations)
-
-		# if the Depreciation Schedule is being modified after Asset Repair
-		else:
-			depreciation_amount = (
-				flt(row.value_after_depreciation) - flt(row.expected_value_after_useful_life)
-			) / (date_diff(asset.to_date, asset.available_for_use_date) / 365)
-
+		return get_straight_line_or_manual_depr_amount(asset, row)
 	else:
 		rate_of_depreciation = row.rate_of_depreciation
 		# if its the first depreciation
@@ -1114,10 +1127,14 @@ def get_depreciation_amount(asset, depreciable_value, row):
 							"As per IT Act, the rate of depreciation for the first depreciation entry is reduced by 50%."
 						)
 					)
-
-		depreciation_amount = flt(depreciable_value * (flt(rate_of_depreciation) / 100))
-
-	return depreciation_amount
+		return get_wdv_or_dd_depr_amount(
+			depreciable_value,
+			rate_of_depreciation,
+			row.frequency_of_depreciation,
+			schedule_idx,
+			prev_depreciation_amount,
+			has_wdv_or_dd_non_yearly_pro_rata,
+		)
 
 
 def set_item_tax_from_hsn_code(item):
