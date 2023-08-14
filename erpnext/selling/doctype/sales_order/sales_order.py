@@ -38,6 +38,7 @@ from erpnext.stock.stock_balance import get_reserved_qty, update_bin_qty
 from erpnext.accounts.report.accounts_receivable.accounts_receivable import ReceivablePayableReport
 from six import iteritems
 from frappe import _, scrub
+from frappe.utils.data import today
 
 
 
@@ -333,6 +334,31 @@ class SalesOrder(SellingController):
 			if d.delivered_by_supplier and not d.supplier:
 				frappe.throw(_("Row #{0}: Set Supplier for item {1}").format(d.idx, d.item_code))
 
+
+	def before_submit(self):
+		doc = frappe.get_doc("Customer",self.customer)
+		if doc.tcs_apply == 1:
+			if self.tcs_applicable==0:
+				frappe.throw("Tcs Applicable Is Mandatory")
+	def before_save(self):
+		if self.get("__islocal"):
+			self.set_tcs_tax()
+	def set_tcs_tax(self):
+		doc = frappe.get_doc("Customer",self.customer)
+		if doc.tcs_apply == 1:
+			if doc.tax_withholding_category:
+				d = frappe.get_doc("Tax Withholding Category",doc.tax_withholding_category)
+				rate=0
+				for j in d.rates:
+					if getdate(today())>=getdate(j.from_date) and getdate(today())<=getdate(j.to_date):
+						rate=j.tax_withholding_rate
+				for i in d.accounts:	
+					self.append("taxes",{
+						"charge_type":"On Previous Row Total",
+						"account_head":i.account,
+						"description":i.account,
+						"rate":rate
+					})
 	def on_submit(self):
 		self.check_credit_limit()
 		self.update_reserved_qty()

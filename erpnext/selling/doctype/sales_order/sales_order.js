@@ -134,7 +134,9 @@ frappe.ui.form.on("Sales Order", {
 		frm.ignore_doctypes_on_cancel_all = ['Purchase Order'];
 	},
 
-	
+	before_save:function(frm){
+		frm.set_df_property("tcs_applicable", "hidden", 0)
+	},
 
 	delivery_date: function(frm) {
 		$.each(frm.doc.items || [], function(i, d) {
