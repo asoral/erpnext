@@ -198,20 +198,20 @@ class PickList(Document):
 				frappe.throw("Row #{0}: Item Code is Mandatory".format(item.idx))
 			item_code = item.item_code
 			reference = item.sales_order_item or item.material_request_item
-			key = (item_code, item.uom, item.warehouse, item.batch_no, reference)
+			key = (item_code, item.uom, reference)
 
 			item.idx = None
 			item.name = None
 
 			if item_map.get(key):
 				item_map[key].qty += item.qty
-				item_map[key].stock_qty += flt(item.stock_qty, item.precision("stock_qty"))
+				item_map[key].stock_qty += item.stock_qty
 			else:
 				item_map[key] = item
 
 			# maintain count of each item (useful to limit get query)
 			self.item_count_map.setdefault(item_code, 0)
-			self.item_count_map[item_code] += flt(item.stock_qty, item.precision("stock_qty"))
+			self.item_count_map[item_code] += item.stock_qty
 
 		return item_map.values()
 
@@ -251,32 +251,32 @@ class PickList(Document):
 			frappe.throw(_("Qty of Finished Goods Item should be greater than 0."))
 
 	def before_print(self, settings=None):
-		if self.group_same_items:
-			self.group_similar_items()
+		self.group_similar_items()
 
 	def group_similar_items(self):
-		group_item_qty = defaultdict(float)
-		group_picked_qty = defaultdict(float)
+		if self.group_similar_items==1:
+			group_item_qty = defaultdict(float)
+			group_picked_qty = defaultdict(float)
 
-		for item in self.locations:
-			group_item_qty[(item.item_code, item.warehouse)] += item.qty
-			group_picked_qty[(item.item_code, item.warehouse)] += item.picked_qty
+			for item in self.locations:
+				group_item_qty[(item.item_code, item.warehouse)] += item.qty
+				group_picked_qty[(item.item_code, item.warehouse)] += item.picked_qty
 
-		duplicate_list = []
-		for item in self.locations:
-			if (item.item_code, item.warehouse) in group_item_qty:
-				item.qty = group_item_qty[(item.item_code, item.warehouse)]
-				item.picked_qty = group_picked_qty[(item.item_code, item.warehouse)]
-				item.stock_qty = group_item_qty[(item.item_code, item.warehouse)]
-				del group_item_qty[(item.item_code, item.warehouse)]
-			else:
-				duplicate_list.append(item)
+			duplicate_list = []
+			for item in self.locations:
+				if (item.item_code, item.warehouse) in group_item_qty:
+					item.qty = group_item_qty[(item.item_code, item.warehouse)]
+					item.picked_qty = group_picked_qty[(item.item_code, item.warehouse)]
+					item.stock_qty = group_item_qty[(item.item_code, item.warehouse)]
+					del group_item_qty[(item.item_code, item.warehouse)]
+				else:
+					duplicate_list.append(item)
 
-		for item in duplicate_list:
-			self.remove(item)
+			for item in duplicate_list:
+				self.remove(item)
 
-		for idx, item in enumerate(self.locations, start=1):
-			item.idx = idx
+			for idx, item in enumerate(self.locations, start=1):
+				item.idx = idx
 
 	def update_bundle_picked_qty(self):
 		product_bundles = self._get_product_bundles()
@@ -344,7 +344,7 @@ def get_items_with_location_and_quantity(manual_picking,item_doc, item_location_
 		item_doc.qty if (docstatus == 1 and item_doc.stock_qty == 0) else item_doc.stock_qty
 	)
 
-	while flt(remaining_stock_qty) > 0 and available_locations:
+	while remaining_stock_qty > 0 and available_locations:
 		item_location = available_locations.pop(0)
 		item_location = frappe._dict(item_location)
 
