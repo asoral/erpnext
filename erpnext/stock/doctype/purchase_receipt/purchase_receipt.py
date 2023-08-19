@@ -359,7 +359,7 @@ class PurchaseReceipt(BuyingController):
 		if self._action == "save":
 			pass
 		self.po_required()
-		self.validate_items_quality_inspection()
+		# self.validate_items_quality_inspection()
 		self.validate_with_previous_doc()
 		self.validate_uom_is_integer("uom", ["qty", "received_qty"])
 		self.validate_uom_is_integer("stock_uom", "stock_qty")
