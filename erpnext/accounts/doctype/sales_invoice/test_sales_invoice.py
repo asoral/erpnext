@@ -1783,6 +1783,10 @@ class TestSalesInvoice(unittest.TestCase):
 		)
 
 	def test_outstanding_amount_after_advance_payment_entry_cancellation(self):
+		"""Test impact of advance PE submission/cancellation on SI and SO."""
+		from erpnext.selling.doctype.sales_order.test_sales_order import make_sales_order
+
+		sales_order = make_sales_order(item_code="138-CMS Shoe", qty=1, price_list_rate=500)
 		pe = frappe.get_doc(
 			{
 				"doctype": "Payment Entry",
@@ -1802,10 +1806,25 @@ class TestSalesInvoice(unittest.TestCase):
 				"paid_to": "_Test Cash - _TC",
 			}
 		)
+		pe.append(
+			"references",
+			{
+				"reference_doctype": "Sales Order",
+				"reference_name": sales_order.name,
+				"total_amount": sales_order.grand_total,
+				"outstanding_amount": sales_order.grand_total,
+				"allocated_amount": 300,
+			},
+		)
 		pe.insert()
 		pe.submit()
 
+		sales_order.reload()
+		self.assertEqual(sales_order.advance_paid, 300)
+
 		si = frappe.copy_doc(test_records[0])
+		si.items[0].sales_order = sales_order.name
+		si.items[0].so_detail = sales_order.get("items")[0].name
 		si.is_pos = 0
 		si.append(
 			"advances",
@@ -1813,6 +1832,7 @@ class TestSalesInvoice(unittest.TestCase):
 				"doctype": "Sales Invoice Advance",
 				"reference_type": "Payment Entry",
 				"reference_name": pe.name,
+				"reference_row": pe.references[0].name,
 				"advance_amount": 300,
 				"allocated_amount": 300,
 				"remarks": pe.remarks,
@@ -1821,7 +1841,13 @@ class TestSalesInvoice(unittest.TestCase):
 		si.insert()
 		si.submit()
 
-		si.load_from_db()
+		si.reload()
+		pe.reload()
+		sales_order.reload()
+
+		# Check if SO is unlinked/replaced by SI in PE & if SO advance paid is 0
+		self.assertEqual(pe.references[0].reference_name, si.name)
+		self.assertEqual(sales_order.advance_paid, 0.0)
 
 		# check outstanding after advance allocation
 		self.assertEqual(
@@ -1829,11 +1855,9 @@ class TestSalesInvoice(unittest.TestCase):
 			flt(si.rounded_total - si.total_advance, si.precision("outstanding_amount")),
 		)
 
-		# added to avoid Document has been modified exception
-		pe = frappe.get_doc("Payment Entry", pe.name)
 		pe.cancel()
+		si.reload()
 
-		si.load_from_db()
 		# check outstanding after advance cancellation
 		self.assertEqual(
 			flt(si.outstanding_amount),
@@ -3468,6 +3492,78 @@ class TestSalesInvoice(unittest.TestCase):
 
 		frappe.db.set_value(
 			"Accounts Settings", "Accounts Settings", "unlink_payment_on_cancel_of_invoice", unlink_enabled
+		)
+
+	def test_gain_loss_on_advance_cancellation(self):
+		unlink_enabled = frappe.db.get_single_value(
+			"Accounts Settings", "unlink_payment_on_cancellation_of_invoice"
+		)
+
+		frappe.db.set_single_value("Accounts Settings", "unlink_payment_on_cancellation_of_invoice", 1)
+
+		pe = frappe.get_doc(
+			{
+				"doctype": "Payment Entry",
+				"payment_type": "Receive",
+				"party_type": "Customer",
+				"party": "_Test Customer USD",
+				"company": "_Test Company",
+				"paid_from_account_currency": "USD",
+				"paid_to_account_currency": "INR",
+				"source_exchange_rate": 70,
+				"target_exchange_rate": 1,
+				"reference_no": "1",
+				"reference_date": nowdate(),
+				"received_amount": 70,
+				"paid_amount": 1,
+				"paid_from": "_Test Receivable USD - _TC",
+				"paid_to": "_Test Cash - _TC",
+			}
+		)
+		pe.insert()
+		pe.submit()
+
+		si = create_sales_invoice(
+			customer="_Test Customer USD",
+			debit_to="_Test Receivable USD - _TC",
+			currency="USD",
+			conversion_rate=75,
+			do_not_save=1,
+			rate=1,
+		)
+		si = si.save()
+
+		si.append(
+			"advances",
+			{
+				"reference_type": "Payment Entry",
+				"reference_name": pe.name,
+				"advance_amount": 1,
+				"allocated_amount": 1,
+				"ref_exchange_rate": 70,
+			},
+		)
+		si.save()
+		si.submit()
+		expected_gle = [
+			["_Test Receivable USD - _TC", 75.0, 5.0],
+			["Exchange Gain/Loss - _TC", 5.0, 0.0],
+			["Sales - _TC", 0.0, 75.0],
+		]
+		check_gl_entries(self, si.name, expected_gle, nowdate())
+
+		# cancel advance payment
+		pe.reload()
+		pe.cancel()
+
+		expected_gle_after = [
+			["_Test Receivable USD - _TC", 75.0, 0.0],
+			["Sales - _TC", 0.0, 75.0],
+		]
+		check_gl_entries(self, si.name, expected_gle_after, nowdate())
+
+		frappe.db.set_single_value(
+			"Accounts Settings", "unlink_payment_on_cancellation_of_invoice", unlink_enabled
 		)
 
 	def test_batch_expiry_for_sales_invoice_return(self):

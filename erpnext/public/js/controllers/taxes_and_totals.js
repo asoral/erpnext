@@ -119,7 +119,16 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 				frappe.model.round_floats_in(item);
 				item.net_rate = item.rate;
 				item.qty = item.qty === undefined ? (me.frm.doc.is_return ? -1 : 1) : item.qty;
-				item.net_amount = item.amount = flt(item.rate * item.qty, precision("amount", item));
+
+				if (!(me.frm.doc.is_return || me.frm.doc.is_debit_note)) {
+					item.net_amount = item.amount = flt(item.rate * item.qty, precision("amount", item));
+				}
+				else {
+					// allow for '0' qty on Credit/Debit notes
+					let qty = item.qty || (me.frm.doc.is_debit_note ? 1 : -1);
+					item.net_amount = item.amount = flt(item.rate * qty, precision("amount", item));
+				}
+
 				item.item_tax_amount = 0.0;
 				item.total_weight = flt(item.weight_per_unit * item.stock_qty);
 
@@ -755,11 +764,13 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 				precision("base_grand_total")
 			);
 		}
-		this.frm.doc.payments.find(pay => {
-			if (pay.default) {
-				pay.amount = total_amount_to_pay;
-			}
-		});
+		if(!this.frm.doc.is_return){
+			this.frm.doc.payments.find(payment => {
+				if (payment.default) {
+					payment.amount = total_amount_to_pay;
+				}
+			});
+		}
 		this.frm.refresh_fields();
 	},
 
