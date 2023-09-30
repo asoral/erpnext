@@ -750,7 +750,7 @@ class DeliveryPlanning(Document):
 
 	def before_cancel(self):
 		dpi = frappe.get_all(doctype='Delivery Planning Item',
-							  filters={"related_delivey_planning" : self.name})
+							  filters={"related_delivey_planning" : self.name,"docstatus":1})
 		if(dpi):
 			for d in dpi:	
 				doc = frappe.get_doc('Delivery Planning Item', d.name)	
@@ -759,19 +759,6 @@ class DeliveryPlanning(Document):
 			return 1 	
   
 	def before_cancel(self):
-		dpi = frappe.get_all(doctype='Delivery Planning Item',
-							  filters={"related_delivey_planning" : self.name},fields=['*'])
-
-		if dpi:
-			for i in dpi:
-
-				if i.qty_to_deliver:
-					delivered_qty = frappe.db.get_value('Sales Order Item', i.item_dname,'delivered_qty')
-					delivered_qty -= i.qty_to_deliver
-					frappe.db.set_value('Sales Order Item', i.item_dname, {
-									'delivered_qty': delivered_qty
-									},  update_modified=False)	
-
 		tdpi = frappe.get_all(doctype='Transporter Wise Planning Item',
 							  filters={"related_delivery_planning" : self.name})
 
