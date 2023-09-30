@@ -158,7 +158,7 @@ class SalesOrder(SellingController):
 
 	def validate(self):
 		super(SalesOrder, self).validate()
-		self.get_commision()
+		# self.get_commision()
 		self.validate_delivery_date()
 		self.validate_proj_cust()
 		self.validate_po()
