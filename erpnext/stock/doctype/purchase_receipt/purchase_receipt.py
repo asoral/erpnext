@@ -34,7 +34,7 @@ class PurchaseReceipt(BuyingController):
 				for o in k:
 					for j in self.items:
 						if i.get("item_code") == j.item_code and o.get("main_item_code") == j.item_code:
-							j.valuation_rate=(o.get("sum(amount)")+flt(i.get("sum(amount)")))/flt(i.get("sum(qty)"))
+							j.valuation_rate=o.get("sum(amount)")/flt(i.get("sum(qty)"))
 
 	@frappe.whitelist()
 	def get_items(self):
