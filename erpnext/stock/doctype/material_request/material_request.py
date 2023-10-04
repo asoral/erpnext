@@ -154,11 +154,13 @@ class MaterialRequest(BuyingController):
 						d['projected_qty'] = bin_data.get('projected_qty')
 						d['actual_qty'] = bin_data.get('actual_qty')
 						d['valuation_rate'] = bin_data.get('valuation_rate')
-					for r in res.get('qty'):
-						qty_sum +=r
+					for r in self.work_order_detail:
+						if res.get('item_code')==r.item_code:
+							qty_sum +=r.qty
 					staging_warhouse = frappe.get_value("Staging Details",{'company':self.company},'staging_material_request_warehouse')
 					projected_qty = frappe.get_value('Bin', {'warehouse':staging_warhouse,'item_code':res.get('item_code')},'actual_qty')
 					if(item_detail.get('staging_multiple') > 0):
+						
 						qty_sum=qty_sum-flt(projected_qty)
 						round_up_qty = (math.ceil(qty_sum/item_detail.get('staging_multiple')))*item_detail.get('staging_multiple')
 						d['qty'] = round_up_qty
@@ -885,6 +887,7 @@ def create_pick_list(source_name, target_doc=None):
 def make_material_request(source_name, target_doc=None, ignore_permissions=False):
 	bom_list = []
 	def update_item(source, target, source_parent):
+		# actual_qty=0
 		itm = source.as_dict()
 		parent = frappe.get_value("Work Order Item",{"name":itm.get('name')},'parent')
 		company = frappe.get_doc("Work Order",{'name': parent}).get('company')
@@ -897,41 +900,38 @@ def make_material_request(source_name, target_doc=None, ignore_permissions=False
 			staging_warhouse = frappe.get_value("Staging Details",{'company':company},'staging_material_request_warehouse')
 			if staging_warhouse:
 				projected_qty = frappe.get_value('Bin', {'warehouse':staging_warhouse,'item_code':itm.item_code},'actual_qty')
-				if projected_qty:
-					print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.")
-					print(projected_qty,qty)
-					item = frappe.get_doc("Item", itm.get('item_code'))
-					if projected_qty < 0:
-						target.qty = 0
-					elif item.allowed_in_wo_staging == "Yes" and item.staging_multiple > 0 \
-						and projected_qty < qty:
-						result_qty = math.ceil((qty))
-						if result_qty > 0:
-							#qty = result_qty
-							target.qty = result_qty
-							target.required_qty=result_qty
-						else:
-							target.qty = 0
-					elif item.allowed_in_wo_staging == "Yes" and item.staging_multiple > 0 \
-						and projected_qty >=  qty :
-						qty = 0
-						target.qty = 0
-					elif item.allowed_in_wo_staging == "Yes" and not item.staging_multiple > 0 \
-						and projected_qty < qty :
-						result_qty = (qty)
-						qty = result_qty
+				# if projected_qty:
+				item = frappe.get_doc("Item", itm.get('item_code'))
+				# if projected_qty < 0:
+				# 	target.qty = 0
+				if item.allowed_in_wo_staging == "Yes" and item.staging_multiple > 0:
+					result_qty = math.ceil((qty))
+					if result_qty > 0:
+						#qty = result_qty
 						target.qty = result_qty
-						target.required_qty=qty
-					elif item.allowed_in_wo_staging == "Yes" and not item.staging_multiple > 0 \
-						and projected_qty > qty :
-						qty = 0
+						target.required_qty=result_qty
+					else:
 						target.qty = 0
+					# elif item.allowed_in_wo_staging == "Yes" and item.staging_multiple > 0 \
+					# 	and projected_qty >=  qty :
+					# 	qty = 0
+					# 	target.qty = 0
+					# elif item.allowed_in_wo_staging == "Yes" and not item.staging_multiple > 0 \
+					# 	and projected_qty < qty :
+					# 	result_qty = (qty)
+					# 	qty = result_qty
+					# 	target.qty = result_qty
+					# 	target.required_qty=qty
+					# elif item.allowed_in_wo_staging == "Yes" and not item.staging_multiple > 0 \
+					# 	and projected_qty > qty :
+					# 	qty = 0
+					# 	target.qty = 0
 
 		else:
 			if qty < 0:
 				qty = 0
 			target.qty = qty
-			target.required_qty=result_qty
+			target.required_qty=qty
 		uom = frappe.get_value("Item",{'item_code':itm.get('item_code')},'stock_uom')
 		target.uom = uom
 
