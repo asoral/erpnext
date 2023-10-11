@@ -537,6 +537,10 @@ def update_reference_in_journal_entry(d, journal_entry, do_not_save=False):
 	"""
 	jv_detail = journal_entry.get("accounts", {"name": d["voucher_detail_no"]})[0]
 
+	# Update Advance Paid in SO/PO since they might be getting unlinked
+	if jv_detail.get("reference_type") in ("Sales Order", "Purchase Order"):
+		frappe.get_doc(jv_detail.reference_type, jv_detail.reference_name).set_total_advance_paid()
+
 	if flt(d["unadjusted_amount"]) - flt(d["allocated_amount"]) != 0:
 		# adjust the unreconciled balance
 		amount_in_account_currency = flt(d["unadjusted_amount"]) - flt(d["allocated_amount"])
@@ -596,6 +600,13 @@ def update_reference_in_payment_entry(d, payment_entry, do_not_save=False):
 
 	if d.voucher_detail_no:
 		existing_row = payment_entry.get("references", {"name": d["voucher_detail_no"]})[0]
+
+		# Update Advance Paid in SO/PO since they are getting unlinked
+		if existing_row.get("reference_doctype") in ("Sales Order", "Purchase Order"):
+			frappe.get_doc(
+				existing_row.reference_doctype, existing_row.reference_name
+			).set_total_advance_paid()
+
 		original_row = existing_row.as_dict().copy()
 		existing_row.update(reference_details)
 
@@ -810,7 +821,7 @@ def get_held_invoices(party_type, party):
 
 	if party_type == "Supplier":
 		held_invoices = frappe.db.sql(
-			"select name from `tabPurchase Invoice` where release_date IS NOT NULL and release_date > CURDATE()",
+			"select name from `tabPurchase Invoice` where on_hold = 1 and release_date IS NOT NULL and release_date > CURDATE()",
 			as_dict=1,
 		)
 		held_invoices = set(d["name"] for d in held_invoices)

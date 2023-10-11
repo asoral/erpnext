@@ -173,7 +173,9 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 			this.frm.set_query("expense_account", "items", function(doc) {
 				return {
 					filters: {
-						"company": doc.company
+						"company": doc.company,
+						"report_type": "Profit and Loss",
+						"is_group": 0
 					}
 				};
 			});
@@ -1066,6 +1068,16 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 		this.frm.set_df_property("conversion_rate", "read_only", erpnext.stale_rate_allowed() ? 0 : 1);
 	},
 
+	apply_discount_on_item: function(doc, cdt, cdn, field) {
+		var item = frappe.get_doc(cdt, cdn);
+		if(!item.price_list_rate) {
+			item[field] = 0.0;
+		} else {
+			this.price_list_rate(doc, cdt, cdn);
+		}
+		this.set_gross_profit(item);
+	},
+
 	shipping_rule: function() {
 		var me = this;
 		if(this.frm.doc.shipping_rule) {
@@ -1718,6 +1730,9 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 						() => {
 							if(args.items.length) {
 								me._set_values_for_item_list(r.message.children);
+								$.each(r.message.children || [], function(i, d) {
+									me.apply_discount_on_item(d, d.doctype, d.name, 'discount_percentage');
+								});
 							}
 						},
 						() => { me.in_apply_price_list = false; }
