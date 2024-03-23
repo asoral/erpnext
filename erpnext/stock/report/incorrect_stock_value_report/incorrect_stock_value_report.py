@@ -65,7 +65,7 @@ def get_data(report_filters):
 
 	closing_date = add_days(from_date, -1)
 	for key, stock_data in iteritems(voucher_wise_dict):
-		prev_stock_value = get_stock_value_on(posting_date = closing_date, item_code=key[0], warehouse =key[1])
+		prev_stock_value = get_stock_value_on(posting_date = closing_date, item_code=key[0], warehouses =key[1])
 		for data in stock_data:
 			expected_stock_value = prev_stock_value + data.stock_value_difference
 			if abs(data.stock_value - expected_stock_value) > 0.1:

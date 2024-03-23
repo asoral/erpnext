@@ -6,6 +6,8 @@ import frappe, erpnext
 from frappe import _
 import json
 from frappe.utils import flt, cstr, nowdate, nowtime, get_link_to_form
+from frappe.query_builder.functions import CombineDatetime, IfNull, Sum
+from erpnext.stock.doctype.warehouse.warehouse import get_child_warehouses
 
 from six import string_types
 
@@ -36,43 +38,30 @@ def get_stock_value_from_bin(warehouse=None, item_code=None):
 
 	return stock_value
 
-def get_stock_value_on(warehouse=None, posting_date=None, item_code=None):
+def get_stock_value_on(warehouses: list | str = None, posting_date: str = None, item_code: str = None) -> float:
 	if not posting_date: posting_date = nowdate()
+	sle = frappe.qb.DocType("Stock Ledger Entry")
+	query = (
+		frappe.qb.from_(sle)
+		.select(IfNull(Sum(sle.stock_value_difference), 0))
+		.where((sle.posting_date <= posting_date) & (sle.is_cancelled == 0))
+		.orderby(CombineDatetime(sle.posting_date, sle.posting_time), order=frappe.qb.desc)
+		.orderby(sle.creation, order=frappe.qb.desc)
+	)
+	if warehouses:
+		if isinstance(warehouses, str):
+			warehouses = [warehouses]
 
-	values, condition = [posting_date], ""
-
-	if warehouse:
-
-		lft, rgt, is_group = frappe.db.get_value("Warehouse", warehouse, ["lft", "rgt", "is_group"])
-
-		if is_group:
-			values.extend([lft, rgt])
-			condition += "and exists (\
-				select name from `tabWarehouse` wh where wh.name = sle.warehouse\
-				and wh.lft >= %s and wh.rgt <= %s)"
-
-		else:
-			values.append(warehouse)
-			condition += " AND warehouse = %s"
+		warehouses = set(warehouses)
+		for wh in list(warehouses):
+			if frappe.db.get_value("Warehouse", wh, "is_group"):
+				warehouses.update(get_child_warehouses(wh))
+		query = query.where(sle.warehouse.isin(warehouses))
 
 	if item_code:
-		values.append(item_code)
-		condition += " AND item_code = %s"
+		query = query.where(sle.item_code == item_code)
 
-	stock_ledger_entries = frappe.db.sql("""
-		SELECT item_code, stock_value, name, warehouse
-		FROM `tabStock Ledger Entry` sle
-		WHERE posting_date <= %s {0}
-			and is_cancelled = 0
-		ORDER BY timestamp(posting_date, posting_time) DESC, creation DESC
-	""".format(condition), values, as_dict=1)
-
-	sle_map = {}
-	for sle in stock_ledger_entries:
-		if not (sle.item_code, sle.warehouse) in sle_map:
-			sle_map[(sle.item_code, sle.warehouse)] = flt(sle.stock_value)
-
-	return sum(sle_map.values())
+	return query.run(as_list=True)[0][0]
 
 @frappe.whitelist()
 def get_stock_balance(item_code, warehouse, posting_date=None, posting_time=None,
