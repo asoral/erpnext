@@ -1,0 +1,32 @@
+{
+ "attach_print": 1,
+ "attachment": 0,
+ "channel": "System Notification",
+ "condition": "doc.workflow_state==\"Pending\"",
+ "creation": "2021-03-23 23:32:04.707301",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Purchase Order",
+ "enabled": 0,
+ "event": "Submit",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "PO {{ doc.name }} required approval\n\n*Details*\n\n\u2022 Customer: {{ doc.supplier_name }}\n\u2022 Company: {{ doc.company }}\n\u2022 Untaxed Total: {{ doc.total }}\n\u2022 Grand Total: {{ doc.grand_total }}",
+ "modified": "2024-02-01 23:59:21.097419",
+ "modified_by": "Administrator",
+ "module": "Buying",
+ "name": "Pending PO Alert",
+ "owner": "Administrator",
+ "print_format": "Purchase Order Format",
+ "recipients": [
+  {
+   "receiver_by_document_field": "",
+   "receiver_by_role": "Purchase Manager"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender": "",
+ "subject": "Purchase order Approval - {{ doc.name }}"
+}

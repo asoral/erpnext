@@ -1,0 +1,77 @@
+{
+ "add_total_row": 1,
+ "columns": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Data",
+   "label": "Customer Code",
+   "width": 0
+  }
+ ],
+ "creation": "2023-09-06 15:23:40.630286",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "json": "{}",
+ "letter_head": "Arofine Polymers Pvt Ltd - Chakan",
+ "modified": "2023-09-06 15:29:34.860910",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Test",
+ "owner": "support@dexciss.com",
+ "prepared_report": 0,
+ "ref_doctype": "Complaint Form",
+ "report_name": "Test",
+ "report_type": "Report Builder",
+ "roles": [
+  {
+   "role": "Sales User"
+  },
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Sales Manager"
+  },
+  {
+   "role": "Quality Manager"
+  },
+  {
+   "role": "SALES EXECUTIVES"
+  },
+  {
+   "role": "SALES EXECUTIVES"
+  },
+  {
+   "role": "Quality Manager"
+  },
+  {
+   "role": "SALES EXECUTIVES"
+  },
+  {
+   "role": "Quality Manager"
+  },
+  {
+   "role": "SALES EXECUTIVES"
+  },
+  {
+   "role": "Quality Manager"
+  },
+  {
+   "role": "Quality Manager"
+  },
+  {
+   "role": "Quality Manager"
+  },
+  {
+   "role": "Quality Manager"
+  },
+  {
+   "role": "BUSINESS DEVELOPMENT MANAGER"
+  }
+ ]
+}

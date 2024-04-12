@@ -1,0 +1,30 @@
+{
+ "attach_print": 0,
+ "attachment": 0,
+ "channel": "System Notification",
+ "condition": "",
+ "creation": "2021-03-22 14:59:23.536158",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Purchase Order",
+ "enabled": 0,
+ "event": "Save",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Add your message here",
+ "modified": "2024-02-01 23:59:21.180372",
+ "modified_by": "Administrator",
+ "module": "Buying",
+ "name": "Delivery Note",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_document_field": "owner"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender": "",
+ "subject": "{{ doc.name }} Delivery Note"
+}

@@ -1030,7 +1030,7 @@ class SalesInvoice(SellingController):
 		self.make_item_gl_entries(gl_entries)
 		self.make_discount_gl_entries(gl_entries)
 
-		# merge gl entries before adding pos entries
+	# merge gl entries before adding pos entries
 		gl_entries = merge_similar_entries(gl_entries)
 
 		self.make_loyalty_point_redemption_gle(gl_entries)

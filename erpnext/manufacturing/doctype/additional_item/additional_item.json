@@ -1,10 +1,13 @@
 {
  "actions": [],
+ "autoname": "naming_series:",
  "creation": "2021-04-29 18:00:35.259235",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "naming_series",
+  "company",
   "work_order",
   "job_card",
   "column_break_3",
@@ -62,12 +65,28 @@
    "fieldtype": "Table",
    "label": "Items",
    "options": "Additional Items Detail"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Series",
+   "options": "AI-.YYYY.-.####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-04-29 19:52:09.646546",
+ "modified": "2024-02-09 14:38:42.732863",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Additional Item",
