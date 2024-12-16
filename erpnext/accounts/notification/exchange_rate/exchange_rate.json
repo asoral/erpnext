@@ -1,0 +1,35 @@
+{
+ "attach_print": 1,
+ "channel": "Email",
+ "creation": "2021-09-04 11:27:20.392950",
+ "date_changed": "creation",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Currency Exchange",
+ "enabled": 0,
+ "event": "Save",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Set Currency exchange",
+ "modified": "2024-07-10 10:40:50.886744",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Exchange Rate",
+ "owner": "Administrator",
+ "print_format": "",
+ "recipients": [
+  {
+   "receiver_by_role": "Administrator"
+  },
+  {
+   "receiver_by_role": "Accounts Manager"
+  }
+ ],
+ "send_system_notification": 1,
+ "send_to_all_assignees": 0,
+ "sender": "noreply@sciplindia.com",
+ "sender_email": "noreply@sciplindia.com",
+ "set_property_after_alert": "",
+ "subject": "currency_exchange"
+}

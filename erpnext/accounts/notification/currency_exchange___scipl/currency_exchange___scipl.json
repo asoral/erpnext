@@ -1,0 +1,35 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "creation": "2021-09-06 21:33:11.226263",
+ "date_changed": "creation",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Currency Exchange",
+ "enabled": 1,
+ "event": "Save",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Dear Sir/Madam \n\n                Please Set the Currency Exchange Rate\n                \n    Thanks",
+ "modified": "2024-07-10 10:39:53.953482",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Currency Exchange - SCIPL",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "Administrator"
+  },
+  {
+   "cc": "bharat@subhashchemicals.com\nraghav.jhamvar2800@gmail.com\naccounts@subhashchemicals.com\nsales@subhashchemicals.com\nsamar@subhashchemicals.com",
+   "receiver_by_role": "Auditor"
+  }
+ ],
+ "send_system_notification": 1,
+ "send_to_all_assignees": 0,
+ "sender": "noreply@subhashchemicals.com",
+ "sender_email": "noreply@subhashchemicals.com",
+ "set_property_after_alert": "",
+ "subject": "Currency Exchange {{doc.name}}"
+}
