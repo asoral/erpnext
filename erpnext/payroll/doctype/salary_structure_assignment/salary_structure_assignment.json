@@ -97,6 +97,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "base",
    "fieldtype": "Currency",
    "label": "Base",
@@ -169,7 +170,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-12-26 12:47:42.521891",
+ "modified": "2024-06-29 14:58:34.853344",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Salary Structure Assignment",

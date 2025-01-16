@@ -1,0 +1,22 @@
+{
+ "creation": "2024-04-13 12:54:51.312282",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{\"tree_type\":\"Customer\",\"doc_type\":\"Sales Invoice\",\"value_quantity\":\"Quantity\",\"company\":\"Arofine Polymers Private Limited\",\"range\":\"Monthly\",\"sales_person\":\"Gopala M\",\"from_date\":\"2024-04-01\",\"to_date\":\"2025-03-31\"}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "label": "Sales Analytics Sales Partner(Sales Person)-Gopala",
+ "modified": "2024-04-15 15:47:46.464804",
+ "modified_by": "kamlesh@arofines.in",
+ "module": "Selling",
+ "name": "Sales Analytics Sales Partner(Sales Person)-Gopala",
+ "owner": "kamlesh@arofines.in",
+ "report_field": "total",
+ "report_function": "Sum",
+ "report_name": "Sales Analytics Sales Partner(Sales Person)",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "type": "Report"
+}

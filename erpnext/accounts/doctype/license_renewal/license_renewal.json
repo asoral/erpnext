@@ -16,6 +16,7 @@
  ],
  "fields": [
   {
+   "allow_on_submit": 1,
    "fieldname": "name1",
    "fieldtype": "Data",
    "label": "Name"
@@ -23,9 +24,11 @@
   {
    "fieldname": "issue_date",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": "Issue Date"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "renewal_date",
    "fieldtype": "Date",
    "label": "Renewal Date"
@@ -35,10 +38,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "notification",
    "fieldtype": "Select",
    "label": "Notification",
-   "options": "\n7 Days\n15 Days\n30 Days"
+   "options": "\n7 Days\n15 Days\n30 Days\n90 Days"
   },
   {
    "fieldname": "amended_from",
@@ -53,7 +57,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-01 17:35:33.717781",
+ "modified": "2024-06-08 16:17:11.297523",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "License Renewal",

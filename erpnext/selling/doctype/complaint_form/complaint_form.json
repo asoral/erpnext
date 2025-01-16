@@ -53,7 +53,8 @@
   "section_break_43",
   "lab",
   "section_break_45",
-  "comment"
+  "comment",
+  "complaint_resolution_date"
  ],
  "fields": [
   {
@@ -68,8 +69,10 @@
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Naming Series",
-   "options": "CF:.####."
+   "options": "CF:.####.",
+   "print_hide": 1
   },
   {
    "fieldname": "customer",
@@ -314,12 +317,18 @@
    "fieldtype": "Link",
    "label": "Batch No",
    "options": "Batch"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "complaint_resolution_date",
+   "fieldtype": "Date",
+   "label": "Complaint Resolution Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-05-26 18:00:56.347854",
+ "modified": "2024-07-29 13:27:09.532150",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Complaint Form",

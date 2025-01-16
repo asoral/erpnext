@@ -16,37 +16,42 @@
    "columns": 2,
    "fieldname": "data_1",
    "fieldtype": "Data",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Data 1"
   },
   {
    "columns": 2,
    "fieldname": "data_2",
    "fieldtype": "Data",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Data 2"
   },
   {
    "columns": 2,
    "fieldname": "data_3",
    "fieldtype": "Data",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Data 3"
   },
   {
    "columns": 2,
    "fieldname": "data_4",
    "fieldtype": "Data",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Data 4"
   },
   {
    "columns": 2,
    "fieldname": "data_5",
    "fieldtype": "Data",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Data 5"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-04-14 15:12:52.636046",
+ "modified": "2023-09-06 17:51:09.614853",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Lab",

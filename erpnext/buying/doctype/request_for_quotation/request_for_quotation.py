@@ -126,10 +126,11 @@ class RequestforQuotation(BuyingController):
 		"""Create a new user for the supplier if not set in contact"""
 		update_password_link, contact = "", ""
 
+		user = None
 		if frappe.db.exists("User", rfq_supplier.email_id):
 			user = frappe.get_doc("User", rfq_supplier.email_id)
-		else:
-			user, update_password_link = self.create_user(rfq_supplier, link)
+		# else:
+		# 	user, update_password_link = self.create_user(rfq_supplier, link)
 
 		contact = self.link_supplier_contact(rfq_supplier, user)
 

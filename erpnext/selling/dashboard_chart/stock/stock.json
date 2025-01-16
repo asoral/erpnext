@@ -1,0 +1,37 @@
+{
+ "based_on": "",
+ "chart_name": "Stock",
+ "chart_type": "Report",
+ "creation": "2023-11-17 14:22:44.896880",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "document_type": "",
+ "dynamic_filters_json": "[]",
+ "filters_json": "[]",
+ "group_by_type": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "modified": "2023-11-17 14:27:36.931652",
+ "modified_by": "chaitanya@arofines.in",
+ "module": "Selling",
+ "name": "Stock",
+ "number_of_groups": 0,
+ "owner": "chaitanya@arofines.in",
+ "parent_document_type": "",
+ "report_name": "Stock Analytics",
+ "roles": [],
+ "source": "",
+ "time_interval": "Yearly",
+ "timeseries": 0,
+ "timespan": "Last Year",
+ "type": "Bar",
+ "use_report_chart": 0,
+ "value_based_on": "",
+ "x_field": "item_name",
+ "y_axis": [
+  {
+   "y_field": "nov_2023"
+  }
+ ]
+}

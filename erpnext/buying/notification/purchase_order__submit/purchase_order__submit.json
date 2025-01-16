@@ -1,0 +1,32 @@
+{
+ "attach_print": 1,
+ "attachment": 0,
+ "channel": "System Notification",
+ "condition": "",
+ "creation": "2021-03-22 14:54:40.792603",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Purchase Order",
+ "enabled": 0,
+ "event": "Submit",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Add your message here",
+ "modified": "2024-02-01 23:59:21.157087",
+ "modified_by": "Administrator",
+ "module": "Buying",
+ "name": "Purchase order  submit",
+ "owner": "Administrator",
+ "print_format": "Purchase Order Format",
+ "recipients": [
+  {
+   "receiver_by_document_field": "",
+   "receiver_by_role": "Purchase Manager"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender": "",
+ "subject": "Purchase order Confirmed - {{ doc.name }}"
+}

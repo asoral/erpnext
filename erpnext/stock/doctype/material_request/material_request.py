@@ -191,9 +191,9 @@ class MaterialRequest(BuyingController):
 						"production_item_name" : item.get('production_item_name'),
 						"projected_qty" : item.get('projected_qty'),
 						"actual_qty" : item.get('actual_qty'),
-						"rate" : item.get('valuation_rate'),
+						# "rate" : item.get('valuation_rate'),
 						"min_order_qty" : item.get('min_order_qty'),
-						"amount" : float(item.get('valuation_rate')) * float(item.get('qty')),
+						# "amount" : float(item.get('valuation_rate')) * float(item.get('qty')),
 					})
 
 	def on_submit(self):
