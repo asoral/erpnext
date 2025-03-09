@@ -216,6 +216,7 @@
    "reqd": 1
   },
   {
+   "allow_on_submit": 1,
    "default": "0",
    "depends_on": "eval:doc.docstatus==1 && doc.skip_transfer==0",
    "fieldname": "material_transferred_for_manufacturing",
@@ -745,7 +746,7 @@
  "image_field": "image",
  "is_submittable": 1,
  "links": [],
- "modified": "2022-04-20 14:42:58.872653",
+ "modified": "2025-01-13 17:39:24.229020",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Work Order",

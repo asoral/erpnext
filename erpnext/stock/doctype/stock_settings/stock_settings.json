@@ -107,7 +107,7 @@
    "fieldname": "action_if_quality_inspection_is_not_submitted",
    "fieldtype": "Select",
    "label": "Action If Quality Inspection Is Not Submitted",
-   "options": "Stop\nWarn"
+   "options": "\nStop\nWarn"
   },
   {
    "default": "1",
@@ -286,7 +286,7 @@
    "fieldname": "action_if_quality_inspection_is_rejected",
    "fieldtype": "Select",
    "label": "Action If Quality Inspection Is Rejected",
-   "options": "Stop\nWarn"
+   "options": "\nStop\nWarn"
   },
   {
    "description": "The percentage you are allowed to transfer more against the quantity ordered. For example, if you have ordered 100 units, and your Allowance is 10%, then you are allowed transfer 110 units.",
@@ -318,7 +318,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-12-13 12:31:40.156098",
+ "modified": "2025-01-31 17:00:39.588587",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Settings",

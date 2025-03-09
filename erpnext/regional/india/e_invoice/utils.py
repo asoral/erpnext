@@ -946,6 +946,7 @@ class GSPConnector:
 		res = {}
 		try:
 			res = self.make_request("post", self.authenticate_url, headers)
+			print("cgcycgy res *******************",res)
 			self.e_invoice_settings.auth_token = "{} {}".format(
 				res.get("token_type"), res.get("access_token")
 			)
